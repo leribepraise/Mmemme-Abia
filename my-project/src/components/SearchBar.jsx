@@ -1,9 +1,43 @@
 import React from "react";
+import { IoSearch } from "react-icons/io5";
 
 const SearchBar = () => {
   return (
     <>
-      <div className="w-full h-10 bg-[#FFFEFE] shadow-[0_0_20px_rgba(0,0,0,0.12)]"></div>
+      <div className="flex items-center gap-15 pl-5 mt-10 w-full rounded-[10px] h-20 bg-[#FFFEFE] shadow-[0_0_20px_rgba(0,0,0,0.15)]">
+        <div className="flex items-center gap-2">
+          <span className="text-[20px]">
+            <IoSearch />
+          </span>
+          <input
+            type="text"
+            className="w-150 bg-[#FFFEFE] text-[18px] font-normal h-8 rounded-md placeholder:text-[#3D3E3E]"
+            placeholder="Search events, concerts, venues, organizers..."
+          />
+        </div>
+        <span className="flex gap-5">
+          |
+          <div className="flex gap-2 items-center">
+            <img src="/location.png" className="h-5 w-auto" />
+            <select className="text-[18px] text-[#3D3E3E]">
+              <option value="All location">All location</option>
+            </select>
+          </div>
+        </span>
+        <span className="flex gap-5">
+          |
+          <div className="flex gap-2 items-center">
+            <img src="/Vector (1).png" alt="" className="h-5 w-auto" />
+            <select className="text-[18px] text-[#3D3E3E]">
+              <option value="All location">All Date</option>
+            </select>
+          </div>
+          |
+        </span>
+        <button className="w-auto h-8 px-3 py-1 rounded-md text-[#FFFEFE] bg-[#3C6E16]">
+          Search
+        </button>
+      </div>
     </>
   );
 };

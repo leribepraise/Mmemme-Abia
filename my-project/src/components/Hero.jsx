@@ -4,11 +4,12 @@ import { IoArrowBack, IoArrowForward, IoPlay } from "react-icons/io5";
 const Hero = () => {
   return (
     <>
-      <section className="mx-10 pt-10 flex justify-center">
+      <section className="mx-8 pt-10 flex justify-center">
         <div className="max-w-1/2 space-y-3 z-10">
           <h1 className="font-semibold text-[48px] leading-tight">
             Discover. Experience. Celebrate
-            <span className="text-[#3f783d]">Abia</span>.
+            <span className="text-[#3f783d]"> Abia</span>
+            <span className="text-[#F46F1A]">.</span>
           </h1>
           <p className="font-normal text-[18px] leading-tight">
             Your go-to platform for discovering amazing events happening around
@@ -32,7 +33,7 @@ const Hero = () => {
             </button> */}
           </div>
         </div>
-        <div className=" relative rounded-xl overflow-hidden h-90 w-3xl z-10">
+        <div className="relative rounded-xl overflow-hidden h-80 w-3xl z-10">
           <img
             src="./davido.png"
             alt=""
@@ -63,11 +64,17 @@ const Hero = () => {
             <p className="text-[12px] text-white font-semibold px-1">
               Umueze Sports Arena, Umuahia
             </p>
+            <div className="flex items-center gap-2">
+              <img src="/group.png" alt="" />
+              <p className="text-[#ffffff] font-medium text-[12px]">
+                15.7k + Attending
+              </p>
+            </div>
             <div>
               {/* <img src="/people.png" alt="" className="w-auto h-30"/> */}
             </div>
-            <p className="inline-block bg-[#F46F1A] text-[#fff] px-[20px] py-[10px] rounded-md w-fit text-[14px] font-semibold">
-              Featured Event
+            <p className="inline-block bg-[#F46F1A] text-[#fff] px-6 py-2 rounded-md w-fit text-[14px] font-semibold">
+              Get Ticket
             </p>
           </div>
         </div>
@@ -80,12 +87,20 @@ const Hero = () => {
             <img src="/Vector 2.png" alt="" className="h-4 w-auto" />
           </div>
 
-          <div className="absolute right-1 top-100 w-fit h-fit rounded-full">
+          <div className="absolute right-210 top-60 w-fit h-fit rounded-full">
+            <img src="/Vector 2.png" alt="" className="h-4 w-auto" />
+          </div>
+
+          <div className="absolute right-1 top-95 w-fit h-fit rounded-full">
             <img src="/Ellipse 9.png" alt="" />
           </div>
 
           <div className="absolute right-306 top-50 w-fit h-fit rounded-full">
             <img src="/Ellipse 7 (1).png" alt="" />
+          </div>
+
+          <div className="absolute right-306 top-90 w-fit h-fit rounded-full">
+            <img src="/Line 4 (1).png" alt="" />
           </div>
         </div>
       </section>

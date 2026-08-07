@@ -5,7 +5,7 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 const Header = () => {
   return (
     <>
-      <div className="mx-10 pt-3">
+      <div className="mx-5 pt-3">
         <nav className="flex justify-between items-center gap-5 bg-white shadow-md p-5 rounded-lg">
           <img src="/logo.png" alt="" className="w-auto h-10" />
           <ul className="list-none flex gap-5 font-normal text-lg">
