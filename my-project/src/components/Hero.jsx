@@ -16,13 +16,13 @@ const Hero = () => {
             Abia State and beyond.
           </p>
           <div className="flex gap-3">
-            <a className="bg-[#F46F1A] text-white inline-flex justify-center items-center py-[15px] px-[25px] rounded-md gap-5 pl-4">
+            <a className="bg-[#F46F1A] text-white inline-flex justify-center items-center py-[15px] px-[25px] rounded-md gap-5 pl-4 font-bold">
               <span>Explore Events</span>
               <span>
                 <IoArrowForward />
               </span>
             </a>
-            <a className="border-[#3C6E16] border-2 text-[#3C6E16] inline-flex justify-center items-center py-[15px] px-[25px] rounded-md gap-5 pl-4">
+            <a className="border-[#3C6E16] border-2 text-[#3C6E16] inline-flex justify-center items-center py-[15px] px-[25px] rounded-md gap-5 pl-4 font-bold">
               <span>How it Works</span>
               <span>
                 <IoPlay />
@@ -42,7 +42,7 @@ const Hero = () => {
           <div className="absolute top-4 left-4 flex flex-col gap-2">
             <div className="flex justify-between items-center gap-80">
               <div>
-                <p className="inline-block bg-[#F46F1A] text-[#fff] px-[20px] py-[10px] rounded-full w-fit text-[12px]">
+                <p className="inline-block bg-[#F46F1A] text-[#ffffff] px-[20px] py-[10px] rounded-full w-fit text-[12px]">
                   Featured Event
                 </p>
               </div>

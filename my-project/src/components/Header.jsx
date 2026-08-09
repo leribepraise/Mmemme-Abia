@@ -26,7 +26,7 @@ const Header = () => {
             <button className="border-2 border-[#3f783d] text-[#3f783d] py-1 px-4 rounded-md font-medium text-lg">
               Login
             </button>
-            <button className="bg-[#3f783d] text-[#fff] py-1 px-4 rounded-md font-medium text-lg">
+            <button className="bg-[#3f783d] text-[#ffffff] py-1 px-4 rounded-md font-medium text-lg">
               Sign up
             </button>
           </div>
