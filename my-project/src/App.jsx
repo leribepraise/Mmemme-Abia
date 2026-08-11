@@ -2,6 +2,7 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Layout from "@/components/layout";
+import EventDetails from "./pages/EventDetails";
 
 const App = () => {
   const navList = [
@@ -10,6 +11,14 @@ const App = () => {
       element: (
         <div className="mx-5">
           <Home />
+        </div>
+      ),
+    },
+    {
+      path: "/event",
+      element: (
+        <div className="mx-5">
+          <EventDetails />
         </div>
       ),
     },
