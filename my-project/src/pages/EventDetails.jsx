@@ -29,31 +29,26 @@ export default function EventDetails() {
   });
 
   // Main banner image state
-  const [selectedImage, setSelectedImage] = useState(
-    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1000&auto=format&fit=crop"
-  );
+  const [selectedImage, setSelectedImage] = useState("/event.jpg");
 
   const galleryImages = [
-    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=1000&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=1000&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?q=80&w=1000&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=1000&auto=format&fit=crop",
+    "/event.jpg",
+    "/event2.jpg",
+    "/event3.jpg",
+    "/event4.jpg",
   ];
 
   const updateQuantity = (type, action) => {
     setTickets((prev) => ({
       ...prev,
       [type]:
-        action === "increase"
-          ? prev[type] + 1
-          : Math.max(0, prev[type] - 1),
+        action === "increase" ? prev[type] + 1 : Math.max(0, prev[type] - 1),
     }));
   };
 
   return (
     <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8 font-sans text-slate-800">
       <div className="max-w-7xl mx-auto space-y-6">
-        
         {/* BREADCRUMB */}
         <div className="text-sm text-slate-500 flex items-center space-x-1">
           <span className="hover:underline cursor-pointer">Events</span>
@@ -65,11 +60,9 @@ export default function EventDetails() {
 
         {/* TOP MAIN SECTION */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
           {/* LEFT CONTENT (BANNER + GALLERY + INFO) */}
           <div className="lg:col-span-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-              
               {/* IMAGE GALLERY */}
               <div className="md:col-span-7 space-y-3">
                 {/* Main Banner */}
@@ -128,7 +121,9 @@ export default function EventDetails() {
                         <p className="font-semibold text-slate-900">
                           Fri, 25 Oct - Sun, 27 Oct, 2026
                         </p>
-                        <p className="text-slate-500">6:00 PM - 11:00 PM (WAT)</p>
+                        <p className="text-slate-500">
+                          6:00 PM - 11:00 PM (WAT)
+                        </p>
                       </div>
                     </div>
 
@@ -171,14 +166,14 @@ export default function EventDetails() {
 
                 <p className="text-sm text-slate-600 leading-relaxed">
                   Get ready for an unforgettable nights of music and energy as
-                  Abia Business Summit takes the stage live in umuahia. Three days
-                  of non-stop entertainment, top artists, and amazing vibes.{" "}
+                  Abia Business Summit takes the stage live in umuahia. Three
+                  days of non-stop entertainment, top artists, and amazing
+                  vibes.{" "}
                   <span className="text-emerald-600 font-semibold cursor-pointer hover:underline">
                     ... Read more
                   </span>
                 </p>
               </div>
-
             </div>
           </div>
 
@@ -188,9 +183,7 @@ export default function EventDetails() {
               <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
                 From
               </span>
-              <p className="text-xl font-extrabold text-emerald-700">
-                N3,000
-              </p>
+              <p className="text-xl font-extrabold text-emerald-700">N3,000</p>
             </div>
 
             <div>
@@ -337,15 +330,12 @@ export default function EventDetails() {
               </p>
             </div>
           </div>
-
         </div>
 
         {/* BOTTOM SECTION */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
           {/* LEFT: ABOUT & LOCATION MAP */}
           <div className="lg:col-span-8 space-y-6">
-            
             {/* ABOUT THE EVENT */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
               <h2 className="text-base font-bold text-slate-900 mb-6">
@@ -372,9 +362,7 @@ export default function EventDetails() {
                 <div className="flex flex-col items-center p-3 rounded-xl bg-slate-50">
                   <FiMic className="w-6 h-6 text-emerald-600 mb-1.5" />
                   <span className="text-sm font-bold text-slate-900">Live</span>
-                  <span className="text-xs text-slate-500">
-                    Performances
-                  </span>
+                  <span className="text-xs text-slate-500">Performances</span>
                 </div>
 
                 <div className="flex flex-col items-center p-3 rounded-xl bg-slate-50">
@@ -390,9 +378,7 @@ export default function EventDetails() {
                   <span className="text-sm font-bold text-slate-900">
                     Secured
                   </span>
-                  <span className="text-xs text-slate-500">
-                    Environment
-                  </span>
+                  <span className="text-xs text-slate-500">Environment</span>
                 </div>
               </div>
             </div>
@@ -416,9 +402,7 @@ export default function EventDetails() {
                     <h3 className="text-base font-bold text-slate-900">
                       Umueze Sports Arena
                     </h3>
-                    <p className="text-sm text-slate-500 mb-1">
-                      Umuahia, Abia
-                    </p>
+                    <p className="text-sm text-slate-500 mb-1">Umuahia, Abia</p>
                     <button className="text-sm font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer">
                       Get Directions
                     </button>
@@ -426,31 +410,44 @@ export default function EventDetails() {
                 </div>
               </div>
             </div>
-
           </div>
 
           {/* RIGHT: SHARE & SIMILAR EVENTS */}
           <div className="lg:col-span-4 space-y-6">
-            
             {/* SHARE THIS EVENT */}
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-3">
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
                 Share this event
               </h3>
               <div className="flex items-center space-x-3">
-                <button aria-label="Share on Facebook" className="p-2.5 rounded-full bg-blue-50 text-blue-600 hover:scale-110 transition cursor-pointer">
+                <button
+                  aria-label="Share on Facebook"
+                  className="p-2.5 rounded-full bg-blue-50 text-blue-600 hover:scale-110 transition cursor-pointer"
+                >
                   <FaFacebookF className="w-4 h-4" />
                 </button>
-                <button aria-label="Share on Twitter" className="p-2.5 rounded-full bg-slate-100 text-slate-900 hover:scale-110 transition cursor-pointer">
+                <button
+                  aria-label="Share on Twitter"
+                  className="p-2.5 rounded-full bg-slate-100 text-slate-900 hover:scale-110 transition cursor-pointer"
+                >
                   <FaTwitter className="w-4 h-4" />
                 </button>
-                <button aria-label="Share on WhatsApp" className="p-2.5 rounded-full bg-emerald-50 text-emerald-600 hover:scale-110 transition cursor-pointer">
+                <button
+                  aria-label="Share on WhatsApp"
+                  className="p-2.5 rounded-full bg-emerald-50 text-emerald-600 hover:scale-110 transition cursor-pointer"
+                >
                   <FaWhatsapp className="w-4 h-4" />
                 </button>
-                <button aria-label="Share on Instagram" className="p-2.5 rounded-full bg-pink-50 text-pink-600 hover:scale-110 transition cursor-pointer">
+                <button
+                  aria-label="Share on Instagram"
+                  className="p-2.5 rounded-full bg-pink-50 text-pink-600 hover:scale-110 transition cursor-pointer"
+                >
                   <FaInstagram className="w-4 h-4" />
                 </button>
-                <button aria-label="Copy Link" className="p-2.5 rounded-full bg-slate-100 text-slate-700 hover:scale-110 transition cursor-pointer">
+                <button
+                  aria-label="Copy Link"
+                  className="p-2.5 rounded-full bg-slate-100 text-slate-700 hover:scale-110 transition cursor-pointer"
+                >
                   <FiLink className="w-4 h-4" />
                 </button>
               </div>
@@ -467,7 +464,7 @@ export default function EventDetails() {
                 <div className="flex space-x-3 border border-slate-100 rounded-xl p-2 hover:shadow-md transition bg-slate-50/50">
                   <div className="relative w-24 h-20 rounded-lg overflow-hidden shrink-0">
                     <img
-                      src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=300&auto=format&fit=crop"
+                      src="/event5.jpg"
                       alt="Abia Food & Drinks"
                       className="w-full h-full object-cover"
                     />
@@ -500,7 +497,7 @@ export default function EventDetails() {
                 <div className="flex space-x-3 border border-slate-100 rounded-xl p-2 hover:shadow-md transition bg-slate-50/50">
                   <div className="relative w-24 h-20 rounded-lg overflow-hidden shrink-0">
                     <img
-                      src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=300&auto=format&fit=crop"
+                      src="/event6.jpg"
                       alt="Abia Cultural Festival"
                       className="w-full h-full object-cover"
                     />
@@ -530,13 +527,9 @@ export default function EventDetails() {
                 </div>
               </div>
             </div>
-
           </div>
-
         </div>
-
       </div>
     </div>
   );
 }
-

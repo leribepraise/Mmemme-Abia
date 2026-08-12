@@ -36,9 +36,9 @@ const WhyChose = () => {
       <h1 className="font-bold text-[30px] text-center mb-5">
         Why Choose <span className="text-[#3C6E16]">Mmemme Abia</span>?
       </h1>
-      <div className="flex gap-5">
+      <div className="flex flex-col items-center md:grid md:grid-cols-2 md:place-items-center lg:grid lg:grid-cols-4 lg:gap-8 gap-5">
         {reasons.map((reason) => (
-          <div className="h-[190px] w-[313px] bg-[#FFFFFF] rounded-[15px] shadow-xl flex gap-[15px] justify-center items-center p-2">
+          <div className="h-[190px] w-full md:w-[300px] bg-[#FFFFFF] rounded-[15px] shadow-xl flex gap-[15px] justify-center items-center p-2">
             <p className={`text-5xl ${reason.color}`}>{reason.icon}</p>
             <div>
               <h2 className="font-bold text-[16px] mb-2">{reason.title}</h2>

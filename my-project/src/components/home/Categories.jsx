@@ -14,15 +14,15 @@ const Categories = () => {
     { image: "/category10.png", text: "Family" },
   ];
   return (
-    <section className="my-10">
-      <div className="flex justify-between">
+    <section className="my-10 overflow-x-auto scrollbar-hide py-10 lg:overflow-x-hidden">
+      <div className="flex justify-between gap-3 md:gap-0">
         {groups.map((group) => (
           <div
             className="flex flex-col justify-center items-center bg-[#FFFEFE] p-5 h-20 w-auto text-[12px] rounded-[15px] shadow-xl transition duration-300
   hover:bg-[#F1FCEE]
   hover:text-black
   hover:-translate-y-1
-  cursor-pointer"
+  cursor-pointer shrink-0"
           >
             <img src={group.image} className="h-10 w-10" />{" "}
             <p className="text-[12px] [font-normal]">{group.text}</p>

@@ -72,7 +72,7 @@ const Events = () => {
         </div>
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex justify-between items-center w-max animate-marquees">
-            <div className="flex w-max gap-5">
+            <div className="flex w-max gap-10 md:gap-5">
               {events.map((event, index) => (
                 <div
                   key={`first-${index}`}
