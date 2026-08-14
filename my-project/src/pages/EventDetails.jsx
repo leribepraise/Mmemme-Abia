@@ -553,16 +553,15 @@
 //     </div>
 //   );
 // }
-import { useState } from "react";
+import React, { useState } from "react";
 
-import EventBreadcrumb from "../components/event/EventBreadcrumb";
-import EventGallery from "../components/event/EventGallery";
-import EventHighlights from "../components/event/EventHighlights";
-import TicketCard from "../components/event/TicketCard";
-import AboutEvent from "../components/event/AboutEvent";
-import LocationCard from "../components/event/LocationCard";
-import ShareEvent from "../components/event/ShareEvent";
-import SimilarEvents from "../components/event/SimilarEvents";
+import EventBreadcrumb from "../components/eventDetails/EventBreadcrumb";
+import EventGallery from "../components/eventDetails/EventGallery";
+import EventHighlights from "../components/eventDetails/EventHighlights";
+import TicketCard from "../components/eventDetails/TicketCard";
+import AboutEvent from "../components/eventDetails/AboutEvent";
+import LocationCard from "../components/eventDetails/LocationCard";
+import SimilarEvents from "../components/eventDetails/SimilarEvents";
 
 export default function EventDetails() {
   const [tickets, setTickets] = useState({
@@ -589,13 +588,13 @@ export default function EventDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8">
+    <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8 font-sans text-slate-800">
       <div className="max-w-7xl mx-auto space-y-6">
         <EventBreadcrumb />
 
-        <div className="grid lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            <div className="grid md:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="lg:col-span-8 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
               <EventGallery
                 selectedImage={selectedImage}
                 setSelectedImage={setSelectedImage}
@@ -611,16 +610,14 @@ export default function EventDetails() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8 space-y-6">
             <AboutEvent />
 
             <LocationCard />
           </div>
 
-          <div className="lg:col-span-4 space-y-6">
-            <ShareEvent />
-
+          <div className="lg:col-span-4">
             <SimilarEvents />
           </div>
         </div>
