@@ -100,14 +100,16 @@ const SearchResults = () => {
         {/* SIDEBAR */}
         <aside className="h-fit rounded-lg border border-gray-300 bg-white p-3">
           <div className="mb-3 flex items-center justify-between border-b border-gray-200 pb-2">
-            <h2 className="text-[20px] font-semibold text-[#000000]">Filter Results</h2>
+            <h2 className="text-[20px] font-semibold text-[#000000]">
+              Filter Results
+            </h2>
 
-            <button className="text-[8px] text-green-700">Clear All</button>
+            <button className="text-[12px] text-[#265F27] font-medium cursor-pointer">Clear All</button>
           </div>
 
           {/* Categories */}
           <div className="mb-4">
-            <h3 className="mb-2 text-[9px] font-semibold text-gray-800">
+            <h3 className="mb-2 text-[14px] font-semibold text-[#191C1D]">
               Categories
             </h3>
 
@@ -131,7 +133,9 @@ const SearchResults = () => {
                     className="h-3 w-3 accent-green-700"
                   />
 
-                  <span className="text-[8px] text-gray-600">{category}</span>
+                  <span className="text-[14px] font-normal text-[#41493E]">
+                    {category}
+                  </span>
                 </label>
               ))}
             </div>
@@ -173,7 +177,7 @@ const SearchResults = () => {
           </div>
 
           {/* Apply */}
-          <button className="w-full rounded-md bg-[#23652b] py-2 text-[9px] font-medium text-white hover:bg-[#1d5524]">
+          <button className="w-full rounded-md bg-[#265F27] py-2 text-[14px] font-semibold text-white hover:bg-[#1d5524]">
             Apply Filters
           </button>
         </aside>

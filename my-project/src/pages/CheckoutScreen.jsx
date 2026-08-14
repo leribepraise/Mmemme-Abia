@@ -38,7 +38,7 @@ export default function CheckoutScreen() {
       <div className="bg-[#48782E] text-white w-6 h-6 flex items-center justify-center rounded-md text-sm font-bold">
         {number}
       </div>
-      <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+      <h2 className="text-[20px] font-semibold text-gray-900">{title}</h2>
     </div>
   );
 
@@ -51,8 +51,8 @@ export default function CheckoutScreen() {
             <span>Events</span> &gt; <span>Abia Business Summit 2026</span> &gt;{" "}
             <span className="text-gray-300">Checkout</span>
           </div>
-          <h1 className="text-4xl font-extrabold mb-2 text-black">Checkout</h1>
-          <p className="text-[#3D3E3E] font-medium">
+          <h1 className="text-[40px] font-bold mb-2 text-black">Checkout</h1>
+          <p className="text-[#3D3E3E] font-semibold">
             You're almost there! Complete your booking.
           </p>
         </div>
@@ -72,12 +72,12 @@ export default function CheckoutScreen() {
                   />
                 </div>
                 <div className="space-y-4">
-                  <h3 className="font-bold text-lg text-black">
+                  <h3 className="font-semibold text-[18px] text-black">
                     Abia Business Summit 2026
                   </h3>
-                  <div className="space-y-3 text-sm font-medium text-gray-600">
-                    <div className="flex items-center gap-3">
-                      <Calendar className="w-5 h-5 text-gray-400" />
+                  <div className="space-y-3 text-[18px] font-semibold text-[#3D3E3E]">
+                    <div className="flex items-center font-semibold text-[18px] gap-3">
+                      <Calendar className="w-5 h-5 text-gray-400 font-semibold text-[18px]" />
                       <span>Fri, 25 Oct - Sun, 27 Oct, 2026</span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ export default function CheckoutScreen() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <SectionHeader number="2" title="Ticket Selection" />
 
-              <div className="grid grid-cols-12 text-sm font-bold text-gray-500 mb-4 border-b border-gray-100 pb-2">
+              <div className="grid grid-cols-12 text-[18px] font-semibold text-[#3D3E3E] mb-4 border-b border-gray-100 pb-2">
                 <div className="col-span-4">Ticket Type</div>
                 <div className="col-span-4 text-center">Quantity</div>
                 <div className="col-span-4 text-right pr-12">Price</div>
@@ -110,7 +110,7 @@ export default function CheckoutScreen() {
                     className="grid grid-cols-12 items-center border-b border-gray-50 pb-6 last:border-0 last:pb-0"
                   >
                     <div className="col-span-4">
-                      <p className="font-bold text-black">{ticket.name}</p>
+                      <p className="font-bold text-black text-[18px]">{ticket.name}</p>
                       <p className="text-sm font-semibold mt-1">
                         {formatCurrency(ticket.basePrice)}
                       </p>

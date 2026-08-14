@@ -12,7 +12,8 @@ import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import Messages from "./pages/Messages";
 import Tourism from "./pages/Tourism";
 import HelpSupport from "./pages/HelpSupport";
-
+import Events from "./pages/Event";
+import Blog from "./pages/Blog"
 const App = () => {
   const navList = [
     {
@@ -92,6 +93,22 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <HelpSupport />
+        </div>
+      ),
+    },
+    {
+      path: "/events",
+      element: (
+        <div className="mx-5 my-5">
+          <Events />
+        </div>
+      ),
+    },
+    {
+      path: "/blog",
+      element: (
+        <div className="mx-5 my-5">
+          <Blog />
         </div>
       ),
     },

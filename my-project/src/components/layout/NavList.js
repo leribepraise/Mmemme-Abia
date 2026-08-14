@@ -4,7 +4,7 @@ export const navList = [
     title: "Home",
   },
   {
-    path: "/event",
+    path: "/events",
     title: "Events",
   },
   {
@@ -24,7 +24,7 @@ export const navList = [
     title: "Food",
   },
   {
-    path: "/",
+    path: "/blog",
     title: "Blog",
   },
   {
