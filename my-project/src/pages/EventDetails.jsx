@@ -556,7 +556,7 @@
 import React, { useState } from "react";
 
 import EventBreadcrumb from "../components/eventDetails/EventBreadcrumb";
-import EventGallery from "../components/eventDetails/EventGallery";
+import EventGallery from "../components/eventDetails/Gallary";
 import EventHighlights from "../components/eventDetails/EventHighlights";
 import TicketCard from "../components/eventDetails/TicketCard";
 import AboutEvent from "../components/eventDetails/AboutEvent";
