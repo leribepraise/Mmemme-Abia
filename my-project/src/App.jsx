@@ -22,7 +22,8 @@ import VenueDetails from "./pages/VenueDetails";
 import BookingComfirmationPage from "./pages/BookingComfirmationPage";
 import GuestGuard from "./components/GuestGuard";
 import ExploreAbiaPage from "./pages/ExploreAbiaPage";
-import Community from "./pages/Blog";
+import Community from "./pages/Community";
+import Food from "./pages/Food";
 const App = () => {
   const navList = [
     {
@@ -179,6 +180,26 @@ const App = () => {
         <div className="mx-5 my-5">
           <GuestGuard>
             <BookingComfirmationPage />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/food",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <Food />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/blog",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <Blog />
           </GuestGuard>
         </div>
       ),

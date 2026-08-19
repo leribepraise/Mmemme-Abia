@@ -25,7 +25,7 @@ const Hero = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       nextSilde();
-    }, 5000);
+    }, 2000);
     return () => clearInterval(interval);
   }, [nextSilde]);
   return (

@@ -20,7 +20,7 @@ export const navList = [
     title: "Tourism",
   },
   {
-    path: "/",
+    path: "/food",
     title: "Food",
   },
   {
@@ -28,8 +28,8 @@ export const navList = [
     title: "Blog",
   },
   {
-    path: "/contact",
-    title: "Contact",
+    path: "/about",
+    title: "About us",
   },
 ];
 
@@ -44,7 +44,7 @@ export const userNavList = [
   { path: "/hotel", title: "Hotels" },
   { path: "/community", title: "Community" },
   { path: "/tourism", title: "Tourism" },
-  { path: "/", title: "Food" },
+  { path: "/food", title: "Food" },
   { path: "/blog", title: "Blog" },
   { path: "/about-abia", title: "About Abia" },
 ];
