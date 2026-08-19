@@ -4,7 +4,7 @@ import { FiBookmark, FiMinus, FiPlus } from "react-icons/fi";
 const TicketCard = ({ tickets, updateQuantity }) => {
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
-      <div className="bg-emerald-50 -mx-5 -mt-5 p-4 rounded-t-2xl border-b border-emerald-100">
+      <div className="bg-[#E4FCE4] -mx-5 -mt-5 p-4 rounded-t-2xl border-b border-emerald-100">
         <span className="text-[12px] font-medium text-[#000000] uppercase tracking-wider">
           From
         </span>
@@ -12,7 +12,7 @@ const TicketCard = ({ tickets, updateQuantity }) => {
         <p className="text-[18px] font-bold text-[#3C6E16]">N3,000</p>
       </div>
 
-      <div>
+      <div className="">
         <h3 className="text-[12px] font-semibold text-[#000000] tracking-wider mb-3">
           Available Tickets
         </h3>
@@ -117,7 +117,7 @@ const TicketCard = ({ tickets, updateQuantity }) => {
 
       <div className="space-y-2 pt-2">
         <NavLink to="/checkout">
-          <button className="w-full bg-[#FF6200] hover:bg-[#e05600] text-white font-bold py-3 rounded-xl cursor-pointer">
+          <button className="w-full bg-[#F46F1A] hover:bg-[#e05600] text-white font-bold py-3 rounded-xl cursor-pointer mb-2">
             Buy Tickets
           </button>
         </NavLink>
@@ -145,7 +145,7 @@ const TicketCard = ({ tickets, updateQuantity }) => {
           />
         </div>
 
-        <p className="text-[12px] font-semibold">15.7k people are interested</p>    
+        <p className="text-[12px] font-semibold">15.7k people are interested</p>
       </div>
     </div>
   );

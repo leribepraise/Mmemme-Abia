@@ -13,7 +13,16 @@ import Messages from "./pages/Messages";
 import Tourism from "./pages/Tourism";
 import HelpSupport from "./pages/HelpSupport";
 import Events from "./pages/Event";
-import Blog from "./pages/Blog"
+import Blog from "./pages/Blog";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import HelpCenter from "./pages/HelpCenter";
+import Hotel from "./pages/Hotel";
+import VenueDetails from "./pages/VenueDetails";
+import BookingComfirmationPage from "./pages/BookingComfirmationPage";
+import GuestGuard from "./components/GuestGuard";
+import ExploreAbiaPage from "./pages/ExploreAbiaPage";
+import Community from "./pages/Blog";
 const App = () => {
   const navList = [
     {
@@ -28,7 +37,9 @@ const App = () => {
       path: "/event",
       element: (
         <div className="mx-5">
-          <EventDetails />
+          <GuestGuard>
+            <EventDetails />
+          </GuestGuard>
         </div>
       ),
     },
@@ -36,7 +47,9 @@ const App = () => {
       path: "/checkout",
       element: (
         <div className="mx-5">
-          <CheckoutScreen />
+          <GuestGuard>
+            <CheckoutScreen />
+          </GuestGuard>
         </div>
       ),
     },
@@ -44,7 +57,9 @@ const App = () => {
       path: "/Payment",
       element: (
         <div className="mx-5">
-          <PaymentScreen />
+          <GuestGuard>
+            <PaymentScreen />
+          </GuestGuard>
         </div>
       ),
     },
@@ -52,7 +67,9 @@ const App = () => {
       path: "/Paymentsuccess",
       element: (
         <div className="mx-5">
-          <PaymentSuccessfulScreen />
+          <GuestGuard>
+            <PaymentSuccessfulScreen />
+          </GuestGuard>
         </div>
       ),
     },
@@ -60,7 +77,9 @@ const App = () => {
       path: "/ticket",
       element: (
         <div className="mx-5">
-          <TicketScreen />
+          <GuestGuard>
+            <TicketScreen />
+          </GuestGuard>
         </div>
       ),
     },
@@ -68,7 +87,9 @@ const App = () => {
       path: "/dashboard",
       element: (
         <div className="mx-5 my-5">
-          <AnalyticsDashboard />
+          <GuestGuard>
+            <AnalyticsDashboard />
+          </GuestGuard>
         </div>
       ),
     },
@@ -76,7 +97,9 @@ const App = () => {
       path: "/message",
       element: (
         <div className="mx-5 my-5">
-          <Messages />
+          <GuestGuard>
+            <Messages />
+          </GuestGuard>
         </div>
       ),
     },
@@ -84,15 +107,19 @@ const App = () => {
       path: "/tourism",
       element: (
         <div className="mx-5 my-5">
-          <Tourism />
+          <GuestGuard>
+            <ExploreAbiaPage />
+          </GuestGuard>
         </div>
       ),
     },
     {
-      path: "/help",
+      path: "/contact",
       element: (
         <div className="mx-5 my-5">
-          <HelpSupport />
+          <GuestGuard>
+            <HelpSupport />
+          </GuestGuard>
         </div>
       ),
     },
@@ -100,29 +127,83 @@ const App = () => {
       path: "/events",
       element: (
         <div className="mx-5 my-5">
-          <Events />
+          <GuestGuard>
+            <Events />
+          </GuestGuard>
         </div>
       ),
     },
     {
-      path: "/blog",
+      path: "/community",
       element: (
         <div className="mx-5 my-5">
-          <Blog />
+          <GuestGuard>
+            <Community />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/help",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <HelpCenter />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/hotel",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <Hotel />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/panyu",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <VenueDetails />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/book-comfire",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <BookingComfirmationPage />
+          </GuestGuard>
         </div>
       ),
     },
   ];
+
+  const authRouter = [
+    { path: "/login", element: <Login /> },
+    { path: "/SignUp", element: <SignUp /> },
+    // { path: "*", element: <NotFound /> },
+  ];
+
   return (
     <>
       <div className="min-h-screen bg-[#f5f7f3]">
-        <div className>
+        <div>
           <Routes>
             <Route path="/" element={<Layout />}>
               {navList.map((item, index) => (
                 <Route key={index} path={item.path} element={item.element} />
               ))}
             </Route>
+            {authRouter.map((item, index) => (
+              <Route key={index} path={item.path} element={item.element} />
+            ))}
           </Routes>
         </div>
       </div>
