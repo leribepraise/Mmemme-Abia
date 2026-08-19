@@ -1,9 +1,9 @@
 import React from "react";
 
-import SuccessIcon from "../components/paymentSuccess/SuccessIcon";
-import SuccessMessage from "../components/paymentSuccess/SuccessMessage";
-import EventSummaryCard from "../components/paymentSuccess/EventSummaryCard";
-import ActionButtons from "../components/paymentSuccess/ActionButtons";
+import SuccessIcon from "../components/paymentsuccess/SuccessIcon";
+import SuccessMessage from "../components/paymentsuccess/SuccessMessage";
+import EventSummaryCard from "../components/paymentsuccess/EventSummaryCard";
+import ActionButtons from "../components/paymentsuccess/ActionButtons";
 
 export default function PaymentSuccessfulScreen() {
   return (
