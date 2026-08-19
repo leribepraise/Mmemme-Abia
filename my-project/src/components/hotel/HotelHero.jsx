@@ -7,7 +7,7 @@ const HotelHero = () => {
       className="rounded-3xl overflow-hidden p-6 md:p-8 text-white relative bg-cover bg-center"
       style={{ backgroundImage: "url('/hotel.png')" }}
     >
-      <div className="absolute inset-0 bg-[#07152A]/90"></div>
+      <div className="absolute inset-0 bg-[#07152A]/20"></div>
 
       <div className="relative z-10">
         <p className="text-[#4ADE80] text-[14px] font-medium mb-3">
