@@ -9,17 +9,17 @@ export const events = [
 
 export const eventss = [
   {
-    image: "/Frame1.png",
-    text: "Hotel Oris Live Concert",
-    text2: "Umuahia, Abia",
-    text3: "N2,500",
-    addLink: "/event",
-  },
-  {
     image: "/Frame2.png",
     text: "Abia Business Summit 2026",
     text2: "Aba, Abia",
     text3: "N3,000",
+    addLink: "/event",
+  },
+  {
+    image: "/Frame1.png",
+    text: "Hotel Oris Live Concert",
+    text2: "Umuahia, Abia",
+    text3: "N2,500",
     addLink: false,
   },
   {
