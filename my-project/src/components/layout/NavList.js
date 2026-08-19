@@ -46,7 +46,7 @@ export const userNavList = [
   { path: "/tourism", title: "Tourism" },
   { path: "/food", title: "Food" },
   { path: "/blog", title: "Blog" },
-  { path: "/about-abia", title: "About Abia" },
+  { path: "/about", title: "About us" },
 ];
 
 export const profileLink = {

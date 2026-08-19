@@ -24,6 +24,8 @@ import GuestGuard from "./components/GuestGuard";
 import ExploreAbiaPage from "./pages/ExploreAbiaPage";
 import Community from "./pages/Community";
 import Food from "./pages/Food";
+import AboutAbia from "./pages/DiscoverAbia";
+import DiscoverAbia from "./pages/DiscoverAbia";
 const App = () => {
   const navList = [
     {
@@ -200,6 +202,16 @@ const App = () => {
         <div className="mx-5 my-5">
           <GuestGuard>
             <Blog />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/about",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <DiscoverAbia />
           </GuestGuard>
         </div>
       ),
