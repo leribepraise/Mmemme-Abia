@@ -26,6 +26,7 @@ import Community from "./pages/Community";
 import Food from "./pages/Food";
 import AboutAbia from "./pages/DiscoverAbia";
 import DiscoverAbia from "./pages/DiscoverAbia";
+import Transport from "./pages/Transport";
 const App = () => {
   const navList = [
     {
@@ -212,6 +213,16 @@ const App = () => {
         <div className="mx-5 my-5">
           <GuestGuard>
             <DiscoverAbia />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/transport",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <Transport />
           </GuestGuard>
         </div>
       ),

@@ -42,9 +42,10 @@ export const userNavList = [
   { path: "/", title: "Home" },
   { path: "/events", title: "Events" },
   { path: "/hotel", title: "Hotels" },
-  { path: "/community", title: "Community" },
   { path: "/tourism", title: "Tourism" },
+  { path: "/transport", title: "Transport" },
   { path: "/food", title: "Food" },
+  { path: "/community", title: "Community" },
   { path: "/blog", title: "Blog" },
   { path: "/about", title: "About us" },
 ];
