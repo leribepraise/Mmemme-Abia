@@ -10,6 +10,7 @@ const heroData = [
   { image: "/slide4.png" },
   { image: "/slide5.png" },
   { image: "/slide6.png" },
+  { image: "/slide7.png" },
 ];
 
 const Hero = () => {
@@ -24,7 +25,7 @@ const Hero = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       nextSilde();
-    }, 5000);
+    }, 1200);
     return () => clearInterval(interval);
   }, [nextSilde]);
   return (
