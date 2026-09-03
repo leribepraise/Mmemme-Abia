@@ -1,24 +1,52 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import SocialButtons from "./SocialButtons";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "./validation/schemas/loginSchemas";
 import { useNavigate } from "react-router-dom";
 
 const LoginForm = ({ onLogin }) => {
-  const [password, setPassword] = useState("");
   const [inputType, setInputType] = useState("password");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+
+    const savedUser = JSON.parse(sessionStorage.getItem("user"));
+
+    if (!savedUser) {
+      console.log("No account found");
+      return;
+    }
+
+    if (
+      data.email === savedUser.email &&
+      data.password === savedUser.password
+    ) {
+      console.log("Login successful");
+
+      sessionStorage.setItem("isLoggedIn", "true");
+
+      navigate("/");
+    } else {
+      console.log("Invalid email or password");
+    }
+  };
   const toggleVisibility = () => {
     setInputType((prevType) => (prevType === "password" ? "text" : "password"));
-  };
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    onLogin();
   };
   return (
     <div className="p-8 md:p-12 flex items-center">
       <div className="w-full">
         <div className="space-y-6">
-          <form onSubmit={handleSubmit} action="">
+          <form onSubmit={handleSubmit(onSubmit)} action="">
             <div>
               <label className="block text-[14px] font-medium text-[#374151] mb-2">
                 Email Address
@@ -27,8 +55,15 @@ const LoginForm = ({ onLogin }) => {
               <input
                 type="email"
                 placeholder="Enter your email"
+                {...register("email")}
                 className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#48782E]"
               />
+
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -39,8 +74,7 @@ const LoginForm = ({ onLogin }) => {
               <div className="relative">
                 <input
                   type={inputType}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...register("password")}
                   placeholder="Enter your password"
                   className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:border-[#48782E]"
                 />
@@ -57,6 +91,11 @@ const LoginForm = ({ onLogin }) => {
                   />
                 )}
               </div>
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
             <div className="flex items-center justify-between text-sm">

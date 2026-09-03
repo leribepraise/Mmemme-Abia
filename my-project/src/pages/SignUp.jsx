@@ -5,6 +5,7 @@ import SignUpHero from "../components/auth/register/SignUpHero";
 import SignUpForm from "../components/auth/register/SignUpForm";
 import { useAuth } from "../components/context/AuthContext";
 
+
 const SignUp = () => {
   const { login } = useAuth();
   const navigate = useNavigate();

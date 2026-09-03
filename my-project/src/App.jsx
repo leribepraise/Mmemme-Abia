@@ -27,6 +27,8 @@ import Food from "./pages/Food";
 import AboutAbia from "./pages/DiscoverAbia";
 import DiscoverAbia from "./pages/DiscoverAbia";
 import Transport from "./pages/Transport";
+import NotFound from "./pages/NotFound";
+import RestaurantDetails from "./pages/RestaurantDetails";
 const App = () => {
   const navList = [
     {
@@ -34,6 +36,14 @@ const App = () => {
       element: (
         <div className="mx-5">
           <Home />
+        </div>
+      ),
+    },
+    {
+      path: "*",
+      element: (
+        <div className="mx-5">
+          <NotFound />
         </div>
       ),
     },
@@ -193,6 +203,16 @@ const App = () => {
         <div className="mx-5 my-5">
           <GuestGuard>
             <Food />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/fooddetail",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <RestaurantDetails />
           </GuestGuard>
         </div>
       ),

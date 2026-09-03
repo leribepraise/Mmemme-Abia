@@ -18,7 +18,7 @@ const Header = () => {
   return (
     <>
       <div className="mx-5 pt-3">
-        <nav className="hidden lg:flex justify-between items-center gap-5 bg-white shadow-md p-5 rounded-lg">
+        <nav className="hidden lg:flex sticky top-0 justify-between items-center gap-5 bg-white shadow-md p-5 rounded-lg">
           <img src="/logo.png" alt="" className="w-auto h-10" />
           {/* {navList.map((n) => (
             <NavLink
