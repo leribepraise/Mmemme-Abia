@@ -16,20 +16,23 @@ const SignUpForm = ({ onLogin }) => {
     formState: { errors },
   } = useForm({ resolver: zodResolver(signupSchema) });
   const onSubmit = (data) => {
-    console.log(data);
+    const existingData = JSON.parse(sessionStorage.getItem("signupData")) || {};
 
-    // Save the registered user
-    sessionStorage.setItem(
-      "user",
-      JSON.stringify({
-        fullName: data.fullName,
-        email: data.email,
-        password: data.password,
-      }),
-    );
+    const updatedData = {
+      ...existingData,
+      fullName: data.fullName,
+      email: data.email,
+      password: data.password,
+      confirmPassword: data.confirmPassword,
+      terms: data.terms,
+    };
 
-    // signup successful
-    navigate("/login");
+    console.log("UPDATED SIGN UP DATA:", updatedData);
+
+    sessionStorage.setItem("signupData", JSON.stringify(updatedData));
+    // sessionStorage.setItem("user", JSON.stringify(user));
+
+    navigate("/Signup/onboarding");
   };
   const toggleVisibility = () => {
     setInputType((prevType) => (prevType === "password" ? "text" : "password"));

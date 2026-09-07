@@ -29,6 +29,8 @@ import DiscoverAbia from "./pages/DiscoverAbia";
 import Transport from "./pages/Transport";
 import NotFound from "./pages/NotFound";
 import RestaurantDetails from "./pages/RestaurantDetails";
+import Onboarding from "./components/onboarding/Onboarding";
+import Profile from "./pages/Profile";
 const App = () => {
   const navList = [
     {
@@ -247,11 +249,22 @@ const App = () => {
         </div>
       ),
     },
+    {
+      path: "/profile",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <Profile />
+          </GuestGuard>
+        </div>
+      ),
+    },
   ];
 
   const authRouter = [
     { path: "/login", element: <Login /> },
-    { path: "/SignUp", element: <SignUp /> },
+    { path: "/Signup", element: <SignUp /> },
+    { path: "/Signup/onboarding", element: <Onboarding /> },
     // { path: "*", element: <NotFound /> },
   ];
 

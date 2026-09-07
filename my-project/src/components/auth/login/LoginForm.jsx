@@ -4,7 +4,6 @@ import SocialButtons from "./SocialButtons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "./validation/schemas/loginSchemas";
-import { useNavigate } from "react-router-dom";
 
 const LoginForm = ({ onLogin }) => {
   const [inputType, setInputType] = useState("password");
@@ -32,9 +31,7 @@ const LoginForm = ({ onLogin }) => {
     ) {
       console.log("Login successful");
 
-      sessionStorage.setItem("isLoggedIn", "true");
-
-      navigate("/");
+      onLogin();
     } else {
       console.log("Invalid email or password");
     }
