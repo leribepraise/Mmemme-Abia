@@ -70,6 +70,7 @@
 // export default Footer;
 
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -131,9 +132,9 @@ const Footer = () => {
           {/* ORGANIZER */}
           <div>
             <p className="font-bold text-[16px] text-white">Organizer</p>
-            <p className="font-normal text-[#FFFFFF]">Become an Organizer</p>
-            <p className="font-normal text-[#FFFFFF]">Organizer Dashboard</p>
-            <p className="font-normal text-[#FFFFFF]">Create Event</p>
+            <Link to="/organizer/login" className="font-normal text-[#FFFFFF] block hover:underline">Become an Organizer</Link>
+            <Link to="/organizer/dashboard" className="font-normal text-[#FFFFFF] block hover:underline">Organizer Dashboard</Link>
+            <Link to="/organizer/events/new" className="font-normal text-[#FFFFFF] block hover:underline">Create Event</Link>
             <p className="font-normal text-[#FFFFFF]">Pricing</p>
             <p className="font-normal text-[#FFFFFF]">Resources</p>
           </div>

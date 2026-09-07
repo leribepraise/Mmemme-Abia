@@ -29,6 +29,27 @@ import DiscoverAbia from "./pages/DiscoverAbia";
 import Transport from "./pages/Transport";
 import NotFound from "./pages/NotFound";
 import RestaurantDetails from "./pages/RestaurantDetails";
+import OrganizerLogin from "./pages/OrganizerLogin";
+import OrganizerDashboard from "./pages/OrganizerDashboard";
+import OrganizerEvents from "./pages/OrganizerEvents";
+import OrganizerEventForm from "./pages/OrganizerEventForm";
+import OrganizerEventPreview from "./pages/OrganizerEventPreview";
+import OrganizerAnalytics from "./pages/OrganizerAnalytics";
+import OrganizerMessages from "./pages/OrganizerMessages";
+import OrganizerTicketSales from "./pages/OrganizerTicketSales";
+import OrganizerAttendees from "./pages/OrganizerAttendees";
+import OrganizerPayouts from "./pages/OrganizerPayouts";
+import OrganizerSettings from "./pages/OrganizerSettings";
+import OrganizerNotFound from "./pages/OrganizerNotFound";
+import { useParams, Navigate } from "react-router-dom";
+
+// /organizer/events/:id/edit needs the :id param handed to OrganizerEventForm
+// as the `editId` prop.
+const OrganizerEventEditRoute = () => {
+  const { id } = useParams();
+  return <OrganizerEventForm editId={id} />;
+};
+
 const App = () => {
   const navList = [
     {
@@ -255,6 +276,26 @@ const App = () => {
     // { path: "*", element: <NotFound /> },
   ];
 
+  // Organizer Dashboard routes. Rendered outside the consumer-facing Layout
+  // (same as authRouter above) since the organizer pages bring their own
+  // Sidebar/Header/Footer via the Shell component.
+  const organizerRouter = [
+    { path: "/organizer", element: <Navigate to="/organizer/login" replace /> },
+    { path: "/organizer/login", element: <OrganizerLogin /> },
+    { path: "/organizer/dashboard", element: <OrganizerDashboard /> },
+    { path: "/organizer/events", element: <OrganizerEvents /> },
+    { path: "/organizer/events/new", element: <OrganizerEventForm /> },
+    { path: "/organizer/events/:id/edit", element: <OrganizerEventEditRoute /> },
+    { path: "/organizer/events/:id/preview", element: <OrganizerEventPreview /> },
+    { path: "/organizer/analytics", element: <OrganizerAnalytics /> },
+    { path: "/organizer/messages", element: <OrganizerMessages /> },
+    { path: "/organizer/ticket-sales", element: <OrganizerTicketSales /> },
+    { path: "/organizer/attendees", element: <OrganizerAttendees /> },
+    { path: "/organizer/payouts", element: <OrganizerPayouts /> },
+    { path: "/organizer/settings", element: <OrganizerSettings /> },
+    { path: "/organizer/*", element: <OrganizerNotFound /> },
+  ];
+
   return (
     <>
       <div className="min-h-screen bg-[#f5f7f3]">
@@ -267,6 +308,9 @@ const App = () => {
             </Route>
             {authRouter.map((item, index) => (
               <Route key={index} path={item.path} element={item.element} />
+            ))}
+            {organizerRouter.map((item, index) => (
+              <Route key={`organizer-${index}`} path={item.path} element={item.element} />
             ))}
           </Routes>
         </div>

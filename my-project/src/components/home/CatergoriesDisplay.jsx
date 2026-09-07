@@ -1,5 +1,5 @@
 import React from "react";
-import Categories from "../../componentProp/Categories";
+import Categories from "./Categories";
 //icon
 import { PiSquaresFourLight } from "react-icons/pi";
 
