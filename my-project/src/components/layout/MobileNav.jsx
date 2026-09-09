@@ -6,7 +6,7 @@ import {
   SheetDescription,
   SheetTitle,
   SheetTrigger,
-} from "@/componentss/ui/sheet";
+} from "@/components/ui/sheet";
 import { NavLink } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { navList, authLink, userNavList, profileLink } from "./NavList";
