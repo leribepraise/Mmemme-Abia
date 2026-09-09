@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 import PaymentMethodsSidebar from "../components/payment/PaymentMethodsSidebar";
 import PaymentForm from "../components/payment/PaymentForm";
@@ -8,6 +8,10 @@ import PaymentSummary from "../components/payment/PaymentSummary";
 import SupportBox from "../components/payment/SupportBox";
 
 export default function PaymentScreen() {
+  const location = useLocation();
+
+  const { event, tickets, subtotal, serviceFee, total } = location.state || {};
+
   const [activeMethod, setActiveMethod] = useState("card");
 
   return (
@@ -17,7 +21,7 @@ export default function PaymentScreen() {
           <div className="text-sm text-gray-400 mb-4 flex gap-2">
             <span>Events</span>
             &gt;
-            <span>Abia Business Summit 2026</span>
+            <span>{event?.text || "Event"}</span>
             &gt;
             <span>Checkout</span>
             &gt;
@@ -37,10 +41,16 @@ export default function PaymentScreen() {
             setActiveMethod={setActiveMethod}
           />
 
-          <PaymentForm />
+          <PaymentForm event={event} tickets={tickets} total={total} />
 
           <div className="lg:col-span-4 space-y-6">
-            <PaymentSummary />
+            <PaymentSummary
+              event={event}
+              tickets={tickets}
+              subtotal={subtotal}
+              serviceFee={serviceFee}
+              total={total}
+            />
 
             <SupportBox />
           </div>

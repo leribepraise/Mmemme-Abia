@@ -56,9 +56,13 @@ const CreateAccount = ({ onNext }) => {
 
     if (!file) return;
 
-    const imageUrl = URL.createObjectURL(file);
+    const reader = new FileReader();
 
-    setProfilePreview(imageUrl);
+    reader.onloadend = () => {
+      setProfilePreview(reader.result);
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const onSubmit = (data) => {

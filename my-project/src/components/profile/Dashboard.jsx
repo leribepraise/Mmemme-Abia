@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Ticket,
@@ -20,22 +20,47 @@ import Info from "./common/Info";
 import Preference from "./common/Preference";
 
 const Dashboard = ({ user, onEditProfile }) => {
+  const [bookings, setBookings] = useState([]);
+
+  // Get bookings from sessionStorage
+  useEffect(() => {
+    const savedBookings = sessionStorage.getItem("bookings");
+
+    if (savedBookings) {
+      try {
+        const parsedBookings = JSON.parse(savedBookings);
+
+        if (Array.isArray(parsedBookings)) {
+          setBookings(parsedBookings);
+        }
+      } catch (error) {
+        console.error("Error reading bookings:", error);
+        setBookings([]);
+      }
+    }
+  }, []);
+
+  // Get the user's selected plan
+  const formattedPlan = user?.plan
+    ? user.plan.charAt(0).toUpperCase() + user.plan.slice(1)
+    : "Not selected";
+
   return (
-    <div className="mx-auto max-w-[1100px]">
+    <div className="mx-auto w-full min-w-0 max-w-[1100px] overflow-hidden">
       {/* HEADER CARD */}
       <div className="flex flex-col gap-5 rounded-xl bg-[#174A20] p-5 text-white sm:p-6 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4">
           {/* PROFILE IMAGE */}
           <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-[#EAF4EB]">
-            {user.profileImage ? (
+            {user?.profilePicture ? (
               <img
-                src={user.profileImage}
+                src={user.profilePicture}
                 alt={user.fullName || "User"}
                 className="h-full w-full object-cover"
               />
             ) : (
               <span className="text-xl font-bold text-[#3F783D]">
-                {user.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
+                {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
               </span>
             )}
           </div>
@@ -43,7 +68,7 @@ const Dashboard = ({ user, onEditProfile }) => {
           {/* USER INFO */}
           <div>
             <h1 className="text-lg font-bold sm:text-xl">
-              {user.fullName || "User"}
+              {user?.fullName || "User"}
             </h1>
 
             <div className="mt-1 flex flex-wrap gap-3 text-[10px] text-gray-200">
@@ -74,21 +99,21 @@ const Dashboard = ({ user, onEditProfile }) => {
       <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard
           icon={<CalendarCheck size={17} />}
-          number="12"
+          number={bookings.length}
           label="Bookings"
         />
 
         <StatCard
           icon={<Ticket size={17} />}
-          number="5"
+          number="0"
           label="Events Attended"
         />
 
-        <StatCard icon={<Heart size={17} />} number="3" label="Saved Places" />
+        <StatCard icon={<Heart size={17} />} number="0" label="Saved Places" />
 
         <StatCard
           icon={<Users size={17} />}
-          number="24"
+          number="0"
           label="Community Posts"
         />
       </div>
@@ -103,31 +128,43 @@ const Dashboard = ({ user, onEditProfile }) => {
           </button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <BookingCard
-            image="/event1.png"
-            title="Hotel Oris Live Concert"
-            location="Ohafia, Abia"
-            status="Confirmed"
-            price="₦2,500"
-          />
+        {bookings.length === 0 ? (
+          /* EMPTY BOOKING STATE */
+          <div className="flex min-h-[150px] flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 px-5 text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF4EB]">
+              <CalendarCheck size={18} className="text-[#3F783D]" />
+            </div>
 
-          <BookingCard
-            image="/event2.png"
-            title="Abia Cultural Festival"
-            location="Ohafia, Abia"
-            status="Confirmed"
-            price="Free"
-          />
+            <h3 className="mt-3 text-sm font-semibold text-[#172033]">
+              No recent booking
+            </h3>
 
-          <BookingCard
-            image="/event3.png"
-            title="Abia Food & Drinks Carnival"
-            location="Arochukwu, Abia"
-            status="Pending"
-            price="₦2,000"
-          />
-        </div>
+            <p className="mt-1 max-w-[300px] text-[10px] leading-4 text-gray-400">
+              You haven't made any bookings yet. Explore events and make your
+              first booking.
+            </p>
+          </div>
+        ) : (
+          /* BOOKING CARDS */
+          <div className="w-full min-w-0 overflow-hidden">
+            <div className="flex w-full gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {bookings.map((booking, index) => (
+                <div
+                  key={booking.id || index}
+                  className="w-[280px] min-w-[280px] shrink-0 md:w-[300px] md:min-w-[300px]"
+                >
+                  <BookingCard
+                    image={booking.image}
+                    title={booking.title}
+                    location={booking.location}
+                    status={booking.status}
+                    price={booking.price}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* BOTTOM INFORMATION */}
@@ -136,13 +173,13 @@ const Dashboard = ({ user, onEditProfile }) => {
         <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
           <h2 className="mb-5 font-bold text-[#172033]">Account Information</h2>
 
-          <Info label="Full Name" value={user.fullName || "Not provided"} />
+          <Info label="Full Name" value={user?.fullName || "Not provided"} />
 
-          <Info label="Email" value={user.email || "Not provided"} />
+          <Info label="Email" value={user?.email || "Not provided"} />
 
-          <Info label="Phone Number" value={user.phone || "Not provided"} />
+          <Info label="Phone Number" value={user?.phone || "Not provided"} />
 
-          <Info label="Membership" value="Since January 2026" green />
+          <Info label="Membership" value={`${formattedPlan} Plan`} green />
 
           <button className="mt-3 w-full rounded-lg border border-gray-200 py-2 text-xs transition hover:bg-gray-50">
             Edit Information

@@ -13,7 +13,7 @@ const BookingCard = ({ image, title, location, status, price }) => {
       <div className="p-3">
         <h3 className="text-xs font-bold text-[#172033]">{title}</h3>
 
-        <p className="mt-1 flex items-center gap-1 text-[9px] text-gray-500">
+        <p className="mt-1 flex  items-center gap-1 text-[9px] text-gray-500">
           <MapPin size={9} />
           {location}
         </p>

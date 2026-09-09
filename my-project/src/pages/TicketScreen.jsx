@@ -5,13 +5,27 @@ import TicketActions from "../components/ticket/TicketActions";
 import NeedHelpCard from "../components/ticket/NeedHelpCard";
 
 export default function TicketScreen() {
+  const savedBookings = sessionStorage.getItem("bookings");
+
+  let booking = null;
+
+  try {
+    const bookings = savedBookings ? JSON.parse(savedBookings) : [];
+
+    if (Array.isArray(bookings) && bookings.length > 0) {
+      booking = bookings[0];
+    }
+  } catch (error) {
+    console.error("Error reading booking:", error);
+  }
+
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans text-gray-800">
       <div className="max-w-6xl mx-auto">
         {/* Breadcrumbs */}
         <div className="text-sm text-gray-400 mb-8 flex gap-2 flex-wrap">
           <span>Events</span> &gt;
-          <span>Abia Business Summit 2026</span> &gt;
+          <span>{booking?.title || "Event"}</span> &gt;
           <span>Checkout</span> &gt;
           <span>Payment Successful</span> &gt;
           <span className="text-gray-600">Your Ticket</span>
@@ -31,7 +45,7 @@ export default function TicketScreen() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* LEFT COLUMN */}
           <div className="lg:col-span-8 space-y-6">
-            <TicketCard />
+            <TicketCard booking={booking} />
 
             <ImportantNotes />
           </div>

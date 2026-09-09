@@ -70,8 +70,19 @@ const App = () => {
         </div>
       ),
     },
+    // {
+    //   path: "/event",
+    //   element: (
+    //     <div className="mx-5">
+    //       <GuestGuard>
+    //         <EventDetails />
+    //       </GuestGuard>
+    //     </div>
+    //   ),
+    // },
+
     {
-      path: "/event",
+      path: "/events/:id",
       element: (
         <div className="mx-5">
           <GuestGuard>

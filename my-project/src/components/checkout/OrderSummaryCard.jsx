@@ -1,6 +1,15 @@
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const OrderSummaryCard = () => {
+const OrderSummaryCard = ({ tickets, formatCurrency, event }) => {
+  const subtotal = tickets.reduce(
+    (total, ticket) => total + ticket.basePrice * ticket.qty,
+    0,
+  );
+
+  const serviceFee = 1250;
+
+  const total = subtotal + serviceFee;
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       <h2 className="text-lg font-bold text-black mb-6">Order Summary</h2>
@@ -10,28 +19,42 @@ const OrderSummaryCard = () => {
           <span className="font-semibold text-[18px] text-[#3D3E3E]">
             Subtotal
           </span>
-          <span className="text-black">N16,000</span>
+
+          <span className="text-black">{formatCurrency(subtotal)}</span>
         </div>
 
         <div className="flex justify-between">
           <span className="font-semibold text-[18px] text-[#3D3E3E]">
             Service Fee
           </span>
-          <span className="text-black">N1,250</span>
+
+          <span className="text-black">{formatCurrency(serviceFee)}</span>
         </div>
       </div>
 
       <div className="flex justify-between items-center border-t border-gray-100 pt-4 mb-8">
         <span className="font-bold text-black text-lg">Total</span>
 
-        <span className="font-bold text-[#48782E] text-xl">N17,250</span>
+        <span className="font-bold text-[#48782E] text-xl">
+          {formatCurrency(total)}
+        </span>
       </div>
 
-      <NavLink to="/Payment">
+      <Link
+        to="/Payment"
+        state={{
+          event,
+          tickets,
+          subtotal,
+          serviceFee,
+          total,
+        }}
+        className="block"
+      >
         <button className="w-full bg-[#F46F1A] hover:bg-[#d95d1d] text-white font-bold py-3.5 rounded-lg transition-colors mb-6 shadow-sm">
           Proceed to Payment
         </button>
-      </NavLink>
+      </Link>
 
       <div className="text-center">
         <p className="text-sm font-semibold text-gray-500 mb-4">We accept</p>

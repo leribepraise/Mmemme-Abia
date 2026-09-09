@@ -72,9 +72,9 @@ const ProfileSidebar = ({
         <div className="border-b border-gray-200 px-5 py-5 text-center">
           {/* PROFILE IMAGE */}
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-gray-200 bg-[#EAF4EB]">
-            {user.profileImage ? (
+            {user.profilePicture  ? (
               <img
-                src={user.profileImage}
+                src={user.profilePicture }
                 alt={user.fullName || "User"}
                 className="h-full w-full object-cover"
               />

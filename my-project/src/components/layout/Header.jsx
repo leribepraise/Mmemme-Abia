@@ -14,6 +14,8 @@ const Header = () => {
   // const isLoggedIn = false;
   const { isLoggedIn } = useAuth();
 
+  const user = JSON.parse(sessionStorage.getItem("user")) || {};
+
   const currentNav = isLoggedIn ? userNavList : navList;
   return (
     <>
@@ -52,7 +54,7 @@ const Header = () => {
             </NavLink>
           ))}
           <div className="flex gap-5 items-center">
-            {isLoggedIn  && (
+            {isLoggedIn && (
               <div className="flex gap-3">
                 <span className="text-[20px]">
                   <IoSearch />
@@ -78,7 +80,8 @@ const Header = () => {
                 <NavLink to={profileLink.path}>
                   <div className="flex items-center gap-2">
                     <img
-                      src="/user.png"
+                      src={user.profilePicture || "/user.png"}
+                      alt="Profile"
                       className="w-9 h-9 rounded-full object-cover"
                     />
                     {/* <span className="font-semibold">{profileLink.title}</span> */}

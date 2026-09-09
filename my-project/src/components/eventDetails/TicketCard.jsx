@@ -1,7 +1,71 @@
-import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { FiBookmark, FiMinus, FiPlus } from "react-icons/fi";
 
-const TicketCard = ({ tickets, updateQuantity }) => {
+const TicketCard = ({ tickets, updateQuantity, event }) => {
+  const [isSaved, setIsSaved] = useState(() => {
+    const savedEvents = sessionStorage.getItem("savedEvents");
+
+    if (!savedEvents) return false;
+
+    try {
+      const parsedEvents = JSON.parse(savedEvents);
+
+      return parsedEvents.some((savedEvent) => savedEvent.id === event?.id);
+    } catch {
+      return false;
+    }
+  });
+
+  const handleSaveEvent = () => {
+    if (!event) return;
+
+    const savedEvents = sessionStorage.getItem("savedEvents");
+
+    let events = [];
+
+    try {
+      events = savedEvents ? JSON.parse(savedEvents) : [];
+
+      if (!Array.isArray(events)) {
+        events = [];
+      }
+    } catch {
+      events = [];
+    }
+
+    const alreadySaved = events.some(
+      (savedEvent) => savedEvent.id === event.id,
+    );
+
+    if (alreadySaved) {
+      // Remove the event if it is already saved
+      const updatedEvents = events.filter(
+        (savedEvent) => savedEvent.id !== event.id,
+      );
+
+      sessionStorage.setItem("savedEvents", JSON.stringify(updatedEvents));
+
+      setIsSaved(false);
+    } else {
+      // Save the event
+      const eventToSave = {
+        id: event.id,
+        title: event.text,
+        image: event.image,
+        location: event.text2,
+        price: event.text3,
+      };
+
+      sessionStorage.setItem(
+        "savedEvents",
+        JSON.stringify([eventToSave, ...events]),
+      );
+
+      setIsSaved(true);
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
       <div className="bg-[#E4FCE4] -mx-5 -mt-5 p-4 rounded-t-2xl border-b border-emerald-100">
@@ -9,10 +73,12 @@ const TicketCard = ({ tickets, updateQuantity }) => {
           From
         </span>
 
-        <p className="text-[18px] font-bold text-[#3C6E16]">N3,000</p>
+        <p className="text-[18px] font-bold text-[#3C6E16]">
+          {event?.text3 || "N0"}
+        </p>
       </div>
 
-      <div className="">
+      <div>
         <h3 className="text-[12px] font-semibold text-[#000000] tracking-wider mb-3">
           Available Tickets
         </h3>
@@ -116,16 +182,30 @@ const TicketCard = ({ tickets, updateQuantity }) => {
       </div>
 
       <div className="space-y-2 pt-2">
-        <NavLink to="/checkout">
+        <Link
+          to="/checkout"
+          state={{
+            event,
+            tickets,
+          }}
+          className="block"
+        >
           <button className="w-full bg-[#F46F1A] hover:bg-[#e05600] text-white font-bold py-3 rounded-xl cursor-pointer mb-2">
             Buy Tickets
           </button>
-        </NavLink>
+        </Link>
 
-        <button className="w-full border border-emerald-600 text-emerald-700 py-2.5 rounded-xl flex items-center justify-center space-x-2 cursor-pointer">
-          <span>Save Events</span>
+        <button
+          onClick={handleSaveEvent}
+          className={`w-full border py-2.5 rounded-xl flex items-center justify-center space-x-2 cursor-pointer ${
+            isSaved
+              ? "border-orange-500 text-orange-600 bg-orange-50"
+              : "border-emerald-600 text-emerald-700"
+          }`}
+        >
+          <span>{isSaved ? "Saved Event" : "Save Event"}</span>
 
-          <FiBookmark className="w-4 h-4" />
+          <FiBookmark className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
         </button>
       </div>
 

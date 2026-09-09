@@ -1,7 +1,7 @@
 import { HelpCircle } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
-const PaymentForm = () => {
+const PaymentForm = ({ event, tickets, subtotal, serviceFee, total }) => {
   return (
     <div className="lg:col-span-5">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
@@ -101,10 +101,21 @@ const PaymentForm = () => {
             </label>
           </div>
 
-          <NavLink to="/Paymentsuccess">
+          <NavLink
+            to="/Paymentsuccess"
+            state={{
+              event,
+              tickets,
+              subtotal,
+              serviceFee,
+              total,
+            }}
+          >
             <div className="bg-[#EAF5EA] rounded-lg p-4 flex justify-between items-center">
               <span className="font-bold text-black text-sm">Pay</span>
-              <span className="font-bold text-[#48782E] text-lg">N17,250</span>
+              <span className="font-bold text-[#48782E] text-lg">
+                N{total?.toLocaleString() || "0"}
+              </span>
             </div>
           </NavLink>
         </div>

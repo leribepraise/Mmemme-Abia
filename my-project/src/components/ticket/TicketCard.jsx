@@ -1,14 +1,14 @@
 import React from "react";
 import { Calendar, Clock, MapPin, CalendarPlus } from "lucide-react";
 
-const TicketCard = () => {
+const TicketCard = ({ booking }) => {
   return (
     <div className="relative bg-linear-to-r from-[#000000] to-[#666666] rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row items-center md:items-stretch justify-between p-6 md:p-8 gap-8">
       {/* Background Image Overlay */}
       <div
         className="absolute inset-0 opacity-20 pointer-events-none"
         style={{
-          backgroundImage: "url('/checkout.jpg')",
+          backgroundImage: `url('${booking?.image || "/checkout.jpg"}')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -17,9 +17,7 @@ const TicketCard = () => {
       {/* Ticket Details */}
       <div className="relative z-10 text-white flex-1 space-y-8 w-full">
         <h2 className="text-3xl font-bold leading-tight">
-          Abia Business
-          <br />
-          Summit 2026
+          {booking?.title || "Event"}
         </h2>
 
         <div className="space-y-3 text-sm font-medium text-gray-200">
@@ -36,9 +34,7 @@ const TicketCard = () => {
           <div className="flex items-start gap-3">
             <MapPin className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
             <span className="leading-snug">
-              Umueze Sports Arena, Umuahia,
-              <br />
-              Abia
+              {booking?.location || "Location unavailable"}
             </span>
           </div>
         </div>
@@ -48,14 +44,26 @@ const TicketCard = () => {
             <p className="text-[10px] text-gray-400 font-semibold mb-1 uppercase tracking-wider">
               Ticket Type
             </p>
-            <p className="font-bold text-lg">VIP</p>
+
+            <p className="font-bold text-lg">
+              {booking?.tickets
+                ?.filter((ticket) => ticket.qty > 0)
+                .map((ticket) => ticket.name)
+                .join(", ") || "No ticket"}
+            </p>
           </div>
 
           <div>
             <p className="text-[10px] text-gray-400 font-semibold mb-1 uppercase tracking-wider">
               Quantity
             </p>
-            <p className="font-bold text-lg">1</p>
+
+            <p className="font-bold text-lg">
+              {booking?.tickets?.reduce(
+                (total, ticket) => total + ticket.qty,
+                0,
+              ) || 0}
+            </p>
           </div>
         </div>
 
@@ -63,7 +71,9 @@ const TicketCard = () => {
           <p className="text-[10px] text-gray-400 font-semibold mb-1 uppercase tracking-wider">
             Order ID
           </p>
-          <p className="font-bold text-lg tracking-wide">MBA-2026-9005-7856</p>
+          <p className="font-bold text-lg tracking-wide">
+            {booking?.id || "Generating..."}
+          </p>
         </div>
       </div>
 
@@ -77,13 +87,13 @@ const TicketCard = () => {
           />
 
           <p className="font-bold text-black text-sm tracking-wide text-center">
-            MBA-2026-9005-7856
+            {booking?.id || "Generating..."}
           </p>
         </div>
 
         <div className="bg-black text-white p-4 text-center">
           <p className="font-bold text-sm tracking-wide mb-2">
-            MBA-2026-9005-7856
+            {booking?.id || "Generating..."}
           </p>
 
           <button className="flex items-center justify-center gap-1.5 text-[#48782E] text-xs font-bold w-full mx-auto hover:text-green-400 transition-colors">
