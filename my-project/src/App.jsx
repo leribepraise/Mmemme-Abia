@@ -70,17 +70,6 @@ const App = () => {
         </div>
       ),
     },
-    // {
-    //   path: "/event",
-    //   element: (
-    //     <div className="mx-5">
-    //       <GuestGuard>
-    //         <EventDetails />
-    //       </GuestGuard>
-    //     </div>
-    //   ),
-    // },
-
     {
       path: "/events/:id",
       element: (
@@ -297,12 +286,8 @@ const App = () => {
     { path: "/login", element: <Login /> },
     { path: "/Signup", element: <SignUp /> },
     { path: "/Signup/onboarding", element: <Onboarding /> },
-    // { path: "*", element: <NotFound /> },
   ];
 
-  // Organizer Dashboard routes. Rendered outside the consumer-facing Layout
-  // (same as authRouter above) since the organizer pages bring their own
-  // Sidebar/Header/Footer via the Shell component.
   const organizerRouter = [
     { path: "/organizer", element: <Navigate to="/organizer/login" replace /> },
     { path: "/organizer/login", element: <OrganizerLogin /> },
