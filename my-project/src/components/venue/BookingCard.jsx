@@ -1,10 +1,15 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-const BookingCard = () => {
+const BookingCard = ({ hotel }) => {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm h-fit">
-      <h3 className="text-2xl font-bold mb-6">Book This Venue</h3>
+      <h3 className="text-2xl font-bold mb-2">Book This Venue</h3>
+
+      <p className="text-xl font-bold text-[#F36B25] mb-6">
+        From ₦{hotel.price.toLocaleString()}{" "}
+        <span className="text-sm font-normal text-gray-500">/ night</span>
+      </p>
 
       <div className="space-y-5">
         <div>
@@ -43,10 +48,10 @@ const BookingCard = () => {
           </select>
         </div>
 
-        <NavLink to="/book-comfire">
-            <button className="w-full bg-[#F36B25] hover:bg-[#dd5c17] text-white font-semibold py-3 rounded-lg">
-              Request Booking
-            </button>
+        <NavLink to={`/book-comfire/${hotel.id}`}>
+          <button className="w-full bg-[#F36B25] hover:bg-[#dd5c17] text-white font-semibold py-3 rounded-lg">
+            Request Booking
+          </button>
         </NavLink>
 
         <button className="w-full border border-green-700 text-green-700 hover:bg-green-50 font-semibold py-3 rounded-lg mt-3">

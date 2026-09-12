@@ -1,102 +1,48 @@
-// export const events = [
-//   { date: "28", month: "OCT", price: "N3,000" },
-//   { date: "25", month: "OCT", price: "N2,500" },
-//   { date: "02", month: "NOV", price: "N2,000" },
-//   { date: "31", month: "OCT", price: "Free" },
-//   { date: "31", month: "OCT", price: "N1,500" },
-//   { date: "31", month: "OCT", price: "Free" },
-// ];
-
-// export const eventss = [
-//   {
-//     image: "/Frame2.png",
-//     text: "Abia Business Summit 2026",
-//     text2: "Aba, Abia",
-//     text3: "N3,000",
-//     addLink: "/event",
-//   },
-//   {
-//     image: "/Frame1.png",
-//     text: "Hotel Oris Live Concert",
-//     text2: "Umuahia, Abia",
-//     text3: "N2,500",
-//     addLink: false,
-//   },
-//   {
-//     image: "/Frame3.png",
-//     text: "Abia Cultural Festival",
-//     text2: "Ohafia, Abia",
-//     text3: "Free",
-//     addLink: false,
-//   },
-//   {
-//     image: "/Frame4.png",
-//     text: "Abia Food & Drinks Carnival",
-//     text2: "Arochukwu, Abia",
-//     text3: "N2,000",
-//     addLink: false,
-//   },
-//   {
-//     image: "/football.png",
-//     text: "Abia Unity Football Cup",
-//     text2: "Aba, Abia",
-//     text3: "N1,500",
-//     addLink: false,
-//   },
-//   {
-//     image: "/football2.png",
-//     text: "Women in Tech Conference",
-//     text2: "Umuahia, Abia",
-//     text3: "Free",
-//     addLink: false,
-//   },
-// ];
-
 export const eventss = [
   {
-    id: "abia-business-summit-2026",
-    image: "/Frame2.png",
-    text: "Abia Business Summit 2026",
-    text2: "Aba, Abia",
-    text3: "N3,000",
-  },
-
-  {
-    id: "hotel-oris-live-concert",
-    image: "/Frame1.png",
-    text: "Hotel Oris Live Concert",
+    id: "south-east-migration-dialogue-26",
+    image: "/image1.jpg",
+    text: "South East Migration Dialogue 26",
     text2: "Umuahia, Abia",
-    text3: "N2,500",
+    text3: "FREE",
   },
 
   {
-    id: "abia-cultural-festival",
-    image: "/Frame3.png",
-    text: "Abia Cultural Festival",
-    text2: "Ohafia, Abia",
+    id: "jpi-state-youth-assembly",
+    image: "/image2.jpg",
+    text: "JPI State Youth Assembly",
+    text2: "Umuahia, Abia",
+    text3: "N5,000",
+  },
+
+  {
+    id: "national-products-fair-2026",
+    image: "/image3.jpg",
+    text: "National Products Fair 2026",
+    text2: "Umuahia, Abia",
     text3: "Free",
   },
 
   {
-    id: "abia-food-drinks-carnival",
-    image: "/Frame4.png",
-    text: "Abia Food & Drinks Carnival",
-    text2: "Arochukwu, Abia",
+    id: "mr-&-miss-abia-colleges",
+    image: "/image4.jpg",
+    text: "Mr & Miss Abia Colleges",
+    text2: "Aba, Abia",
+    text3: "Free",
+  },
+
+  {
+    id: "scars-that-speak",
+    image: "/image5.jpg",
+    text: "Scars that Speak",
+    text2: "Aba, Abia",
     text3: "N2,000",
   },
 
   {
-    id: "abia-unity-football-cup",
-    image: "/football.png",
-    text: "Abia Unity Football Cup",
-    text2: "Aba, Abia",
-    text3: "N1,500",
-  },
-
-  {
-    id: "women-in-tech-conference",
-    image: "/football2.png",
-    text: "Women in Tech Conference",
+    id: "akwete-abia-fashion-and-fair-2026",
+    image: "/image6.jpg",
+    text: "Akwete Abia Fashion and Fair 2026",
     text2: "Umuahia, Abia",
     text3: "Free",
   },

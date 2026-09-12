@@ -45,6 +45,8 @@ import OrganizerSettings from "./pages/OrganizerSettings";
 import OrganizerNotFound from "./pages/OrganizerNotFound";
 import { useParams, Navigate } from "react-router-dom";
 
+import { UserProvider } from "./components/context/UserContext";
+
 // /organizer/events/:id/edit needs the :id param handed to OrganizerEventForm
 // as the `editId` prop.
 const OrganizerEventEditRoute = () => {
@@ -201,7 +203,7 @@ const App = () => {
       ),
     },
     {
-      path: "/panyu",
+      path: "/hotels/:id",
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
@@ -211,7 +213,7 @@ const App = () => {
       ),
     },
     {
-      path: "/book-comfire",
+      path: "/book-comfire/:id",
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
@@ -315,23 +317,29 @@ const App = () => {
     <>
       <div className="min-h-screen bg-[#f5f7f3]">
         <div>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              {navList.map((item, index) => (
-                <Route key={index} path={item.path} element={item.element} />
+          <UserProvider>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                {navList.map((item, index) => (
+                  <Route key={index} path={item.path} element={item.element} />
+                ))}
+              </Route>
+              {authRouter.map((item, index) => (
+                <Route
+                  key={`organizer-${index}`}
+                  path={item.path}
+                  element={item.element}
+                />
               ))}
-            </Route>
-            {authRouter.map((item, index) => (
-              <Route key={index} path={item.path} element={item.element} />
-            ))}
-            {organizerRouter.map((item, index) => (
-              <Route
-                key={`organizer-${index}`}
-                path={item.path}
-                element={item.element}
-              />
-            ))}
-          </Routes>
+              {organizerRouter.map((item, index) => (
+                <Route
+                  key={`organizer-${index}`}
+                  path={item.path}
+                  element={item.element}
+                />
+              ))}
+            </Routes>
+          </UserProvider>
         </div>
       </div>
     </>

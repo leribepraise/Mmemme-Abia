@@ -4,7 +4,7 @@ import VenueStats from "./VenueStats";
 import VenueTabs from "./VenueTabs";
 import FacilitiesList from "./FacilitiesList";
 
-const VenueInfo = () => {
+const VenueInfo = ({ hotel }) => {
   const tags = [
     "Event Centre",
     "Conference",
@@ -16,17 +16,19 @@ const VenueInfo = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-4xl font-bold">Panyu Hotel Aba</h1>
+        <h1 className="text-4xl font-bold">{hotel.name}</h1>
 
         <div className="flex flex-wrap items-center gap-4 text-gray-500 mt-3">
           <div className="flex items-center gap-1">
             <MapPin className="w-4 h-4" />
-            <span>Aba, Abia State</span>
+            <span>{hotel.location}</span>
           </div>
 
           <div className="flex items-center gap-1 text-orange-500">
             <Star className="w-4 h-4 fill-orange-500" />
-            <span>4.8 (98 reviews)</span>
+            <span>
+              {hotel.rating} ({hotel.reviews} reviews)
+            </span>
           </div>
         </div>
 
