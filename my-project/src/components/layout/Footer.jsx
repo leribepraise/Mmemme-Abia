@@ -69,7 +69,9 @@
 
 // export default Footer;
 
+// import ContactPage from "@/src/pages/ContactPage";
 import React from "react";
+import { NavLink } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -115,7 +117,9 @@ const Footer = () => {
             <p className="font-normal text-[#FFFFFF]">Venues</p>
             <p className="font-normal text-[#FFFFFF]">Calendar</p>
             <p className="font-normal text-[#FFFFFF]">Blog</p>
-            <p className="font-normal text-[#FFFFFF]">Contact Us</p>
+            <NavLink to="/contact">
+              <p className="font-normal text-[#FFFFFF]">Contact Us</p>
+            </NavLink>
           </div>
 
           {/* ACCOUNT */}
@@ -132,9 +136,24 @@ const Footer = () => {
           {/* ORGANIZER */}
           <div>
             <p className="font-bold text-[16px] text-white">Organizer</p>
-            <Link to="/organizer/login" className="font-normal text-[#FFFFFF] block hover:underline">Become an Organizer</Link>
-            <Link to="/organizer/dashboard" className="font-normal text-[#FFFFFF] block hover:underline">Organizer Dashboard</Link>
-            <Link to="/organizer/events/new" className="font-normal text-[#FFFFFF] block hover:underline">Create Event</Link>
+            <Link
+              to="/organizer/login"
+              className="font-normal text-[#FFFFFF] block hover:underline"
+            >
+              Become an Organizer
+            </Link>
+            <Link
+              to="/organizer/dashboard"
+              className="font-normal text-[#FFFFFF] block hover:underline"
+            >
+              Organizer Dashboard
+            </Link>
+            <Link
+              to="/organizer/events/new"
+              className="font-normal text-[#FFFFFF] block hover:underline"
+            >
+              Create Event
+            </Link>
             <p className="font-normal text-[#FFFFFF]">Pricing</p>
             <p className="font-normal text-[#FFFFFF]">Resources</p>
           </div>

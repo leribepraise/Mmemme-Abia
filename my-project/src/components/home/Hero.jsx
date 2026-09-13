@@ -1,45 +1,119 @@
-import React from "react";
-import { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom";
 import { IoArrowBack, IoArrowForward, IoPlay } from "react-icons/io5";
 
 const heroData = [
-  { image: "/slide1.png" },
-  { image: "/slide2.png" },
-  { image: "/slide3.png" },
-  { image: "/slide4.png" },
-  { image: "/slide5.png" },
-  { image: "/slide6.png" },
-  { image: "/slide7.png" },
+  {
+    id: 1,
+    image: "/hero1.png",
+    title: "Hotel Oris Live Concert",
+    date: "25th - 27th Oct, 2026",
+    location: "Umueze Sports Arena, Umuahia",
+    attendees: "15.7k + Attending",
+    buttonText: "Get Ticket",
+    color: "#F46F1A",
+  },
+  {
+    id: 2,
+    image: "/hero2.png",
+    title: "St. Thomas Catholic Church 25th Anniversary",
+    date: "13th - 14th Aug, 2026",
+    location: "St Thomas Catholic Church, Umuahia",
+    attendees: "",
+    buttonText: "Attend",
+    color: "#F46F1A",
+  },
+  {
+    id: 3,
+    image: "/hero3.png",
+    title: "Apostolic Invasion Grand Finale",
+    date: "13th - 14th Sept, 2026",
+    location: "Aba Mega Mall",
+    attendees: "14.7k + Attending",
+    buttonText: "Attend",
+    color: "#F46F1A",
+  },
+  {
+    id: 4,
+    image: "/hero4.png",
+    title: "ABA The Gathering on n'abia",
+    date: "23rd - 29th Oct, 2026",
+    location: "Aba Mega Mall",
+    attendees: "",
+    buttonText: "Get Ticket",
+    color: "#F46F1A",
+  },
+  {
+    id: 5,
+    image: "/hero5.png",
+    title: "Techrise Cohort 3 by LearnFactory",
+    date: "20th May - 21st Aug, 2026",
+    location: "Hotel de la Poste, Aba",
+    attendees: "14.7k + Attending",
+    buttonText: "Attend",
+    color: "#F46F1A",
+  },
+  {
+    id: 6,
+    image: "/hero6.png",
+    title: "Abia State Tech Conference",
+    date: "2nd May - 4th Dec, 2026",
+    location: "JMAC, Umuahia",
+    attendees: "14.7k + Attending",
+    buttonText: "Get Ticket",
+    color: "#F46F1A",
+  },
+  {
+    id: 7,
+    image: "/hero7.png",
+    title: "Techrise Alumni Homecoming",
+    date: "Community Appreciation Walk - Umuahia Edition",
+    location: "Umuahia, Abia State",
+    attendees: "",
+    buttonText: "Get Ticket",
+    color: "#F46F1A",
+  },
 ];
 
 const Hero = () => {
   const [slideIndex, setSlideIndex] = useState(0);
-  const nextSilde = () => {
-    if (slideIndex < heroData.length - 1) {
-      setSlideIndex((prevIndex) => prevIndex + 1);
-    } else {
-      setSlideIndex(0);
-    }
+
+  const currentSlide = heroData[slideIndex];
+
+  const nextSlide = () => {
+    setSlideIndex((prevIndex) =>
+      prevIndex === heroData.length - 1 ? 0 : prevIndex + 1,
+    );
   };
+
+  const previousSlide = () => {
+    setSlideIndex((prevIndex) =>
+      prevIndex === 0 ? heroData.length - 1 : prevIndex - 1,
+    );
+  };
+
+  // Automatic slide
   useEffect(() => {
     const interval = setInterval(() => {
-      nextSilde();
+      nextSlide();
     }, 2000);
+
     return () => clearInterval(interval);
-  }, [nextSilde]);
+  }, []);
+
   return (
     <>
       <section
         className="
-          mx-8 pt-10 
-          flex flex-col lg:flex-row 
+          mx-8 pt-10
+          flex flex-col lg:flex-row
           justify-center
         "
       >
+        {/* LEFT CONTENT */}
         <div
           className="
-            max-w-full lg:max-w-1/2 
+            max-w-full lg:max-w-1/2
             space-y-3 z-10
           "
         >
@@ -54,103 +128,195 @@ const Hero = () => {
             Abia State and beyond.
           </p>
 
-          {/* RESPONSIVE CHANGE: added flex-wrap */}
           <div className="flex gap-3 flex-wrap">
-            <a className="bg-[#F46F1A] text-white inline-flex justify-center items-center py-[15px] px-[25px] rounded-md gap-5 pl-4 font-bold w-full md:w-fit">
+            <NavLink
+              to="/events"
+              className="
+                bg-[#F46F1A]
+                text-white
+                inline-flex
+                justify-center
+                items-center
+                py-[15px]
+                px-[25px]
+                rounded-md
+                gap-5
+                pl-4
+                font-bold
+                w-full
+                md:w-fit
+              "
+            >
               <span>Explore Events</span>
+
               <span>
                 <IoArrowForward />
               </span>
-            </a>
+            </NavLink>
 
-            <a className="border-[#3C6E16] border-2 text-[#3C6E16] inline-flex justify-center items-center py-[15px] px-[25px] rounded-md gap-5 pl-4 font-bold w-full md:w-fit">
+            <NavLink
+              to="/organizer/login"
+              className="
+    border-[#3C6E16]
+    border-2
+    text-[#3C6E16]
+    inline-flex
+    justify-center
+    items-center
+    py-[15px]
+    px-[25px]
+    rounded-md
+    gap-5
+    pl-4
+    font-bold
+    w-full
+    md:w-fit
+  "
+            >
               <span>Become an Organizer</span>
+
               <span>
                 <IoPlay />
               </span>
-            </a>
+            </NavLink>
           </div>
         </div>
 
-        {/* RESPONSIVE CHANGE:
-            full width on mobile/tablet,
-            original width on laptop
-        */}
+        {/* HERO SLIDER */}
         <div
           className="
-            relative rounded-xl overflow-hidden h-80 
-            w-full lg:w-3xl 
+            relative
+            rounded-xl
+            overflow-hidden
+            h-80
+            w-full
+            lg:w-3xl
             z-10
             mt-5
           "
         >
+          {/* Current Image */}
           <img
-            src={`${heroData[slideIndex].image}`}
-            alt=""
-            className="w-full h-full object-cover"
+            src={currentSlide.image}
+            alt={currentSlide.title}
+            className="
+              w-full
+              h-full
+              object-cover
+              transition-opacity
+              duration-500
+            "
           />
 
-          {/* <div className="absolute top-4 left-4 flex flex-col gap-2">
-            RESPONSIVE CHANGE:
-                gap-4 on smaller screens,
-                original gap-80 on laptop
-           
-            <div className="flex justify-between items-center gap-4 lg:gap-80">
-              <div>
-                <p className="inline-block bg-[#F46F1A] text-[#ffffff] px-[20px] py-[10px] rounded-full w-fit text-[12px]">
-                  Featured Event
-                </p>
+          {/* DARK OVERLAY */}
+          <div className="absolute inset-0 bg-black/20" />
+
+          {/* SLIDE CONTENT */}
+          <div className="absolute inset-0 p-5 flex flex-col justify-between">
+            {/* TOP */}
+            <div className="flex justify-between items-start">
+              {/* Featured Badge */}
+              <span
+                className="inline-block text-white px-4 py-2 rounded-full text-[10px] font-semibold"
+                style={{
+                  backgroundColor: currentSlide.color,
+                }}
+              >
+                Featured Event
+              </span>
+
+              {/* Navigation */}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={previousSlide}
+                  className={`
+      flex
+      items-center
+      justify-center
+      w-8
+      h-8
+      rounded-full
+      transition
+      ${
+        slideIndex === 0
+          ? "bg-black/60 text-white hover:bg-black/80"
+          : "bg-white text-black hover:bg-gray-100"
+      }
+    `}
+                >
+                  <IoArrowBack size={14} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={nextSlide}
+                  className={`
+      flex
+      items-center
+      justify-center
+      w-8
+      h-8
+      rounded-full
+      transition
+      ${
+        slideIndex === heroData.length - 1
+          ? "bg-black/60 text-white hover:bg-black/80"
+          : "bg-white text-black hover:bg-gray-100"
+      }
+    `}
+                >
+                  <IoArrowForward size={14} />
+                </button>
+              </div>
+            </div>
+
+            {/* BOTTOM INFORMATION */}
+            <div className="text-white max-w-[400px]">
+              <h2 className="font-bold text-[25px] leading-tight">
+                {currentSlide.title}
+              </h2>
+
+              <div className="mt-2 space-y-1 text-[11px] font-medium">
+                <p>📅 {currentSlide.date}</p>
+
+                <p>📍 {currentSlide.location}</p>
+
+                {currentSlide.attendees && <p>👥 {currentSlide.attendees}</p>}
               </div>
 
-              <div className="flex gap-5">
-                <span className="text-white bg-black/80 p-3 rounded-full">
-                  <IoArrowBack />
-                </span>
+              <button
+                type="button"
+                className="
+                  mt-3
+                  inline-flex
+                  items-center
+                  gap-2
+                  text-white
+                  px-5
+                  py-2
+                  rounded-md
+                  text-[11px]
+                  font-semibold
+                  transition
+                  hover:opacity-90
+                "
+                style={{
+                  backgroundColor: currentSlide.color,
+                }}
+              >
+                {currentSlide.buttonText}
 
-                <span className="text-black bg-white p-3 rounded-full">
-                  <IoArrowForward />
-                </span>
-              </div>
+                <IoArrowForward />
+              </button>
             </div>
-
-            <p className="text-[#fff] px-1 py-1 rounded-full font-bold text-[30px] w-50 leading-tight">
-              Hotel Oris Live Concert
-            </p>
-
-            <p className="text-[12px] text-white font-semibold px-1">
-              25th - 27th oct, 2026
-            </p>
-
-            <p className="text-[12px] text-white font-semibold px-1">
-              Umueze Sports Arena, Umuahia
-            </p>
-
-            <div className="flex items-center gap-2">
-              <img src="/group.png" alt="" />
-
-              <p className="text-[#ffffff] font-medium text-[12px]">
-                15.7k + Attending
-              </p>
-            </div>
-
-            <div>
-              <img src="/people.png" alt="" className="w-auto h-30"/>
-            </div>
-
-            <p className="inline-block bg-[#F46F1A] text-[#fff] px-6 py-2 rounded-md w-fit text-[14px] font-semibold">
-              Get Ticket
-            </p>
-          </div> */}
+          </div>
         </div>
 
-        {/* RESPONSIVE CHANGE:
-            Decorative absolute elements are hidden on mobile/tablet
-            because their fixed positions would cause horizontal overflow.
-            They appear again on laptop.
-        */}
+        {/* DECORATIVE ELEMENTS */}
         <div className="hidden lg:block">
           <div className="absolute right-1 top-30 w-fit h-fit rounded-full">
-            <img src="/Ellipse 7.png" />
+            <img src="/Ellipse 7.png" alt="" />
           </div>
 
           <div className="absolute right-5 top-80 w-fit h-fit rounded-full">

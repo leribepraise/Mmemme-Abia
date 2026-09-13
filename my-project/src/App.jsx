@@ -46,6 +46,7 @@ import OrganizerNotFound from "./pages/OrganizerNotFound";
 import { useParams, Navigate } from "react-router-dom";
 
 import { UserProvider } from "./components/context/UserContext";
+import ContactPage from "./pages/ContactPage";
 
 // /organizer/events/:id/edit needs the :id param handed to OrganizerEventForm
 // as the `editId` prop.
@@ -61,6 +62,14 @@ const App = () => {
       element: (
         <div className="mx-5">
           <Home />
+        </div>
+      ),
+    },
+    {
+      path: "/contact",
+      element: (
+        <div className="mx-5">
+          <ContactPage />
         </div>
       ),
     },
@@ -152,16 +161,16 @@ const App = () => {
         </div>
       ),
     },
-    {
-      path: "/contact",
-      element: (
-        <div className="mx-5 my-5">
-          <GuestGuard>
-            <HelpSupport />
-          </GuestGuard>
-        </div>
-      ),
-    },
+    // {
+    //   path: "/contact",
+    //   element: (
+    //     <div className="mx-5 my-5">
+    //       <GuestGuard>
+    //         <HelpSupport />
+    //       </GuestGuard>
+    //     </div>
+    //   ),
+    // },
     {
       path: "/events",
       element: (
