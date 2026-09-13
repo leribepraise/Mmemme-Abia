@@ -93,13 +93,18 @@ const Hero = () => {
   };
 
   // Automatic slide
-  useEffect(() => {
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 2000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     nextSlide();
+  //   }, 2000);
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
+  useEffect(() => {
+  const nextIndex = slideIndex === heroData.length - 1 ? 0 : slideIndex + 1;
+  const img = new Image();
+  img.src = heroData[nextIndex].image;
+}, [slideIndex]);
 
   return (
     <>
