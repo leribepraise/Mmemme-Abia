@@ -28,7 +28,18 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework_simplejwt.token_blacklist",
 
+    # Local apps
     "apps.accounts",
+    "apps.events",
+    "apps.bookings",
+    "apps.payments",
+    "apps.tickets",
+    "apps.tourism",
+    "apps.hotels",
+    "apps.restaurants",
+    "apps.transport",
+    "apps.messaging",
+    "apps.notifications",
 ]
 
 
