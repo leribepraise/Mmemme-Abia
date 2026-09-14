@@ -1,6 +1,7 @@
 import uuid
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -33,6 +34,11 @@ class Event(models.Model):
 
     description = models.TextField()
 
+    category = models.CharField(
+        max_length=100,
+        db_index=True,
+    )
+
     venue = models.CharField(max_length=255)
     address = models.TextField(blank=True)
     city = models.CharField(max_length=100)
@@ -58,6 +64,12 @@ class Event(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    def clean(self):
+        if self.end_datetime <= self.start_datetime:
+            raise ValidationError(
+                "Event end time must be after the start time."
+            )
 
     class Meta:
         ordering = ["-start_datetime"]

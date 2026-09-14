@@ -119,7 +119,7 @@ class TourismReview(models.Model):
         related_name="tourism_reviews",
     )
 
-    rating = models.positiveSmallIntegerField(
+    rating = models.PositiveSmallIntegerField(
         validators=[
             MinValueValidator(1),
             MaxValueValidator(5),
@@ -155,7 +155,7 @@ class TourPackage(models.Model):
         related_name="packages",
     )
 
-    name = models.CaharField(max_length=200)
+    name = models.CharField(max_length=200)
 
     description = models.TextField(blank=True)
 
@@ -164,7 +164,7 @@ class TourPackage(models.Model):
         decimal_places=2,
     )
 
-    duration__hours = models.PositiveIntegerField(
+    duration_hours = models.PositiveIntegerField(
         default=1,
     )
 
@@ -172,7 +172,7 @@ class TourPackage(models.Model):
         default=True,
     )
 
-    created_at = models.DecimalField(
+    created_at = models.DateTimeField(
         auto_now_add=True,
     )
 
