@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 import { MapPin, Calendar, Users, Search } from "lucide-react";
 
 const HeroSection = () => {
@@ -23,7 +24,7 @@ const HeroSection = () => {
           <div className="flex items-center gap-2 text-gray-700 text-sm">
             <MapPin className="w-4 h-4" />
             <div>
-              <p className="text-xs text-gray-500">Where do you want to go?</p>
+              <p className="text-xs text-gray-500">Where to?</p>
               <p className="font-medium">Search destination</p>
             </div>
           </div>
@@ -31,31 +32,33 @@ const HeroSection = () => {
           <div className="flex items-center gap-2 text-gray-700 text-sm">
             <Calendar className="w-4 h-4" />
             <div>
-              <p className="text-xs text-gray-500">Check-in</p>
-              <p className="font-medium">Select date</p>
+              <p className="text-xs text-gray-500">Category</p>
+              <p className="font-medium">All Categories</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 text-gray-700 text-sm">
             <Calendar className="w-4 h-4" />
             <div>
-              <p className="text-xs text-gray-500">Check-out</p>
-              <p className="font-medium">Select date</p>
+              <p className="text-xs text-gray-500">Date</p>
+              <p className="font-medium">Anytime</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 text-gray-700 text-sm">
             <Users className="w-4 h-4" />
             <div>
-              <p className="text-xs text-gray-500">Guests & Rooms</p>
-              <p className="font-medium">2 Guests, 1 Room</p>
+              <p className="text-xs text-gray-500">Travel Type</p>
+              <p className="font-medium">All Types</p>
             </div>
           </div>
 
-          <button className="bg-[#F97316] hover:bg-[#dc5d19] rounded-[8px] py-3 text-white font-medium text-[14px] flex items-center justify-center gap-2">
-            <Search className="w-4 h-4" />
-            Search Hotels
-          </button>
+          <NavLink to="/search" className="cursor-pointer">
+            <button className="bg-[#F97316] hover:bg-[#dc5d19] rounded-[8px] py-3 px-5 text-white font-medium text-[14px] flex items-center justify-center gap-2 cursor-pointer">
+              <Search className="w-4 h-4" />
+              Search
+            </button>
+          </NavLink>
         </div>
       </div>
     </div>

@@ -23,93 +23,68 @@ import SidebarEvent from "../components/tour/SidebarEvent";
 import TopActivityItem from "../components/tour/TopActivityItem";
 import HeroSection from "../components/tour/HeroSection";
 
+import { tours } from "../data/tours";
+
 export default function ExploreAbiaPage() {
   const categories = [
-    {
-      icon: TreePine,
-      title: "Nature & Parks",
-      count: 234,
-      color: "text-gray-700",
-    },
-    { icon: Waves, title: "Waterfalls", count: 28, color: "text-yellow-500" },
-    {
-      icon: HomeIcon,
-      title: "Historical Sites",
-      count: 86,
-      color: "text-green-500",
-    },
-    {
-      icon: Building2,
-      title: "Caves & Hills",
-      count: 34,
-      color: "text-purple-500",
-    },
-    { icon: Church, title: "Museums", count: 15, color: "text-teal-500" },
-    { icon: Ship, title: "Religious Sites", count: 42, color: "text-blue-500" },
-    {
-      icon: Building2,
-      title: "Adventure",
-      count: 36,
-      color: "text-indigo-500",
-    },
-    {
-      icon: Navigation,
-      title: "Hidden Gems",
-      count: 19,
-      color: "text-pink-500",
-    },
-  ];
+  {
+    icon: TreePine,
+    title: "Nature & Parks",
+    count: 234,
+    color: "text-gray-700",
+    path: "/explore/nature-and-parks",
+  },
+  {
+    icon: Waves,
+    title: "Waterfalls",
+    count: 28,
+    color: "text-yellow-500",
+    path: "/explore/waterfalls",
+  },
+  {
+    icon: HomeIcon,
+    title: "Historical Sites",
+    count: 86,
+    color: "text-green-500",
+    path: "/historical-sites",
+  },
+  {
+    icon: Building2,
+    title: "Caves & Hills",
+    count: 34,
+    color: "text-purple-500",
+    path: "/caves-and-hills",
+  },
+  {
+    icon: Church,
+    title: "Museums",
+    count: 15,
+    color: "text-teal-500",
+    path: "/explore/museums",
+  },
+  {
+    icon: Ship,
+    title: "Religious Sites",
+    count: 42,
+    color: "text-blue-500",
+    path: "/religious-sites",
+  },
+  {
+    icon: Building2,
+    title: "Adventure",
+    count: 36,
+    color: "text-indigo-500",
+    path: "/adventure",
+  },
+  {
+    icon: Navigation,
+    title: "Hidden Gems",
+    count: 19,
+    color: "text-pink-500",
+    path: "/explore/hidden-gems",
+  },
+];
 
-  const tours = [
-    {
-      image: "/tour1.jpg",
-      tag: "Popular",
-      text: "text-[#374151]",
-      bg: "bg-[#FFFFFFE5]",
-      name: "Arochukwu Long Juju",
-      location: "Arochukwu, Abia State",
-      rating: 4.8,
-      reviews: 320,
-      text2: "Historical Landmark",
-      link: null,
-    },
-    {
-      image: "/tour2.jpg",
-      tag: "Top Rated",
-      text: "text-[#F97316]",
-      bg: "bg-[#FFFFFFE5]",
-      name: "Arochukwu Waterfall",
-      location: "Arochukwu, Abia State",
-      rating: 4.9,
-      reviews: 412,
-      text2: "Waterfall",
-      link: null,
-    },
-    {
-      image: "/tour3.jpg",
-      tag: "New",
-      text: "text-white",
-      bg: "bg-[#3B82F6]",
-      name: "Isi-ume Cave",
-      location: "Uturu",
-      rating: 4.7,
-      reviews: 156,
-      text2: "Cave",
-      link: null,
-    },
-    {
-      image: "/tour4.jpg",
-      tag: "Popular",
-      text: "text-[#F97316]",
-      bg: "bg-[#FFFFFFE5]",
-      name: "Azumini Blue River",
-      location: "Ukwa East, Abia State",
-      rating: 4.6,
-      reviews: 230,
-      text2: "River & Nature",
-      link: null,
-    },
-  ];
   return (
     <div className="min-h-screen bg-gray-50/50 font-sans text-gray-800 pb-16">
       <div className="max-w-[88rem] mx-auto px-4 md:px-8 pt-6">

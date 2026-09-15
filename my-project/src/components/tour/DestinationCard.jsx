@@ -1,10 +1,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Star, Heart, Wifi, Car, Coffee, Utensils } from "lucide-react";
+import { Star, Heart } from "lucide-react";
 
 const DestinationCard = ({ tour }) => {
   return (
-    <NavLink to={tour.link}>
+    <NavLink to={`/destinations/${tour.id}`}>
       <div className="bg-white rounded-[12px] border border-gray-200 overflow-hidden hover:shadow-md transition cursor-pointer">
         <div className="relative">
           <img src={tour.image} className="w-full h-44 object-cover" />

@@ -47,6 +47,12 @@ import { useParams, Navigate } from "react-router-dom";
 
 import { UserProvider } from "./components/context/UserContext";
 import ContactPage from "./pages/ContactPage";
+import SearchResultsPage from "./pages/SearchResultsPage";
+import HistoricalSitesPage from "./pages/HistoricalSitesPage";
+import CavesAndHillsPage from "./pages/CavesAndHillsPage";
+import ReligiousSitesPage from "./pages/ReligiousSitesPage";
+import AdventurePage from "./pages/AdventurePage";
+import TourDestinationDetails from "./pages/TourDestinationDetails";
 
 // /organizer/events/:id/edit needs the :id param handed to OrganizerEventForm
 // as the `editId` prop.
@@ -157,6 +163,16 @@ const App = () => {
         <div className="mx-5 my-5">
           <GuestGuard>
             <ExploreAbiaPage />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/destinations/:id",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <TourDestinationDetails />
           </GuestGuard>
         </div>
       ),
@@ -287,6 +303,56 @@ const App = () => {
         <div className="mx-5 my-5">
           <GuestGuard>
             <Profile />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/search",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <SearchResultsPage />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/historical-sites",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <HistoricalSitesPage />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/caves-and-hills",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <CavesAndHillsPage />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/religious-sites",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <ReligiousSitesPage />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/adventure",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <AdventurePage />
           </GuestGuard>
         </div>
       ),

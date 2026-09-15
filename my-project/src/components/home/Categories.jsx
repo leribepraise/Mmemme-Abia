@@ -14,7 +14,7 @@ const Categories = () => {
     { image: "/category10.png", text: "Family" },
   ];
   return (
-    <section className="my-10 overflow-x-auto scrollbar-hide py-10 lg:overflow-x-hidden">
+    <section className="my-10 overflow-x-auto scrollbar-hide py-10 px-5 lg:overflow-x-hidden">
       <div className="flex justify-between gap-3 md:gap-0">
         {groups.map((group) => (
           <div
@@ -24,7 +24,7 @@ const Categories = () => {
   hover:-translate-y-1
   cursor-pointer shrink-0"
           >
-            <img src={group.image} className="h-10 w-10" />{" "}
+            <img src={group.image} className="h-10 w-10" />
             <p className="text-[12px] [font-normal]">{group.text}</p>
           </div>
         ))}
