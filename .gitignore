@@ -1,0 +1,21 @@
+# Local tooling and credentials
+.idea/
+.vscode/
+**/__pycache__/
+**/*.py[cod]
+**/venv/
+**/.venv/
+**/Abia/
+**/.env
+**/.env.*
+!**/.env.example
+**/*.sqlite3
+**/*.log
+**/node_modules/
+**/dist/
+**/staticfiles/
+**/media/
+.coverage
+htmlcov/
+artifacts/
+
