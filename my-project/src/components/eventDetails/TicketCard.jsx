@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { FiBookmark, FiMinus, FiPlus } from "react-icons/fi";
 
 const TicketCard = ({ tickets, updateQuantity, event }) => {
+  const isFree = event?.text3?.toLowerCase() === "free";
+
   const [isSaved, setIsSaved] = useState(() => {
     const savedEvents = sessionStorage.getItem("savedEvents");
 
@@ -39,7 +41,6 @@ const TicketCard = ({ tickets, updateQuantity, event }) => {
     );
 
     if (alreadySaved) {
-      // Remove the event if it is already saved
       const updatedEvents = events.filter(
         (savedEvent) => savedEvent.id !== event.id,
       );
@@ -48,7 +49,6 @@ const TicketCard = ({ tickets, updateQuantity, event }) => {
 
       setIsSaved(false);
     } else {
-      // Save the event
       const eventToSave = {
         id: event.id,
         title: event.text,
@@ -65,6 +65,12 @@ const TicketCard = ({ tickets, updateQuantity, event }) => {
       setIsSaved(true);
     }
   };
+
+  const tierData = [
+    { key: "regular", label: "Regular", price: event?.text3 || "N0" },
+    { key: "vip", label: "VIP", price: "N10,000" },
+    { key: "vvip", label: "VVIP", price: "N20,000" },
+  ];
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
@@ -84,100 +90,50 @@ const TicketCard = ({ tickets, updateQuantity, event }) => {
         </h3>
 
         <div className="space-y-3.5 divide-y divide-slate-100">
-          <div className="pt-2 flex flex-col justify-between">
-            <div className="flex justify-between">
-              <h4 className="font-bold text-[18px]">Regular</h4>
-              <p className="font-bold text-[18px]">N3,000</p>
-            </div>
+          {tierData.map((tier) => (
+            <div key={tier.key} className="pt-2 flex flex-col justify-between">
+              <div className="flex justify-between">
+                <h4 className="font-bold text-[18px]">{tier.label}</h4>
+                <p className="font-bold text-[18px]">
+                  {isFree ? "Free" : tier.price}
+                </p>
+              </div>
 
-            <div className="flex justify-between">
-              <p className="text-[12px] font-medium">
-                Choose the number of tickets to buy
-              </p>
+              <div className="flex justify-between">
+                <p className="text-[12px] font-medium">
+                  {isFree
+                    ? "Free entry — quantity fixed"
+                    : "Choose the number of tickets to buy"}
+                </p>
 
-              <div className="flex items-center border rounded-lg p-0.5">
-                <button
-                  onClick={() => updateQuantity("regular", "decrease")}
-                  className="p-1 cursor-pointer"
+                <div
+                  className={`flex items-center border rounded-lg p-0.5 ${
+                    isFree ? "opacity-40" : ""
+                  }`}
                 >
-                  <FiMinus className="w-3 h-3" />
-                </button>
+                  <button
+                    onClick={() => updateQuantity(tier.key, "decrease")}
+                    disabled={isFree}
+                    className="p-1 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    <FiMinus className="w-3 h-3" />
+                  </button>
 
-                <span className="px-2 text-sm font-bold">
-                  {tickets.regular}
-                </span>
+                  <span className="px-2 text-sm font-bold">
+                    {tickets[tier.key]}
+                  </span>
 
-                <button
-                  onClick={() => updateQuantity("regular", "increase")}
-                  className="p-1 cursor-pointer"
-                >
-                  <FiPlus className="w-3 h-3" />
-                </button>
+                  <button
+                    onClick={() => updateQuantity(tier.key, "increase")}
+                    disabled={isFree}
+                    className="p-1 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    <FiPlus className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="pt-2 flex flex-col justify-between">
-            <div className="flex justify-between">
-              <h4 className="font-bold text-[18px]">VIP</h4>
-              <p className="font-bold text-[18px]">N10,000</p>
-            </div>
-
-            <div className="flex justify-between">
-              <p className="text-[12px] font-medium">
-                Choose the number of tickets to buy
-              </p>
-
-              <div className="flex items-center border rounded-lg p-0.5">
-                <button
-                  onClick={() => updateQuantity("vip", "decrease")}
-                  className="p-1 cursor-pointer"
-                >
-                  <FiMinus className="w-3 h-3" />
-                </button>
-
-                <span className="px-2 text-sm font-bold">{tickets.vip}</span>
-
-                <button
-                  onClick={() => updateQuantity("vip", "increase")}
-                  className="p-1 cursor-pointer"
-                >
-                  <FiPlus className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-2 flex flex-col justify-between">
-            <div className="flex justify-between">
-              <h4 className="font-bold text-[18px]">VVIP</h4>
-              <p className="font-bold text-[18px]">N20,000</p>
-            </div>
-
-            <div className="flex justify-between">
-              <p className="text-[12px] font-medium">
-                Choose the number of tickets to buy
-              </p>
-
-              <div className="flex items-center border rounded-lg p-0.5">
-                <button
-                  onClick={() => updateQuantity("vvip", "decrease")}
-                  className="p-1 cursor-pointer"
-                >
-                  <FiMinus className="w-3 h-3" />
-                </button>
-
-                <span className="px-2 text-sm font-bold">{tickets.vvip}</span>
-
-                <button
-                  onClick={() => updateQuantity("vvip", "increase")}
-                  className="p-1 cursor-pointer"
-                >
-                  <FiPlus className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 

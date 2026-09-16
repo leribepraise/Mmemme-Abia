@@ -20,16 +20,18 @@ const WhatNext = () => {
     },
   ];
   return (
-    <div>
-      <h3 className="text-[#191C1D] font-semibold text-[20px] mb-5">What's Next?</h3>
-      <div className="flex justify-around  gap-3">
-        {next.map((items) => (
-          <div className="space-y-3">
+    <div className="w-full">
+      <h3 className="text-[#191C1D] font-semibold text-[20px] mb-5 text-center sm:text-left">
+        What's Next?
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center sm:text-left">
+        {next.map((item) => (
+          <div key={item.title} className="space-y-2">
             <p className="text-[#191C1D] font-semibold text-[14px]">
-              {items.title}
+              {item.title}
             </p>
             <p className="text-[#41493E] font-normal text-[14px]">
-              {items.text}
+              {item.text}
             </p>
           </div>
         ))}

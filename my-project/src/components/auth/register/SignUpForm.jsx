@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema } from "./validation/schemas/signupSchema";
 import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const SignUpForm = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -185,12 +186,13 @@ const SignUpForm = ({ onLogin }) => {
           <SignUpSocialButtons />
           <p className="text-center text-sm text-[#666666]">
             Already have an account?
-            <button
-              onClick={onLogin}
-              className="text-[#48782E] font-semibold hover:underline"
-            >
-              Log In
-            </button>
+            <NavLink to="/login">
+              <button
+                className="text-[#48782E] font-semibold hover:underline"
+              >
+                Log In
+              </button>
+            </NavLink>
           </p>
         </div>
       </div>

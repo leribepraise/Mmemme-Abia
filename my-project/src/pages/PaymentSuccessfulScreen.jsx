@@ -75,7 +75,12 @@ export default function PaymentSuccessfulScreen() {
 
           <EventSummaryCard event={event} total={total} orderId={orderId} />
 
-          <ActionButtons />
+          <ActionButtons
+            event={event}
+            tickets={tickets}
+            total={total}
+            orderId={orderId}
+          />
         </div>
       </div>
     </div>

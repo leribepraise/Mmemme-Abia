@@ -1,10 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-const BookingAlert = ({ hotel }) => {
-  const bookingRef = hotel
-    ? `MMA${hotel.id.slice(0, 4).toUpperCase()}${Date.now().toString().slice(-4)}`
-    : "MMA2505267890";
+const BookingAlert = ({ hotel, bookingRef }) => {
 
   return (
     <div className="space-y-5 max-w-2xl">

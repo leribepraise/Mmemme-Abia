@@ -4,6 +4,7 @@ import SocialButtons from "./SocialButtons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "./validation/schemas/loginSchemas";
+import { NavLink } from "react-router-dom";
 
 const LoginForm = ({ onLogin }) => {
   const [inputType, setInputType] = useState("password");
@@ -121,9 +122,11 @@ const LoginForm = ({ onLogin }) => {
 
           <p className="text-center text-sm text-[#666666]">
             Don't have an account?{" "}
-            <button className="text-[#F36B25] font-semibold hover:underline">
-              Sign up
-            </button>
+            <NavLink to="/signup">
+              <button className="text-[#F36B25] font-semibold hover:underline">
+                Sign up
+              </button>
+            </NavLink>
           </p>
         </div>
       </div>
