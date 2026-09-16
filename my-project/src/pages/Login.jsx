@@ -1,6 +1,5 @@
-import React from "react";
 import { useAuth } from "../components/context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import LoginLogo from "../components/auth/login/LoginLogo";
 import LoginHero from "../components/auth/login/LoginHero";
 import LoginForm from "../components/auth/login/LoginForm";
@@ -8,10 +7,12 @@ import LoginForm from "../components/auth/login/LoginForm";
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogin = async () => {
-    login();
-    navigate("/");
+  const handleLogin = async (credentials) => {
+    await login(credentials);
+    const from=location.state?.from;
+    navigate(from?.pathname ? from.pathname+(from.search||"") : "/account",{replace:true});
   };
   return (
     <div className="min-h-screen bg-[#F5F7F3] px-5 py-8 md:px-12">

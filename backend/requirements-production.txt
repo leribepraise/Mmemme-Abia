@@ -1,0 +1,6 @@
+-r requirements.txt
+psycopg[binary]==3.3.5
+redis==7.4.1
+gunicorn==25.3.0
+qrcode==8.2
+packaging==26.3
