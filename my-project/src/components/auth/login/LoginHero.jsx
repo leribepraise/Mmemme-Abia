@@ -1,4 +1,3 @@
-import React from "react";
 
 const LoginHero = () => {
   return (
@@ -44,10 +43,10 @@ const LoginHero = () => {
 
           <div>
             <p className="text-[10px] font-bold text-[#1B1B1B]">
-              Trusted by 10k+
+              Discover something new
             </p>
             <p className="text-[10px] text-[#666666]">
-              event lovers across Abia State.
+              across Abia State.
             </p>
           </div>
         </div>
