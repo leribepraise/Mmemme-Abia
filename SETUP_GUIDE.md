@@ -52,6 +52,8 @@ Copy its output into your local file. Do not paste it into chat or source code.
 
 Development uses SQLite and prints outgoing email in the worker terminal. PostgreSQL, Redis and SMTP become mandatory when production settings are selected. Add a Paystack `sk_test_...` secret when testing checkout; blank means payment processing is unavailable.
 
+Local email previews show verification and password-reset URLs as plain text on their own lines. Copy the complete URL from the newest preview. If an older email shows `token=3D` or a URL split with `=` at line endings, restart the worker and request a fresh link from the website. The worker must be restarted after changes to email settings; unlike the development web server, it does not reload automatically.
+
 After installing the backend requirements, run from `backend`:
 
 ```powershell

@@ -1,5 +1,7 @@
 from .base import *
 
+EMAIL_BACKEND = "apps.common.mail.DevelopmentConsoleEmailBackend"
+
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = [
