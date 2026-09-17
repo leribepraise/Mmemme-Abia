@@ -1,6 +1,6 @@
 # MMEMME ABIA: your environment and launch setup
 
-Updated 16 September 2026.
+Updated 17 September 2026. For the Railway Hobby deployment using Resend and your `mmemme.com.ng` domain, use [RAILWAY_SETUP_GUIDE.md](RAILWAY_SETUP_GUIDE.md). This guide still covers local development and the alternative Docker Compose setup.
 
 ## Project restored in your confirmed folder
 
@@ -50,7 +50,7 @@ PLATFORM_COMMISSION_BPS=0
 
 Copy its output into your local file. Do not paste it into chat or source code.
 
-Development uses SQLite and prints outgoing email in the worker terminal. PostgreSQL, Redis and SMTP become mandatory when production settings are selected. Add a Paystack `sk_test_...` secret when testing checkout; blank means payment processing is unavailable.
+Development uses SQLite and prints outgoing email in the worker terminal. Production requires PostgreSQL, Redis and transactional email: `EMAIL_PROVIDER=smtp` or `EMAIL_PROVIDER=resend`. Railway Hobby uses Resend's HTTPS API. Add a Paystack `sk_test_...` secret when testing checkout; blank means payment processing is unavailable.
 
 Local email previews show verification and password-reset URLs as plain text on their own lines. Copy the complete URL from the newest preview. If an older email shows `token=3D` or a URL split with `=` at line endings, restart the worker and request a fresh link from the website. The worker must be restarted after changes to email settings; unlike the development web server, it does not reload automatically.
 
@@ -82,10 +82,12 @@ From `my-project`, run `npm ci --ignore-scripts`, then `npm run dev`. Use `http:
 | `DATABASE_URL` | PostgreSQL connection URL from your database service; never the disposable test database |
 | `DB_SSLMODE` | `require` for a TLS-enabled database; see the private Docker exception below |
 | `REDIS_URL` | Private Redis connection URL from your cache service |
-| `EMAIL_HOST` | Your transactional email provider's SMTP hostname |
-| `EMAIL_PORT` | `587` for the implemented STARTTLS configuration |
-| `EMAIL_HOST_USER` | SMTP username supplied by the email provider |
-| `EMAIL_HOST_PASSWORD` | SMTP password/API credential supplied by the email provider |
+| `EMAIL_PROVIDER` | `resend` for Railway Hobby; `smtp` for hosts that allow SMTP |
+| `RESEND_API_KEY` | Resend sending key, required when `EMAIL_PROVIDER=resend` |
+| `EMAIL_HOST` | SMTP hostname, required only for `EMAIL_PROVIDER=smtp` |
+| `EMAIL_PORT` | `587` for the SMTP STARTTLS configuration |
+| `EMAIL_HOST_USER` | SMTP username, required only for `EMAIL_PROVIDER=smtp` |
+| `EMAIL_HOST_PASSWORD` | SMTP credential, required only for `EMAIL_PROVIDER=smtp` |
 | `DEFAULT_FROM_EMAIL` | A sender address on your verified sending domain |
 | `PAYSTACK_SECRET_KEY` | Your Paystack dashboard's test secret for staging; live secret only after launch checks |
 | `PLATFORM_COMMISSION_BPS` | Your approved commission in basis points: `500` means 5%; current default `0` means no commission |

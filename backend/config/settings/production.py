@@ -16,13 +16,57 @@ database=urlparse(required("DATABASE_URL"))
 if database.scheme not in {"postgres","postgresql"}: raise ImproperlyConfigured("Production requires PostgreSQL.")
 DATABASES={"default":{"ENGINE":"django.db.backends.postgresql","NAME":unquote(database.path.lstrip("/")),"USER":unquote(database.username or ""),"PASSWORD":unquote(database.password or ""),"HOST":database.hostname,"PORT":database.port or 5432,"CONN_MAX_AGE":60,"CONN_HEALTH_CHECKS":True,"OPTIONS":{"sslmode":os.getenv("DB_SSLMODE","require"),"connect_timeout":10}}}
 CACHES={"default":{"BACKEND":"django.core.cache.backends.redis.RedisCache","LOCATION":required("REDIS_URL")}}
-EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST=required("EMAIL_HOST")
-EMAIL_PORT=int(os.getenv("EMAIL_PORT","587"))
-EMAIL_HOST_USER=required("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD=required("EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS=True
+EMAIL_PROVIDER=os.getenv("EMAIL_PROVIDER","smtp").strip().lower()
+if EMAIL_PROVIDER == "resend":
+    EMAIL_BACKEND="apps.notifications.backends.ResendEmailBackend"
+    RESEND_API_KEY=required("RESEND_API_KEY")
+elif EMAIL_PROVIDER == "smtp":
+    EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST=required("EMAIL_HOST")
+    EMAIL_PORT=int(os.getenv("EMAIL_PORT","587"))
+    EMAIL_HOST_USER=required("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD=required("EMAIL_HOST_PASSWORD")
+    EMAIL_USE_TLS=True
+else:
+    raise ImproperlyConfigured("EMAIL_PROVIDER must be smtp or resend.")
 DEFAULT_FROM_EMAIL=required("DEFAULT_FROM_EMAIL")
+
+# Serve collected admin/API assets from the web container, independently of uploads.
+MIDDLEWARE=[*MIDDLEWARE[:2],"whitenoise.middleware.WhiteNoiseMiddleware",*MIDDLEWARE[2:]]
+STATIC_URL="/static/"
+STORAGES={
+    "default":{"BACKEND":"django.core.files.storage.FileSystemStorage"},
+    "staticfiles":{"BACKEND":"whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+MEDIA_STORAGE=os.getenv("MEDIA_STORAGE","local").strip().lower()
+if MEDIA_STORAGE == "s3":
+    endpoint=required("S3_ENDPOINT_URL")
+    parsed_endpoint=urlparse(endpoint)
+    if parsed_endpoint.scheme != "https" or not parsed_endpoint.hostname or parsed_endpoint.username or parsed_endpoint.password:
+        raise ImproperlyConfigured("S3_ENDPOINT_URL must be an HTTPS storage endpoint.")
+    addressing_style=os.getenv("S3_ADDRESSING_STYLE","virtual")
+    if addressing_style not in {"virtual","path"}:
+        raise ImproperlyConfigured("S3_ADDRESSING_STYLE must be virtual or path.")
+    STORAGES["default"]={"BACKEND":"storages.backends.s3.S3Storage","OPTIONS":{
+        "access_key":required("S3_ACCESS_KEY_ID"),
+        "secret_key":required("S3_SECRET_ACCESS_KEY"),
+        "bucket_name":required("S3_BUCKET_NAME"),
+        "endpoint_url":endpoint,
+        "region_name":required("S3_REGION"),
+        "addressing_style":addressing_style,
+        "signature_version":"s3v4",
+        "default_acl":None,
+        "querystring_auth":True,
+        "querystring_expire":3600,
+        "file_overwrite":False,
+        "location":"media",
+    }}
+elif MEDIA_STORAGE != "local":
+    raise ImproperlyConfigured("MEDIA_STORAGE must be local or s3.")
+if os.getenv("RAILWAY_ENVIRONMENT_ID"):
+    ALLOWED_HOSTS=list(dict.fromkeys([*ALLOWED_HOSTS,"healthcheck.railway.app"]))
+    if MEDIA_STORAGE != "s3":
+        raise ImproperlyConfigured("Configure persistent S3 upload storage for Railway.")
 FRONTEND_URL=required("FRONTEND_URL").rstrip("/")
 if not FRONTEND_URL.startswith("https://"): raise ImproperlyConfigured("FRONTEND_URL must use HTTPS.")
 PAYSTACK_CALLBACK_URL=FRONTEND_URL+"/payment/return"
@@ -35,6 +79,8 @@ SESSION_COOKIE_SECURE=True
 CSRF_COOKIE_SECURE=True
 REFRESH_COOKIE_SECURE=True
 SECURE_SSL_REDIRECT=True
+# Railway probes this non-sensitive endpoint over the container's HTTP port.
+SECURE_REDIRECT_EXEMPT=[r"^health/live/$"]
 SECURE_HSTS_SECONDS=31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS=True
 # This emits eligibility in the header; browser preload enrollment is a separate operator action.

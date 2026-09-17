@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api, money } from "../lib/api";
+import { api, apiPage, money } from "../lib/api";
 import { useAuth } from "../components/context/AuthContext";
 
 const services = {
@@ -23,7 +23,7 @@ export default function Marketplace({kind="EVENT"}) {
   const [page,setPage]=useState(1);
   useEffect(()=>{
     let cancelled=false;
-    api("/"+config.path+"/?page="+page+"&search="+encodeURIComponent(query))
+    apiPage("/"+config.path+"/?page="+page+"&search="+encodeURIComponent(query))
       .then(data=>{if(!cancelled){setItems(data);setError("");}})
       .catch(error=>{if(!cancelled)setError(error.message);});
     return()=>{cancelled=true;};
@@ -49,7 +49,7 @@ export default function Marketplace({kind="EVENT"}) {
 async function allPages(path) {
   const results=[];
   for(let page=1;page<=50;page++) {
-    const data=await api(path+(path.includes("?")?"&":"?")+"page="+page+"&page_size=100");
+    const data=await apiPage(path+(path.includes("?")?"&":"?")+"page="+page+"&page_size=100");
     results.push(...data.results);
     if(!data.next)return results;
   }

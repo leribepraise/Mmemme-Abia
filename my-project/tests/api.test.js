@@ -59,3 +59,34 @@ test("nested validation errors remain understandable",async()=>{
   const api=await client();
   await assert.rejects(api.api("/bookings/"),error=>error.status===409&&error.message==="Insufficient stock.");
 });
+
+test("an HTML fallback from hosting rejects instead of becoming listing data",async()=>{
+  globalThis.fetch=async()=>new Response('<!doctype html><div id="root"></div>',{headers:{"Content-Type":"text/html; charset=utf-8"}});
+  const api=await client();
+  await assert.rejects(api.apiPage("/events/"),/temporarily unavailable/);
+});
+
+test("invalid JSON and malformed listing responses reject before rendering",async()=>{
+  const api=await client();
+  globalThis.fetch=async()=>new Response("broken",{headers:{"Content-Type":"application/json"}});
+  await assert.rejects(api.apiPage("/events/"),/temporarily unavailable/);
+  for(const body of [{},null,{results:null},{results:{}}]){
+    globalThis.fetch=async()=>response(body);
+    await assert.rejects(api.apiPage("/events/"),/temporarily unavailable/);
+  }
+});
+
+test("valid listing pages retain pagination and empty results",async()=>{
+  const page={count:0,results:[],next:null,previous:null};
+  globalThis.fetch=async()=>response(page);
+  const api=await client();
+  assert.deepEqual(await api.apiPage("/events/"),page);
+});
+
+test("an HTML CSRF response prevents sending an account mutation",async()=>{
+  let requests=0;
+  globalThis.fetch=async()=>{requests++;return new Response("<!doctype html>",{headers:{"Content-Type":"text/html"}});};
+  const api=await client();
+  await assert.rejects(api.api("/auth/login/",{method:"POST",body:{email:"test@example.test",password:"test-only"}}),/temporarily unavailable/);
+  assert.equal(requests,1);
+});

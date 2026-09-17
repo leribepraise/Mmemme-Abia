@@ -86,7 +86,7 @@ class RegressionTests(Fixture):
         self.assertFalse(Ticket.objects.filter(booking=booking).exists())
         with self.assertRaises(Conflict):fulfill(booking.pk,self.owner,"IN_PROGRESS")
 
-    @patch("apps.notifications.services.send_mail",side_effect=OSError("SMTP down"))
+    @patch("apps.notifications.services.EmailMessage.send",side_effect=OSError("SMTP down"))
     def test_email_failure_is_retried_and_private_content_is_not_public(self,mocked):
         job,_=notify(self.buyer,"security-test","Reset password","secret-token",private=True)
         self.assertTrue(deliver_one())

@@ -2,16 +2,18 @@
 
 Target: a production launch by **30 September 2026**. Implementing the code does not certify an operating deployment. Treat every unchecked launch gate below as required work before taking public payments.
 
+For this project's Railway Hobby deployment, follow [RAILWAY_SETUP_GUIDE.md](../../RAILWAY_SETUP_GUIDE.md), which supplies the service paths, private-network setup, Resend HTTPS email and S3 bucket variables. The Docker Compose instructions below are an alternative hosting layout.
+
 ## Runtime layout
 
 - Django/DRF API on PostgreSQL 17; SQLite is for local development only.
 - Redis shared cache for throttling, health signals and application cache. Keep it private.
 - A continuously supervised `python manage.py process_jobs` process. It handles durable webhook jobs, payment reconciliation, reservation expiry, refunds, notifications and reminders. API-only deployment is incomplete.
-- SMTP transactional email with verified sending domain, SPF/DKIM/DMARC configured by the domain owner.
+- Transactional email through Resend over HTTPS or SMTP on hosts that support it, with a verified sending domain and its authentication records configured by the domain owner.
 - React build hosted on the **same HTTPS origin** as `/api/`, `/admin/` and health checks, behind a trusted reverse proxy. Refresh cookies require this arrangement; do not deploy the frontend and API on unrelated sites.
-- Persistent media/static volumes, encrypted database/media backups, central logs and an alert destination owned by the team.
+- Persistent uploads in S3 storage or a backed-up media volume, collected static assets served by WhiteNoise, encrypted database/media backups, central logs and an alert destination owned by the team.
 
-The database is the durable job queue. Redis loss must not lose payments. Jobs can be retried after crashes; notification delivery is at-least-once, so an email can repeat after a crash between SMTP acceptance and recording delivery. Financial writes with uncertain responses are never blindly resubmitted.
+The database is the durable job queue. Redis loss must not lose payments. Jobs can be retried after crashes; notification delivery is at-least-once, so an email can repeat after a crash between provider acceptance and recording delivery. Resend retries reuse a payload-specific idempotency key within its 24-hour deduplication window. Financial writes with uncertain responses are never blindly resubmitted.
 
 ## Local development (Windows)
 
@@ -29,8 +31,8 @@ From `my-project`: `npm ci --ignore-scripts`, then `npm run dev`. Vite proxies `
 
 ## Configuration and first deployment
 
-1. Create a deployment secret store or untracked `backend/.env.production`. Set `SECRET_KEY` to a unique random value of at least 50 characters, `ALLOWED_HOSTS`, PostgreSQL `DATABASE_URL`, `REDIS_URL`, SMTP variables, `DEFAULT_FROM_EMAIL`, HTTPS `FRONTEND_URL`, and `PAYSTACK_SECRET_KEY`. Keep keys out of browser code, source control and logs. `PLATFORM_COMMISSION_BPS` is basis points (500 = 5%); default 0 is deliberate until business terms are approved.
-2. Set `DJANGO_SETTINGS_MODULE=config.settings.production`. WSGI/ASGI default to production. Production refuses weak/missing settings and requires PostgreSQL/Redis/SMTP. Use a same-origin frontend API base `/api/v1`.
+1. Create a deployment secret store or untracked `backend/.env.production`. Set `SECRET_KEY` to a unique random value of at least 50 characters, `ALLOWED_HOSTS`, PostgreSQL `DATABASE_URL`, `REDIS_URL`, email provider credentials, `DEFAULT_FROM_EMAIL`, HTTPS `FRONTEND_URL`, and `PAYSTACK_SECRET_KEY`. Choose `EMAIL_PROVIDER=resend` with `RESEND_API_KEY`, or `EMAIL_PROVIDER=smtp` with the SMTP variables in the example. Keep keys out of browser code, source control and logs. `PLATFORM_COMMISSION_BPS` is basis points (500 = 5%); default 0 is deliberate until business terms are approved.
+2. Set `DJANGO_SETTINGS_MODULE=config.settings.production`. WSGI/ASGI default to production. Production refuses weak/missing settings and requires PostgreSQL/Redis and the selected email provider's credentials. Railway also requires S3 upload storage. Use a same-origin frontend API base `/api/v1`.
 3. `compose.production.yaml` supplies API, worker, PostgreSQL and Redis. Set the compose environment's `POSTGRES_PASSWORD` and use that same password in `DATABASE_URL`. Database hostname is `db`, Redis is `redis`. Database TLS defaults to `require`; use managed TLS PostgreSQL for production. `DB_SSLMODE=disable` is only appropriate if the database is confined to a trusted private container network and your security policy permits it. No database/cache ports are published.
 4. Build with `docker compose -f compose.production.yaml build`. Pin approved base-image digests in the release manifest after scanning images. Do not rely on floating tags for rollback.
 5. Start dependencies, then run migrations as a one-off release job, not once per web process:
@@ -44,7 +46,7 @@ docker compose -f compose.production.yaml run --rm api python manage.py createsu
 docker compose -f compose.production.yaml up -d api worker
 ```
 
-6. Build the frontend using `npm ci --ignore-scripts` and `npm run build`. Serve `my-project/dist` with a history fallback to `index.html`. Forward `/api/`, `/admin/` and `/health/` to loopback port 8000. Serve collected `/static/`. Serve uploads on a separate media origin without execution permissions, or use a strictly image-only media location with `nosniff`; set up durable storage/backup. Do not use Django to serve production files.
+6. Build the frontend using `npm ci --ignore-scripts` and `npm run build`. Serve `my-project/dist` with a history fallback to `index.html`. Forward `/api/`, `/admin/`, `/static/` and `/health/` to loopback port 8000; WhiteNoise serves collected static assets. Serve uploads from configured S3 storage or a separate media origin without execution permissions, and set up durable storage/backup. Do not use Django's development file server in production.
 7. Terminate HTTPS at the trusted proxy, redirect HTTP to HTTPS, overwrite the forwarded protocol/IP headers, restrict upstream access, and set `TRUST_PROXY_SSL_HEADER=True` ONLY after this is configured. Set Django's `NUM_PROXIES`/edge rate limits for the actual proxy chain. Enforce an upload/request limit at the proxy (for example 6 MB; images themselves max 5 MB). Rate-limit login, reset and administrative access at the edge; DRF throttles alone are not a distributed brute-force defense. Restrict `/admin/` to staff through an identity-aware proxy with MFA or add a tested application MFA integration before launch.
 8. In the Paystack dashboard set webhook URL to `https://<host>/api/v1/payments/webhook/paystack/`. Callback is `https://<host>/payment/return`. Check successful, failed, abandoned and duplicate payments, refunds and delayed callbacks in test mode. Live activation requires the merchant account owner's credentials and consent.
 9. Check `/health/live/` and `/health/ready/` over HTTPS. Ready checks PostgreSQL, Redis and a worker heartbeat (180 seconds). Monitor `python manage.py operational_status`; a nonzero exit requires investigation. Configure external alerts and on-call ownership before launch.
@@ -88,13 +90,13 @@ Paystack references: [bank account verification](https://paystack.com/docs/api/v
 
 ## Release gates and remaining work
 
-- [ ] Production hosting, DNS, TLS, durable files, SMTP and merchant credentials configured.
+- [ ] Production hosting, DNS, TLS, durable files, transactional email and merchant credentials configured.
 - [ ] Real Paystack test-mode end-to-end checkout, webhook replay, late payment and refund completion verified; authorized low-value live smoke test performed by the merchant team.
 - [ ] Provider contracts, identity verification, commission, cancellation/refund policy, settlement/payout process, tax treatment and dispute ownership approved. The implemented cancellation policy is full refund before service start, food before acceptance, hotels before the check-in date.
 - [ ] Privacy notice, customer/provider terms, retention/deletion/export workflows and support escalation approved and implemented where needed. No fabricated legal text is supplied.
 - [ ] Staff MFA/access proxy, abuse reporting/moderation escalation, dependency/image security scan, penetration testing and sensitive-data log review completed.
 - [ ] Sustained load test with realistic events, hotel date ranges, payment callbacks and worker backlog; record capacity, latency and recovery thresholds. PostgreSQL race tests are necessary but do not substitute for load testing.
-- [ ] Restore rehearsal completed and alerts proven with worker/SMTP/database outages.
+- [ ] Restore rehearsal completed and alerts proven with worker/email-provider/database outages.
 - [ ] Customer/provider acceptance testing on desktop/mobile, accessibility review and required non-booking content pages completed. Legacy prototype components remain in source as references but are not active booking routes. Native mobile app, advanced recommendations and premium subscriptions are not implemented by these fixes.
 - [ ] Production migration rehearsal on a restored copy and release rollback plan signed off.
 
