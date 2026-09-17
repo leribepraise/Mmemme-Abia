@@ -22,6 +22,8 @@ class Command(BaseCommand):
         parser.add_argument("--interval",type=int,default=10)
     def run_job(self,label,function,*args):
         try: return function(*args)
+        except ServiceUnavailable as exc:
+            logger.warning("Background job deferred: %s (provider HTTP status: %s)",label,getattr(exc,"http_status",None) or "unavailable")
         except Exception: logger.exception("Background job failed: %s",label)
         finally: cache.set("worker:heartbeat",True,180)
     def tick(self):

@@ -5,20 +5,37 @@ from urllib.request import Request, urlopen
 from django.conf import settings
 from apps.common.api import ServiceUnavailable
 
+
+class PaystackUnavailable(ServiceUnavailable):
+    def __init__(self, *, http_status=None):
+        self.http_status = http_status
+        super().__init__("The payment provider could not confirm this request. Check its status before retrying.")
+
+
 class Paystack:
     def request(self,path,payload=None,*,envelope=False):
         if not settings.PAYSTACK_SECRET_KEY:
             raise ServiceUnavailable("Payment processing has not been configured.")
-        req = Request("https://api.paystack.co"+path,data=json.dumps(payload).encode() if payload is not None else None,headers={"Authorization":"Bearer "+settings.PAYSTACK_SECRET_KEY,"Content-Type":"application/json"},method="POST" if payload is not None else "GET")
+        # Identify the application: the gateway rejects urllib's default user agent.
+        headers = {
+            "Authorization": "Bearer " + settings.PAYSTACK_SECRET_KEY,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": "MmemmeAbia/1.0",
+        }
+        req = Request("https://api.paystack.co"+path,data=json.dumps(payload).encode() if payload is not None else None,headers=headers,method="POST" if payload is not None else "GET")
         try:
             with urlopen(req,timeout=15) as response:
                 result = json.loads(response.read(2*1024*1024))
             if not isinstance(result,dict) or result.get("status") is not True or "data" not in result:
                 raise ValueError()
             return result if envelope else result["data"]
-        except (HTTPError,URLError,TimeoutError,ValueError,OSError):
-            # Do not disclose provider bodies, credentials, or customer payment data.
-            raise ServiceUnavailable("The payment provider could not confirm this request. Check its status before retrying.")
+        except HTTPError as exc:
+            # Keep only the status for diagnostics, never provider bodies or headers.
+            exc.close()
+            raise PaystackUnavailable(http_status=exc.code) from None
+        except (URLError,TimeoutError,ValueError,OSError):
+            raise PaystackUnavailable() from None
 
     def initialize(self,payment):
         return self.request("/transaction/initialize",{"reference":payment.reference,"amount":int(payment.amount*100),"currency":payment.currency,"email":payment.user.email,"callback_url":settings.PAYSTACK_CALLBACK_URL,"metadata":{"booking_id":str(payment.booking_id)}})

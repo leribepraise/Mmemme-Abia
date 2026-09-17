@@ -117,6 +117,12 @@ You need to:
 
 Paystack explains its registered-business and balance requirements in [How transfers work](https://paystack.com/docs/transfers/how-transfers-work/). Do not disable transfer OTP protections merely to simplify setup.
 
+### Local Paystack connection troubleshooting
+
+If a worker previously reported HTTP 403 with Cloudflare error 1010, use the current backend source, which sends the application identity and JSON response headers. Restart both `runserver` and `process_jobs` after updating it. Do not disable HTTPS certificate checks or change payment credentials just to work around that response.
+
+An earlier checkout attempt may have expired without receiving a checkout link. Create a new booking after fixing the connection; preserve the old payment record for reconciliation. Expected provider failures now produce a short `Background job deferred` warning with the HTTP status instead of a traceback. A warning does not mark a payment successful or authorize another charge for that booking.
+
 ## 4. Protect the environment file already in Git
 
 The previous checkout tracked `backend/.env`, and it contains a non-placeholder `SECRET_KEY`. Its Paystack and SMTP password fields were blank during inspection. Secret values were not printed. The file, local SQLite database and generated Python caches are now removed from Git tracking, with all local copies retained. The index contains those removals for your next reviewed commit.
