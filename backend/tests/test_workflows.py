@@ -207,6 +207,7 @@ class PaymentTests(Fixture):
         refund.refresh_from_db()
         self.assertEqual(refund.status,"UNKNOWN")
         self.assertEqual(mocked.call_count,1)
+    @override_settings(PAYSTACK_SECRET_KEY="test-paystack-secret")
     def test_signed_webhook_is_deduplicated(self):
         payload=json.dumps({"event":"charge.success","data":{"reference":"test","id":1}}).encode()
         client=APIClient()

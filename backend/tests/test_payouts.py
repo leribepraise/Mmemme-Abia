@@ -200,6 +200,7 @@ class PayoutTests(Fixture):
         self.assertFalse(payout.items.get().active)
         self.assertEqual(payouts.balance(self.owner)["available_for_payout"],1900)
 
+    @override_settings(PAYSTACK_SECRET_KEY="test-paystack-secret")
     def test_signed_transfer_webhook_is_durable_deduplicated_and_verified(self):
         payout=self.sent("pending");attempt=payout.attempts.get()
         raw=json.dumps({"event":"transfer.success","data":{"reference":attempt.reference,"id":123}}).encode()
@@ -222,7 +223,8 @@ class PayoutTests(Fixture):
         self.assertEqual(payout.attempts.count(),1)
         from apps.common.models import AuditLog
         self.assertNotIn("928783",str(list(AuditLog.objects.values())))
-
+    
+    @override_settings(PAYSTACK_SECRET_KEY="test-paystack-secret")
     def test_transfer_webhook_retries_when_verification_is_unavailable(self):
         payout=self.sent("pending")
         event=PaymentEvent.objects.create(digest="d"*64,event_type="transfer.success",reference=payout.attempts.get().reference)
