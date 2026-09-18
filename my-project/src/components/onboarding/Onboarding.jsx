@@ -37,7 +37,6 @@ const Onboarding = () => {
 
   const nextStep = (data = {}) => {
     updateUserData(data);
-
     setStep((prevStep) => prevStep + 1);
   };
 
@@ -52,9 +51,11 @@ const Onboarding = () => {
       <div className="mt-10">
         {step === 1 && <CreateAccount onNext={nextStep} />}
 
-        {step === 2 && <ChoosePlan onNext={nextStep} onBack={previousStep} />}
+        {step === 2 && <AboutYou onNext={nextStep} onBack={previousStep} />}
 
-        {step === 3 && <Welcome userData={userData} />}
+        {step === 3 && <ChoosePlan onNext={nextStep} onBack={previousStep} />}
+
+        {step === 4 && <Welcome userData={userData} />}
       </div>
     </div>
   );

@@ -50,7 +50,7 @@ const ProfileSidebar = ({
   ];
 
   return (
-    <aside
+   <div className="pt-8"> <aside
       className={`
         fixed left-0 top-[65px] z-40
         h-[calc(100vh-65px)]
@@ -59,9 +59,10 @@ const ProfileSidebar = ({
         bg-white
         transition-transform duration-300
 
+        /* Offset the desktop sticky position to clear your fixed navbar */
         lg:sticky
-        lg:top-0
-        lg:h-screen
+        lg:top-24
+        lg:h-[calc(100vh-6rem)]
         lg:translate-x-0
 
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
@@ -144,6 +145,7 @@ const ProfileSidebar = ({
         </div>
       </div>
     </aside>
+    </div>
   );
 };
 

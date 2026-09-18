@@ -1,116 +1,113 @@
 import React from "react";
-import { navList } from "./NavList";
-import { authLink } from "./NavList";
-import { userNavList } from "./NavList";
-import { profileLink } from "./NavList";
+import { navList, authLink, userNavList, profileLink } from "./NavList";
 import { IoSearch } from "react-icons/io5";
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import MobileNav from "./MobileNav";
-import { Underline } from "lucide-react";
 import { useAuth } from "@/components/context/AuthContext";
 
 const Header = () => {
-  // const isLoggedIn = false;
   const { isLoggedIn } = useAuth();
-
-  const user = JSON.parse(sessionStorage.getItem("user")) || {};
+  const navigate = useNavigate();
+  
+  const user = (() => {
+    try {
+      const item = sessionStorage.getItem("user");
+      return item ? JSON.parse(item) : {};
+    } catch (e) {
+      return {};
+    }
+  })();
 
   const currentNav = isLoggedIn ? userNavList : navList;
-  return (
-    <>
-      <div className="mx-5 pt-3">
-        <nav className="hidden lg:flex sticky top-0 justify-between items-center gap-5 bg-white shadow-md p-5 rounded-lg">
-          <img src="/logo.png" alt="" className="w-auto h-10" />
-          {/* {navList.map((n) => (
-            <NavLink
-              key={n.title}
-              to={n.path}
-              className={({ isActive }) =>
-                `list-none flex gap-5 font-semibold text-[14px] ${
-                  isActive
-                    ? "text-[#FD6C11] underline decoration-[#FD6C11]"
-                    : "text-gray-600"
-                }`
-              }
-            >
-              {n.title}
-            </NavLink>
-          ))} */}
 
+  // Handle protected route clicks for non-logged-in users
+  const handleNavClick = (e, path, title) => {
+    // Allow Home and Public pages if desired, or gate specific ones
+    const publicPages = ["Home", "About us", "Blog"];
+    
+    if (!isLoggedIn && !publicPages.includes(title)) {
+      e.preventDefault();
+      // Redirect to signup/login or prompt user
+      navigate("/signup"); 
+    }
+  };
+
+  return (
+    <header className="absolute top-0 left-0 right-0 z-50 w-full">
+      {/* Full-width container extending from left to right */}
+      <div className="w-full bg-white shadow-sm border-b border-gray-100/50 rounded-b-3xl lg:rounded-bl-[36px] lg:rounded-br-none px-6 md:px-12 py-3.5 flex justify-between items-center">
+        
+        {/* Brand Logo - Fixed on the left edge */}
+        <NavLink to="/" className="flex items-center gap-2">
+          <img src="/logo.png" alt="Mmemme Abia Logo" className="h-8 md:h-9 w-auto object-contain" />
+        </NavLink>
+
+        {/* Desktop Navigation - Centered / Spaced */}
+        <nav className="hidden lg:flex items-center gap-8">
           {currentNav.map((n) => (
             <NavLink
               key={n.title}
-              to={isLoggedIn ? n.path : n.title === "Home" ? "/" : "/signup"}
+              to={n.path}
+              onClick={(e) => handleNavClick(e, n.path, n.title)}
               className={({ isActive }) =>
-                `list-none flex gap-5 font-semibold text-[14px] ${
+                `text-[14px] font-bold transition-colors ${
                   isActive
-                    ? "text-[#FD6C11] underline decoration-[#FD6C11]"
-                    : "text-gray-600"
+                    ? "text-[#FD6C11] underline decoration-[#FD6C11] underline-offset-4"
+                    : "text-gray-700 hover:text-black"
                 }`
               }
             >
               {n.title}
             </NavLink>
           ))}
-          <div className="flex gap-5 items-center">
-            {isLoggedIn && (
-              <div className="flex gap-3">
-                <span className="text-[20px]">
-                  <IoSearch />
-                </span>
+        </nav>
 
-                <span className="text-[20px]">
-                  <IoMdNotificationsOutline />
-                </span>
-              </div>
-            )}
-            <nav className="hidden lg:flex justify-between items-center gap-5 ">
-              {/* {authLink.map((link) => (
+        {/* Right Action Items (Search, Notifications, Profile / Auth Buttons) */}
+        <div className="hidden lg:flex items-center gap-5">
+          {isLoggedIn ? (
+            <div className="flex items-center gap-4">
+              <button className="text-gray-600 hover:text-black text-xl transition-colors" aria-label="Search">
+                <IoSearch />
+              </button>
+              <button className="text-gray-600 hover:text-black text-2xl relative transition-colors" aria-label="Notifications">
+                <IoMdNotificationsOutline />
+                <span className="absolute top-0 right-0 w-2 h-2 bg-[#F36B25] rounded-full ring-2 ring-white" />
+              </button>
+              <NavLink to={profileLink.path} className="ml-1">
+                <img
+                  src={user.profilePicture || "/user.png"}
+                  alt="Profile"
+                  className="w-9 h-9 rounded-full object-cover ring-2 ring-[#3F7D3D]/20 hover:ring-[#3F7D3D] transition-all"
+                />
+              </NavLink>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              {authLink.map((link) => (
                 <NavLink
                   key={link.title}
                   to={link.path}
-                  className={`font-medium text-[18px] rounded-[10px] py-1 px-4 ${link.path === "/SignUp" ? "text-[#FFFEFE] bg-[#3F783D] border-2 border-[#3E753B]" : "bg-[#FDFCFD] text-[#3E753B] border-2 border-[#3E753B]"}`}
+                  className={`text-sm font-bold rounded-xl py-2 px-5 transition-all ${
+                    link.path === "/SignUp"
+                      ? "text-white bg-[#3F7D3D] hover:bg-[#336633] shadow-sm"
+                      : "text-[#3F7D3D] bg-gray-50 hover:bg-gray-100 border border-[#3F7D3D]/30"
+                  }`}
                 >
                   {link.title}
                 </NavLink>
-              ))} */}
-
-              {isLoggedIn ? (
-                <NavLink to={profileLink.path}>
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={user.profilePicture || "/user.png"}
-                      alt="Profile"
-                      className="w-9 h-9 rounded-full object-cover"
-                    />
-                    {/* <span className="font-semibold">{profileLink.title}</span> */}
-                  </div>
-                </NavLink>
-              ) : (
-                <div className="flex gap-3">
-                  {authLink.map((link) => (
-                    <NavLink
-                      key={link.title}
-                      to={link.path}
-                      className={`font-medium text-[18px] rounded-[10px] py-1 px-4 ${link.path === "/SignUp" ? "text-[#FFFEFE] bg-[#3F783D] border-2 border-[#3E753B]" : "bg-[#FDFCFD] text-[#3E753B] border-2 border-[#3E753B]"}`}
-                    >
-                      {link.title}
-                    </NavLink>
-                  ))}
-                </div>
-              )}
-            </nav>
-          </div>
-        </nav>
-        <div className="lg:hidden z-1000">
-          <div className="flex justify-between">
-            <img src="/logo.png" alt="" className="w-auto h-10" />
-            <MobileNav />
-          </div>
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* Mobile Nav Toggle Button */}
+        <div className="lg:hidden flex items-center">
+          <MobileNav />
+        </div>
+
       </div>
-    </>
+    </header>
   );
 };
 

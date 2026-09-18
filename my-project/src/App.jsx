@@ -26,7 +26,17 @@ import Community from "./pages/Community";
 import Food from "./pages/Food";
 import AboutAbia from "./pages/DiscoverAbia";
 import DiscoverAbia from "./pages/DiscoverAbia";
+//this is for transport
 import Transport from "./pages/Transport";
+import { CarRentalsPage } from "./pages/CarRentalsPage";
+import { VehicleDetailsPage } from "./pages/VehicleDetailsPage";
+import {DriverDetailsPage} from "./pages/DriverDetailsPage";
+import { BookDeliveryPage } from "./pages/BookDeliveryPage";
+import { LiveTrackingPage } from "./pages/LiveTrackingPage";
+import RidePage from "./pages/RidePage";
+import ShuttlePage from "./pages/ShuttlePage";
+import CourierLogisticsPage from "./pages/CourierLogisticsPage";
+//the above is for transport
 import NotFound from "./pages/NotFound";
 import RestaurantDetails from "./pages/RestaurantDetails";
 import Onboarding from "./components/onboarding/Onboarding";
@@ -297,6 +307,86 @@ const App = () => {
         </div>
       ),
     },
+    {
+  path: "/transport/car-rentals",
+  element: (
+    <div className="mx-5 my-5">
+      <GuestGuard>
+        <CarRentalsPage />
+      </GuestGuard>
+    </div>
+  ),
+},
+{
+  path: "/transport/car-rentals/:id",
+  element: (
+    <div className="mx-5 my-5">
+      <GuestGuard>
+        <VehicleDetailsPage />
+      </GuestGuard>
+    </div>
+  ),
+},
+{
+  path: "/transport/book-delivery",
+  element: (
+    <div className="mx-5 my-5">
+      <GuestGuard>
+        <BookDeliveryPage />
+      </GuestGuard>
+    </div>
+  ),
+},
+{
+  path: "/transport/live-tracking",
+  element: (
+    <div className="mx-5 my-5">
+      <GuestGuard>
+        <LiveTrackingPage />
+      </GuestGuard>
+    </div>
+  ),
+},
+{
+  path: "/transport/ride",
+  element: (
+    <div className="mx-5 my-5">
+      <GuestGuard>
+        <RidePage />
+      </GuestGuard>
+    </div>
+  ),
+},
+{
+  path: "/transport/ride/driver-details",
+  element: (
+    <div className="mx-5 my-5">
+      <GuestGuard>
+        <DriverDetailsPage />
+      </GuestGuard>
+    </div>
+  ),
+},
+{
+  path: "/transport/shuttle",
+  element: (
+    <div className="mx-5 my-5">
+      <GuestGuard>
+        <ShuttlePage />
+      </GuestGuard>
+    </div>
+  ),
+},
+{
+  path: "/transport/courier",
+  element: (
+    <div className="mx-5 my-5">
+      <GuestGuard>
+        <CourierLogisticsPage />
+      </GuestGuard>
+    </div>
+  ),
+},
     {
       path: "/profile",
       element: (

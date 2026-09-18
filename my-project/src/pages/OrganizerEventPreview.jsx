@@ -43,6 +43,7 @@ export default function OrganizerEventPreview() {
 
   const publish = () => {
     save("mmemme-events", events.map(e => (e.id === event.id ? { ...e, status: "Published" } : e)));
+    window.dispatchEvent(new Event("mmemme-events-updated"));
     navigate("/organizer/events");
   };
 
@@ -109,7 +110,7 @@ export default function OrganizerEventPreview() {
           <h2 className="font-bold text-base text-black mb-4">Event Summary</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm"><span className="text-gray-500">Total Tickets</span><strong className="text-black">{event.ticketCapacity.toLocaleString()}</strong></div>
-            <div className="flex items-center justify-between text-sm"><span className="text-gray-500">Ticket Price</span><strong className="text-black">{naira(5000)}</strong></div>
+            <div className="flex items-center justify-between text-sm"><span className="text-gray-500">Ticket Price</span><strong className="text-black">{naira(event.price || 0)}</strong></div>
           </div>
         </div>
       </div>

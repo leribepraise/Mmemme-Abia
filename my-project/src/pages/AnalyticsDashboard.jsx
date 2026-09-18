@@ -290,7 +290,7 @@ export default function AnalyticsDashboard() {
                     loc: "Umuahia Sports Arena, Umuahia",
                     tix: 450,
                     rev: "N9,450,000",
-                    image: "Event Thumbnail.png",
+                    image: "/event1.jpg",
                   },
                   {
                     title: "Abia Cultural Festival",
@@ -298,7 +298,7 @@ export default function AnalyticsDashboard() {
                     loc: "Ohafia Township Stadium",
                     tix: 320,
                     rev: "N6,720,000",
-                    image: "Event Thumbnail-1.png",
+                    image: "/cultural-festival.jpg",
                   },
                   {
                     title: "Abia Food & Drink Carnival",
@@ -306,7 +306,7 @@ export default function AnalyticsDashboard() {
                     loc: "Arochukwu Park, Arochukwu",
                     tix: 210,
                     rev: "N3,360,000",
-                    image: "Event Thumbnail-2.png",
+                    image: "/food-carnival.jpg",
                   },
                   {
                     title: "Abia Business Summit 2026",
@@ -314,7 +314,7 @@ export default function AnalyticsDashboard() {
                     loc: "Aba Convention Center, Aba",
                     tix: 180,
                     rev: "N3,050,000",
-                    image: "Event Thumbnail-3.png",
+                    image: "/business-summit.jpg",
                   },
                 ].map((event, idx) => (
                   <div

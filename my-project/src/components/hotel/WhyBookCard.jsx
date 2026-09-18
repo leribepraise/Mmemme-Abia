@@ -30,6 +30,7 @@ const WhyBookCard = () => {
   ];
 
   return (
+    <div className="pt-24">
     <div className="bg-white rounded-[12px] p-5 border border-gray-200">
       <h3 className="font-bold text-[16px] text-[#111827] mb-5">
         Why Book with Mmemme Abia?
@@ -53,6 +54,7 @@ const WhyBookCard = () => {
           );
         })}
       </div>
+    </div>
     </div>
   );
 };

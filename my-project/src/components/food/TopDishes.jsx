@@ -30,18 +30,24 @@ const dishes = [
 
 const TopDishes = () => {
   return (
-    <section>
-      <div className="flex justify-between items-center mb-3">
-        <h2 className="font-bold text-sm md:text-base">Top Dishes This Week</h2>
+    <section className="py-6">
+      {/* SECTION HEADER */}
+      <div className="mb-5 flex items-center justify-between px-1">
+        <h2 className="text-xl font-extrabold text-gray-900 md:text-3xl">
+          Top Dishes This Week
+        </h2>
 
-        <button className="text-[#48782E] text-[10px] md:text-xs font-semibold hover:underline">
+        <button className="text-base font-bold text-[#265F27] transition hover:underline md:text-lg">
           View all dishes
         </button>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+      {/* HORIZONTAL CAROUSEL LIST */}
+      <div className="scrollbar-hide flex gap-5 overflow-x-auto pb-4">
         {dishes.map((dish) => (
-          <DishCard key={dish.name} dish={dish} />
+          <div key={dish.name} className="w-[220px] shrink-0 sm:w-[250px]">
+            <DishCard dish={dish} />
+          </div>
         ))}
       </div>
     </section>

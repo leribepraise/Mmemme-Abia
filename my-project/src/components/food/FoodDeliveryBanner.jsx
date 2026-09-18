@@ -3,35 +3,40 @@ import { ArrowRight } from "lucide-react";
 
 const FoodDeliveryBanner = () => {
   return (
-    <section className="border border-[#48782E] bg-[#F1FAF1] rounded-xl p-4 md:p-5 flex flex-col sm:flex-row items-center gap-4 justify-between">
+    <section className="my-6 flex flex-col items-center justify-between gap-4 rounded-2xl border border-[#265F27]/30 bg-[#F1FAF1] p-5 sm:flex-row md:p-6 shadow-sm">
       <div className="flex items-center gap-4">
+        {/* Banner Image */}
         <img
           src="/food-delivery.jpg"
           alt="Food delivery"
-          className="w-12 h-12 rounded-lg object-cover"
+          className="h-16 w-16 shrink-0 rounded-xl object-cover shadow-sm sm:h-20 sm:w-20"
         />
 
         <div>
-          <h3 className="font-bold text-xs md:text-sm text-[#166534]">
+          {/* Headline */}
+          <h3 className="text-base font-extrabold text-[#265F27] md:text-xl">
             Free Delivery on Orders ₦5,000 and above!
           </h3>
 
-          <p className="text-[8px] md:text-[10px] text-gray-500 mt-1">
+          {/* Subtext */}
+          <p className="mt-1 text-xs font-medium leading-relaxed text-gray-600 md:text-sm">
             Enjoy tasty meals from your favorite vendors with fast and reliable
             delivery.
           </p>
 
-          <div className="flex gap-1 mt-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#48782E]"></span>
-            <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
-            <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+          {/* Pagination Indicators */}
+          <div className="mt-3 flex gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#265F27]"></span>
+            <span className="h-2 w-2 rounded-full bg-gray-300"></span>
+            <span className="h-2 w-2 rounded-full bg-gray-300"></span>
           </div>
         </div>
       </div>
 
-      <button className="bg-[#064E3B] hover:bg-[#064b36] text-white px-7 py-3 rounded-lg text-[14px] font-medium flex items-center gap-2 whitespace-nowrap cursor-pointer">
-        Order Now
-        <ArrowRight className="w-3 h-3" />
+      {/* Action Button */}
+      <button className="flex w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#265F27] px-6 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#1e4a1f] sm:w-auto md:text-base">
+        <span>Order Now</span>
+        <ArrowRight className="h-4 w-4" />
       </button>
     </section>
   );
