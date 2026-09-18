@@ -45,7 +45,7 @@ export default function OrganizerLogin() {
           <div className="relative animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_380px_220px] md:items-center">
               <div className="hidden md:block relative h-[480px] rounded-[28px] overflow-hidden shadow-xl">
-                <img src="/Event%20Thumbnail.png" alt="" className="w-full h-full object-cover" />
+                <img src="/Thumbnail.png" alt="" className="w-full h-full object-cover" />
                 <div className="absolute bottom-6 left-6 bg-white rounded-2xl px-4 py-3 shadow-lg flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-[#EAF5EA] text-[#3F7D3D] flex items-center justify-center shrink-0">
                     <TrendingUp className="w-4 h-4" />

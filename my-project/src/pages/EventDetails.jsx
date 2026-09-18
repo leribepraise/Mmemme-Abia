@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { eventss } from "../data/eventData";
+import { getPublicEventById } from "../data/eventData";
 
 import EventBreadcrumb from "../components/eventDetails/EventBreadcrumb";
 import EventGallery from "../components/eventDetails/Gallary";
@@ -13,10 +13,7 @@ import SimilarEvents from "../components/eventDetails/SimilarEvents";
 export default function EventDetails() {
   const { id } = useParams();
 
-  const event = eventss.find((event) => event.id === id);
-
-  console.log("URL ID:", id);
-  console.log("Selected Event:", event);
+  const event = getPublicEventById(id);
 
   const [tickets, setTickets] = useState({
     regular: 1,

@@ -77,6 +77,7 @@ function TicketTypesPanel({ event, onReady }) {
   useEffect(() => { onReady?.({ startAdd }); }, [event.id]);
 
   return (
+    
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -141,6 +142,7 @@ function TicketTypesPanel({ event, onReady }) {
       </div>
       <p className="text-[11px] text-gray-400 font-medium mt-4 pt-4 border-t border-gray-50">Note: Changes to ticket types will reflect on the event page immediately.</p>
     </div>
+    
   );
 }
 
@@ -414,6 +416,7 @@ export default function OrganizerTicketSales() {
   const [typesApi, setTypesApi] = useState(null);
 
   return (
+    <div className="pt-24">
     <OrganizerShell
       breadcrumb={["Home", "Organizer", "Ticket Management"]}
       title="Ticket Management"
@@ -477,5 +480,6 @@ export default function OrganizerTicketSales() {
         </div>
       </div>
     </OrganizerShell>
+    </div>
   );
 }

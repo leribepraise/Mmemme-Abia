@@ -15,65 +15,73 @@ const services = [
   {
     icon: Ticket,
     title: "Events & Ticket Booking",
-    text: "Find events, book tickets and reserve seats instantly.",
+    text: "Find events, book tickets, and reserve seats instantly.",
     color: "text-[#F97316]",
   },
   {
     icon: Map,
     title: "Tourism & Destinations",
-    text: "Discover hidden places and plan your trip.",
-    color: "text-[#48782E]",
+    text: "Discover hidden places, historic sites, and plan your trip.",
+    color: "text-[#265F27]",
   },
   {
     icon: Landmark,
     title: "Culture & Experiences",
-    text: "Explore Abia's rich culture, heritage and local experiences.",
-    color: "text-red-500",
+    text: "Explore Abia's rich culture, heritage, and local festivals.",
+    color: "text-[#265F27]",
   },
   {
     icon: Hotel,
     title: "Stays & Accommodation",
-    text: "Find hotels, hostels and stays that fit your style.",
-    color: "text-blue-500",
+    text: "Find vetted hotels, apartments, and stays that fit your style.",
+    color: "text-[#265F27]",
   },
   {
     icon: UtensilsCrossed,
-    title: "Food Vendors",
-    text: "Discover restaurants, cafés and local food vendors.",
-    color: "text-orange-500",
+    title: "Food Vendors & Dining",
+    text: "Discover top restaurants, spot cafes, and local food vendors.",
+    color: "text-[#F97316]",
   },
   {
     icon: Bus,
     title: "Transportation & Logistics",
-    text: "Move around Abia with trusted transport and delivery.",
-    color: "text-cyan-500",
+    text: "Move around Abia easily with trusted transport and logistics.",
+    color: "text-[#265F27]",
   },
   {
     icon: Users,
-    title: "Community",
-    text: "Connect, share, support and grow with others.",
-    color: "text-purple-500",
+    title: "Community & Networking",
+    text: "Connect, share, support, and grow with active residents.",
+    color: "text-[#265F27]",
   },
   {
     icon: Store,
-    title: "Local Businesses & Services",
-    text: "Support local businesses and amazing people.",
-    color: "text-indigo-500",
+    title: "Local Businesses",
+    text: "Support local artisans, service providers, and vendors.",
+    color: "text-[#F97316]",
   },
 ];
 
 const WhatYouCanDo = () => {
   return (
-    <section className="space-y-8">
-      <div className="text-center">
-        <p className="text-[#F97316] text-xs font-bold uppercase mb-2">
+    <section className="space-y-10 md:space-y-12">
+      {/* SECTION HEADER */}
+      <div className="mx-auto max-w-2xl text-center">
+        <p className="mb-2 text-xs font-black tracking-wider uppercase text-[#F97316]">
           What You Can Do With
         </p>
 
-        <h2 className="text-3xl font-bold text-[#1F2937]">Mmemme Abia</h2>
+        <h2 className="text-3xl font-black tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
+          Mmemme Abia
+        </h2>
+
+        <p className="mt-3 text-base font-semibold text-gray-600 md:text-lg">
+          Everything you need to discover, explore, and connect across Abia State in one place.
+        </p>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* SERVICES GRID */}
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
         {services.map((service) => (
           <ServiceCard key={service.title} {...service} />
         ))}

@@ -67,14 +67,8 @@ export default function OrganizerSidebar() {
       data-testid="sidebar-organizer"
     >
       <div className="p-5">
-        <Link to="/" className="flex items-center gap-2.5 mb-8" data-testid="link-sidebar-logo">
-          <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0">
-            <span className="text-[#F36B25] font-black text-xl leading-none">M</span>
-          </div>
-          <div className="leading-tight">
-            <p className="text-white font-extrabold text-sm tracking-tight">Mmemme</p>
-            <p className="text-[#F9A857] font-extrabold text-[10px] tracking-widest -mt-0.5">ABIA</p>
-          </div>
+        <Link to="/" className="flex items-center mb-8" data-testid="link-sidebar-logo">
+          <img src="/logo.png" alt="Mmemme Logo" className="h-10 w-auto object-contain" />
         </Link>
         <nav className="space-y-1.5">
           {NAV_ITEMS.map((item) => (

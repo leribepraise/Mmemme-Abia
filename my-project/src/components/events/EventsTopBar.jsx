@@ -1,12 +1,10 @@
 import React from "react";
 import { ChevronDown, Grid2X2, List } from "lucide-react";
 
-const EventsTopBar = ({ count }) => {
+const EventsTopBar = () => {
   return (
     <div className="mb-3 flex h-10 items-center justify-between rounded-lg bg-white px-4 shadow-sm">
-      <p className="text-sm sm:text-base md:text-[16px] font-medium">
-        {count} Events found
-      </p>
+      <p className="text-[16px] font-medium">20 Events found</p>
 
       <div className="flex items-center gap-3">
         <div className="relative">

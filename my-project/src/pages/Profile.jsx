@@ -59,7 +59,8 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F9F7]">
+    // Added pt-20 and lg:pt-24 to push the content down and prevent the fixed navbar from cutting off the top[cite: 3]
+    <div className="min-h-screen bg-[#F7F9F7] pt-20 lg:pt-24">
       {/* MOBILE HEADER */}
       <ProfileMobileHeader
         mobileMenuOpen={mobileMenuOpen}

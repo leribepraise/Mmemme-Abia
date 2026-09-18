@@ -10,78 +10,86 @@ import {
 
 const FoodSearchBar = () => {
   return (
-    <div className="relative z-20 -mt-2 md:-mt-4 mx-3 md:mx-5">
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-3 md:p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-center">
-          {/* Location */}
-          <div className="flex items-center gap-2 border-b sm:border-b-0 sm:border-r border-gray-200 pb-3 sm:pb-0 sm:pr-3">
-            <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+    <div className="relative z-20 mx-3 -mt-4 md:mx-6 md:-mt-6">
+      <div className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-xl md:p-5">
+        <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {/* Craving / Search Input */}
+          <div className="flex items-center gap-3 border-b border-gray-200 pb-3 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-4">
+            <MapPin className="h-5 w-5 shrink-0 text-[#265F27]" />
 
-            <div>
-              <p className="text-[12px] text-[#6B7280] uppercase">
+            <div className="w-full">
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
                 What are you craving?
               </p>
 
-              <p className="text-[14px] font-medium text-[#1F2937]">
-                Search for food or cuisine
-              </p>
+              <input
+                type="text"
+                placeholder="Search food or cuisine..."
+                className="w-full text-sm font-semibold text-gray-900 placeholder-gray-400 focus:outline-none md:text-base"
+              />
             </div>
           </div>
 
           {/* Category */}
-          <div className="flex items-center justify-between border-b sm:border-b-0 sm:border-r border-gray-200 pb-3 sm:pb-0 sm:pr-3">
-            <div className="flex items-center gap-2">
-              <ListFilter className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center justify-between border-b border-gray-200 pb-3 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-4">
+            <div className="flex items-center gap-3">
+              <ListFilter className="h-5 w-5 text-gray-400" />
 
               <div>
-                <p className="text-[12px] text-[#6B7280]">Category</p>
-                <p className="text-[14px] font-medium text-[#1F2937]">
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Category
+                </p>
+                <p className="text-sm font-bold text-gray-900 md:text-base">
                   All Categories
                 </p>
               </div>
             </div>
 
-            <ChevronDown className="w-3 h-3 text-gray-400" />
+            <ChevronDown className="h-4 w-4 text-gray-400" />
           </div>
 
-          {/* Delivery */}
-          <div className="flex items-center justify-between border-b sm:border-b-0 sm:border-r border-gray-200 pb-3 sm:pb-0 sm:pr-3">
-            <div className="flex items-center gap-2">
-              <Clock3 className="w-4 h-4 text-gray-400" />
+          {/* Delivery Time */}
+          <div className="flex items-center justify-between border-b border-gray-200 pb-3 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-4">
+            <div className="flex items-center gap-3">
+              <Clock3 className="h-5 w-5 text-gray-400" />
 
               <div>
-                <p className="text-[12px] text-[#6B7280]">Delivery Time</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Delivery Time
+                </p>
 
-                <p className="text-[14px] text-[#1F2937] font-medium">
+                <p className="text-sm font-bold text-gray-900 md:text-base">
                   Any Time
                 </p>
               </div>
             </div>
 
-            <ChevronDown className="w-3 h-3 text-gray-400" />
+            <ChevronDown className="h-4 w-4 text-gray-400" />
           </div>
 
-          {/* Sort */}
-          <div className="flex items-center justify-between border-b lg:border-b-0 border-gray-200 pb-3 lg:pb-0">
-            <div className="flex items-center gap-2">
-              <UserRound className="w-4 h-4 text-gray-400" />
+          {/* Sort By */}
+          <div className="flex items-center justify-between border-b border-gray-200 pb-3 lg:border-b-0 lg:pb-0">
+            <div className="flex items-center gap-3">
+              <UserRound className="h-5 w-5 text-gray-400" />
 
               <div>
-                <p className="text-[12px] text-[#6B7280]">Sort By</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                  Sort By
+                </p>
 
-                <p className="text-[14px] font-medium text-[#1F2937]">
+                <p className="text-sm font-bold text-gray-900 md:text-base">
                   Recommended
                 </p>
               </div>
             </div>
 
-            <ChevronDown className="w-3 h-3 text-gray-400" />
+            <ChevronDown className="h-4 w-4 text-gray-400" />
           </div>
 
           {/* Search Button */}
-          <button className="w-full bg-[#F95A1E] hover:bg-[#E8630D] text-white rounded-[12px] py-3 flex items-center justify-center gap-2 text-xs font-semibold transition cursor-pointer">
-            <Search className="w-4 h-4" />
-            Search Food
+          <button className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#F97316] py-3.5 text-sm font-extrabold text-white shadow-md transition hover:bg-[#ea580c] md:text-base">
+            <Search className="h-5 w-5" />
+            <span>Search Food</span>
           </button>
         </div>
       </div>

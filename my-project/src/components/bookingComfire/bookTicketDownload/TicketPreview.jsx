@@ -4,46 +4,60 @@ const TicketPreview = forwardRef(({ hotel, bookingRef }, ref) => {
   return (
     <div
       ref={ref}
-      className="bg-white w-[500px] p-6 rounded-xl border-2 border-dashed border-[#3F783D]"
+      className="w-[600px] rounded-2xl border-2 border-dashed border-[#265F27] bg-white p-8 shadow-sm"
     >
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold text-lg text-[#172033]">Mmemme Abia</h2>
-        <span className="text-xs font-semibold text-[#3F783D]">
+      {/* HEADER */}
+      <div className="mb-6 flex items-center justify-between border-b border-gray-100 pb-4">
+        <h2 className="text-2xl font-extrabold text-gray-900">Mmemme Abia</h2>
+        <span className="rounded-lg bg-[#265F27]/10 px-3 py-1.5 text-xs font-black tracking-widest text-[#265F27]">
           BOOKING TICKET
         </span>
       </div>
 
-      <div className="flex gap-3 mb-4">
+      {/* HOTEL DETAILS */}
+      <div className="mb-6 flex items-center gap-4">
         <img
           src={hotel.image}
           alt={hotel.name}
-          className="w-20 h-20 rounded-lg object-cover"
+          className="h-24 w-24 rounded-xl object-cover shadow-sm"
         />
         <div>
-          <h3 className="font-bold text-base">{hotel.name}</h3>
-          <p className="text-sm text-gray-500">{hotel.location}</p>
+          <h3 className="text-xl font-extrabold text-gray-900">{hotel.name}</h3>
+          <p className="mt-1 text-base font-semibold text-gray-500">
+            {hotel.location}
+          </p>
         </div>
       </div>
 
-      <hr className="border-dashed border-gray-300 my-4" />
+      <hr className="my-6 border-dashed border-gray-300" />
 
-      <div className="grid grid-cols-2 gap-y-2 text-sm">
-        <span className="text-gray-500">Booking Reference</span>
-        <span className="font-semibold text-right">{bookingRef}</span>
+      {/* TICKET DATA GRID */}
+      <div className="grid grid-cols-2 gap-y-3.5 text-base">
+        <span className="font-semibold text-gray-500">Booking Reference</span>
+        <span className="font-extrabold text-right text-gray-900">
+          {bookingRef}
+        </span>
 
-        <span className="text-gray-500">Check-in</span>
-        <span className="font-semibold text-right">Sat, 24 May 2026</span>
+        <span className="font-semibold text-gray-500">Check-in</span>
+        <span className="font-extrabold text-right text-gray-900">
+          Sat, 24 May 2026
+        </span>
 
-        <span className="text-gray-500">Check-out</span>
-        <span className="font-semibold text-right">Sun, 25 May 2026</span>
+        <span className="font-semibold text-gray-500">Check-out</span>
+        <span className="font-extrabold text-right text-gray-900">
+          Sun, 25 May 2026
+        </span>
 
-        <span className="text-gray-500">Guests</span>
-        <span className="font-semibold text-right">1 Room, 2 Adults</span>
+        <span className="font-semibold text-gray-500">Guests</span>
+        <span className="font-extrabold text-right text-gray-900">
+          1 Room, 2 Adults
+        </span>
       </div>
 
-      <hr className="border-dashed border-gray-300 my-4" />
+      <hr className="my-6 border-dashed border-gray-300" />
 
-      <p className="text-center text-xs text-gray-400">
+      {/* FOOTER */}
+      <p className="text-center text-sm font-bold tracking-wide text-gray-400 uppercase">
         Present this ticket at check-in
       </p>
     </div>

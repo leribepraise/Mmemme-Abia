@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Download, FileText, Image as ImageIcon } from "lucide-react";
-// import html2canvas from "html2canvas";
+
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import TicketPreview from "./TicketPreview";
@@ -55,30 +55,32 @@ const DownloadTicketButton = ({ hotel, bookingRef }) => {
         <TicketPreview ref={ticketRef} hotel={hotel} bookingRef={bookingRef} />
       </div>
 
+      {/* Main Action Trigger */}
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="bg-[#FC6C2B] hover:bg-[#e35f22] text-white font-semibold px-5 py-2.5 rounded-lg flex items-center gap-2 transition"
+        className="flex cursor-pointer items-center gap-2.5 rounded-xl bg-[#F97316] px-6 py-3.5 text-sm font-extrabold text-white shadow-md transition hover:bg-[#ea580c] md:text-base"
       >
-        <Download className="w-4 h-4" />
-        Download Ticket
+        <Download className="h-5 w-5" />
+        <span>Download Ticket</span>
       </button>
 
+      {/* Options Dropdown */}
       {open && (
-        <div className="absolute mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-10">
+        <div className="absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-200 bg-white p-1.5 shadow-xl">
           <button
             onClick={downloadAsPDF}
-            className="w-full flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition"
+            className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 transition hover:bg-gray-100 md:text-base"
           >
-            <FileText className="w-4 h-4" />
-            Download as PDF
+            <FileText className="h-5 w-5 text-[#265F27]" />
+            <span>Download as PDF</span>
           </button>
 
           <button
             onClick={downloadAsImage}
-            className="w-full flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition border-t border-gray-100"
+            className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-gray-800 transition hover:bg-gray-100 md:text-base"
           >
-            <ImageIcon className="w-4 h-4" />
-            Download as Image
+            <ImageIcon className="h-5 w-5 text-[#F97316]" />
+            <span>Download as Image</span>
           </button>
         </div>
       )}

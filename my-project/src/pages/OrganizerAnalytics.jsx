@@ -4,10 +4,10 @@ import OrganizerStatCard from "@/components/organizer/OrganizerStatCard";
 import { naira } from "@/lib/utils";
 
 const TOP_EVENTS = [
-  { title: "Shane Bangs Live Concert", date: "Sat, 25 Oct, 2026", loc: "Umuahia Sports Arena, Umuahia", tix: 450, rev: naira(9450000), image: "/Event Thumbnail.png" },
-  { title: "Abia Cultural Festival", date: "Sat, 31 Oct, 2026", loc: "Ohafia Township Stadium", tix: 320, rev: naira(6720000), image: "/Event Thumbnail-1.png" },
-  { title: "Abia Food & Drink Carnival", date: "Sat, 08 Nov, 2026", loc: "Arochukwu Park, Arochukwu", tix: 210, rev: naira(3360000), image: "/Event Thumbnail-2.png" },
-  { title: "Abia Business Summit 2026", date: "Wed, 25 Nov, 2026", loc: "Aba Convention Center, Aba", tix: 180, rev: naira(3050000), image: "/Event Thumbnail-3.png" },
+  { title: "Shane Bangs Live Concert", date: "Sat, 25 Oct, 2026", loc: "Umuahia Sports Arena, Umuahia", tix: 450, rev: naira(9450000), image: "/event1.jpg" },
+  { title: "Abia Cultural Festival", date: "Sat, 31 Oct, 2026", loc: "Ohafia Township Stadium", tix: 320, rev: naira(6720000), image: "/cultural-festival.jpg" },
+  { title: "Abia Food & Drink Carnival", date: "Sat, 08 Nov, 2026", loc: "Arochukwu Park, Arochukwu", tix: 210, rev: naira(3360000), image: "/food-carnival.jpg" },
+  { title: "Abia Business Summit 2026", date: "Wed, 25 Nov, 2026", loc: "Aba Convention Center, Aba", tix: 180, rev: naira(3050000), image: "/business-summit.jpg" },
 ];
 
 const CATEGORY_BREAKDOWN = [

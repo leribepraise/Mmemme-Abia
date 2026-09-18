@@ -46,18 +46,24 @@ const vendors = [
 
 const PopularFood = () => {
   return (
-    <section>
-      <div className="flex justify-between items-center mb-3">
-        <h2 className="font-bold text-sm md:text-base">Popular Near You</h2>
+    <section className="py-6">
+      {/* SECTION HEADER */}
+      <div className="mb-5 flex items-center justify-between px-1">
+        <h2 className="text-xl font-extrabold text-gray-900 md:text-3xl">
+          Popular Near You
+        </h2>
 
-        <button className="text-[#3F783D] text-[14px] md:text-xs font-medium hover:underline">
+        <button className="text-base font-bold text-[#3F783D] transition hover:underline md:text-lg">
           View all vendors
         </button>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
+      {/* HORIZONTAL CAROUSEL */}
+      <div className="scrollbar-hide flex gap-5 overflow-x-auto pb-4">
         {vendors.map((vendor) => (
-          <FoodVendorCard key={vendor.name} vendor={vendor} />
+          <div key={vendor.name} className="w-[280px] shrink-0 sm:w-[320px]">
+            <FoodVendorCard vendor={vendor} />
+          </div>
         ))}
       </div>
     </section>

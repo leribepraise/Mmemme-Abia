@@ -1,52 +1,56 @@
+import React from "react";
 import { Lock, CheckCircle, HeadphonesIcon } from "lucide-react";
 
 const TrustBadgesCard = () => {
+  const badges = [
+    {
+      icon: Lock,
+      title: "Secured Checkout",
+      description: "Your payment is protected by standard end-to-end encryption.",
+    },
+    {
+      icon: CheckCircle,
+      title: "Instant Confirmation",
+      description: "You'll receive your ticket and digital receipt immediately.",
+    },
+    {
+      icon: HeadphonesIcon,
+      title: "24/7 Support",
+      description: "Our customer service team is here to help you anytime.",
+    },
+  ];
+
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
-      <div className="flex gap-4">
-        <div className="bg-green-50 p-2.5 rounded-lg h-fit text-[#48782E]">
-          <Lock className="w-6 h-6" />
-        </div>
+    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+      <div className="space-y-6">
+        {badges.map((badge, index) => {
+          const Icon = badge.icon;
+          return (
+            <React.Fragment key={badge.title}>
+              <div className="flex items-start gap-4">
+                {/* ICON BADGE CONTAINER */}
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#265F27]/10 text-[#265F27]">
+                  <Icon className="h-5 w-5" />
+                </div>
 
-        <div>
-          <h4 className="font-bold text-gray-900 mb-1">Secured Checkout</h4>
+                {/* TEXT CONTENT */}
+                <div>
+                  <h4 className="text-base font-extrabold text-gray-900 md:text-lg">
+                    {badge.title}
+                  </h4>
+                  <p className="mt-1 text-sm font-semibold text-gray-500 leading-relaxed">
+                    {badge.description}
+                  </p>
+                </div>
+              </div>
 
-          <p className="text-sm text-gray-500 font-medium leading-relaxed">
-            Your payment is protected by a secured encryption
-          </p>
-        </div>
-      </div>
-
-      <div className="w-full h-px bg-gray-100"></div>
-
-      <div className="flex gap-4">
-        <div className="bg-green-50 p-2.5 rounded-lg h-fit text-[#48782E]">
-          <CheckCircle className="w-6 h-6" />
-        </div>
-
-        <div>
-          <h4 className="font-bold text-gray-900 mb-1">Instant Confirmation</h4>
-
-          <p className="text-sm text-gray-500 font-medium leading-relaxed">
-            You'll receive your ticket immediately.
-          </p>
-        </div>
-      </div>
-
-      <div className="w-full h-px bg-gray-100"></div>
-
-      <div className="flex gap-4">
-        <div className="bg-green-50 p-2.5 rounded-lg h-fit text-[#48782E]">
-          <HeadphonesIcon className="w-6 h-6" />
-        </div>
-
-        <div>
-          <h4 className="font-bold text-gray-900 mb-1">24/7 Support</h4>
-
-          <p className="text-sm text-gray-500 font-medium leading-relaxed">
-            We are here to help you anytime.
-          </p>
-        </div>
+              {/* SECTION DIVIDER */}
+              {index < badges.length - 1 && (
+                <div className="h-px w-full bg-gray-100" />
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
     </div>
   );

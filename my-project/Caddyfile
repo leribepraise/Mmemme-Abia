@@ -1,0 +1,40 @@
+{
+    admin off
+    persist_config off
+    auto_https off
+}
+
+:{$PORT:8080} {
+    encode zstd gzip
+    request_body {
+        max_size 6MB
+    }
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+        X-Frame-Options DENY
+    }
+
+    handle /health/frontend/ {
+        respond "ok" 200
+    }
+
+    @backend path /api /api/* /admin /admin/* /static /static/* /media /media/* /health/*
+    handle @backend {
+        reverse_proxy {$BACKEND_UPSTREAM} {
+            # Railway terminates public HTTPS; never trust a client-supplied value.
+            header_up X-Forwarded-Proto https
+            header_up Host {host}
+        }
+    }
+
+    handle {
+        root * /app/dist
+        route {
+            try_files {path} /index.html
+            @index path /index.html
+            header @index Cache-Control "no-cache"
+            file_server
+        }
+    }
+}

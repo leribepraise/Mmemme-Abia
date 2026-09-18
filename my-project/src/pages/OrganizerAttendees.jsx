@@ -56,145 +56,159 @@ export default function OrganizerAttendees() {
   const updateTicketType = (value) => { setTicketType(value); setPage(1); };
 
   return (
-    <OrganizerShell
-      breadcrumb={["Home", "Organizer", "Attendees"]}
-      title="Attendees"
-      subtitle="View and manage who's attending your event."
-      actions={
-        <>
-          <button
-            onClick={() => window.alert("Attendee list exported.")}
-            className="flex items-center gap-1.5 border border-gray-200 bg-white text-gray-700 px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-50"
-            data-testid="button-export-attendees"
-          >
-            Export
-          </button>
-          <button
-            onClick={() => window.alert("Message sent to attendees.")}
-            className="bg-[#3F7D3D] hover:bg-[#336633] text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors"
-            data-testid="button-send-message"
-          >
-            Send Message
-          </button>
-        </>
-      }
-    >
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-4">
-        <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-          <img src={event.image} alt="" className="w-full h-full object-cover" />
+    <div className="pt-24">
+      <OrganizerShell
+        breadcrumb={["Home", "Organizer", "Attendees"]}
+        title="Attendees"
+        subtitle="View and manage who's attending your event."
+        actions={
+          <>
+            <button
+              onClick={() => window.alert("Attendee list exported.")}
+              className="flex items-center gap-2 border border-gray-200 bg-white text-gray-700 px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-gray-50"
+              data-testid="button-export-attendees"
+            >
+              Export
+            </button>
+            <button
+              onClick={() => window.alert("Message sent to attendees.")}
+              className="bg-[#3F7D3D] hover:bg-[#336633] text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-colors"
+              data-testid="button-send-message"
+            >
+              Send Message
+            </button>
+          </>
+        }
+      >
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center gap-5">
+          <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+            <img src={event.image} alt="" className="w-full h-full object-cover" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <select
+              value={eventId}
+              onChange={e => { setEventId(e.target.value); setPage(1); }}
+              className="font-bold text-base text-black bg-transparent focus:outline-none -ml-1 cursor-pointer"
+              data-testid="select-attendees-event"
+            >
+              {events.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
+            </select>
+            <p className="text-xs text-gray-500 font-medium mt-0.5">{fmtDate(event.date)} &middot; {event.venue}</p>
+          </div>
+          <div className="text-right shrink-0 px-5 border-l border-gray-100">
+            <p className="text-xl font-black text-black">{event.ticketsSold}</p>
+            <p className="text-xs text-gray-400 font-bold">Tickets Sold</p>
+          </div>
+          <div className="text-right shrink-0 pl-2">
+            <p className="text-xl font-black text-black">{event.ticketCapacity}</p>
+            <p className="text-xs text-gray-400 font-bold">Total Capacity</p>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <select
-            value={eventId}
-            onChange={e => { setEventId(e.target.value); setPage(1); }}
-            className="font-bold text-sm text-black bg-transparent focus:outline-none -ml-1"
-            data-testid="select-attendees-event"
-          >
-            {events.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
-          </select>
-          <p className="text-[11px] text-gray-500 font-medium">{fmtDate(event.date)} &middot; {event.venue}</p>
-        </div>
-        <div className="text-right shrink-0 px-4">
-          <p className="text-lg font-black text-black">{event.ticketsSold}</p>
-          <p className="text-[10px] text-gray-400 font-bold">Tickets Sold</p>
-        </div>
-        <div className="text-right shrink-0">
-          <p className="text-lg font-black text-black">{event.ticketCapacity}</p>
-          <p className="text-[10px] text-gray-400 font-bold">Total Capacity</p>
-        </div>
-      </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="search"
-              value={query}
-              onChange={e => updateQuery(e.target.value)}
-              placeholder="Search attendees..."
-              className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-[#3F7D3D]"
-              data-testid="input-search-attendees"
-            />
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mt-6">
+          <div className="flex flex-wrap items-center gap-4 mb-8">
+            <div className="relative flex-1 min-w-[240px]">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="search"
+                value={query}
+                onChange={e => updateQuery(e.target.value)}
+                placeholder="Search attendees..."
+                className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-[#3F7D3D]"
+                data-testid="input-search-attendees"
+              />
+            </div>
+            <select
+              value={ticketType}
+              onChange={e => updateTicketType(e.target.value)}
+              className="border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-600 focus:outline-none bg-white"
+              data-testid="select-filter-ticket-type"
+            >
+              <option>All Ticket Types</option>
+              {TICKET_TYPES.map(t => <option key={t}>{t}</option>)}
+            </select>
+            <button className="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 bg-white" data-testid="button-attendee-filter">
+              <Filter className="w-4 h-4" /> Filter
+            </button>
           </div>
-          <select
-            value={ticketType}
-            onChange={e => updateTicketType(e.target.value)}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-600 focus:outline-none"
-            data-testid="select-filter-ticket-type"
-          >
-            <option>All Ticket Types</option>
-            {TICKET_TYPES.map(t => <option key={t}>{t}</option>)}
-          </select>
-          <button className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50" data-testid="button-attendee-filter">
-            <Filter className="w-3.5 h-3.5" /> Filter
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-[10px] font-bold text-gray-400 uppercase border-b border-gray-100">
-                <th className="pb-3 pr-4">Attendee</th><th className="pb-3 pr-4">Ticket Type</th><th className="pb-3 pr-4">Order ID</th><th className="pb-3 pr-4">Purchase Date</th><th className="pb-3 pr-4">Check-in Status</th><th className="pb-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paged.map((a, i) => (
-                <tr key={a.orderId} className="border-b border-gray-50 last:border-0" data-testid={`row-attendee-${i}`}>
-                  <td className="py-3 pr-4"><strong className="font-bold text-black">{a.name}</strong><div className="text-[10px] text-gray-400">{a.email}</div></td>
-                  <td className="py-3 pr-4 font-bold text-[#F36B25]">{a.ticket}</td>
-                  <td className="py-3 pr-4 text-gray-500 font-mono text-xs">{a.orderId}</td>
-                  <td className="py-3 pr-4 text-gray-600">{a.purchaseDate}</td>
-                  <td className={`py-3 pr-4 font-bold text-xs ${a.checkedIn ? CHECKIN_STYLE["Checked In"] : CHECKIN_STYLE["Not Checked In"]}`}>
-                    {a.checkedIn ? "Checked In" : "Not Checked In"}
-                  </td>
-                  <td className="py-3">
-                    <button onClick={() => window.alert(`${a.name} ticket details opened.`)} className="text-gray-400 hover:text-gray-700" data-testid={`button-view-attendee-${i}`}>
-                      <MoreHorizontal className="w-4 h-4" />
-                    </button>
-                  </td>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                  <th className="pb-4 pr-6">Attendee</th>
+                  <th className="pb-4 pr-6">Ticket Type</th>
+                  <th className="pb-4 pr-6">Order ID</th>
+                  <th className="pb-4 pr-6">Purchase Date</th>
+                  <th className="pb-4 pr-6">Check-in Status</th>
+                  <th className="pb-4">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-6 pt-4 border-t border-gray-50">
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="w-7 h-7 rounded-md border border-gray-200 text-gray-400 disabled:opacity-40 flex items-center justify-center"
-              aria-label="Previous page"
-              data-testid="button-attendees-page-prev"
-            >
-              &lsaquo;
-            </button>
-            {paginationRange(currentPage, totalPages).map((n, i, arr) => (
-              <span key={n} className="flex items-center gap-1.5">
-                {i > 0 && n - arr[i - 1] > 1 && <span className="text-xs text-gray-300 px-0.5">&hellip;</span>}
-                <button
-                  onClick={() => setPage(n)}
-                  className={`w-7 h-7 rounded-md text-xs font-bold flex items-center justify-center ${n === currentPage ? "bg-[#3F7D3D] text-white" : "text-gray-500 hover:bg-gray-100"}`}
-                  data-testid={`button-attendees-page-${n}`}
-                >
-                  {n}
-                </button>
-              </span>
-            ))}
-            <button
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="w-7 h-7 rounded-md border border-gray-200 text-gray-400 disabled:opacity-40 flex items-center justify-center"
-              aria-label="Next page"
-              data-testid="button-attendees-page-next"
-            >
-              &rsaquo;
-            </button>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {paged.map((a, i) => (
+                  <tr key={a.orderId} className="hover:bg-gray-50/50 transition-colors" data-testid={`row-attendee-${i}`}>
+                    <td className="py-4 pr-6">
+                      <strong className="font-bold text-sm text-black block">{a.name}</strong>
+                      <span className="text-xs text-gray-400">{a.email}</span>
+                    </td>
+                    <td className="py-4 pr-6 font-bold text-sm text-[#F36B25]">{a.ticket}</td>
+                    <td className="py-4 pr-6 text-gray-500 font-mono text-xs">{a.orderId}</td>
+                    <td className="py-4 pr-6 text-sm text-gray-600">{a.purchaseDate}</td>
+                    <td className={`py-4 pr-6 font-bold text-xs ${a.checkedIn ? CHECKIN_STYLE["Checked In"] : CHECKIN_STYLE["Not Checked In"]}`}>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${a.checkedIn ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
+                        {a.checkedIn ? "Checked In" : "Not Checked In"}
+                      </span>
+                    </td>
+                    <td className="py-4">
+                      <button onClick={() => window.alert(`${a.name} ticket details opened.`)} className="p-2 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors" data-testid={`button-view-attendee-${i}`}>
+                        <MoreHorizontal className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <p className="text-[11px] text-gray-400 font-medium">
-            Showing {filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, filtered.length)} of {event.ticketsSold} attendees
-          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-gray-100">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="w-9 h-9 rounded-lg border border-gray-200 text-gray-500 disabled:opacity-40 flex items-center justify-center font-bold hover:bg-gray-50 transition-colors"
+                aria-label="Previous page"
+                data-testid="button-attendees-page-prev"
+              >
+                &lsaquo;
+              </button>
+              {paginationRange(currentPage, totalPages).map((n, i, arr) => (
+                <span key={n} className="flex items-center gap-2">
+                  {i > 0 && n - arr[i - 1] > 1 && <span className="text-sm text-gray-300 px-1">&hellip;</span>}
+                  <button
+                    onClick={() => setPage(n)}
+                    className={`w-9 h-9 rounded-lg text-sm font-bold flex items-center justify-center transition-colors ${n === currentPage ? "bg-[#3F7D3D] text-white shadow-sm" : "text-gray-600 hover:bg-gray-100"}`}
+                    data-testid={`button-attendees-page-${n}`}
+                  >
+                    {n}
+                  </button>
+                </span>
+              ))}
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="w-9 h-9 rounded-lg border border-gray-200 text-gray-500 disabled:opacity-40 flex items-center justify-center font-bold hover:bg-gray-50 transition-colors"
+                aria-label="Next page"
+                data-testid="button-attendees-page-next"
+              >
+                &rsaquo;
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 font-medium">
+              Showing {filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, filtered.length)} of {event.ticketsSold} attendees
+            </p>
+          </div>
         </div>
-      </div>
-    </OrganizerShell>
+      </OrganizerShell>
+    </div>
   );
 }
