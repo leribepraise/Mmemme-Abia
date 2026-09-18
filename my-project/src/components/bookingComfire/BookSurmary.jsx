@@ -1,64 +1,77 @@
 import React from "react";
 
-const BookSurmary = ({ hotel }) => {
-  const roomCharges = hotel.price;
+const BookingSummary = ({ hotel = {} }) => {
+  const roomCharges = hotel?.price || 0;
   const serviceFee = 3000;
   const taxes = 2000;
   const total = roomCharges + serviceFee + taxes;
 
   return (
-    <div className="bg-[#F8F9FA] rounded-[12px] p-5 border-2 border-[#C1C9BB] max-w-sm">
-      <h1 className="font-semibold text-[20px] text-[#191C1D]">
+    <div className="w-full max-w-md rounded-2xl border-2 border-gray-200 bg-[#F8F9FA] p-6 shadow-sm">
+      {/* CARD TITLE */}
+      <h2 className="text-xl font-extrabold text-gray-900 md:text-2xl">
         Booking Summary
-      </h1>
-      <hr />
-      <div className="flex gap-2 mt-2">
+      </h2>
+
+      <hr className="my-4 border-gray-200" />
+
+      {/* HOTEL DETAILS */}
+      <div className="mb-6 flex items-start gap-4">
         <img
-          src={hotel.image}
-          alt={hotel.name}
-          className="w-20 h-20 rounded-[8px]"
+          src={hotel?.image || "/placeholder.png"}
+          alt={hotel?.name || "Hotel image"}
+          className="h-20 w-20 flex-shrink-0 rounded-xl object-cover shadow-xs"
         />
-        <div className="flex flex-col gap-y-2 mb-5">
-          <h3 className="font-semibold text-[14px] text-[#191C1D]">
-            {hotel.name}
+        <div className="space-y-1">
+          <h3 className="text-base font-extrabold text-gray-900 md:text-lg">
+            {hotel?.name || "Hotel Name"}
           </h3>
-          <p className="text-[#41493E] text-[14px] font-normal">
-            Sat, 24 May 2026 - Sun, 25 May 2026
+          <p className="text-sm font-semibold text-gray-600">
+            Sat, 24 May 2026 – Sun, 25 May 2026
           </p>
-          <p className="text-[#41493E] text-[14px] font-normal">
+          <p className="text-sm font-medium text-gray-500">
             1 Room, 2 Adults
           </p>
         </div>
       </div>
-      <div className="flex justify-between">
-        <p className="text-[#41493E] text-[14px] font-normal">Room Charges</p>
-        <p className="text-[#191C1D] text-[14px] font-medium">
-          ₦{roomCharges.toLocaleString()}
-        </p>
+
+      {/* COST BREAKDOWN */}
+      <div className="space-y-3 text-sm md:text-base">
+        <div className="flex justify-between">
+          <span className="font-semibold text-gray-600">Room Charges</span>
+          <span className="font-extrabold text-gray-900">
+            ₦{roomCharges.toLocaleString()}
+          </span>
+        </div>
+
+        <div className="flex justify-between">
+          <span className="font-semibold text-gray-600">Service Fee</span>
+          <span className="font-extrabold text-gray-900">
+            ₦{serviceFee.toLocaleString()}
+          </span>
+        </div>
+
+        <div className="flex justify-between">
+          <span className="font-semibold text-gray-600">Taxes &amp; Charges</span>
+          <span className="font-extrabold text-gray-900">
+            ₦{taxes.toLocaleString()}
+          </span>
+        </div>
       </div>
-      <div className="flex justify-between">
-        <p className="text-[#41493E] text-[14px] font-normal">Service Fee</p>
-        <p className="text-[#191C1D] text-[14px] font-medium">
-          ₦{serviceFee.toLocaleString()}
-        </p>
-      </div>
-      <div className="flex justify-between mb-5">
-        <p className="text-[#41493E] text-[14px] font-normal">
-          Taxes & Charges
-        </p>
-        <p className="text-[#191C1D] text-[14px] font-medium">
-          ₦{taxes.toLocaleString()}
-        </p>
-      </div>
-      <hr />
-      <div className="flex justify-between pt-2">
-        <p className="text-[20px] text-[#191C1D] font-semibold">Total Paid</p>
-        <p className="text-[24px] text-[#3F783D] font-bold">
+
+      <hr className="my-5 border-dashed border-gray-300" />
+
+      {/* TOTAL COST */}
+      <div className="flex items-center justify-between pt-1">
+        <span className="text-lg font-bold text-gray-900 md:text-xl">
+          Total Paid
+        </span>
+        <span className="text-2xl font-black text-[#265F27] md:text-3xl">
           ₦{total.toLocaleString()}
-        </p>
+        </span>
       </div>
     </div>
   );
 };
 
-export default BookSurmary;
+export default BookingSummary;

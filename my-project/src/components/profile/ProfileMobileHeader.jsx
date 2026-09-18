@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 
 const ProfileMobileHeader = ({ mobileMenuOpen, setMobileMenuOpen }) => {
   return (
-    <div className="flex items-center justify-between border-b bg-white px-5 py-4 lg:hidden">
+    <div className="flex items-center justify-between border-b bg-white px-5 py-4 lg:hidden w-full">
       <h1 className="text-lg font-bold text-[#1B5E20]">Mmemme Abia</h1>
 
       <button

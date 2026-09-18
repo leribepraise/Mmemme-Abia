@@ -18,8 +18,8 @@ export const tours = [
     ticketPrice: "From ₦1,000",
     bestTimeToVisit: "All Year Round",
     facilities: ["Parking", "Tour Guides", "Rest Area", "Photography Allowed"],
-    gallery: ["/tour1.jpg", "/tour1-2.jpg", "/tour1-3.jpg", "/tour1-4.jpg"],
-    mapImage: "/arochukwu-map.jpg",
+    gallery: ["/tour1.jpg", "/cave1.jpg", "/cave2.jpg", "/cave3.jpg"],
+    mapImage: "/adventure-map.jpg",
   },
   {
     id: "arochukwu-waterfall",

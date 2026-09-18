@@ -1,13 +1,36 @@
 export const navList = [
-  { path: "/", title: "Home" },
-  { path: "/events", title: "Events" },
-  { path: "/hotel", title: "Hotels" },
-  { path: "/culture", title: "Culture" },
-  { path: "/tourism", title: "Tourism" },
-  { path: "/transport", title: "Transport" },
-  { path: "/food", title: "Food" },
-  { path: "/blog", title: "Blog" },
-  { path: "/about", title: "About us" },
+  {
+    path: "/",
+    title: "Home",
+  },
+  {
+    path: "/events",
+    title: "Events",
+  },
+  {
+    path: "/hotel",
+    title: "Hotels",
+  },
+  {
+    path: "/",
+    title: "Culture",
+  },
+  {
+    path: "/tourism",
+    title: "Tourism",
+  },
+  {
+    path: "/food",
+    title: "Food",
+  },
+  {
+    path: "/blog",
+    title: "Blog",
+  },
+  {
+    path: "/about",
+    title: "About us",
+  },
 ];
 
 export const authLink = [
@@ -19,7 +42,6 @@ export const userNavList = [
   { path: "/", title: "Home" },
   { path: "/events", title: "Events" },
   { path: "/hotel", title: "Hotels" },
-  { path: "/culture", title: "Culture" },
   { path: "/tourism", title: "Tourism" },
   { path: "/transport", title: "Transport" },
   { path: "/food", title: "Food" },

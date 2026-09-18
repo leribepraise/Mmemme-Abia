@@ -2,8 +2,9 @@ import React from "react";
 
 const TranportHero = () => {
   return (
+     <div className="pt-20 md:pt-24 w-full overflow-hidden">
     <div
-      className="relative rounded-3xl overflow-hidden h-[230px] md:h-[340px] bg-cover bg-center"
+      className="relative rounded-3xl overflow-hidden h-[230px] md:h-[400px] bg-cover bg-center"
       style={{ backgroundImage: "url('/transport.png')" }}
     >
       <div className="absolute inset-0 bg-black/20"></div>
@@ -23,6 +24,7 @@ const TranportHero = () => {
         </div>
       </div>
     </div>
+   </div>
   );
 };
 

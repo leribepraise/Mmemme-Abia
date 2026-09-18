@@ -6,88 +6,100 @@ const ContactInfo = () => {
   const infoItems = [
     {
       icon: Mail,
-      label: "Email",
+      label: "Email Us",
       lines: ["support@mmemmeabia.com"],
+      href: "mailto:support@mmemmeabia.com",
     },
     {
       icon: Phone,
-      label: "Phone",
+      label: "Call Us",
       lines: ["+234 812 345 6789"],
+      href: "tel:+2348123456789",
     },
     {
       icon: MapPin,
-      label: "Address",
+      label: "Visit Our Office",
       lines: ["1 Library Avenue, Umuahia,", "Abia State, Nigeria"],
+      href: null,
     },
     {
       icon: Clock,
       label: "Working Hours",
       lines: ["Mon - Fri: 8:00 AM - 5:00 PM"],
+      href: null,
     },
+  ];
+
+  const socialLinks = [
+    { icon: FaFacebookF, label: "Facebook", href: "#" },
+    { icon: FaInstagram, label: "Instagram", href: "#" },
+    { icon: FaYoutube, label: "YouTube", href: "#" },
+    { icon: FaTiktok, label: "TikTok", href: "#" },
   ];
 
   return (
     <div className="w-full lg:max-w-md">
-      <h1 className="text-3xl md:text-4xl font-bold text-[#172033] leading-tight">
+      {/* HEADING & SUBTITLE */}
+      <h1 className="text-3xl font-black tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
         We'd Love to Hear From You!
       </h1>
 
-      <p className="mt-4 text-gray-500 text-sm md:text-base leading-relaxed">
-        Have a question, suggestion or need help?
-        <br className="hidden sm:block" />
-        Reach out to us and our team will get back to you shortly.
+      <p className="mt-4 text-base font-medium leading-relaxed text-gray-600 md:text-lg">
+        Have a question, suggestion, or need help? Reach out to us and our team
+        will get back to you shortly.
       </p>
 
-      <div className="mt-8 space-y-6">
-        {infoItems.map(({ icon: Icon, label, lines }) => (
-          <div key={label} className="flex items-start gap-3">
-            <div className="w-9 h-9 shrink-0 rounded-full bg-[#EAF4EB] flex items-center justify-center">
-              <Icon className="w-4 h-4 text-[#3F783D]" />
+      {/* CONTACT METRICS LIST */}
+      <div className="mt-8 space-y-6 md:mt-10">
+        {infoItems.map(({ icon: Icon, label, lines, href }) => (
+          <div key={label} className="flex items-start gap-4">
+            {/* ICON CONTAINER */}
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#265F27]/10 text-[#265F27]">
+              <Icon className="h-5 w-5" />
             </div>
 
+            {/* LABEL & VALUES */}
             <div>
-              <p className="font-semibold text-sm text-[#172033]">{label}</p>
-              {lines.map((line, i) => (
-                <p key={i} className="text-sm text-gray-500">
-                  {line}
-                </p>
-              ))}
+              <p className="text-sm font-extrabold text-gray-900 md:text-base">
+                {label}
+              </p>
+              {lines.map((line, i) =>
+                href ? (
+                  <a
+                    key={i}
+                    href={href}
+                    className="block text-sm font-semibold text-gray-600 transition hover:text-[#265F27] hover:underline md:text-base"
+                  >
+                    {line}
+                  </a>
+                ) : (
+                  <p key={i} className="text-sm font-semibold text-gray-600 md:text-base">
+                    {line}
+                  </p>
+                )
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="mt-8">
-        <p className="font-semibold text-sm text-[#172033] mb-3">Follow us</p>
+      {/* SOCIAL MEDIA SECTION */}
+      <div className="mt-10 border-t border-gray-100 pt-8">
+        <p className="mb-4 text-sm font-extrabold tracking-wider uppercase text-gray-500">
+          Follow our community
+        </p>
 
         <div className="flex items-center gap-3">
-          <a
-            href="#"
-            className="w-9 h-9 rounded-full bg-[#172033] flex items-center justify-center text-white hover:opacity-80 transition"
-          >
-            <FaFacebookF className="w-4 h-4" />
-          </a>
-
-          <a
-            href="#"
-            className="w-9 h-9 rounded-full bg-[#172033] flex items-center justify-center text-white hover:opacity-80 transition"
-          >
-            <FaInstagram className="w-4 h-4" />
-          </a>
-
-          <a
-            href="#"
-            className="w-9 h-9 rounded-full bg-[#172033] flex items-center justify-center text-white hover:opacity-80 transition"
-          >
-            <FaYoutube className="w-4 h-4" />
-          </a>
-
-          <a
-            href="#"
-            className="w-9 h-9 rounded-full bg-[#172033] flex items-center justify-center text-white hover:opacity-80 transition"
-          >
-            <FaTiktok className="w-4 h-4" />
-          </a>
+          {socialLinks.map(({ icon: SocialIcon, label, href }) => (
+            <a
+              key={label}
+              href={href}
+              aria-label={label}
+              className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 text-gray-700 transition hover:bg-[#265F27] hover:text-white"
+            >
+              <SocialIcon className="h-4 w-4" />
+            </a>
+          ))}
         </div>
       </div>
     </div>
