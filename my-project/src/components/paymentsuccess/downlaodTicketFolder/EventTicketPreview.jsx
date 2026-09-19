@@ -1,4 +1,5 @@
 import React, { forwardRef } from "react";
+import TicketQRCode from "../../profile/common/qrCodeFolder/TicketQRCode";
 
 const EventTicketPreview = forwardRef(
   ({ event, tickets, total, orderId }, ref) => {
@@ -47,9 +48,12 @@ const EventTicketPreview = forwardRef(
 
         <hr className="border-dashed border-gray-300 my-4" />
 
-        <p className="text-center text-xs text-gray-400">
-          Present this ticket at the event entrance
-        </p>
+        <div className="flex flex-col items-center gap-2">
+          <TicketQRCode value={orderId} size={90} />
+          <p className="text-center text-xs text-gray-400">
+            Present this ticket at the event entrance
+          </p>
+        </div>
       </div>
     );
   },

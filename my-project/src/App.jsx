@@ -53,6 +53,7 @@ import CavesAndHillsPage from "./pages/CavesAndHillsPage";
 import ReligiousSitesPage from "./pages/ReligiousSitesPage";
 import AdventurePage from "./pages/AdventurePage";
 import TourDestinationDetails from "./pages/TourDestinationDetails";
+import SecuritySettingsPage from "./components/profile/SecuritySettingsPage";
 
 // /organizer/events/:id/edit needs the :id param handed to OrganizerEventForm
 // as the `editId` prop.
@@ -357,8 +358,17 @@ const App = () => {
         </div>
       ),
     },
+    {
+      path: "/settings/security",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <SecuritySettingsPage />
+          </GuestGuard>
+        </div>
+      ),
+    },
   ];
-
   const authRouter = [
     { path: "/login", element: <Login /> },
     { path: "/Signup", element: <SignUp /> },

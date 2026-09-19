@@ -11,7 +11,8 @@ import MyBookings from "../components/profile/MyBookings";
 import SavedItems from "../components/profile/SavedItems";
 import PaymentHistory from "../components/profile/PaymentHistory";
 import Notifications from "../components/profile/Notifications";
-import SettingsPage from "../components/profile/SettingsPage";
+import SettingsPage from "../components/profile/ProfileTabContent";
+import SettingsSection from "../components/profile/SettingsSection";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -55,12 +56,11 @@ const Profile = () => {
 
     Notifications: <Notifications />,
 
-    Settings: <SettingsPage user={user} />,
+    Settings: <SettingsSection user={user} />,
   };
 
   return (
-    // Added pt-20 and lg:pt-24 to push the content down and prevent the fixed navbar from cutting off the top[cite: 3]
-    <div className="min-h-screen bg-[#F7F9F7] pt-20 lg:pt-24">
+    <div className="min-h-screen bg-[#F7F9F7]">
       {/* MOBILE HEADER */}
       <ProfileMobileHeader
         mobileMenuOpen={mobileMenuOpen}
