@@ -143,10 +143,14 @@ export default function OrganizerLogin() {
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
-      <Footer />
+      {/* Footer safely positioned underneath */}
+      <div className="relative z-30">
+        <Footer />
+      </div>
     </div>
   );
 }

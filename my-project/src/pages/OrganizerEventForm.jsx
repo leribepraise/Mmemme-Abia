@@ -87,7 +87,6 @@ export default function OrganizerEventForm({ editId }) {
   };
 
   return (
-    <div className="pt-24">
       <OrganizerShell
         breadcrumb={["Home", "Organizer", existing ? "Edit Event" : "Create Event"]}
         title={existing ? "Edit Event" : "Create New Event"}
@@ -260,6 +259,5 @@ export default function OrganizerEventForm({ editId }) {
           </aside>
         </div>
       </OrganizerShell>
-    </div>
   );
 }

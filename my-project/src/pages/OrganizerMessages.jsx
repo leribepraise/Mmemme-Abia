@@ -169,7 +169,6 @@ export default function OrganizerMessages() {
   };
 
   return (
-    <div className="pt-24">
       <OrganizerShell
         breadcrumb={["Home", "Organizer", "Messages"]}
         title="Messages & Support"
@@ -301,6 +300,5 @@ export default function OrganizerMessages() {
           </div>
         </div>
       </OrganizerShell>
-    </div>
   );
 }

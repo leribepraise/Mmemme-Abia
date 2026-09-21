@@ -2,7 +2,7 @@ import React from "react";
 
 const TranportHero = () => {
   return (
-     <div className="pt-20 md:pt-24 w-full overflow-hidden">
+     <div className="w-full overflow-hidden">
     <div
       className="relative rounded-3xl overflow-hidden h-[230px] md:h-[400px] bg-cover bg-center"
       style={{ backgroundImage: "url('/transport.png')" }}

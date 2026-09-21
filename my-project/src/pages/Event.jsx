@@ -5,7 +5,7 @@ import EventGrid from "../components/events/EventGrid";
 import Pagination from "../components/events/Pagination";
 import Updateed from "../components/home/Updateed";
 import Patners from "../components/home/Patners";
-import { eventss } from "../data/eventData";
+import { getPublicEvents } from "../data/eventData";
 
 const EVENTS_PER_PAGE = 9;
 
@@ -17,9 +17,27 @@ const parsePrice = (text3) => {
 };
 
 const Events = () => {
+  // Organizer-created events live in localStorage, so this is refreshed on
+  // mount and whenever an organizer publishes/edits an event.
+  const [events, setEvents] = useState(() => getPublicEvents());
+
+  useEffect(() => {
+    const refresh = () => setEvents(getPublicEvents());
+
+    // Fired by OrganizerEventForm right after it saves to localStorage.
+    window.addEventListener("mmemme-events-updated", refresh);
+    // Fired automatically if another tab/window changes localStorage.
+    window.addEventListener("storage", refresh);
+
+    return () => {
+      window.removeEventListener("mmemme-events-updated", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, []);
+
   const maxPrice = useMemo(
-    () => Math.max(...eventss.map((e) => parsePrice(e.text3)), 0),
-    [],
+    () => Math.max(...events.map((e) => parsePrice(e.text3)), 0),
+    [events],
   );
 
   const [slider, setSlider] = useState(maxPrice);
@@ -30,13 +48,19 @@ const Events = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Keep the price slider's ceiling in sync if a newly published event
+  // changes what the highest ticket price is.
+  useEffect(() => {
+    setSlider(maxPrice);
+  }, [maxPrice]);
+
   const locations = useMemo(() => {
-    const unique = new Set(eventss.map((e) => e.text2).filter(Boolean));
+    const unique = new Set(events.map((e) => e.text2).filter(Boolean));
     return Array.from(unique);
-  }, []);
+  }, [events]);
 
   const filteredEvents = useMemo(() => {
-    let result = eventss;
+    let result = events;
 
     if (searchTerm.trim()) {
       const query = searchTerm.toLowerCase();
@@ -60,7 +84,7 @@ const Events = () => {
     result = result.filter((event) => parsePrice(event.text3) <= slider);
 
     return result;
-  }, [searchTerm, appliedFilters, slider]);
+  }, [events, searchTerm, appliedFilters, slider]);
 
   useEffect(() => {
     setCurrentPage(1);

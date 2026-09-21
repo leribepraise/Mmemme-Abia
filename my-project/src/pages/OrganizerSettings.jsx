@@ -29,7 +29,6 @@ export default function OrganizerSettings() {
   const saveProfile = () => { save("mmemme-organizer", organizer); setSaved(true); setTimeout(() => setSaved(false), 1600); };
 
   return (
-    <div className="pt-24">
     <OrganizerShell
       breadcrumb={["Home", "Organizer", "Account Settings"]}
       title="Account Settings"
@@ -145,6 +144,5 @@ export default function OrganizerSettings() {
         </div>
       </div>
     </OrganizerShell>
-    </div>
   );
 }

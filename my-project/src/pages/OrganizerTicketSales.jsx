@@ -416,7 +416,6 @@ export default function OrganizerTicketSales() {
   const [typesApi, setTypesApi] = useState(null);
 
   return (
-    <div className="pt-24">
     <OrganizerShell
       breadcrumb={["Home", "Organizer", "Ticket Management"]}
       title="Ticket Management"
@@ -480,6 +479,5 @@ export default function OrganizerTicketSales() {
         </div>
       </div>
     </OrganizerShell>
-    </div>
   );
 }

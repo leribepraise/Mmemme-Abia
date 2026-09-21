@@ -56,7 +56,6 @@ export default function OrganizerAttendees() {
   const updateTicketType = (value) => { setTicketType(value); setPage(1); };
 
   return (
-    <div className="pt-24">
       <OrganizerShell
         breadcrumb={["Home", "Organizer", "Attendees"]}
         title="Attendees"
@@ -209,6 +208,5 @@ export default function OrganizerAttendees() {
           </div>
         </div>
       </OrganizerShell>
-    </div>
   );
 }

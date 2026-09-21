@@ -3,7 +3,7 @@ import FoodSearchBar from "./FoodSearchBar";
 
 const FoodHero = () => {
   return (
-    <section className="relative pt-24 md:pt-32">
+    <section className="relative">
       {/* Hero Container */}
       <div className="relative h-[240px] overflow-hidden rounded-b-[24px] md:h-[350px]">
         {/* Background Image with Top Alignment */}

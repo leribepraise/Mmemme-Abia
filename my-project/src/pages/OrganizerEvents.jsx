@@ -58,7 +58,6 @@ export default function OrganizerEvents() {
   const toggleStatus = (id) => persist(events.map(e => (e.id === id ? { ...e, status: e.status === "Published" ? "Draft" : "Published" } : e)));
 
   return (
-    <div className="pt-24">
       <OrganizerShell
         breadcrumb={["Home", "Organizer", "My Events"]}
         title="My Events"
@@ -214,6 +213,5 @@ export default function OrganizerEvents() {
           )}
         </div>
       </OrganizerShell>
-    </div>
   );
 }
