@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import { profileSchema } from "./profileSettingsSchemas/profileSchema";
 import { Calendar, MapPin } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
 const ProfileTabContent = () => {
+  const [errors, setErrors] = useState({});
+
   const { user, updateUser } = useUser();
   const [form, setForm] = useState(user);
   const [saved, setSaved] = useState(false);
@@ -29,13 +33,46 @@ const ProfileTabContent = () => {
   };
 
   const handleChange = (field) => (e) => {
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    const value = e.target.value;
+
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
+
     setSaved(false);
   };
 
   const handleSave = () => {
-    updateUser(form);
+    const result = profileSchema.safeParse(form);
+
+    if (!result.success) {
+      const fieldErrors = {};
+
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0];
+
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
+      });
+
+      setErrors(fieldErrors);
+
+      toast.error("Please fix the highlighted fields.");
+      return;
+    }
+
+    setErrors({});
+    updateUser(result.data);
     setSaved(true);
+
+    toast.success("Profile updated successfully!");
   };
 
   return (
@@ -74,79 +111,132 @@ const ProfileTabContent = () => {
       <hr className="border-gray-200 mb-6" />
 
       <div className="space-y-5">
+        {/* Full Name */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-2">
             Full Name
           </label>
+
           <input
             value={form.fullName || ""}
             onChange={handleChange("fullName")}
-            className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-green-700"
+            className={`w-full rounded-lg border px-4 py-3 text-sm outline-none focus:border-green-700 ${
+              errors.fullName ? "border-red-500" : "border-gray-200"
+            }`}
           />
+
+          {errors.fullName && (
+            <p className="mt-1 text-sm text-red-500">{errors.fullName}</p>
+          )}
         </div>
 
+        {/* Email */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-2">
             Email Address
           </label>
+
           <input
+            type="email"
             value={form.email || ""}
             onChange={handleChange("email")}
-            className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-green-700"
+            className={`w-full rounded-lg border px-4 py-3 text-sm outline-none focus:border-green-700 ${
+              errors.email ? "border-red-500" : "border-gray-200"
+            }`}
           />
+
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+          )}
         </div>
 
+        {/* Phone */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-2">
             Phone Number
           </label>
+
           <input
+            type="tel"
             value={form.phone || ""}
             onChange={handleChange("phone")}
-            className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-green-700"
+            className={`w-full rounded-lg border px-4 py-3 text-sm outline-none focus:border-green-700 ${
+              errors.phone ? "border-red-500" : "border-gray-200"
+            }`}
           />
+
+          {errors.phone && (
+            <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
+          )}
         </div>
 
+        {/* Address */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-2">
             Address
           </label>
+
           <div className="relative">
             <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+
             <input
               value={form.address || ""}
               onChange={handleChange("address")}
-              className="w-full rounded-lg border border-gray-200 pl-9 pr-4 py-3 text-sm outline-none focus:border-green-700"
+              className={`w-full rounded-lg border pl-9 pr-4 py-3 text-sm outline-none focus:border-green-700 ${
+                errors.address ? "border-red-500" : "border-gray-200"
+              }`}
             />
           </div>
+
+          {errors.address && (
+            <p className="mt-1 text-sm text-red-500">{errors.address}</p>
+          )}
         </div>
 
+        {/* LGA */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-2">
             Local Government Area
           </label>
+
           <input
             value={form.lga || ""}
             onChange={handleChange("lga")}
-            className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-green-700"
+            className={`w-full rounded-lg border px-4 py-3 text-sm outline-none focus:border-green-700 ${
+              errors.lga ? "border-red-500" : "border-gray-200"
+            }`}
           />
+
+          {errors.lga && (
+            <p className="mt-1 text-sm text-red-500">{errors.lga}</p>
+          )}
         </div>
 
+        {/* Date of Birth */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-2">
             Date of Birth
           </label>
+
           <div className="relative">
             <input
               type="date"
               value={form.dateOfBirth || ""}
               onChange={handleChange("dateOfBirth")}
-              className="w-full rounded-lg border border-gray-200 pl-4 pr-9 py-3 text-sm outline-none focus:border-green-700"
+              className={`w-full rounded-lg border pl-4 pr-9 py-3 text-sm outline-none focus:border-green-700 ${
+                errors.dateOfBirth ? "border-red-500" : "border-gray-200"
+              }`}
             />
+
             <Calendar className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
+
+          {errors.dateOfBirth && (
+            <p className="mt-1 text-sm text-red-500">{errors.dateOfBirth}</p>
+          )}
         </div>
 
+        {/* Save */}
         <div className="flex items-center gap-3">
           <button
             type="button"

@@ -3,7 +3,7 @@ import FoodSearchBar from "./FoodSearchBar";
 
 const FoodHero = () => {
   return (
-    <section className="relative pt-24 md:pt-32">
+    <section className="relative pt-[88px] lg:pt-[96px]">
       {/* Hero Container */}
       <div className="relative h-[240px] overflow-hidden rounded-b-[24px] md:h-[350px]">
         {/* Background Image with Top Alignment */}
@@ -14,7 +14,7 @@ const FoodHero = () => {
         />
 
         {/* Dark Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/30" />
 
         {/* Text Content */}
         <div className="relative z-10 max-w-xl p-6 text-white md:p-10">

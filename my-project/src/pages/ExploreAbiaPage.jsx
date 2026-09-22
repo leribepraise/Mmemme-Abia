@@ -85,7 +85,6 @@ export default function ExploreAbiaPage() {
   return (
     <div className="min-h-screen bg-gray-50/50 pb-16 pt-24 font-sans text-gray-800 md:pt-28">
       <div className="mx-auto max-w-[88rem] px-4 md:px-8">
-        
         {/* TOP ROW: Enforced Alignment with items-stretch */}
         <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-12">
           {/* Left Column: Hero Container */}
@@ -118,7 +117,7 @@ export default function ExploreAbiaPage() {
                   View all
                 </button>
               </div>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto scrollbar-none">
                 <div className="flex w-max gap-4 pb-2">
                   {categories.map((cat) => (
                     <div key={cat.title} className="w-24 shrink-0">
@@ -296,7 +295,6 @@ export default function ExploreAbiaPage() {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

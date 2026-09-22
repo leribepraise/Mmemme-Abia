@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 import {
   MapPin,
   ListFilter,
@@ -87,10 +88,12 @@ const FoodSearchBar = () => {
           </div>
 
           {/* Search Button */}
-          <button className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#F97316] py-3.5 text-sm font-extrabold text-white shadow-md transition hover:bg-[#ea580c] md:text-base">
-            <Search className="h-5 w-5" />
-            <span>Search Food</span>
-          </button>
+          <NavLink to="/search">
+            <button className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#F97316] py-3.5 text-sm font-extrabold text-white shadow-md transition hover:bg-[#ea580c] md:text-base">
+              <Search className="h-5 w-5" />
+              <span>Search Food</span>
+            </button>
+          </NavLink>
         </div>
       </div>
     </div>

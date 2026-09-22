@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 import { MapPin, Star, Calendar } from "lucide-react";
 
 const ResultCard = ({ result }) => {
@@ -6,7 +7,6 @@ const ResultCard = ({ result }) => {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 flex flex-col sm:flex-row gap-4">
-      {/* IMAGE */}
       <div className="relative w-full sm:w-40 h-32 shrink-0 rounded-lg overflow-hidden">
         <img
           src={result.image}
@@ -21,7 +21,6 @@ const ResultCard = ({ result }) => {
         )}
       </div>
 
-      {/* CONTENT */}
       <div className="flex-1 flex flex-col">
         <h3 className="font-bold text-base text-[#172033]">{result.name}</h3>
 
@@ -38,21 +37,24 @@ const ResultCard = ({ result }) => {
         )}
 
         {isEvent ? (
-          <p className="text-sm text-gray-500 mt-1">{result.category}</p>
+          <p className="text-sm text-gray-500 mt-1">{result.categoryLabel}</p>
         ) : (
-          <div className="flex items-center gap-1 text-sm mt-1">
-            <Star className="w-4 h-4 text-orange-500 fill-orange-500" />
-            <span className="font-semibold">{result.rating}</span>
-            <span className="text-gray-400">({result.reviews} reviews)</span>
-            <span className="text-gray-400">• {result.category}</span>
-          </div>
+          result.rating && (
+            <div className="flex items-center gap-1 text-sm mt-1">
+              <Star className="w-4 h-4 text-orange-500 fill-orange-500" />
+              <span className="font-semibold">{result.rating}</span>
+              <span className="text-gray-400">({result.reviews} reviews)</span>
+              <span className="text-gray-400">• {result.categoryLabel}</span>
+            </div>
+          )
         )}
 
-        <p className="text-sm text-gray-500 mt-2 leading-relaxed">
-          {result.description}
-        </p>
+        {result.description && (
+          <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+            {result.description}
+          </p>
+        )}
 
-        {/* FOOTER */}
         {isEvent ? (
           <>
             <hr className="border-gray-100 my-3" />
@@ -60,24 +62,36 @@ const ResultCard = ({ result }) => {
               <div>
                 <p className="text-xs text-gray-400">From</p>
                 <p className="font-bold text-lg text-[#172033]">
-                  ₦{result.price.toLocaleString()}
+                  {result.price === 0
+                    ? "Free"
+                    : `₦${result.price.toLocaleString()}`}
                 </p>
               </div>
 
-              <button className="bg-[#3F783D] hover:bg-[#356433] text-white font-semibold text-sm px-5 py-2 rounded-lg transition">
-                Book Event
-              </button>
+              <NavLink to={result.to}>
+                <button className="bg-[#3F783D] hover:bg-[#356433] text-white font-semibold text-sm px-5 py-2 rounded-lg transition">
+                  Book Event
+                </button>
+              </NavLink>
             </div>
           </>
         ) : (
           <div className="flex items-center justify-between mt-3">
-            <span className="bg-[#EAF4EB] text-[#3F783D] text-xs font-semibold px-3 py-1 rounded-full">
-              Free Entry
-            </span>
+            {result.price === 0 ? (
+              <span className="bg-[#EAF4EB] text-[#3F783D] text-xs font-semibold px-3 py-1 rounded-full">
+                Free Entry
+              </span>
+            ) : (
+              <span className="font-bold text-[#172033]">
+                From ₦{result.price.toLocaleString()}
+              </span>
+            )}
 
-            <button className="border border-[#3F783D] text-[#3F783D] hover:bg-[#EAF4EB] font-semibold text-sm px-5 py-2 rounded-lg transition">
-              View Details
-            </button>
+            <NavLink to={result.to}>
+              <button className="border border-[#3F783D] text-[#3F783D] hover:bg-[#EAF4EB] font-semibold text-sm px-5 py-2 rounded-lg transition">
+                View Details
+              </button>
+            </NavLink>
           </div>
         )}
       </div>

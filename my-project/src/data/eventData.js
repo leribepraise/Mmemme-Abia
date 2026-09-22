@@ -49,6 +49,17 @@ const BASE_PUBLIC_EVENTS = [
     text2: "Umuahia, Abia",
     text3: "Free",
   },
+  {
+    id: "waterfall-experience-tour",
+    image: "/waterfall-tour.jpg",
+    text: "Waterfall Experience Tour",
+    text2: "Abia Waterfalls Circuit",
+    text3: "N15,000",
+    date: "Sat, 14 Jun, 2025",
+    category: "Tour • Outdoor",
+    description:
+      "Guided tour to the most beautiful waterfalls in Abia. Includes transportation and light refreshments.",
+  },
 ];
 
 export const toPublicEvent = (event) => {
@@ -64,12 +75,17 @@ export const toPublicEvent = (event) => {
     image: event.image || "/event.jpg",
     text: title,
     text2: venue,
-    text3: event.text3 || (price > 0 ? `₦${price.toLocaleString("en-NG")}` : "Free"),
-    dateDay: event.dateDay || (parsedDate ? String(parsedDate.getDate()).padStart(2, "0") : "28"),
+    text3:
+      event.text3 || (price > 0 ? `₦${price.toLocaleString("en-NG")}` : "Free"),
+    dateDay:
+      event.dateDay ||
+      (parsedDate ? String(parsedDate.getDate()).padStart(2, "0") : "28"),
     dateMonth:
       event.dateMonth ||
       (parsedDate
-        ? parsedDate.toLocaleDateString("en-NG", { month: "short" }).toUpperCase()
+        ? parsedDate
+            .toLocaleDateString("en-NG", { month: "short" })
+            .toUpperCase()
         : "OCT"),
     description: event.description || "",
   };

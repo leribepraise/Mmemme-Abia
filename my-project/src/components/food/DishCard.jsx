@@ -30,7 +30,9 @@ const DishCard = ({ dish }) => {
         </div>
 
         <div className="flex justify-between items-center mt-3">
-          <p className="font-extrabold text-base text-gray-900">₦{dish.price}</p>
+          <p className="font-extrabold text-base text-gray-900">
+            ₦{dish.price.toLocaleString()}
+          </p>
 
           <button className="w-8 h-8 bg-[#265F27] text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-[#1e4a1f] shadow-sm transition">
             <Plus className="w-4 h-4" />

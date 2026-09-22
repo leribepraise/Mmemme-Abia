@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import toast from "react-hot-toast";
 import SignUpSocialButtons from "./SignUpSocialButtons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +17,7 @@ const SignUpForm = ({ onLogin }) => {
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: zodResolver(signupSchema) });
+
   const onSubmit = (data) => {
     const existingData = JSON.parse(sessionStorage.getItem("signupData")) || {};
 
@@ -28,13 +30,13 @@ const SignUpForm = ({ onLogin }) => {
       terms: data.terms,
     };
 
-    console.log("UPDATED SIGN UP DATA:", updatedData);
-
     sessionStorage.setItem("signupData", JSON.stringify(updatedData));
-    // sessionStorage.setItem("user", JSON.stringify(user));
+
+    toast.success("Account details saved! Let's finish setting up.");
 
     navigate("/Signup/onboarding");
   };
+
   const toggleVisibility = () => {
     setInputType((prevType) => (prevType === "password" ? "text" : "password"));
   };
@@ -187,9 +189,7 @@ const SignUpForm = ({ onLogin }) => {
           <p className="text-center text-sm text-[#666666]">
             Already have an account?
             <NavLink to="/login">
-              <button
-                className="text-[#48782E] font-semibold hover:underline"
-              >
+              <button className="text-[#48782E] font-semibold hover:underline">
                 Log In
               </button>
             </NavLink>

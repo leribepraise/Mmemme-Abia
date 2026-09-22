@@ -1,4 +1,5 @@
 import React, { forwardRef } from "react";
+import TicketQRCode from "../../profile/common/qrCodeFolder/TicketQRCode";
 
 const TicketPreview = forwardRef(({ hotel, bookingRef }, ref) => {
   return (
@@ -56,10 +57,14 @@ const TicketPreview = forwardRef(({ hotel, bookingRef }, ref) => {
 
       <hr className="my-6 border-dashed border-gray-300" />
 
-      {/* FOOTER */}
-      <p className="text-center text-sm font-bold tracking-wide text-gray-400 uppercase">
-        Present this ticket at check-in
-      </p>
+      {/* QR CODE + FOOTER */}
+      <div className="flex flex-col items-center gap-3">
+        <TicketQRCode value={bookingRef} size={110} />
+
+        <p className="text-center text-sm font-bold tracking-wide text-gray-400 uppercase">
+          Present this ticket at check-in
+        </p>
+      </div>
     </div>
   );
 });

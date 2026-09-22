@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import toast from "react-hot-toast";
 import SocialButtons from "./SocialButtons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,12 +18,10 @@ const LoginForm = ({ onLogin }) => {
   });
 
   const onSubmit = (data) => {
-    console.log(data);
-
     const savedUser = JSON.parse(sessionStorage.getItem("user"));
 
     if (!savedUser) {
-      console.log("No account found");
+      toast.error("No account found. Please sign up first.");
       return;
     }
 
@@ -30,16 +29,17 @@ const LoginForm = ({ onLogin }) => {
       data.email === savedUser.email &&
       data.password === savedUser.password
     ) {
-      console.log("Login successful");
-
+      toast.success("Login successful!");
       onLogin();
     } else {
-      console.log("Invalid email or password");
+      toast.error("Invalid email or password.");
     }
   };
+
   const toggleVisibility = () => {
     setInputType((prevType) => (prevType === "password" ? "text" : "password"));
   };
+
   return (
     <div className="p-8 md:p-12 flex items-center">
       <div className="w-full">
@@ -102,7 +102,10 @@ const LoginForm = ({ onLogin }) => {
                 Remember me
               </label>
 
-              <button className="text-[#EF6C00] font-semibold hover:underline">
+              <button
+                type="button"
+                className="text-[#EF6C00] font-semibold hover:underline"
+              >
                 Forgot Password?
               </button>
             </div>
