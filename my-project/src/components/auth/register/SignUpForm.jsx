@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema } from "./validation/schemas/signupSchema";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const SignUpForm = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -31,6 +32,13 @@ const SignUpForm = ({ onLogin }) => {
     } catch (error) { toast.error(error.message); }
   };
 
+  const onInvalid = () => {
+    toast({
+      title: "Check the form",
+      description: "Some fields need your attention before you can continue.",
+      variant: "destructive",
+    });
+  };
   const toggleVisibility = () => {
     setInputType((prevType) => (prevType === "password" ? "text" : "password"));
   };
@@ -48,7 +56,7 @@ const SignUpForm = ({ onLogin }) => {
         </h1>
         <p className="text-[14px] text-[#6B7280] mb-8">Let's get you started</p>
         <div className="space-y-5">
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
             {/* Full Name */}
             <div>
               <label className="block text-[14px] font-medium text-[#374151] mb-2">

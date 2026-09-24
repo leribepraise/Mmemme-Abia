@@ -60,6 +60,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F9F7]">
+      <Seo title="My Profile" noIndex path="/profile" />
       {/* MOBILE HEADER */}
       <ProfileMobileHeader
         mobileMenuOpen={mobileMenuOpen}

@@ -409,7 +409,6 @@ export default function OrganizerTicketSales() {
   if (!event) return <OrganizerShell title="Ticket Management"><p>No events yet. Create an event to manage its tickets.</p></OrganizerShell>;
 
   return (
-    <div className="pt-24">
     <OrganizerShell
       breadcrumb={["Home", "Organizer", "Ticket Management"]}
       title="Ticket Management"
@@ -473,6 +472,5 @@ export default function OrganizerTicketSales() {
         </div>
       </div>
     </OrganizerShell>
-    </div>
   );
 }

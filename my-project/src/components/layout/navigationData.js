@@ -12,10 +12,6 @@ export const navList = [
     title: "Hotels",
   },
   {
-    path: "/",
-    title: "Culture",
-  },
-  {
     path: "/tourism",
     title: "Tourism",
   },

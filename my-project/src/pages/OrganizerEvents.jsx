@@ -67,7 +67,6 @@ export default function OrganizerEvents() {
   };
 
   return (
-    <div className="pt-24">
       <OrganizerShell
         breadcrumb={["Home", "Organizer", "My Events"]}
         title="My Events"
@@ -223,6 +222,5 @@ export default function OrganizerEvents() {
           )}
         </div>
       </OrganizerShell>
-    </div>
   );
 }

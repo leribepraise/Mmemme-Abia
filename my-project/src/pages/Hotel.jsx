@@ -1,3 +1,4 @@
+import Seo from "../components/seo/Seo";
 import React from "react";
 import {
   Building,
@@ -81,6 +82,7 @@ export default function Hotel() {
 
   return (
     <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8 pt-24">
+      <Seo title="Hotels in Abia State" description="Find and book hotels, guest houses and stays across Umuahia, Aba and beyond." path="/hotel" />
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Top Grid with Hero + Cards */}

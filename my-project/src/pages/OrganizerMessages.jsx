@@ -33,7 +33,6 @@ export default function OrganizerMessages() {
   const unavailable = () => toast('This feature is not available yet.');
 
   return (
-    <div className="pt-24">
       <OrganizerShell
         breadcrumb={["Home", "Organizer", "Messages"]}
         title="Messages & Support"
@@ -165,6 +164,5 @@ export default function OrganizerMessages() {
           </div>
         </div>
       </OrganizerShell>
-    </div>
   );
 }

@@ -38,7 +38,6 @@ export default function OrganizerAttendees() {
 
   if (!event) return <OrganizerShell title="Attendees"><p>No events yet.</p></OrganizerShell>;
   return (
-    <div className="pt-24">
       <OrganizerShell
         breadcrumb={["Home", "Organizer", "Attendees"]}
         title="Attendees"
@@ -142,7 +141,7 @@ export default function OrganizerAttendees() {
                       </span>
                     </td>
                     <td className="py-4">
-                      <button onClick={() => window.alert(`${a.name} ticket details opened.`)} className="p-2 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors" data-testid={`button-view-attendee-${i}`}>
+                      <button onClick={() => toast({ title: a.name, description: "Ticket details opened." })} className="p-2 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors" data-testid={`button-view-attendee-${i}`}>
                         <MoreHorizontal className="w-5 h-5" />
                       </button>
                     </td>
@@ -191,6 +190,5 @@ export default function OrganizerAttendees() {
           </div>
         </div>
       </OrganizerShell>
-    </div>
   );
 }

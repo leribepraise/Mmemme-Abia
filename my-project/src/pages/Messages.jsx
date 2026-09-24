@@ -19,6 +19,7 @@ const Messages = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f7f3] px-4 py-5 md:px-6">
+      <Seo title="Messages" noIndex path="/message" />
       {/* HEADER */}
       <div className="mb-5">
         <p className="text-[10px] text-gray-400">

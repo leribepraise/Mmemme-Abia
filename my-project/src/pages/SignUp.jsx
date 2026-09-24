@@ -1,3 +1,4 @@
+import Seo from "../components/seo/Seo";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import SignUpLogo from "../components/auth/register/SignUpLogo";
@@ -16,6 +17,7 @@ const SignUp = () => {
   };
   return (
     <div className="min-h-screen bg-[#F5F7F3] px-5 py-8 md:px-12">
+      <Seo title="Sign Up" noIndex path="/SignUp" />
       <SignUpLogo />
 
       <div className="max-w-5xl mx-auto bg-white rounded-[28px] overflow-hidden shadow-sm border border-gray-100">

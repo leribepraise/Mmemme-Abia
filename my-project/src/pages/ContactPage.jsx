@@ -1,3 +1,4 @@
+import Seo from "../components/seo/Seo";
 import React from "react";
 import Breadcrumb from "../components/contact/Breadcrumb";
 import ContactInfo from "../components/contact/ContactInfo";
@@ -6,6 +7,7 @@ import ContactForm from "../components/contact/ContactForm";
 const ContactPage = () => {
   return (
     <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8">
+      <Seo title="Contact Us" description="Get in touch with the Mmemme Abia team — questions, support, or partnership enquiries." path="/contact" />
       <div className="max-w-6xl mx-auto bg-[#F9FAF8] rounded-2xl p-5 md:p-10">
         <Breadcrumb />
 

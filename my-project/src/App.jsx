@@ -49,6 +49,7 @@ import OrganizerNotFound from "./pages/OrganizerNotFound";
 import { useParams, Navigate } from "react-router-dom";
 
 import { UserProvider } from "./components/context/UserContext";
+import { Toaster } from "@/components/ui/toaster";
 import ContactPage from "./pages/ContactPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import HistoricalSitesPage from "./pages/HistoricalSitesPage";
@@ -491,6 +492,7 @@ const App = () => {
           </UserProvider>
         </div>
       </div>
+      <Toaster />
     </>
   );
 };

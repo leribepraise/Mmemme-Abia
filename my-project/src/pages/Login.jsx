@@ -1,3 +1,4 @@
+import Seo from "../components/seo/Seo";
 import React from "react";
 import { useAuth } from "../components/context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +16,7 @@ const Login = () => {
   };
   return (
     <div className="min-h-screen bg-[#F5F7F3] px-5 py-8 md:px-12">
+      <Seo title="Log In" noIndex path="/login" />
       <LoginLogo />
 
       <div className="max-w-6xl mx-auto bg-white rounded-[28px] overflow-hidden shadow-sm border border-gray-100">

@@ -6,6 +6,7 @@ import { Bell, CreditCard, KeyRound, Landmark, Link2, Shield, User } from "lucid
 import OrganizerShell from "@/components/organizer/OrganizerPublicShell";
 import { seedOrganizer } from "@/data/organizerData";
 import { load, save } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const TABS = [
   { key: "profile", label: "Profile Information", icon: User },
@@ -38,7 +39,6 @@ export default function OrganizerSettings() {
   };
 
   return (
-    <div className="pt-24">
     <OrganizerShell
       breadcrumb={["Home", "Organizer", "Account Settings"]}
       title="Account Settings"
@@ -84,7 +84,7 @@ export default function OrganizerSettings() {
                   <h3 className="font-bold text-sm text-black">Profile Photo</h3>
                   <p className="text-xs text-gray-500 mb-2">JPG, PNG or GIF. Max size 2MB.</p>
                   <button
-                    onClick={() => window.alert("Choose a photo to upload.")}
+                    onClick={() => toast({ title: "Upload a photo", description: "Choose a photo to upload." })}
                     className="text-xs font-bold border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50"
                     data-testid="button-upload-photo"
                   >
@@ -154,6 +154,5 @@ export default function OrganizerSettings() {
         </div>
       </div>
     </OrganizerShell>
-    </div>
   );
 }

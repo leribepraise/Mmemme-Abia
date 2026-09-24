@@ -28,6 +28,12 @@ const RestaurantDetails = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F8F7] px-4 md:px-6 py-3">
+      
+      <Seo
+        title="Restaurant Details"
+        description="See the menu, ratings, reviews and location for this restaurant on Mmemme Abia."
+        path="/fooddetail"
+      />
       <div className="max-w-6xl mx-auto bg-white rounded-xl overflow-hidden">
         <RestaurantBreadcrumb vendorName={vendor.name} />
 

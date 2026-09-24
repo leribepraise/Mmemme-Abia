@@ -8,6 +8,7 @@ import OrganizerShell from "@/components/organizer/OrganizerShell";
 import OrganizerStatCard from "@/components/organizer/OrganizerStatCard";
 import { seedPayouts } from "@/data/organizerData";
 import { naira, load, save } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const STATUS_STYLE = { Paid: "bg-green-100 text-green-700", Pending: "bg-amber-100 text-amber-700" };
 

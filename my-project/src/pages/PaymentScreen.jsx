@@ -3,7 +3,7 @@ import { useSearchParams, Navigate } from "react-router-dom";
 import React, { useState } from "react";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-
+import Seo from "../components/seo/Seo";
 import PaymentMethodsSidebar from "../components/payment/PaymentMethodsSidebar";
 import PaymentForm from "../components/payment/PaymentForm";
 import PaymentSummary from "../components/payment/PaymentSummary";
@@ -45,6 +45,7 @@ export default function PaymentScreen() {
   if (booking.status !== 'PENDING') return <p role="status">This booking is {booking.status.toLowerCase()}. Start a new booking from its listing.</p>;
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans text-gray-800">
+      <Seo title="Payment" noIndex path="/payment" />
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <div className="text-sm text-gray-400 mb-4 flex gap-2">
