@@ -11,7 +11,14 @@ export default function PaymentScreen() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { event, tickets, subtotal, serviceFee, total } = location.state || {};
+  const {
+    event,
+    tickets,
+    attendee,
+    subtotal,
+    serviceFee,
+    total,
+  } = location.state || {};
 
   const [activeMethod, setActiveMethod] = useState("card");
 
@@ -19,7 +26,14 @@ export default function PaymentScreen() {
 
   const handleConfirmFree = () => {
     navigate("/Paymentsuccess", {
-      state: { event, tickets, subtotal, serviceFee, total },
+      state: {
+        event,
+        tickets,
+        attendee,
+        subtotal,
+        serviceFee,
+        total,
+      },
     });
   };
 
@@ -92,7 +106,14 @@ export default function PaymentScreen() {
               setActiveMethod={setActiveMethod}
             />
 
-            <PaymentForm event={event} tickets={tickets} total={total} />
+            <PaymentForm
+              event={event}
+              tickets={tickets}
+              attendee={attendee}
+              subtotal={subtotal}
+              serviceFee={serviceFee}
+              total={total}
+            />
 
             <div className="lg:col-span-4 space-y-6">
               <PaymentSummary
@@ -120,3 +141,4 @@ export default function PaymentScreen() {
     </div>
   );
 }
+

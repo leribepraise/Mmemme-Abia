@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Lock, Eye, EyeOff } from "lucide-react";
+import toast from "react-hot-toast";
 
 const ChangePasswordCard = () => {
   const [showCurrent, setShowCurrent] = useState(false);
@@ -14,6 +15,21 @@ const ChangePasswordCard = () => {
 
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleUpdate = () => {
+    if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
+      toast.error("Please fill in all password fields.");
+      return;
+    }
+
+    if (form.newPassword !== form.confirmPassword) {
+      toast.error("New passwords don't match.");
+      return;
+    }
+
+    toast.success("Password updated successfully.");
+    setForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
   };
 
   return (
@@ -114,6 +130,7 @@ const ChangePasswordCard = () => {
 
         <button
           type="button"
+          onClick={handleUpdate}
           className="bg-[#3F783D] hover:bg-[#356433] text-white font-semibold px-6 py-2.5 rounded-lg transition"
         >
           Update Password

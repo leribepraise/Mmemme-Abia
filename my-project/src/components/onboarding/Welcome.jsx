@@ -1,6 +1,7 @@
 import React from "react";
 import { Compass, CalendarDays, Users, Sparkles, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Welcome = ({ userData }) => {
   const navigate = useNavigate();
@@ -116,31 +117,29 @@ const Welcome = ({ userData }) => {
         {/* CLAIM GIFT */}
         <button
           type="button"
+          onClick={() => toast.success("10% off code copied: WELCOME10")}
           className="mx-auto mt-4 flex h-8 w-full max-w-[540px] cursor-pointer items-center justify-center rounded-lg bg-[#F36B0A] text-[8px] font-semibold text-white transition hover:bg-[#DF5F06] active:scale-[0.99]"
         >
           Claim Gift
         </button>
 
         {/* DASHBOARD */}
-        {/* <button
-          type="button"
-          onClick={() => navigate("/login")}
-          className="mx-auto mt-3 block cursor-pointer text-[7px] font-medium text-gray-500 transition hover:text-[#3F783D]"
-        >
-          Go to Dashboard
-        </button> */}
         <button
           type="button"
           onClick={() => {
             const savedData = JSON.parse(sessionStorage.getItem("signupData"));
 
             if (!savedData) {
-              console.log("No signup data found");
+              toast.error("Something went wrong. Please sign up again.");
               navigate("/signup");
               return;
             }
 
             sessionStorage.setItem("user", JSON.stringify(savedData));
+
+            toast.success(
+              "Welcome to Mmemme Abia! Account created successfully.",
+            );
 
             navigate("/login");
           }}

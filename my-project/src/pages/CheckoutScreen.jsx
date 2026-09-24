@@ -35,8 +35,27 @@ export default function CheckoutScreen() {
     },
   ]);
 
+  const [enabledTiers, setEnabledTiers] = useState({
+    regular: (selectedTickets?.regular || 0) > 0,
+    vip: (selectedTickets?.vip || 0) > 0,
+    vvip: (selectedTickets?.vvip || 0) > 0,
+  });
+
+  // NEW: attendee information
+  const [attendee, setAttendee] = useState(() => {
+    const savedAttendee = sessionStorage.getItem("attendeeInfo");
+
+    return savedAttendee
+      ? JSON.parse(savedAttendee)
+      : {
+          fullName: "",
+          email: "",
+          buyingForSomeoneElse: false,
+        };
+  });
+
   const updateQty = (id, delta) => {
-    if (isFree) return; // lock quantities for free events
+    if (isFree) return;
 
     setTickets((prevTickets) =>
       prevTickets.map((ticket) => {
@@ -54,8 +73,39 @@ export default function CheckoutScreen() {
     );
   };
 
-  const formatCurrency = (amount) =>
-    amount === 0 ? "Free" : `N${amount.toLocaleString()}`;
+  const toggleTier = (id) => {
+    if (isFree) return;
+
+    setEnabledTiers((prev) => {
+      const nowEnabled = !prev[id];
+
+      if (!nowEnabled) {
+        setTickets((prevTickets) =>
+          prevTickets.map((ticket) =>
+            ticket.id === id ? { ...ticket, qty: 0 } : ticket,
+          ),
+        );
+      }
+
+      return { ...prev, [id]: nowEnabled };
+    });
+  };
+
+  // NEW: update attendee information
+  const updateAttendee = (field, value) => {
+    setAttendee((prev) => {
+      const updatedAttendee = {
+        ...prev,
+        [field]: value,
+      };
+
+      sessionStorage.setItem("attendeeInfo", JSON.stringify(updatedAttendee));
+
+      return updatedAttendee;
+    });
+  };
+
+  const formatCurrency = (amount) => `N${amount.toLocaleString()}`;
 
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans text-gray-800">
@@ -84,11 +134,16 @@ export default function CheckoutScreen() {
             <TicketSelectionCard
               tickets={tickets}
               updateQty={updateQty}
+              enabledTiers={enabledTiers}
+              toggleTier={toggleTier}
               formatCurrency={formatCurrency}
               isFree={isFree}
             />
 
-            <AttendeeInfoCard />
+            <AttendeeInfoCard
+              attendee={attendee}
+              updateAttendee={updateAttendee}
+            />
           </div>
 
           <div className="space-y-6">

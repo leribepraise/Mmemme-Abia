@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import {
   CheckCircle2,
   ShieldCheck,
@@ -71,8 +72,14 @@ const ChoosePlan = ({ onNext, onBack }) => {
   ];
 
   const onSubmit = (data) => {
-    console.log("Selected plan:", data);
+    const planNames = {
+      bronze: "Bronze",
+      silver: "Silver",
+      diamond: "Diamond",
+    };
+
     onNext(data);
+    toast.success(`${planNames[data.plan]} plan selected!`);
   };
 
   return (
@@ -83,7 +90,8 @@ const ChoosePlan = ({ onNext, onBack }) => {
           Choose Your Plan
         </h1>
         <p className="mt-2 text-sm text-gray-500">
-          Unlock more features and enjoy the best of Abia with our flexible plans.
+          Unlock more features and enjoy the best of Abia with our flexible
+          plans.
         </p>
       </div>
 
@@ -128,8 +136,8 @@ const ChoosePlan = ({ onNext, onBack }) => {
                         plan.color === "orange"
                           ? "text-[#E86618]"
                           : plan.color === "green"
-                          ? "text-[#3F783D]"
-                          : "text-[#4285E8]"
+                            ? "text-[#3F783D]"
+                            : "text-[#4285E8]"
                       }`}
                     >
                       {plan.name}
@@ -159,8 +167,8 @@ const ChoosePlan = ({ onNext, onBack }) => {
                         plan.color === "orange"
                           ? "bg-[#FFF0E8]"
                           : plan.color === "green"
-                          ? "bg-[#EAF5EA]"
-                          : "bg-[#EAF3FF]"
+                            ? "bg-[#EAF5EA]"
+                            : "bg-[#EAF3FF]"
                       }`}
                     >
                       <div
@@ -168,8 +176,8 @@ const ChoosePlan = ({ onNext, onBack }) => {
                           plan.color === "orange"
                             ? "bg-[#D96B2A]"
                             : plan.color === "green"
-                            ? "bg-[#3F783D]"
-                            : "bg-[#4285E8]"
+                              ? "bg-[#3F783D]"
+                              : "bg-[#4285E8]"
                         }`}
                       >
                         <Icon
@@ -195,8 +203,8 @@ const ChoosePlan = ({ onNext, onBack }) => {
                             plan.color === "orange"
                               ? "text-[#E86618]"
                               : plan.color === "green"
-                              ? "text-[#3F783D]"
-                              : "text-[#4285E8]"
+                                ? "text-[#3F783D]"
+                                : "text-[#4285E8]"
                           }`}
                           fill="currentColor"
                           strokeWidth={1.5}

@@ -2,6 +2,7 @@ import Seo from "../components/seo/Seo";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../components/context/AuthContext";
+import { useUser } from "../components/context/UserContext";
 
 import ProfileSidebar from "../components/profile/ProfileSidebar";
 import ProfileMobileHeader from "../components/profile/ProfileMobileHeader";
@@ -12,18 +13,15 @@ import MyBookings from "../components/profile/MyBookings";
 import SavedItems from "../components/profile/SavedItems";
 import PaymentHistory from "../components/profile/PaymentHistory";
 import Notifications from "../components/profile/Notifications";
-import SettingsPage from "../components/profile/ProfileTabContent";
 import SettingsSection from "../components/profile/SettingsSection";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { user } = useUser();
 
   const [activeSection, setActiveSection] = useState("Dashboard");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Get logged-in user
-  const user = JSON.parse(sessionStorage.getItem("user")) || {};
 
   // Handle sidebar navigation
   const handleMenuClick = (section) => {
@@ -88,7 +86,7 @@ const Profile = () => {
         )}
 
         {/* MAIN CONTENT */}
-        <main className="w-full min-w-0 flex-1 p-4 sm:p-6 lg:p-8 overflow-hidden">
+        <main className="w-full min-w-0 flex-1 overflow-hidden p-4 sm:p-6 lg:p-8">
           {sections[activeSection]}
         </main>
       </div>

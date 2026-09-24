@@ -55,6 +55,12 @@ import ReligiousSitesPage from "./pages/ReligiousSitesPage";
 import AdventurePage from "./pages/AdventurePage";
 import TourDestinationDetails from "./pages/TourDestinationDetails";
 import SecuritySettingsPage from "./components/profile/SecuritySettingsPage";
+import AllGroupsPage from "./components/community/screenFour/AllGroupsPage";
+import PeoplePage from "./components/community/screenFive.jsx/PeoplePage";
+import CommunityPage from "./pages/CommunityPage";
+import GroupDetailPage from "./pages/GroupDetailPage";
+import CreatePostPage from "./pages/CreatePostPage";
+import PersonProfilePage from "./pages/PersonProfilePage";
 
 // /organizer/events/:id/edit needs the :id param handed to OrganizerEventForm
 // as the `editId` prop.
@@ -204,7 +210,58 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <Community />
+            <CommunityPage />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/community/groups",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <AllGroupsPage />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/community/people",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <PeoplePage />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/community/groups/:id",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <GroupDetailPage />
+          </GuestGuard>
+        </div>
+      ),
+    },
+
+    {
+      path: "/community/create-post",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <CreatePostPage />
+          </GuestGuard>
+        </div>
+      ),
+    },
+    {
+      path: "/community/people/:id",
+      element: (
+        <div className="mx-5 my-5">
+          <GuestGuard>
+            <PersonProfilePage />
           </GuestGuard>
         </div>
       ),
@@ -260,7 +317,7 @@ const App = () => {
       ),
     },
     {
-      path: "/fooddetail",
+      path: "/fooddetail/:id",
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>

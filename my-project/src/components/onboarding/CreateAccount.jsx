@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import toast from "react-hot-toast";
 import {
   Upload,
   MapPin,
@@ -66,12 +67,12 @@ const CreateAccount = ({ onNext }) => {
   };
 
   const onSubmit = (data) => {
-    console.log("Create Account data:", data);
-
     onNext({
       ...data,
       profilePicture: profilePreview,
     });
+
+    toast.success("Details saved! Let's choose your plan.");
   };
 
   const lgas = [

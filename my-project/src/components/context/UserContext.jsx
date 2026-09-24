@@ -24,8 +24,23 @@ export const UserProvider = ({ children }) => {
 
   const updateUser = (updates) => {
     setUserState((prev) => {
-      const next = { ...prev, ...updates };
+      const next = {
+        ...prev,
+
+        fullName: updates.fullName,
+        email: updates.email,
+        phone: updates.phone,
+        whatsapp: updates.whatsapp,
+        lga: updates.lga,
+        address: updates.address,
+        dateOfBirth: updates.dateOfBirth,
+        gender: updates.gender,
+        bio: updates.bio,
+        profilePicture: updates.profilePicture,
+      };
+
       sessionStorage.setItem("user", JSON.stringify(next));
+
       return next;
     });
   };

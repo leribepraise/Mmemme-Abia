@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Download, FileText, Image as ImageIcon } from "lucide-react";
+import toast from "react-hot-toast";
 
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
@@ -18,12 +19,19 @@ const DownloadTicketButton = ({ hotel, bookingRef }) => {
   };
 
   const downloadAsImage = async () => {
-    const canvas = await captureTicket();
-    const link = document.createElement("a");
-    link.download = `ticket-${bookingRef}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-    setOpen(false);
+    try {
+      const canvas = await captureTicket();
+      const link = document.createElement("a");
+      link.download = `ticket-${bookingRef}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      toast.success("Ticket downloaded!");
+    } catch (err) {
+      console.error("Image download failed:", err);
+      toast.error("Something went wrong generating the ticket.");
+    } finally {
+      setOpen(false);
+    }
   };
 
   const downloadAsPDF = async () => {
@@ -40,9 +48,10 @@ const DownloadTicketButton = ({ hotel, bookingRef }) => {
 
       pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
       pdf.save(`ticket-${bookingRef}.pdf`);
+      toast.success("Ticket downloaded!");
     } catch (err) {
       console.error("PDF download failed:", err);
-      alert("Something went wrong generating the ticket.");
+      toast.error("Something went wrong generating the ticket.");
     } finally {
       setOpen(false);
     }

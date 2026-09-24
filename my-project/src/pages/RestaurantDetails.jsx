@@ -11,6 +11,19 @@ import RestaurantAbout from "../components/restaurant/RestaurantAbout";
 import RestaurantReview from "../components/restaurant/RestaurantReview";
 
 const RestaurantDetails = () => {
+  const { id } = useParams();
+  const vendor = foodVendors.find((v) => v.id === id);
+
+  const [activeTab, setActiveTab] = useState("Overview");
+
+  if (!vendor) {
+    return (
+      <div className="min-h-screen bg-[#F7F8F7] p-4 md:p-8 text-center">
+        <p className="text-gray-500">Restaurant not found.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F7F8F7] px-4 md:px-6 py-3">
       
@@ -20,30 +33,46 @@ const RestaurantDetails = () => {
         path="/fooddetail"
       />
       <div className="max-w-6xl mx-auto bg-white rounded-xl overflow-hidden">
-        <RestaurantBreadcrumb />
+        <RestaurantBreadcrumb vendorName={vendor.name} />
 
-        <RestaurantGallery />
+        <RestaurantGallery vendor={vendor} />
 
-        <RestaurantHeader />
+        <RestaurantHeader vendor={vendor} />
 
-        <RestaurantStats />
+        <RestaurantStats vendor={vendor} />
 
-        <RestaurantTabs />
+        <RestaurantTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          reviewCount={vendor.reviews}
+        />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 md:px-5 pb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 md:px-5 pb-6 pt-6">
           {/* LEFT */}
           <div className="lg:col-span-8 space-y-6">
-            <PopularDishes />
+            {activeTab === "Overview" && (
+              <>
+                <PopularDishes vendor={vendor} />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <RestaurantAbout />
-              <RestaurantReview />
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <RestaurantAbout vendor={vendor} />
+                  <RestaurantReview vendor={vendor} />
+                </div>
+              </>
+            )}
+
+            {activeTab === "Menu" && <PopularDishes vendor={vendor} />}
+
+            {activeTab === "Photos" && <RestaurantGallery vendor={vendor} />}
+
+            {activeTab === "Reviews" && <RestaurantReview vendor={vendor} />}
+
+            {activeTab === "Location" && <RestaurantLocation vendor={vendor} />}
           </div>
 
           {/* RIGHT */}
           <div className="lg:col-span-4">
-            <RestaurantLocation />
+            <RestaurantLocation vendor={vendor} />
           </div>
         </div>
       </div>

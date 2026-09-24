@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import toast from "react-hot-toast";
 import SocialButtons from "./SocialButtons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,9 +48,11 @@ const LoginForm = ({ onLogin }) => {
       });
     }
   };
+
   const toggleVisibility = () => {
     setInputType((prevType) => (prevType === "password" ? "text" : "password"));
   };
+
   return (
     <div className="p-8 md:p-12 flex items-center">
       <div className="w-full">
