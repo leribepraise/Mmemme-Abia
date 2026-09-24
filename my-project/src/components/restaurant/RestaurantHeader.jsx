@@ -28,7 +28,7 @@ const RestaurantHeader = ({ vendor }) => {
           </div>
         </div>
 
-        <button className="bg-[#F97316] hover:bg-[#E8630D] text-white px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition">
+        <button onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${vendor.address}, ${vendor.city}, Nigeria`)}`, "_blank", "noopener,noreferrer")} className="bg-[#F97316] hover:bg-[#E8630D] text-white px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition">
           <Navigation className="w-3.5 h-3.5" />
           Directions
         </button>

@@ -8,16 +8,17 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { NavLink } from "react-router-dom";
 import MobileNav from "./MobileNav";
 import { useAuth } from "@/components/context/AuthContext";
-import { notifications } from "@/data/notifications";
+import { useCollection } from "@/hooks/useApi";
 
 const Header = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user: account } = useAuth();
 
-  const user = JSON.parse(sessionStorage.getItem("user")) || {};
+  const user = account || {};
 
   const currentNav = isLoggedIn ? userNavList : navList;
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const { data: notifications } = useCollection(isLoggedIn ? "/notifications/" : null);
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
     <>

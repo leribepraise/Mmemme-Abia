@@ -32,7 +32,7 @@
 //           </div>
 
 //           <p className="mt-3 text-xl font-bold">
-//             From ₦{hotel.price.toLocaleString()}
+//             From ₦{hotel.price?.toLocaleString() || "—"}
 //           </p>
 
 //           <p className="text-xs text-gray-500">/ night</p>
@@ -147,7 +147,7 @@ const HotelCard = ({ hotel }) => {
           </div>
 
           <p className="mt-3 text-xl font-bold">
-            From ₦{hotel.price.toLocaleString()}
+            From ₦{hotel.price?.toLocaleString() || "—"}
           </p>
 
           <p className="text-xs text-gray-500">/ night</p>

@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import React, { useState } from "react";
 import { Globe } from "lucide-react";
 
@@ -19,7 +20,7 @@ const LanguageCard = () => {
 
       <select
         value={language}
-        onChange={(e) => setLanguage(e.target.value)}
+        onChange={() => toast("Only English is available at present.")}
         className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-green-700"
       >
         <option>English (Default)</option>

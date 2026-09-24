@@ -16,7 +16,7 @@ export default function OrganizerStatCard({ title, value, trend, isPositive = tr
         )}
       </div>
       <p className="text-2xl font-black text-gray-900 mb-3">{value}</p>
-      {plain ? (
+      {plain || !trend ? (
         <p className="text-xs font-bold text-gray-400">{trend}</p>
       ) : (
         <div className="flex items-center gap-1.5 text-xs font-bold">

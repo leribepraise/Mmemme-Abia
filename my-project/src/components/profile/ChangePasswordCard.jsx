@@ -1,3 +1,4 @@
+import { api } from "@/lib/api";
 import React, { useState } from "react";
 import { Lock, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
@@ -17,7 +18,7 @@ const ChangePasswordCard = () => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
       toast.error("Please fill in all password fields.");
       return;
@@ -28,7 +29,10 @@ const ChangePasswordCard = () => {
       return;
     }
 
-    toast.success("Password updated successfully.");
+    try { await api("/auth/password-change/", { method: "POST", body: { current_password: form.currentPassword, password: form.newPassword } }); }
+    catch (error) { toast.error(error.message); return; }
+    toast.success("Password changed. Please log in again.");
+    window.location.assign("/login");
     setForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
   };
 

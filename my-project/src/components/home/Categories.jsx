@@ -18,6 +18,7 @@ const Categories = () => {
       <div className="flex justify-between gap-3 md:gap-0">
         {groups.map((group) => (
           <div
+            key={group.text}
             className="flex flex-col justify-center items-center bg-[#FFFEFE] p-5 h-20 w-auto text-[12px] rounded-[15px] shadow-xl transition duration-300
   hover:bg-[#F1FCEE]
   hover:text-black

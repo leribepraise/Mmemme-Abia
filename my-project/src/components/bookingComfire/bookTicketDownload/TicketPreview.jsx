@@ -1,7 +1,7 @@
 import React, { forwardRef } from "react";
 import TicketQRCode from "../../profile/common/qrCodeFolder/TicketQRCode";
 
-const TicketPreview = forwardRef(({ hotel, bookingRef }, ref) => {
+const TicketPreview = forwardRef(({ hotel, bookingRef, booking }, ref) => {
   return (
     <div
       ref={ref}
@@ -41,17 +41,17 @@ const TicketPreview = forwardRef(({ hotel, bookingRef }, ref) => {
 
         <span className="font-semibold text-gray-500">Check-in</span>
         <span className="font-extrabold text-right text-gray-900">
-          Sat, 24 May 2026
+          {booking.details.check_in}
         </span>
 
         <span className="font-semibold text-gray-500">Check-out</span>
         <span className="font-extrabold text-right text-gray-900">
-          Sun, 25 May 2026
+          {booking.details.check_out}
         </span>
 
         <span className="font-semibold text-gray-500">Guests</span>
         <span className="font-extrabold text-right text-gray-900">
-          1 Room, 2 Adults
+          {booking.details.rooms} Room(s), {booking.details.guests || 1} Guest(s)
         </span>
       </div>
 

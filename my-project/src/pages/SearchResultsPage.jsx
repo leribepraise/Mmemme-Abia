@@ -1,3 +1,5 @@
+import { useCollection } from "@/hooks/useApi";
+import { eventCard, hotelCard, tourCard } from "@/lib/catalog";
 import React, { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
@@ -10,7 +12,12 @@ const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
 
-  const allResults = useMemo(() => buildSearchIndex(), []);
+  const { data: eventss } = useCollection("/events/", eventCard);
+  const { data: hotels } = useCollection("/hotels/", hotelCard);
+  const { data: tours } = useCollection("/tourism/", tourCard);
+  const { data: restaurants } = useCollection('/restaurants/');
+  const { data: menu } = useCollection('/menu-items/');
+  const allResults = useMemo(() => buildSearchIndex({ eventss, hotels, tours, restaurants, menu }), [eventss, hotels, tours, restaurants, menu]);
 
   const [searchTerm, setSearchTerm] = useState(initialQuery);
   const [activeCategory, setActiveCategory] = useState("All Categories");

@@ -1,18 +1,19 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { hotels } from "../data/hotels";
+import { useApi } from "@/hooks/useApi";
+import { hotelCard } from "@/lib/catalog";
 import VenueGallery from "../components/venue/VenueGallery";
 import VenueInfo from "../components/venue/VenueInfo";
 import BookingCard from "../components/venue/BookingCard";
 
 export default function VenueDetails() {
   const { id } = useParams();
-  const hotel = hotels.find((h) => h.id === id);
+  const { data: hotel, loading, error } = useApi(`/hotels/${id}/`, { map: hotelCard });
 
   if (!hotel) {
     return (
       <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8 text-center">
-        <p className="text-lg font-semibold">Hotel not found</p>
+        <p className="text-lg font-semibold">{loading ? "Loading hotel..." : error?.message || "Hotel not found"}</p>
       </div>
     );
   }

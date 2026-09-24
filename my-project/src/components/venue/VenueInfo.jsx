@@ -5,13 +5,7 @@ import VenueTabs from "./VenueTabs";
 import FacilitiesList from "./FacilitiesList";
 
 const VenueInfo = ({ hotel }) => {
-  const tags = [
-    "Event Centre",
-    "Conference",
-    "Wedding",
-    "Concerts",
-    "Exhibitions",
-  ];
+  const tags = hotel.amenities || [];
 
   return (
     <div className="space-y-8">
@@ -44,16 +38,15 @@ const VenueInfo = ({ hotel }) => {
         </div>
 
         <p className="text-gray-600 mt-6 leading-relaxed">
-          A modern multi-purpose event centre in the heart of Aba with
-          state-of-the-art facilities for all types of events.
+          {hotel.description}
         </p>
       </div>
 
-      <VenueStats />
+      <VenueStats hotel={hotel} />
 
       <VenueTabs />
 
-      <FacilitiesList />
+      <FacilitiesList hotel={hotel} />
     </div>
   );
 };

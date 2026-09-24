@@ -1,9 +1,11 @@
+import { useNavigate } from "react-router-dom";
 import React from "react";
 import { Clock3 } from "lucide-react";
 
 const RouteCard = ({ route }) => {
+  const navigate = useNavigate();
   return (
-    <div className="min-w-[200px] bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div role="link" tabIndex={0} onClick={() => navigate(`/transport/shuttle?route=${route.id}`)} onKeyDown={e => { if (e.key === "Enter") navigate(`/transport/shuttle?route=${route.id}`); }} className="min-w-[200px] bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div className="relative">
         <img
           src={route.image}

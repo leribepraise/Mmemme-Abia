@@ -5,24 +5,27 @@ import EventGrid from "../components/events/EventGrid";
 import Pagination from "../components/events/Pagination";
 import Updateed from "../components/home/Updateed";
 import Patners from "../components/home/Patners";
-import { eventss } from "../data/eventData";
+import { useCollection } from "@/hooks/useApi";
+import { eventCard } from "@/lib/catalog";
 
 const EVENTS_PER_PAGE = 9;
 
 const parsePrice = (text3) => {
   if (!text3) return 0;
   if (text3.toLowerCase() === "free") return 0;
-  const digitsOnly = text3.replace(/[^0-9]/g, "");
+  const digitsOnly = text3.replace(/[^0-9.]/g, "");
   return digitsOnly ? Number(digitsOnly) : 0;
 };
 
 const Events = () => {
+  const { data: eventss } = useCollection("/events/", eventCard);
   const maxPrice = useMemo(
     () => Math.max(...eventss.map((e) => parsePrice(e.text3)), 0),
-    [],
+    [eventss],
   );
 
   const [slider, setSlider] = useState(maxPrice);
+  useEffect(() => setSlider(maxPrice), [maxPrice]);
   const [searchTerm, setSearchTerm] = useState("");
   const [appliedFilters, setAppliedFilters] = useState({
     location: "All locations",
@@ -33,7 +36,7 @@ const Events = () => {
   const locations = useMemo(() => {
     const unique = new Set(eventss.map((e) => e.text2).filter(Boolean));
     return Array.from(unique);
-  }, []);
+  }, [eventss]);
 
   const filteredEvents = useMemo(() => {
     let result = eventss;
@@ -60,7 +63,7 @@ const Events = () => {
     result = result.filter((event) => parsePrice(event.text3) <= slider);
 
     return result;
-  }, [searchTerm, appliedFilters, slider]);
+  }, [eventss, searchTerm, appliedFilters, slider]);
 
   useEffect(() => {
     setCurrentPage(1);

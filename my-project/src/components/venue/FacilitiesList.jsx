@@ -1,17 +1,8 @@
 import React from "react";
 import { Check } from "lucide-react";
 
-const FacilitiesList = () => {
-  const facilities = [
-    "Air Conditioning",
-    "High Speed WiFi",
-    "Sound System",
-    "Stage & Lighting",
-    "Ample Parking",
-    "Backup Power",
-    "Catering Services",
-    "Security",
-  ];
+const FacilitiesList = ({ hotel }) => {
+  const facilities = hotel.amenities || [];
 
   return (
     <div>

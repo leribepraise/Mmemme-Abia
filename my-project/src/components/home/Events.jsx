@@ -1,64 +1,9 @@
+import { useCollection } from "@/hooks/useApi";
+import { eventCard } from "@/lib/catalog";
 import React from "react";
 
 const Events = () => {
-  const events = [
-    {
-      image: "/Frame1.png",
-      text: "Hotel Oris Live Concert",
-      icon: "",
-      text2: "Umuahia, Abia",
-      text3: "N2,500",
-    },
-    {
-      image: "/Frame2.png",
-      text: "Abia Business Summit 2026",
-      icon: "",
-      text2: "Aba, Abia",
-      text3: "N3,000",
-    },
-    {
-      image: "/Frame3.png",
-      text: "Abia Cultural Festival",
-      icon: "",
-      text2: "Ohafia, Abia",
-      text3: "Free",
-    },
-    {
-      image: "/Frame4.png",
-      text: "Abia Food & Drinks Carnival",
-      icon: "",
-      text2: "Arochukwu, Abia",
-      text3: "N2,000",
-    },
-    {
-      image: "/Frame1.png",
-      text: "Hotel Oris Live Concert",
-      icon: "",
-      text2: "Umuahia, Abia",
-      text3: "N2,500",
-    },
-    {
-      image: "/Frame2.png",
-      text: "Abia Business Summit 2026",
-      icon: "",
-      text2: "Aba, Abia",
-      text3: "N3,000",
-    },
-    {
-      image: "/Frame3.png",
-      text: "Abia Cultural Festival",
-      icon: "",
-      text2: "Ohafia, Abia",
-      text3: "Free",
-    },
-    {
-      image: "/Frame4.png",
-      text: "Abia Food & Drinks Carnival",
-      icon: "",
-      text2: "Arochukwu, Abia",
-      text3: "N2,000",
-    },
-  ];
+  const { data: events } = useCollection("/events/", eventCard);
   return (
     <>
       <section className="mt-10 overflow-hidden">

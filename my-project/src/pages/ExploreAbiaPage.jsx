@@ -20,9 +20,11 @@ import SidebarEvent from "../components/tour/SidebarEvent";
 import TopActivityItem from "../components/tour/TopActivityItem";
 import HeroSection from "../components/tour/HeroSection";
 
-import { tours } from "../data/tours";
+import { useCollection } from "@/hooks/useApi";
+import { tourCard } from "@/lib/catalog";
 
 export default function ExploreAbiaPage() {
+  const { data: tours } = useCollection("/tourism/", tourCard);
   const categories = [
     {
       icon: TreePine,

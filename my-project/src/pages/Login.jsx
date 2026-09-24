@@ -9,8 +9,8 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    login();
+  const handleLogin = async (credentials) => {
+    await login(credentials);
     navigate("/");
   };
   return (

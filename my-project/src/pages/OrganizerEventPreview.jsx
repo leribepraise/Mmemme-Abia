@@ -1,3 +1,8 @@
+import { useCollection } from "@/hooks/useApi";
+import { organizerEvent } from "@/lib/catalog";
+import { api } from "@/lib/api";
+import { useAuth } from "@/components/context/AuthContext";
+import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowRight, CalendarDays, Check, Edit3, LayoutList, MapPin } from "lucide-react";
 import OrganizerShell from "@/components/organizer/OrganizerPublicShell";
@@ -37,15 +42,16 @@ function Stepper() {
 export default function OrganizerEventPreview() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const events = load("mmemme-events", seedEvents);
-  const event = events.find(e => e.id === id) || events[0];
-  const organizer = load("mmemme-organizer", seedOrganizer);
+  const { data: events } = useCollection("/events/mine/", organizerEvent);
+  const event = events.find(e => e.id === id);
+  const { user } = useAuth();
+  const organizer = { name: user.fullName, organization: event?.organizer_name || user.fullName || user.email };
 
-  const publish = () => {
-    save("mmemme-events", events.map(e => (e.id === event.id ? { ...e, status: "Published" } : e)));
-    window.dispatchEvent(new Event("mmemme-events-updated"));
-    navigate("/organizer/events");
+  const publish = async () => {
+    try { await api(`/events/${event.id}/submit/`, { method: 'POST' }); toast.success('Submitted for staff approval.'); navigate('/organizer/events'); }
+    catch (error) { toast.error(error.message); }
   };
+  if (!event) return <p role="status">Loading event...</p>;
 
   return (
     <OrganizerShell
@@ -128,7 +134,7 @@ export default function OrganizerEventPreview() {
           className="flex items-center gap-2 bg-[#F36B25] hover:bg-[#d95d1d] text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-colors"
           data-testid="button-preview-publish"
         >
-          Publish Event <ArrowRight className="w-4 h-4" />
+          Submit for Approval <ArrowRight className="w-4 h-4" />
         </button>
       </div>
     </OrganizerShell>

@@ -1,3 +1,9 @@
+import { useCollection } from "@/hooks/useApi";
+import { organizerEvent } from "@/lib/catalog";
+import { api } from "@/lib/api";
+import { useAuth } from "@/components/context/AuthContext";
+import toast from "react-hot-toast";
+import { useEffect, useRef } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, ImagePlus, ShieldCheck } from "lucide-react";
@@ -38,7 +44,7 @@ function Stepper({ current }) {
 
 export default function OrganizerEventForm({ editId }) {
   const navigate = useNavigate();
-  const events = load("mmemme-events", seedEvents);
+  const { data: events } = useCollection("/events/mine/", organizerEvent);
   const existing = editId ? events.find(e => e.id === editId) : undefined;
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
@@ -47,7 +53,7 @@ export default function OrganizerEventForm({ editId }) {
     eventType: existing?.eventType || "Physical Event",
     description: existing?.description || "",
     tags: existing?.tags?.join(", ") || "",
-    date: existing?.date || "2026-10-18",
+    date: existing?.date || "",
     venue: existing?.venue || "",
     price: String(existing?.price || 5000),
     capacity: String(existing?.ticketCapacity || 500),
@@ -62,28 +68,26 @@ export default function OrganizerEventForm({ editId }) {
     return true;
   };
 
-  const submit = (publish) => {
-    const next = {
-      id: existing?.id || `evt-${Date.now()}`,
-      title: form.title,
-      category: form.category,
-      venue: form.venue,
-      date: form.date,
-      status: publish ? "Published" : existing?.status || "Draft",
-      ticketsSold: existing?.ticketsSold || 0,
-      ticketCapacity: Number(form.capacity) || 500,
-      revenue: existing?.revenue || 0,
-      image: form.image.trim() || existing?.image || "",
-      price: Number(form.price) || 0,
-      tags: form.tags.split(",").map(t => t.trim()).filter(Boolean),
-      description: form.description,
-      eventType: form.eventType,
-    };
-    const all = existing ? events.map(e => (e.id === existing.id ? next : e)) : [next, ...events];
-    save("mmemme-events", all);
-    window.dispatchEvent(new Event("mmemme-events-updated"));
+  const createdId = useRef(editId || null);
+  const ticketId = useRef(null);
+  useEffect(() => {
+    if (!existing) return;
+    setForm({ title: existing.title, category: existing.category, eventType: existing.eventType, description: existing.description, tags: '', date: existing.date, venue: existing.venue, price: String(existing.price), capacity: String(existing.capacity), image: existing.image_url || existing.image || '' });
+    ticketId.current = existing.ticket_types[0]?.id || null;
+  }, [existing]);
+  const submit = async publish => {
+    if (saved) return;
     setSaved(true);
-    setTimeout(() => navigate(publish ? `/organizer/events/${next.id}/preview` : "/organizer/events"), 500);
+    try {
+      const body = { title: form.title, category: form.category, description: form.description, venue: form.venue, city: existing?.city || form.venue, address: existing?.address || form.venue, capacity: Number(form.capacity), image_url: form.image.trim(), start_datetime: existing?.date === form.date ? existing.start_datetime : `${form.date}T00:00:00+01:00`, end_datetime: existing?.date === form.date ? existing.end_datetime : `${form.date}T23:59:59+01:00` };
+      const result = await api(createdId.current ? `/events/${createdId.current}/` : '/events/', { method: createdId.current ? 'PATCH' : 'POST', body });
+      createdId.current = result.id;
+      const ticket = await api(`/events/${result.id}/ticket-types/`, { method: ticketId.current ? 'PATCH' : 'POST', body: { ...(ticketId.current ? { id: ticketId.current } : {}), name: existing?.ticket_types[0]?.name || 'Regular', price: Number(form.price), quantity: Number(form.capacity) } });
+      ticketId.current = ticket.id;
+      if (publish) await api(`/events/${result.id}/submit/`, { method: 'POST' });
+      toast.success(publish ? 'Event submitted for staff approval.' : 'Draft saved.');
+      navigate(`/organizer/events/${result.id}/preview`);
+    } catch (error) { toast.error(error.message); setSaved(false); }
   };
 
   return (
@@ -124,7 +128,7 @@ export default function OrganizerEventForm({ editId }) {
                   <div className="flex gap-4">
                     {["Online", "Physical Event"].map(type => (
                       <label key={type} className={`flex-1 flex items-center gap-3 border rounded-xl px-5 py-3 text-sm font-bold cursor-pointer transition-colors ${form.eventType === type ? "border-[#3F7D3D] text-black bg-[#EAF5EA]/30" : "border-gray-200 text-gray-500"}`}>
-                        <input type="radio" name="eventType" className="accent-[#3F7D3D]" checked={form.eventType === type} onChange={() => update("eventType", type)} />
+                        <input type="radio" name="eventType" className="accent-[#3F7D3D]" checked={form.eventType === type} onChange={() => type === "Online" ? toast("Online events are not available yet.") : update("eventType", type)} />
                         {type}
                       </label>
                     ))}
@@ -137,7 +141,7 @@ export default function OrganizerEventForm({ editId }) {
                 </div>
                 <div>
                   <label className={labelClass} htmlFor="event-tags">Tags (Optional)</label>
-                  <input id="event-tags" className={inputClass} value={form.tags} onChange={e => update("tags", e.target.value)} placeholder="Add tags to help people discover your event" data-testid="input-event-tags" />
+                  <input id="event-tags" readOnly title="Event tags are not supported yet." className={inputClass} value={form.tags} onChange={e => update("tags", e.target.value)} placeholder="Add tags to help people discover your event" data-testid="input-event-tags" />
                   <p className="text-xs text-gray-400 mt-1.5 font-medium">Separate tags with commas.</p>
                 </div>
               </div>
@@ -150,7 +154,7 @@ export default function OrganizerEventForm({ editId }) {
                   <input id="event-venue" className={inputClass} value={form.venue} onChange={e => update("venue", e.target.value)} placeholder="Venue name and city" data-testid="input-event-venue" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className={labelClass} htmlFor="event-date">Event Date *</label>
+                  <label className={labelClass} htmlFor="event-date">Event Date (all-day) *</label>
                   <input id="event-date" type="date" className={inputClass} value={form.date} onChange={e => update("date", e.target.value)} data-testid="input-event-date" />
                 </div>
               </div>
@@ -166,7 +170,7 @@ export default function OrganizerEventForm({ editId }) {
                   <label className={labelClass} htmlFor="event-capacity">Ticket Capacity *</label>
                   <input id="event-capacity" type="number" min="1" className={inputClass} value={form.capacity} onChange={e => update("capacity", e.target.value)} data-testid="input-ticket-capacity" />
                 </div>
-                <p className="md:col-span-2 text-xs text-gray-500 font-medium">You can add more ticket types (VIP, VVIP, Early Bird) from Ticket Management after publishing.</p>
+                <p className="md:col-span-2 text-xs text-gray-500 font-medium">You can add more ticket types (VIP, VVIP, Early Bird) from Ticket Management before submitting for approval.</p>
               </div>
             )}
 
@@ -243,7 +247,7 @@ export default function OrganizerEventForm({ editId }) {
                     className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white bg-[#F36B25] hover:bg-[#d95d1d] shadow-sm transition-colors"
                     data-testid="button-publish-event"
                   >
-                    {saved ? "Publishing..." : "Publish Event"} <ArrowRight className="w-4 h-4" />
+                    {saved ? "Publishing..." : "Submit for Approval"} <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               )}

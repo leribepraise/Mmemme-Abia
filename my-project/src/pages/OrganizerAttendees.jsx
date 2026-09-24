@@ -1,48 +1,29 @@
+import { downloadJSON } from "@/lib/api";
+import { useCollection } from "@/hooks/useApi";
+import { organizerEvent } from "@/lib/catalog";
 import { useMemo, useState } from "react";
 import { Filter, MoreHorizontal, Search } from "lucide-react";
 import OrganizerShell from "@/components/organizer/OrganizerPublicShell";
 import { seedEvents } from "@/data/organizerData";
 import { fmtDate, load } from "@/lib/utils";
 
-const TICKET_TYPES = ["VIP", "Regular", "VVIP"];
+
 const CHECKIN_STYLE = { "Checked In": "text-green-600", "Not Checked In": "text-amber-600" };
 const PAGE_SIZE = 5;
-const BASE_NAMES = [
-  "Chidinma Okafor", "Tosin Adesina", "Emeka Nwosu", "Peace Umoh", "Daniel Onyema",
-  "Ifeoma Nwachukwu", "Uche Obiora", "Grace Effiong", "Kelechi Anya", "Amaka Chukwu",
-  "Ngozi Eze", "Obinna Okeke", "Chiamaka Uche", "Fidelis Nnadi", "Blessing Iroegbu",
-];
-
-function buildAttendees(event) {
-  const total = Math.min(event.ticketsSold || BASE_NAMES.length, 50) || BASE_NAMES.length;
-  return Array.from({ length: total }, (_, i) => {
-    const name = BASE_NAMES[i % BASE_NAMES.length];
-    const suffix = i >= BASE_NAMES.length ? ` ${Math.floor(i / BASE_NAMES.length) + 1}` : "";
-    return {
-      name: `${name}${suffix}`,
-      email: `${name.toLowerCase().replace(" ", ".")}${i}@gmail.com`,
-      ticket: TICKET_TYPES[i % TICKET_TYPES.length],
-      orderId: `ORD-${78234 + i}-${["XY7", "PLI", "HC2", "LL9", "OP5"][i % 5]}`,
-      purchaseDate: fmtDate(event.date),
-      checkedIn: i % 3 !== 1,
-    };
-  });
-}
-
 function paginationRange(current, total) {
   const pages = new Set([1, total, current, current - 1, current + 1]);
   return [...pages].filter(p => p >= 1 && p <= total).sort((a, b) => a - b);
 }
 
 export default function OrganizerAttendees() {
-  const events = load("mmemme-events", seedEvents);
+  const { data: events } = useCollection("/events/mine/", organizerEvent);
   const [eventId, setEventId] = useState(events[0]?.id);
   const event = events.find(e => e.id === eventId) || events[0];
   const [query, setQuery] = useState("");
   const [ticketType, setTicketType] = useState("All Ticket Types");
   const [page, setPage] = useState(1);
 
-  const attendees = useMemo(() => buildAttendees(event), [event]);
+  const { data: attendees } = useCollection(event ? `/events/${event.id}/attendees/` : null);
   const filtered = attendees.filter(
     a =>
       `${a.name} ${a.email}`.toLowerCase().includes(query.toLowerCase()) &&
@@ -55,6 +36,7 @@ export default function OrganizerAttendees() {
   const updateQuery = (value) => { setQuery(value); setPage(1); };
   const updateTicketType = (value) => { setTicketType(value); setPage(1); };
 
+  if (!event) return <OrganizerShell title="Attendees"><p>No events yet.</p></OrganizerShell>;
   return (
     <div className="pt-24">
       <OrganizerShell
@@ -64,14 +46,14 @@ export default function OrganizerAttendees() {
         actions={
           <>
             <button
-              onClick={() => window.alert("Attendee list exported.")}
+              onClick={() => downloadJSON("attendees", filtered)}
               className="flex items-center gap-2 border border-gray-200 bg-white text-gray-700 px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-gray-50"
               data-testid="button-export-attendees"
             >
               Export
             </button>
             <button
-              onClick={() => window.alert("Message sent to attendees.")}
+              onClick={() => window.location.assign("/organizer/messages")}
               className="bg-[#3F7D3D] hover:bg-[#336633] text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-colors"
               data-testid="button-send-message"
             >
@@ -125,7 +107,7 @@ export default function OrganizerAttendees() {
               data-testid="select-filter-ticket-type"
             >
               <option>All Ticket Types</option>
-              {TICKET_TYPES.map(t => <option key={t}>{t}</option>)}
+              {[...new Set(attendees.map(row => row.ticket))].map(t => <option key={t}>{t}</option>)}
             </select>
             <button className="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 bg-white" data-testid="button-attendee-filter">
               <Filter className="w-4 h-4" /> Filter

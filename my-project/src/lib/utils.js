@@ -9,7 +9,7 @@ export function cn(...inputs) {
 export const naira = (value) => `\u20a6${Number(value).toLocaleString("en-NG")}`;
 
 export const fmtDate = (date) =>
-  new Date(`${date}T12:00:00`).toLocaleDateString("en-NG", {
+  new Date(String(date).includes('T') ? date : `${date}T12:00:00`).toLocaleDateString("en-NG", {
     day: "2-digit",
     month: "short",
     year: "numeric",

@@ -1,57 +1,18 @@
+import { api } from "@/lib/api";
+import { useCollection } from "@/hooks/useApi";
+import toast from "react-hot-toast";
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Heart, MapPin } from "lucide-react";
 
 const EventCard = ({ event }) => {
-  const [isSaved, setIsSaved] = useState(false);
-
-  // Check if this event is already saved
-  useEffect(() => {
-    const savedEvents = JSON.parse(
-      sessionStorage.getItem("savedEvents") || "[]",
-    );
-
-    const alreadySaved = savedEvents.some(
-      (savedEvent) => savedEvent.id === event.id,
-    );
-
-    setIsSaved(alreadySaved);
-  }, [event.id]);
-
-  const handleSave = (e) => {
-    // Prevent the heart button from opening the event
-    e.preventDefault();
-    e.stopPropagation();
-
-    const savedEvents = JSON.parse(
-      sessionStorage.getItem("savedEvents") || "[]",
-    );
-
-    if (isSaved) {
-      // Remove event from saved events
-      const updatedEvents = savedEvents.filter(
-        (savedEvent) => savedEvent.id !== event.id,
-      );
-
-      sessionStorage.setItem("savedEvents", JSON.stringify(updatedEvents));
-
-      setIsSaved(false);
-
-      // Tell SavedItems that something changed
-      window.dispatchEvent(new Event("savedEventsUpdated"));
-    } else {
-      // Add event to saved events
-      const updatedEvents = [...savedEvents, event];
-
-      sessionStorage.setItem("savedEvents", JSON.stringify(updatedEvents));
-
-      setIsSaved(true);
-
-      // Tell SavedItems that something changed
-      window.dispatchEvent(new Event("savedEventsUpdated"));
-    }
+  const { data: savedEvents, reload } = useCollection('/saved-events/');
+  const isSaved = savedEvents.some(saved => saved.id === event.id);
+  const handleSave = async e => {
+    e.preventDefault(); e.stopPropagation();
+    try { await api('/saved-events/', { method: isSaved ? 'DELETE' : 'POST', body: { event: event.id } }); reload(); }
+    catch (error) { toast.error(error.message); }
   };
-
   return (
     <div className="block">
       <div className="w-[313px] overflow-hidden rounded-2xl border border-gray-100 bg-[#FEFEFE] shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md">

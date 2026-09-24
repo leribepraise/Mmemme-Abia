@@ -1,3 +1,8 @@
+import { useCollection } from "@/hooks/useApi";
+import { organizerEvent } from "@/lib/catalog";
+import { api } from "@/lib/api";
+import { useAuth } from "@/components/context/AuthContext";
+import toast from "react-hot-toast";
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Filter, MapPin, MoreHorizontal, Search } from "lucide-react";
@@ -19,7 +24,7 @@ export default function OrganizerEvents() {
   const { search: urlSearch } = useLocation();
   const draftPreset = new URLSearchParams(urlSearch).get("status") === "Draft";
 
-  const [events, setEvents] = useState(() => load("mmemme-events", seedEvents));
+  const { data: events, reload } = useCollection("/events/mine/", organizerEvent);
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState(draftPreset ? "Draft" : "All Events");
   const [category, setCategory] = useState("All Categories");
@@ -54,8 +59,12 @@ export default function OrganizerEvents() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const persist = (next) => { setEvents(next); save("mmemme-events", next); };
-  const toggleStatus = (id) => persist(events.map(e => (e.id === id ? { ...e, status: e.status === "Published" ? "Draft" : "Published" } : e)));
+  const toggleStatus = async id => {
+    const event = events.find(e => e.id === id);
+    if (!['DRAFT', 'REJECTED'].includes(event.rawStatus)) { toast.error('Only drafts can be submitted. Contact support for published event changes.'); return; }
+    try { await api(`/events/${id}/submit/`, { method: 'POST' }); reload(); toast.success('Event submitted for review.'); }
+    catch (error) { toast.error(error.message); }
+  };
 
   return (
     <div className="pt-24">

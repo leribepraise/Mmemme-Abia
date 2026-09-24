@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 
-const BookingAlert = ({ hotel, bookingRef }) => {
+const BookingAlert = ({ hotel, bookingRef, email }) => {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       {/* Banner / Success Hero Image */}
@@ -40,16 +40,14 @@ const BookingAlert = ({ hotel, bookingRef }) => {
 
       {/* Confirmation Notice */}
       <p className="text-sm font-semibold text-gray-600 md:text-base">
-        We have sent the confirmation details to:
+        Confirmation details are queued for:
         <br />
-        <span className="font-bold text-gray-900">chioma.okafor@gmail.com</span>{" "}
-        &amp;{" "}
-        <span className="font-bold text-gray-900">+234 813 245 6789</span>
+        <span className="font-bold text-gray-900">{email}</span>
       </p>
 
       {/* Navigation Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
-        <NavLink to="/my-bookings" className="w-full sm:w-auto">
+        <NavLink to="/profile" className="w-full sm:w-auto">
           <button className="w-full cursor-pointer rounded-xl bg-[#F97316] px-6 py-3.5 text-sm font-extrabold text-white shadow-md transition hover:bg-[#ea580c] md:text-base">
             View My Bookings
           </button>

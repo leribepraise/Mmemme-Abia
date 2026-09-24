@@ -1,54 +1,7 @@
-// import React from "react";
-// import RestaurantBreadcrumb from "../components/restaurant/RestaurantBreadcrumb";
-// import RestaurantGallery from "../components/restaurant/RestaurantGallery";
-// import RestaurantHeader from "../components/restaurant/RestaurantHeader";
-// import RestaurantStats from "../components/restaurant/RestaurantStats";
-// import RestaurantTabs from "../components/restaurant/RestaurantTabs";
-// import PopularDishes from "../components/restaurant/PopularDishes";
-// import RestaurantLocation from "../components/restaurant/RestaurantLocation";
-// import RestaurantAbout from "../components/restaurant/RestaurantAbout";
-// import RestaurantReview from "../components/restaurant/RestaurantReview";
-
-// const RestaurantDetails = () => {
-//   return (
-//     <div className="min-h-screen bg-[#F7F8F7] px-4 md:px-6 py-3">
-//       <div className="max-w-6xl mx-auto bg-white rounded-xl overflow-hidden">
-//         <RestaurantBreadcrumb />
-
-//         <RestaurantGallery />
-
-//         <RestaurantHeader />
-
-//         <RestaurantStats />
-
-//         <RestaurantTabs />
-
-//         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 md:px-5 pb-6">
-//           {/* LEFT */}
-//           <div className="lg:col-span-8 space-y-6">
-//             <PopularDishes />
-
-//             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-//               <RestaurantAbout />
-//               <RestaurantReview />
-//             </div>
-//           </div>
-
-//           {/* RIGHT */}
-//           <div className="lg:col-span-4">
-//             <RestaurantLocation />
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default RestaurantDetails;
-
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { foodVendors } from "../data/foodVendors";
+import { useApi } from "@/hooks/useApi";
+import { restaurantCard } from "@/lib/catalog";
 import RestaurantBreadcrumb from "../components/restaurant/RestaurantBreadcrumb";
 import RestaurantGallery from "../components/restaurant/RestaurantGallery";
 import RestaurantHeader from "../components/restaurant/RestaurantHeader";
@@ -61,14 +14,14 @@ import RestaurantReview from "../components/restaurant/RestaurantReview";
 
 const RestaurantDetails = () => {
   const { id } = useParams();
-  const vendor = foodVendors.find((v) => v.id === id);
+  const { data: vendor, loading, error } = useApi(`/restaurants/${id}/`, { map: restaurantCard });
 
   const [activeTab, setActiveTab] = useState("Overview");
 
   if (!vendor) {
     return (
       <div className="min-h-screen bg-[#F7F8F7] p-4 md:p-8 text-center">
-        <p className="text-gray-500">Restaurant not found.</p>
+        <p className="text-gray-500">{loading ? "Loading restaurant..." : error?.message || "Restaurant not found."}</p>
       </div>
     );
   }

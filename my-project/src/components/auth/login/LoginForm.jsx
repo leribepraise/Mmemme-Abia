@@ -12,28 +12,14 @@ const LoginForm = ({ onLogin }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data) => {
-    const savedUser = JSON.parse(sessionStorage.getItem("user"));
-
-    if (!savedUser) {
-      toast.error("No account found. Please sign up first.");
-      return;
-    }
-
-    if (
-      data.email === savedUser.email &&
-      data.password === savedUser.password
-    ) {
-      toast.success("Login successful!");
-      onLogin();
-    } else {
-      toast.error("Invalid email or password.");
-    }
+  const onSubmit = async (data) => {
+    try { await onLogin(data); toast.success("Login successful!"); }
+    catch (error) { toast.error(error.message); }
   };
 
   const toggleVisibility = () => {
@@ -104,13 +90,14 @@ const LoginForm = ({ onLogin }) => {
 
               <button
                 type="button"
+                onClick={() => window.location.assign("/reset-password")}
                 className="text-[#EF6C00] font-semibold hover:underline"
               >
                 Forgot Password?
               </button>
             </div>
 
-            <button className="w-full bg-[#1B5E20] hover:bg-[#3d6626] text-white font-semibold py-3 rounded-[8px] transition cursor-pointer text-[14px]">
+            <button disabled={isSubmitting} className="w-full bg-[#1B5E20] hover:bg-[#3d6626] text-white font-semibold py-3 rounded-[8px] transition cursor-pointer text-[14px]">
               Log In
             </button>
           </form>

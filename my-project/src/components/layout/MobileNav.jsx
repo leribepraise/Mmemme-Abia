@@ -17,10 +17,10 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { notifications } from "@/data/notifications";
 
 const MobileNav = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user: account } = useAuth();
   const [open, setOpen] = useState(false);
 
-  const user = JSON.parse(sessionStorage.getItem("user")) || {};
+  const user = account || {};
 
   const currentNav = isLoggedIn ? userNavList : navList;
 

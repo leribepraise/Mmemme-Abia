@@ -1,3 +1,5 @@
+import { api } from "@/lib/api";
+import { useAuth } from "@/components/context/AuthContext";
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
@@ -10,31 +12,23 @@ import { NavLink } from "react-router-dom";
 
 const SignUpForm = ({ onLogin }) => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [inputType, setInputType] = useState("password");
   const [comfireInputType, setComfireInputType] = useState("password");
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(signupSchema) });
 
-  const onSubmit = (data) => {
-    const existingData = JSON.parse(sessionStorage.getItem("signupData")) || {};
-
-    const updatedData = {
-      ...existingData,
-      fullName: data.fullName,
-      email: data.email,
-      password: data.password,
-      confirmPassword: data.confirmPassword,
-      terms: data.terms,
-    };
-
-    sessionStorage.setItem("signupData", JSON.stringify(updatedData));
-
-    toast.success("Account details saved! Let's finish setting up.");
-
-    navigate("/Signup/onboarding");
+  const onSubmit = async (data) => {
+    try {
+      const [first_name, ...last] = data.fullName.trim().split(/\s+/);
+      await api('/auth/register/', { method: 'POST', body: { email: data.email, password: data.password, first_name, last_name: last.join(' ') } });
+      await login({ email: data.email, password: data.password });
+      toast.success('Account created. Check your email for your verification link.');
+      navigate('/Signup/onboarding');
+    } catch (error) { toast.error(error.message); }
   };
 
   const toggleVisibility = () => {
@@ -174,7 +168,7 @@ const SignUpForm = ({ onLogin }) => {
             )}
             {/* Submit */}
             <button
-              type="submit"
+              type="submit" disabled={isSubmitting}
               className="w-full bg-[#F97316] hover:bg-[#df5f18] text-white text-[14px] font-medium py-3 rounded-lg transition cursor-pointer"
             >
               Sign Up

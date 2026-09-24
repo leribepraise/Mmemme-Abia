@@ -1,119 +1,10 @@
-// import React from "react";
-// import { Calendar, Clock, MapPin, CalendarPlus } from "lucide-react";
-
-// const TicketCard = ({ booking }) => {
-//   return (
-//     <div className="relative bg-linear-to-r from-[#000000] to-[#666666] rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row items-center md:items-stretch justify-between p-6 md:p-8 gap-8">
-//       {/* Background Image Overlay */}
-//       <div
-//         className="absolute inset-0 opacity-20 pointer-events-none"
-//         style={{
-//           backgroundImage: `url('${booking?.image || "/checkout.jpg"}')`,
-//           backgroundSize: "cover",
-//           backgroundPosition: "center",
-//         }}
-//       ></div>
-
-//       {/* Ticket Details */}
-//       <div className="relative z-10 text-white flex-1 space-y-8 w-full">
-//         <h2 className="text-3xl font-bold leading-tight">
-//           {booking?.title || "Event"}
-//         </h2>
-
-//         <div className="space-y-3 text-sm font-medium text-gray-200">
-//           <div className="flex items-center gap-3">
-//             <Calendar className="w-4 h-4 text-gray-400" />
-//             <span>Fri, 25 Oct - Sun, 27 Oct, 2026</span>
-//           </div>
-
-//           <div className="flex items-center gap-3">
-//             <Clock className="w-4 h-4 text-gray-400" />
-//             <span>6:00 PM - 11:00 PM (WAT)</span>
-//           </div>
-
-//           <div className="flex items-start gap-3">
-//             <MapPin className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-//             <span className="leading-snug">
-//               {booking?.location || "Location unavailable"}
-//             </span>
-//           </div>
-//         </div>
-
-//         <div className="flex items-center gap-12 pt-2">
-//           <div>
-//             <p className="text-[10px] text-gray-400 font-semibold mb-1 uppercase tracking-wider">
-//               Ticket Type
-//             </p>
-
-//             <p className="font-bold text-lg">
-//               {booking?.tickets
-//                 ?.filter((ticket) => ticket.qty > 0)
-//                 .map((ticket) => ticket.name)
-//                 .join(", ") || "No ticket"}
-//             </p>
-//           </div>
-
-//           <div>
-//             <p className="text-[10px] text-gray-400 font-semibold mb-1 uppercase tracking-wider">
-//               Quantity
-//             </p>
-
-//             <p className="font-bold text-lg">
-//               {booking?.tickets?.reduce(
-//                 (total, ticket) => total + ticket.qty,
-//                 0,
-//               ) || 0}
-//             </p>
-//           </div>
-//         </div>
-
-//         <div>
-//           <p className="text-[10px] text-gray-400 font-semibold mb-1 uppercase tracking-wider">
-//             Order ID
-//           </p>
-//           <p className="font-bold text-lg tracking-wide">
-//             {booking?.id || "Generating..."}
-//           </p>
-//         </div>
-//       </div>
-
-//       {/* QR Code Pass */}
-//       <div className="relative z-10 w-full md:w-64 shrink-0 bg-white rounded-xl overflow-hidden flex flex-col shadow-2xl">
-//         <div className="p-4 flex flex-col items-center justify-center flex-1">
-//           <img
-//             src="/ticket.jpg"
-//             alt="QR Code"
-//             className="w-full h-auto aspect-square object-cover mb-4 rounded-md"
-//           />
-
-//           <p className="font-bold text-black text-sm tracking-wide text-center">
-//             {booking?.id || "Generating..."}
-//           </p>
-//         </div>
-
-//         <div className="bg-black text-white p-4 text-center">
-//           <p className="font-bold text-sm tracking-wide mb-2">
-//             {booking?.id || "Generating..."}
-//           </p>
-
-//           <button className="flex items-center justify-center gap-1.5 text-[#48782E] text-xs font-bold w-full mx-auto hover:text-green-400 transition-colors">
-//             <CalendarPlus className="w-3.5 h-3.5" />
-//             Add to Wallet
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default TicketCard;
-
+import toast from 'react-hot-toast';
+import TicketQRCode from "../profile/common/qrCodeFolder/TicketQRCode";
 import React from "react";
 import { Calendar, Clock, MapPin, CalendarPlus } from "lucide-react";
 
-const TicketCard = ({ booking }) => {
-  const totalTickets =
-    booking?.tickets?.reduce((total, ticket) => total + ticket.qty, 0) || 0;
+const TicketCard = ({ booking, ticket }) => {
+  const totalTickets = 1;
 
   return (
     <div className="relative bg-linear-to-r from-[#000000] to-[#666666] rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row items-center md:items-stretch justify-between p-6 md:p-8 gap-8">
@@ -136,12 +27,12 @@ const TicketCard = ({ booking }) => {
         <div className="space-y-3 text-sm font-medium text-gray-200">
           <div className="flex items-center gap-3">
             <Calendar className="w-4 h-4 text-gray-400" />
-            <span>Fri, 25 Oct - Sun, 27 Oct, 2026</span>
+            <span>{booking.event_date || "See event details"}</span>
           </div>
 
           <div className="flex items-center gap-3">
             <Clock className="w-4 h-4 text-gray-400" />
-            <span>6:00 PM - 11:00 PM (WAT)</span>
+            <span>{ticket.status}</span>
           </div>
 
           <div className="flex items-start gap-3">
@@ -160,7 +51,7 @@ const TicketCard = ({ booking }) => {
             </p>
 
             <p className="font-bold text-lg">
-              {booking?.attendee?.fullName || "Not provided"}
+              {booking?.customer_name || "Not provided"}
             </p>
           </div>
 
@@ -180,7 +71,7 @@ const TicketCard = ({ booking }) => {
             </p>
 
             <p className="font-bold text-base">
-              {booking?.attendee?.buyingForSomeoneElse
+              {booking?.details?.booking_for_someone_else
                 ? "Someone else"
                 : "Myself"}
             </p>
@@ -195,10 +86,7 @@ const TicketCard = ({ booking }) => {
             </p>
 
             <p className="font-bold text-lg">
-              {booking?.tickets
-                ?.filter((ticket) => ticket.qty > 0)
-                .map((ticket) => ticket.name)
-                .join(", ") || "No ticket"}
+              {booking.items.find(item => item.ticket_type === ticket.ticket_type)?.description || 'Admission'}
             </p>
           </div>
 
@@ -218,7 +106,7 @@ const TicketCard = ({ booking }) => {
           </p>
 
           <p className="font-bold text-lg tracking-wide">
-            {booking?.id || "Generating..."}
+            {ticket.ticket_number}
           </p>
         </div>
       </div>
@@ -226,23 +114,19 @@ const TicketCard = ({ booking }) => {
       {/* QR Code Pass */}
       <div className="relative z-10 w-full md:w-64 shrink-0 bg-white rounded-xl overflow-hidden flex flex-col shadow-2xl">
         <div className="p-4 flex flex-col items-center justify-center flex-1">
-          <img
-            src="/ticket.jpg"
-            alt="QR Code"
-            className="w-full h-auto aspect-square object-cover mb-4 rounded-md"
-          />
+          <TicketQRCode value={ticket.qr_code} size={220} />
 
           <p className="font-bold text-black text-sm tracking-wide text-center">
-            {booking?.id || "Generating..."}
+            {ticket.ticket_number}
           </p>
         </div>
 
         <div className="bg-black text-white p-4 text-center">
           <p className="font-bold text-sm tracking-wide mb-2">
-            {booking?.id || "Generating..."}
+            {ticket.ticket_number}
           </p>
 
-          <button className="flex items-center justify-center gap-1.5 text-[#48782E] text-xs font-bold w-full mx-auto hover:text-green-400 transition-colors">
+          <button onClick={() => toast("Wallet passes are not available yet.")} className="flex items-center justify-center gap-1.5 text-[#48782E] text-xs font-bold w-full mx-auto hover:text-green-400 transition-colors">
             <CalendarPlus className="w-3.5 h-3.5" />
             Add to Wallet
           </button>

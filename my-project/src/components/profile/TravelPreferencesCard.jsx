@@ -1,3 +1,5 @@
+import { useAuth } from '@/components/context/AuthContext';
+import toast from 'react-hot-toast';
 import React, { useState } from "react";
 import { Compass } from "lucide-react";
 
@@ -15,16 +17,18 @@ const interestsList = [
 const travelStyles = ["Solo", "Couple", "Family", "Group"];
 
 const TravelPreferencesCard = () => {
-  const [selectedInterests, setSelectedInterests] = useState([]);
+  const { user, updateUser } = useAuth();
+  const selectedInterests = user?.interests || [];
+  const [busy, setBusy] = useState(false);
   const [travelStyle, setTravelStyle] = useState("Couple");
   const [budget, setBudget] = useState("₦50,000 - ₦100,000");
 
-  const toggleInterest = (interest) => {
-    setSelectedInterests((prev) =>
-      prev.includes(interest)
-        ? prev.filter((i) => i !== interest)
-        : [...prev, interest],
-    );
+  const toggleInterest = async interest => {
+    if (busy) return;
+    setBusy(true);
+    try { await updateUser({ interests: selectedInterests.includes(interest) ? selectedInterests.filter(item => item !== interest) : [...selectedInterests, interest] }); }
+    catch (error) { toast.error(error.message); }
+    finally { setBusy(false); }
   };
 
   return (
@@ -73,7 +77,7 @@ const TravelPreferencesCard = () => {
           {travelStyles.map((style) => (
             <button
               key={style}
-              onClick={() => setTravelStyle(style)}
+              onClick={() => toast("Travel style preferences are not available yet.")}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
                 travelStyle === style
                   ? "bg-[#3F783D] text-white"
@@ -93,7 +97,7 @@ const TravelPreferencesCard = () => {
 
         <select
           value={budget}
-          onChange={(e) => setBudget(e.target.value)}
+          onChange={() => toast("Budget preferences are not available yet.")}
           className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-green-700"
         >
           <option>₦0 - ₦50,000</option>

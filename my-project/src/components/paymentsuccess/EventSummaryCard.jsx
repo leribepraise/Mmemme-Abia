@@ -22,12 +22,12 @@ const EventSummaryCard = ({ event, total, orderId }) => {
         <div className="space-y-2 text-sm font-medium text-gray-600">
           <div className="flex items-center gap-2.5">
             <Calendar className="w-4 h-4 text-gray-400" />
-            <span>Event date coming soon</span>
+            <span>{event?.date || "See booking details"}</span>
           </div>
 
           <div className="flex items-center gap-2.5">
             <Clock className="w-4 h-4 text-gray-400" />
-            <span>Event time coming soon</span>
+            <span>{event?.time || ""}</span>
           </div>
 
           <div className="flex items-center gap-2.5">

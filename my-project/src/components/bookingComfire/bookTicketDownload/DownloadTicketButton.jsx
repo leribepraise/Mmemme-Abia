@@ -6,7 +6,7 @@ import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import TicketPreview from "./TicketPreview";
 
-const DownloadTicketButton = ({ hotel, bookingRef }) => {
+const DownloadTicketButton = ({ hotel, bookingRef, booking }) => {
   const [open, setOpen] = useState(false);
   const ticketRef = useRef(null);
 
@@ -61,7 +61,7 @@ const DownloadTicketButton = ({ hotel, bookingRef }) => {
     <div className="relative inline-block">
       {/* Hidden off-screen ticket used only for capture */}
       <div className="absolute -left-[9999px] top-0">
-        <TicketPreview ref={ticketRef} hotel={hotel} bookingRef={bookingRef} />
+        <TicketPreview ref={ticketRef} hotel={hotel} bookingRef={bookingRef} booking={booking} />
       </div>
 
       {/* Main Action Trigger */}

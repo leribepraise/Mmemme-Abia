@@ -1,27 +1,27 @@
 import React from "react";
 import { Users, ParkingCircle, Wallet, PartyPopper } from "lucide-react";
 
-const VenueStats = () => {
+const VenueStats = ({ hotel }) => {
   const stats = [
     {
       icon: Users,
       title: "Capacity",
-      value: "1,500 Guests",
+      value: "See room types",
     },
     {
       icon: ParkingCircle,
       title: "Parking",
-      value: "200 Cars",
+      value: hotel.amenities.some(a => /parking/i.test(a)) ? "Available" : "Not listed",
     },
     {
       icon: Wallet,
       title: "Starting Price",
-      value: "From ₦45,000",
+      value: hotel.price == null ? "No available rooms" : `From ₦${hotel.price.toLocaleString()}`,
     },
     {
       icon: PartyPopper,
       title: "Best For",
-      value: "Weddings, Conferences",
+      value: "Hotel stays",
     },
   ];
 

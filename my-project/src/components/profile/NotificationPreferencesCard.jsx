@@ -1,3 +1,5 @@
+import { useAuth } from '@/components/context/AuthContext';
+import toast from 'react-hot-toast';
 import React, { useState } from "react";
 import {
   Bell,
@@ -9,13 +11,9 @@ import {
 } from "lucide-react";
 
 const NotificationPreferencesCard = () => {
-  const [prefs, setPrefs] = useState({
-    eventUpdates: true,
-    bookingConfirmations: true,
-    promotions: true,
-    community: true,
-    newsletter: true,
-  });
+  const { user, updateUser } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const prefs = { eventUpdates: user?.email_notifications, bookingConfirmations: user?.email_notifications, promotions: false, community: false, newsletter: false };
 
   const items = [
     {
@@ -50,8 +48,13 @@ const NotificationPreferencesCard = () => {
     },
   ];
 
-  const toggle = (key) => {
-    setPrefs((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggle = async key => {
+    if (!['eventUpdates', 'bookingConfirmations'].includes(key)) return toast('These notifications are not available yet.');
+    if (busy) return;
+    setBusy(true);
+    try { await updateUser({ email_notifications: !user.email_notifications }); toast.success('Email preference saved for booking updates and reminders.'); }
+    catch (error) { toast.error(error.message); }
+    finally { setBusy(false); }
   };
 
   return (
@@ -64,7 +67,7 @@ const NotificationPreferencesCard = () => {
             Notification Preferences
           </h3>
           <p className="text-sm text-gray-500">
-            Choose what kind of notifications you want to receive.
+            Booking updates and event reminders share your email preference.
           </p>
         </div>
       </div>
@@ -83,7 +86,7 @@ const NotificationPreferencesCard = () => {
 
             <button
               type="button"
-              onClick={() => toggle(key)}
+              disabled={busy} onClick={() => toggle(key)}
               className={`w-11 h-6 rounded-full transition shrink-0 relative ${
                 prefs[key] ? "bg-[#3F783D]" : "bg-gray-300"
               }`}

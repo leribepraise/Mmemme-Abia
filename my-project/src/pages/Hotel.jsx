@@ -14,7 +14,8 @@ import {
   Users,
 } from "lucide-react";
 
-import { hotels } from "../data/hotels";
+import { useCollection } from "@/hooks/useApi";
+import { hotelCard } from "@/lib/catalog";
 
 import HotelHero from "../components/hotel/HotelHero";
 import WhyBookCard from "../components/hotel/WhyBookCard";
@@ -26,6 +27,7 @@ import QuickFinderCard from "../components/hotel/QuickFinderCard";
 import HelpChoosing from "../components/hotel/HelpChoosing";
 
 export default function Hotel() {
+  const { data: hotels } = useCollection("/hotels/", hotelCard);
   const categories = [
     { icon: Building, title: "All Hotels", count: 234, color: "text-gray-700" },
     { icon: Gem, title: "Luxury", count: 28, color: "text-yellow-500" },

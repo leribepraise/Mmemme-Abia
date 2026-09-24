@@ -1,3 +1,5 @@
+import { useConversations } from '@/hooks/useConversations';
+import toast from 'react-hot-toast';
 import React, { useState } from "react";
 import {
   IoSearchOutline,
@@ -10,118 +12,17 @@ import {
 } from "react-icons/io5";
 import { LuCircleHelp } from "react-icons/lu";
 
-const conversations = [
-  {
-    id: 1,
-    name: "Chidinma Okafor",
-    role: "English about Some Badfears",
-    message: "Hello, I want to know if VIP tickets are...",
-    time: "2m ago",
-    avatar:
-      "https://i.pravatar.cc/100?img=47",
-    unread: true,
-    status: "online",
-  },
-  {
-    id: 2,
-    name: "Yasir Adelwa",
-    role: "Booking Request",
-    message: "Good day, we are interested in booking 10...",
-    time: "1h ago",
-    avatar:
-      "https://i.pravatar.cc/100?img=12",
-    unread: true,
-    status: "online",
-  },
-  {
-    id: 3,
-    name: "Emeka Nwosu",
-    role: "Refund Request",
-    message: "Hi, I need help with a refund issue...",
-    time: "3h ago",
-    avatar:
-      "https://i.pravatar.cc/100?img=11",
-    unread: false,
-    status: "offline",
-  },
-  {
-    id: 4,
-    name: "Peace Uchen",
-    role: "Event Location",
-    message: "Please can you share the event location...",
-    time: "Yesterday",
-    avatar:
-      "https://i.pravatar.cc/100?img=32",
-    unread: false,
-    status: "offline",
-  },
-  {
-    id: 5,
-    name: "Daniel Onyema",
-    role: "Organizational Opportunity",
-    message: "We would like to partner with you...",
-    time: "Yesterday",
-    avatar:
-      "https://i.pravatar.cc/100?img=68",
-    unread: false,
-    status: "offline",
-  },
-];
-
 const Messages = () => {
-  const [selectedChat, setSelectedChat] = useState(conversations[0]);
-  const [message, setMessage] = useState("");
-
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: "user",
-      text: "Hello, I want to know if VIP tickets are still available for the Show Live Concert. Also, do they include front row seats?",
-      time: "10:32 AM",
-    },
-    {
-      id: 2,
-      sender: "admin",
-      text: "Hello Chidinma,\n\nThanks for reaching out.\n\nYes, VIP tickets are still available and they include front row access. Please note, a great, and VIP usage.\n\nLet us know if you'd like us to reserve any for you.",
-      time: "10:34 AM",
-    },
-    {
-      id: 3,
-      sender: "user",
-      text: "Great! Please reserve 2 VIP tickets for me.\n\nI'll wait for payment info.",
-      time: "10:36 AM",
-    },
-    {
-      id: 4,
-      sender: "admin",
-      text: "Awesome! 👍",
-      time: "10:37 AM",
-    },
-  ]);
-
-  const sendMessage = () => {
-    if (!message.trim()) return;
-
-    const newMessage = {
-      id: Date.now(),
-      sender: "user",
-      text: message,
-      time: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setMessage("");
-  };
+  const { conversations, selectedChat, selectConversation, thread: messages, message, setMessage, sendMessage, markAsRead, sending } = useConversations();
+  const [search, setSearch] = useState('');
+  const unavailable = () => toast('This feature is not available yet.');
 
   return (
     <div className="min-h-screen bg-[#f5f7f3] px-4 py-5 md:px-6">
       {/* HEADER */}
       <div className="mb-5">
         <p className="text-[10px] text-gray-400">
-          Home &gt; Organizer &gt; Messages
+          Home &gt; Messages
         </p>
 
         <div className="mt-1 flex items-center gap-2">
@@ -130,12 +31,12 @@ const Messages = () => {
           </h1>
 
           <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[9px] text-gray-600">
-            12
+            {conversations.filter(row => row.unread).length}
           </span>
         </div>
 
         <p className="mt-1 text-xs text-gray-500">
-          Communicate with attendees and get support.
+          Communicate with the provider about your booking.
         </p>
       </div>
 
@@ -148,11 +49,11 @@ const Messages = () => {
           <span className="absolute bottom-0 left-0 h-[2px] w-full rounded-full bg-gray-900" />
         </button>
 
-        <button className="pb-2 text-[11px] text-gray-500">
+        <button onClick={unavailable} className="pb-2 text-[11px] text-gray-500">
           Support
         </button>
 
-        <button className="pb-2 text-[11px] text-gray-500">
+        <button onClick={unavailable} className="pb-2 text-[11px] text-gray-500">
           Archive
         </button>
       </div>
@@ -164,7 +65,7 @@ const Messages = () => {
 
           <input
             type="text"
-            placeholder="Search messages..."
+            value={search} onChange={event => setSearch(event.target.value)} placeholder="Search messages..."
             className="h-8 w-full rounded-md border border-gray-200 bg-white pl-8 pr-3 text-[10px] outline-none placeholder:text-gray-400 focus:border-gray-300"
           />
         </div>
@@ -181,10 +82,10 @@ const Messages = () => {
         {/* LEFT CONVERSATION LIST */}
         <div className="overflow-hidden rounded-md border border-gray-200 bg-white">
           <div className="divide-y divide-gray-100">
-            {conversations.map((conversation) => (
+            {conversations.filter(row => `${row.name} ${row.role}`.toLowerCase().includes(search.toLowerCase())).map((conversation) => (
               <button
                 key={conversation.id}
-                onClick={() => setSelectedChat(conversation)}
+                onClick={() => selectConversation(conversation)}
                 className={`flex w-full items-start gap-2 px-3 py-3 text-left transition ${
                   selectedChat.id === conversation.id
                     ? "bg-[#f2f8f1]"
@@ -250,7 +151,7 @@ const Messages = () => {
                   className="h-8 w-8 rounded-full object-cover"
                 />
 
-                <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full border border-white bg-green-500" />
+                {selectedChat.status === "online" && <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full border border-white bg-green-500" />}
               </div>
 
               <div>
@@ -265,11 +166,11 @@ const Messages = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button className="rounded-md border border-gray-300 px-3 py-1 text-[8px] font-medium text-green-700 hover:bg-green-50">
+              <button onClick={markAsRead} className="rounded-md border border-gray-300 px-3 py-1 text-[8px] font-medium text-green-700 hover:bg-green-50">
                 Mark as Read
               </button>
 
-              <button className="text-gray-400 hover:text-gray-700">
+              <button onClick={unavailable} className="text-gray-400 hover:text-gray-700">
                 <IoEllipsisVertical className="text-sm" />
               </button>
             </div>
@@ -308,7 +209,7 @@ const Messages = () => {
                       {msg.time}
                     </span>
 
-                    {msg.sender === "admin" && (
+                    {msg.sender === "admin" && msg.read_at && (
                       <IoCheckmarkDoneOutline className="text-[10px] text-green-600" />
                     )}
                   </div>
@@ -322,7 +223,7 @@ const Messages = () => {
             <div className="flex items-center gap-2 rounded-md border border-gray-200 bg-white px-2">
               <input
                 type="text"
-                value={message}
+                disabled={sending || !selectedChat.id} maxLength={4000} value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -333,16 +234,16 @@ const Messages = () => {
                 className="h-9 flex-1 bg-transparent text-[10px] outline-none placeholder:text-gray-400"
               />
 
-              <button className="text-gray-400 hover:text-gray-700">
+              <button onClick={unavailable} className="text-gray-400 hover:text-gray-700">
                 <IoAttachOutline className="text-sm" />
               </button>
 
-              <button className="text-gray-400 hover:text-gray-700">
+              <button onClick={unavailable} className="text-gray-400 hover:text-gray-700">
                 <IoHappyOutline className="text-sm" />
               </button>
 
               <button
-                onClick={sendMessage}
+                disabled={sending || !selectedChat.id} onClick={sendMessage}
                 className="flex items-center gap-1 rounded-md bg-[#37763c] px-3 py-1.5 text-[9px] font-medium text-white hover:bg-[#2e6633]"
               >
                 Send
@@ -354,7 +255,7 @@ const Messages = () => {
       </div>
 
       {/* SUPPORT FLOATING ICON */}
-      <button className="fixed bottom-5 right-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#37763c] text-white shadow-lg">
+      <button onClick={unavailable} className="fixed bottom-5 right-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#37763c] text-white shadow-lg">
         <LuCircleHelp className="text-lg" />
       </button>
     </div>

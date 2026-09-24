@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import { useAuth } from "@/components/context/AuthContext";
+import toast from "react-hot-toast";
 import { useState } from "react";
 import { Bell, CreditCard, KeyRound, Landmark, Link2, Shield, User } from "lucide-react";
 import OrganizerShell from "@/components/organizer/OrganizerPublicShell";
@@ -20,13 +23,19 @@ const labelClass = "block text-xs font-bold text-gray-600 mb-1.5";
 const BIO_LIMIT = 200;
 
 export default function OrganizerSettings() {
-  const [organizer, setOrganizer] = useState(() => load("mmemme-organizer", seedOrganizer));
+  const { user, updateUser } = useAuth();
+  const fromUser = u => ({ name: u.fullName || "", email: u.email, phone: u.phone || "", organization: "", bio: u.bio || "", location: u.address || "", avatar: u.profilePicture || "" });
+  const [organizer, setOrganizer] = useState(() => fromUser(user));
+  useEffect(() => setOrganizer(fromUser(user)), [user]);
   const [tab, setTab] = useState("profile");
   const [saved, setSaved] = useState(false);
   const [toggles, setToggles] = useState({ email: true, sms: false, security: true });
 
   const update = (key, value) => setOrganizer(prev => ({ ...prev, [key]: value }));
-  const saveProfile = () => { save("mmemme-organizer", organizer); setSaved(true); setTimeout(() => setSaved(false), 1600); };
+  const saveProfile = async () => {
+    if (!["profile", "notifications"].includes(tab)) { toast.error("This setting is not connected yet."); return; }
+    try { await updateUser({ fullName: organizer.name, phone: organizer.phone, bio: organizer.bio, address: organizer.location, email_notifications: toggles.email }); setSaved(true); } catch (error) { toast.error(error.message); }
+  };
 
   return (
     <div className="pt-24">
@@ -36,7 +45,7 @@ export default function OrganizerSettings() {
       subtitle="Manage your account details and preferences."
       actions={
         <>
-          <button onClick={() => setOrganizer(load("mmemme-organizer", seedOrganizer))} className="px-5 py-2 rounded-lg text-sm font-bold text-gray-600 border border-gray-200 hover:bg-gray-50" data-testid="button-cancel-settings">
+          <button onClick={() => setOrganizer(fromUser(user))} className="px-5 py-2 rounded-lg text-sm font-bold text-gray-600 border border-gray-200 hover:bg-gray-50" data-testid="button-cancel-settings">
             Cancel
           </button>
           <button onClick={saveProfile} className="bg-[#3F7D3D] text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-[#336633] transition-colors" data-testid="button-save-settings">
@@ -85,7 +94,7 @@ export default function OrganizerSettings() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div><label className={labelClass} htmlFor="profile-name">Full Name *</label><input id="profile-name" className={inputClass} value={organizer.name} onChange={e => update("name", e.target.value)} data-testid="input-profile-name" /></div>
-                <div><label className={labelClass} htmlFor="profile-email">Email Address *</label><input id="profile-email" type="email" className={inputClass} value={organizer.email} onChange={e => update("email", e.target.value)} data-testid="input-profile-email" /></div>
+                <div><label className={labelClass} htmlFor="profile-email">Email Address *</label><input id="profile-email" type="email" readOnly className={inputClass} value={organizer.email} onChange={e => update("email", e.target.value)} data-testid="input-profile-email" /></div>
                 <div>
                   <label className={labelClass} htmlFor="profile-phone">Phone Number *</label>
                   <div className="flex">
@@ -93,7 +102,7 @@ export default function OrganizerSettings() {
                     <input id="profile-phone" className={`${inputClass} rounded-l-none`} value={organizer.phone} onChange={e => update("phone", e.target.value)} data-testid="input-profile-phone" />
                   </div>
                 </div>
-                <div><label className={labelClass} htmlFor="profile-org">Organization / Brand Name *</label><input id="profile-org" className={inputClass} value={organizer.organization} onChange={e => update("organization", e.target.value)} data-testid="input-profile-organization" /></div>
+                <div><label className={labelClass} htmlFor="profile-org">Organization / Brand Name *</label><input id="profile-org" readOnly placeholder="Managed through provider approval" className={inputClass} value={organizer.organization} onChange={e => update("organization", e.target.value)} data-testid="input-profile-organization" /></div>
                 <div className="md:col-span-2">
                   <div className="flex items-center justify-between">
                     <label className={labelClass} htmlFor="profile-bio">Bio</label>
@@ -136,7 +145,7 @@ export default function OrganizerSettings() {
           ) : (
             <div className="text-center py-16">
               <h3 className="font-bold text-lg text-black">{TABS.find(t => t.key === tab)?.label}</h3>
-              <p className="text-sm text-gray-400 mt-1 mb-4">This setting is ready to configure in your organizer workspace.</p>
+              <p className="text-sm text-gray-400 mt-1 mb-4">This feature still needs backend setup. Contact the administrator.</p>
               <button onClick={() => setTab("profile")} className="bg-[#3F7D3D] text-white px-5 py-2 rounded-lg text-sm font-bold" data-testid="button-back-profile">
                 Back to profile
               </button>

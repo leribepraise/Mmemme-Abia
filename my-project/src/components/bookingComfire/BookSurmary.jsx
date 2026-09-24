@@ -1,10 +1,10 @@
 import React from "react";
 
-const BookingSummary = ({ hotel = {} }) => {
-  const roomCharges = hotel?.price || 0;
-  const serviceFee = 3000;
-  const taxes = 2000;
-  const total = roomCharges + serviceFee + taxes;
+const BookingSummary = ({ hotel = {}, booking }) => {
+  const roomCharges = booking.items.reduce((sum, item) => sum + Number(item.subtotal), 0);
+  const serviceFee = 0;
+  const taxes = 0;
+  const total = Number(booking.total_amount);
 
   return (
     <div className="w-full max-w-md rounded-2xl border-2 border-gray-200 bg-[#F8F9FA] p-6 shadow-sm">
@@ -27,10 +27,10 @@ const BookingSummary = ({ hotel = {} }) => {
             {hotel?.name || "Hotel Name"}
           </h3>
           <p className="text-sm font-semibold text-gray-600">
-            Sat, 24 May 2026 – Sun, 25 May 2026
+            {booking.details.check_in} – {booking.details.check_out}
           </p>
           <p className="text-sm font-medium text-gray-500">
-            1 Room, 2 Adults
+            {booking.details.rooms} Room(s), {booking.details.guests || 1} Guest(s)
           </p>
         </div>
       </div>

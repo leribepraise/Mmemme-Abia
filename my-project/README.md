@@ -1,4 +1,8 @@
-# React + Vite
+# MMEMME ABIA frontend
+
+For the connected backend, local startup, environment settings and remaining release work, see [the connection guide](../FRONTEND_BACKEND_CONNECTION.md).
+
+## Original Vite template notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

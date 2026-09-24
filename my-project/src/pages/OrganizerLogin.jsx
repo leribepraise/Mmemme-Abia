@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarCheck2, Eye, EyeOff, LineChart, ShieldCheck, TrendingUp, Users2 } from "lucide-react";
@@ -22,13 +23,16 @@ export default function OrganizerLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    if (email && password) {
-      save("mmemme-auth", { email, remember });
-      login();
-      navigate("/organizer/dashboard");
-    }
+    try {
+      const user = await login({ email, password });
+      if (!user.is_staff && !(user.role === 'ORGANIZER' && user.is_verified)) {
+        toast.error('Your provider account needs approval before you can manage events.');
+        navigate('/profile'); return;
+      }
+      navigate('/organizer/dashboard');
+    } catch (error) { toast.error(error.message); }
   };
 
   return (

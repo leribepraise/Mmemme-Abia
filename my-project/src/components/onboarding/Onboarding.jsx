@@ -1,3 +1,5 @@
+import { useAuth } from "../context/AuthContext";
+import GuestGuard from "../GuestGuard";
 import React, { useState } from "react";
 import ProgressSteps from "./ProgressSteps";
 import CreateAccount from "./CreateAccount";
@@ -8,37 +10,10 @@ import Welcome from "./Welcome";
 const Onboarding = () => {
   const [step, setStep] = useState(1);
 
-  const [userData, setUserData] = useState(() => {
-    const savedData = sessionStorage.getItem("signupData");
-
-    return savedData
-      ? JSON.parse(savedData)
-      : {
-          fullName: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          terms: false,
-        };
-  });
-
-  const updateUserData = (data) => {
-    setUserData((prevData) => {
-      const updatedData = {
-        ...prevData,
-        ...data,
-      };
-
-      sessionStorage.setItem("signupData", JSON.stringify(updatedData));
-
-      return updatedData;
-    });
-  };
-
-  const nextStep = (data = {}) => {
-    updateUserData(data);
-
-    setStep((prevStep) => prevStep + 1);
+  const { user: userData, updateUser } = useAuth();
+  const nextStep = async (data = {}) => {
+    await updateUser(data);
+    setStep(value => value + 1);
   };
 
   const previousStep = () => {
@@ -46,7 +21,7 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9F7]">
+    <GuestGuard><div className="min-h-screen bg-[#F8F9F7]">
       <ProgressSteps currentStep={step} />
 
       <div className="mt-10">
@@ -56,7 +31,7 @@ const Onboarding = () => {
 
         {step === 3 && <Welcome userData={userData} />}
       </div>
-    </div>
+    </div></GuestGuard>
   );
 };
 

@@ -1,42 +1,12 @@
-// import React from "react";
-// import { CheckCircle, Clock } from "lucide-react";
-
-// import SectionHeader from "./common/SectionHeader";
-// import Notification from "./common/Notification";
-
-// const Notifications = () => {
-//   return (
-//     <div className="mx-auto max-w-[1100px]">
-//       <SectionHeader
-//         title="Notifications"
-//         description="Stay updated with your activities and bookings."
-//       />
-
-//       <div className="space-y-3">
-//         <Notification
-//           icon={<CheckCircle size={18} />}
-//           title="Booking confirmed"
-//           text="Your booking for Hotel Oris Live Concert has been confirmed."
-//         />
-
-//         <Notification
-//           icon={<Clock size={18} />}
-//           title="Upcoming event"
-//           text="Abia Cultural Festival is coming up soon."
-//         />
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Notifications;
 import React, { useState } from "react";
 import SectionHeader from "./common/SectionHeader";
 import FilterTabs from "../notification/FilterTabs";
 import NotificationGroup from "../notification/NotificationGroup";
-import { notifications } from "../../../src/data/notifications";
+import { useCollection } from "@/hooks/useApi";
 
 const Notifications = () => {
+  const { data } = useCollection('/notifications/');
+  const notifications = data.map(n => ({ ...n, title: n.subject, message: n.body, read: n.is_read, type: /book|ticket/i.test(n.subject) ? 'booking' : 'event', time: new Date(n.created_at).toLocaleTimeString(), date: new Date(n.created_at).toDateString() === new Date().toDateString() ? 'Today' : 'Earlier' }));
   const [filter, setFilter] = useState("All");
 
   const typeMap = {

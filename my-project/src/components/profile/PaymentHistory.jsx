@@ -1,8 +1,11 @@
+import { useCollection } from "@/hooks/useApi";
+import { money } from "@/lib/api";
 import React from "react";
 
 import SectionHeader from "./common/SectionHeader";
 
 const PaymentHistory = () => {
+  const { data: payments } = useCollection("/payments/");
   return (
     <div className="mx-auto max-w-[1100px]">
       <SectionHeader
@@ -25,15 +28,12 @@ const PaymentHistory = () => {
           </thead>
 
           <tbody>
-            <tr className="border-b">
-              <td className="px-5 py-4">Hotel Oris Live Concert</td>
-
-              <td className="px-5 py-4 text-gray-500">Oct 25, 2026</td>
-
-              <td className="px-5 py-4 text-green-600">Successful</td>
-
-              <td className="px-5 py-4 font-semibold">₦2,500</td>
-            </tr>
+            {payments.map(payment => <tr key={payment.id} className="border-b">
+              <td className="px-5 py-4">{payment.reference}</td>
+              <td className="px-5 py-4 text-gray-500">{payment.paid_at ? new Date(payment.paid_at).toLocaleDateString() : '—'}</td>
+              <td className="px-5 py-4 text-green-600">{payment.status}</td>
+              <td className="px-5 py-4 font-semibold">{money(payment.amount)}</td>
+            </tr>)}
           </tbody>
         </table>
       </div>

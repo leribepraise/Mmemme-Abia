@@ -1,3 +1,5 @@
+import { useConversations } from '@/hooks/useConversations';
+import toast from 'react-hot-toast';
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   IoAttachOutline,
@@ -10,90 +12,6 @@ import {
 } from "react-icons/io5";
 import OrganizerShell from "@/components/organizer/OrganizerPublicShell";
 import { load, save } from "@/lib/utils";
-
-const initialConversations = [
-  {
-    id: "chidinma",
-    name: "Chidinma Okafor",
-    role: "Inquiry about Shore Bango Concert",
-    message: "Hello, I want to know if VIP tickets are still available",
-    time: "2m ago",
-    initials: "CO",
-    avatarTone: "bg-[#1f2b26]",
-    unread: true,
-    status: "online",
-    body: "Hello,\n\nI want to know if VIP tickets are still available for the Shore Live Concert.\n\nAlso, do they include front row seats?\n\nThanks.",
-  },
-  {
-    id: "tosin",
-    name: "Tosin Adewale",
-    role: "Group Booking Request",
-    message: "Good day, we are interested in booking 15 tickets...",
-    time: "1h ago",
-    initials: "TA",
-    avatarTone: "bg-[#77533e]",
-    unread: true,
-    status: "offline",
-    body: "Good day, we are interested in booking 15 tickets for the concert. Please share the group booking details.",
-  },
-  {
-    id: "emeka",
-    name: "Emeka Nwosu",
-    role: "Refund Request",
-    message: "I was unable to attend the event due to...",
-    time: "3h ago",
-    initials: "EN",
-    avatarTone: "bg-[#30414a]",
-    unread: true,
-    status: "offline",
-    body: "I was unable to attend the event due to an emergency. Please let me know how I can request a refund.",
-  },
-  {
-    id: "peace",
-    name: "Peace Umeh",
-    role: "Event Location",
-    message: "Please can you share the exact location...",
-    time: "Yesterday",
-    initials: "PU",
-    avatarTone: "bg-[#43849c]",
-    unread: false,
-    status: "offline",
-    body: "Please can you share the exact location for the event?",
-  },
-  {
-    id: "daniel",
-    name: "Daniel Onyema",
-    role: "Sponsorship Opportunity",
-    message: "We would love to partner with you for our...",
-    time: "Yesterday",
-    initials: "DO",
-    avatarTone: "bg-[#6b4130]",
-    unread: false,
-    status: "offline",
-    body: "We would love to partner with you for our next event. Who should we speak with about sponsorship?",
-  },
-];
-
-const starterThread = (conversation) => [
-  { id: `${conversation.id}-1`, sender: "user", text: conversation.body, time: "Today 10:20 AM" },
-  ...(conversation.id === "chidinma"
-    ? [
-        {
-          id: `${conversation.id}-2`,
-          sender: "admin",
-          text: "Hello Chidinma,\n\nThanks for reaching out.\n\nYes, VIP tickets are still available and they include front row access, meet & greet, and VIP lounge.\n\nLet us know if you'd like us to reserve any for you.",
-          time: "10:25 AM",
-        },
-        {
-          id: `${conversation.id}-3`,
-          sender: "user",
-          text: "Great! Please reserve 2 VIP tickets for me.\n\nI will make payment now.",
-          time: "10:38 AM",
-        },
-        { id: `${conversation.id}-4`, sender: "admin", text: "Awesome!", time: "10:41 AM" },
-      ]
-    : []),
-];
 
 function Avatar({ conversation, small = false }) {
   return (
@@ -108,65 +26,11 @@ function Avatar({ conversation, small = false }) {
 }
 
 export default function OrganizerMessages() {
-  const [conversations, setConversations] = useState(initialConversations);
-  const [selectedId, setSelectedId] = useState(initialConversations[0].id);
-  const [message, setMessage] = useState("");
+  const { conversations, selectedId, selectedChat, selectConversation, thread, message, setMessage, sendMessage, markAsRead, sending } = useConversations();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("Inbox");
-  const [savedThreads, setSavedThreads] = useState(() => load("mmemme-message-threads", {}));
-  const [thread, setThread] = useState(() => {
-    const stored = load("mmemme-message-threads", {});
-    return stored[initialConversations[0].id] || starterThread(initialConversations[0]);
-  });
-  const fileInputRef = useRef(null);
-
-  const selectedChat = conversations.find((conversation) => conversation.id === selectedId) || conversations[0];
-  const visibleConversations = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return conversations.filter((conversation) => {
-      if (activeTab === "Archive") return false;
-      if (activeTab === "Support") return conversation.id === "emeka";
-      return !query || `${conversation.name} ${conversation.role} ${conversation.message}`.toLowerCase().includes(query);
-    });
-  }, [activeTab, conversations, search]);
-
-  useEffect(() => {
-    const stored = savedThreads[selectedId];
-    setThread(stored || starterThread(selectedChat));
-  }, [savedThreads, selectedChat, selectedId]);
-
-  const selectConversation = (conversation) => {
-    setSelectedId(conversation.id);
-    setConversations((current) => current.map((item) => item.id === conversation.id ? { ...item, unread: false } : item));
-  };
-
-  const sendMessage = () => {
-    if (!message.trim()) return;
-    const nextThread = [
-      ...thread,
-      {
-        id: `${selectedId}-${Date.now()}`,
-        sender: "admin",
-        text: message.trim(),
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      },
-    ];
-    const nextThreads = { ...savedThreads, [selectedId]: nextThread };
-    setThread(nextThread);
-    setSavedThreads(nextThreads);
-    save("mmemme-message-threads", nextThreads);
-    setMessage("");
-  };
-
-  const markAsRead = () => {
-    setConversations((current) => current.map((item) => item.id === selectedId ? { ...item, unread: false } : item));
-  };
-
-  const handleAttachment = (event) => {
-    const fileName = event.target.files?.[0]?.name;
-    if (fileName) setMessage((current) => `${current}${current ? " " : ""}[Attached: ${fileName}]`);
-    event.target.value = "";
-  };
+  const visibleConversations = conversations.filter(row => `${row.name} ${row.role} ${row.message}`.toLowerCase().includes(search.toLowerCase()));
+  const unavailable = () => toast('This feature is not available yet.');
 
   return (
     <div className="pt-24">
@@ -178,7 +42,7 @@ export default function OrganizerMessages() {
         <div className="flex items-center gap-6 border-b border-[#e5e9e3] pb-1" role="tablist" aria-label="Message folders">
           {[
             { label: "Inbox", count: conversations.filter((conversation) => conversation.unread).length },
-            { label: "Support", count: 1 },
+            { label: "Support", count: null },
             { label: "Archive", count: null },
           ].map((tab) => (
             <button
@@ -186,7 +50,7 @@ export default function OrganizerMessages() {
               type="button"
               role="tab"
               aria-selected={activeTab === tab.label}
-              onClick={() => setActiveTab(tab.label)}
+              onClick={() => tab.label === "Inbox" ? setActiveTab(tab.label) : unavailable()}
               data-testid={`tab-messages-${tab.label.toLowerCase()}`}
               className={`relative flex items-center gap-2 pb-3 text-sm ${activeTab === tab.label ? "font-bold text-[#17221d]" : "font-medium text-[#7c827e]"}`}
             >
@@ -257,7 +121,7 @@ export default function OrganizerMessages() {
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-[#17221d]">{selectedChat.name}</h2>
-                  <p className="text-xs text-[#929892]">{selectedChat.name.toLowerCase().replace(" ", ".")}@gmail.com</p>
+                  <p className="text-xs text-[#929892]">{selectedChat.booking_reference}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -273,7 +137,7 @@ export default function OrganizerMessages() {
                     <p className="whitespace-pre-line text-sm leading-6 text-[#344139]">{msg.text}</p>
                     <div className={`mt-1.5 flex items-center gap-1.5 ${msg.sender === "admin" ? "justify-end" : "justify-start"}`}>
                       <span className="text-[10px] text-[#a0a8a0]">{msg.time}</span>
-                      {msg.sender === "admin" && <IoCheckmarkDoneOutline className="text-sm text-[#4e9453]" />}
+                      {msg.sender === "admin" && msg.read_at && <IoCheckmarkDoneOutline className="text-sm text-[#4e9453]" />}
                     </div>
                   </div>
                 </div>
@@ -284,7 +148,7 @@ export default function OrganizerMessages() {
               <div className="flex items-center gap-3 rounded-xl border border-[#dfe5df] bg-white px-4 py-1">
                 <input
                   type="text"
-                  value={message}
+                  disabled={sending || !selectedId} maxLength={4000} value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   onKeyDown={(event) => { if (event.key === "Enter") sendMessage(); }}
                   placeholder="Type your message..."
@@ -292,10 +156,10 @@ export default function OrganizerMessages() {
                   data-testid="input-message-compose"
                   className="h-12 flex-1 bg-transparent text-sm outline-none placeholder:text-[#a1a7a2]"
                 />
-                <input ref={fileInputRef} type="file" onChange={handleAttachment} className="hidden" aria-label="Attach a file" />
-                <button type="button" onClick={() => fileInputRef.current?.click()} aria-label="Attach a file" data-testid="button-attach-message" className="text-xl text-[#a0a8a0] hover:text-[#56615a]"><IoAttachOutline /></button>
+
+                <button type="button" onClick={unavailable} aria-label="Attach a file" data-testid="button-attach-message" className="text-xl text-[#a0a8a0] hover:text-[#56615a]"><IoAttachOutline /></button>
                 <button type="button" onClick={() => setMessage((current) => `${current}${current ? " " : ""}Thanks for the update.`)} aria-label="Add a helpful reply" data-testid="button-helpful-reply" className="text-xl text-[#a0a8a0] hover:text-[#56615a]"><IoHappyOutline /></button>
-                <button type="button" onClick={sendMessage} data-testid="button-send-message" className="flex items-center gap-2 rounded-xl bg-[#3f7d3d] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#336633]">Send <IoSendOutline /></button>
+                <button type="button" disabled={sending || !selectedId} onClick={sendMessage} data-testid="button-send-message" className="flex items-center gap-2 rounded-xl bg-[#3f7d3d] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#336633]">Send <IoSendOutline /></button>
               </div>
             </div>
           </div>

@@ -6,7 +6,7 @@ const WhatNext = () => {
     {
       icon: Mail,
       title: "Check your email",
-      text: "We've sent your booking details and receipt.",
+      text: "Look out for your booking confirmation email.",
     },
     {
       icon: Calendar,

@@ -1,28 +1,24 @@
+import { useCollection } from "@/hooks/useApi";
+import { useBooking } from "@/hooks/useBooking";
+import { useSearchParams } from "react-router-dom";
 import React, { useState } from "react";
 import { Bus, Clock, MapPin, CheckCircle } from "lucide-react";
 
-const initialSchedules = [
-  { id: 1, route: "Umuahia → Aba", time: "7:00 AM", price: 1500, seatsLeft: 12 },
-  { id: 2, route: "Umuahia → Aba", time: "10:30 AM", price: 1500, seatsLeft: 4 },
-  { id: 3, route: "Aba → Umuahia", time: "8:15 AM", price: 1500, seatsLeft: 9 },
-  { id: 4, route: "Umuahia → Owerri", time: "9:00 AM", price: 2500, seatsLeft: 6 },
-  { id: 5, route: "Owerri → Umuahia", time: "4:00 PM", price: 2500, seatsLeft: 0 },
-];
+
 
 const ShuttlePage = () => {
-  const [schedules, setSchedules] = useState(initialSchedules);
-  const [seatCount, setSeatCount] = useState(1);
+  const [params] = useSearchParams();
+  const { data: routes } = useCollection('/transport-routes/');
+  const { data: departures } = useCollection('/departures/');
+  const { book, busy } = useBooking();
+  const schedules = departures.filter(d => {
+    const route = routes.find(row => row.id === d.route);
+    return (!params.get('route') || d.route === params.get('route')) && (!params.get('origin') || route?.origin.toLowerCase().includes(params.get('origin').toLowerCase())) && (!params.get('destination') || route?.destination.toLowerCase().includes(params.get('destination').toLowerCase())) && (!params.get('date') || d.departs_at.slice(0, 10) === params.get('date'));
+  }).map(d => { const route = routes.find(r => r.id === d.route); return { ...d, route: route ? `${route.origin} → ${route.destination}` : d.vehicle, time: new Date(d.departs_at).toLocaleString(), price: Number(d.price), seatsLeft: d.quantity_available }; });
+  const [seatCount, setSeatCount] = useState(Math.min(6, Math.max(1, Number(params.get('seats')) || 1)));
   const [bookedId, setBookedId] = useState(null);
 
-  const handleBook = (id) => {
-    setSchedules((prev) =>
-      prev.map((s) =>
-        s.id === id ? { ...s, seatsLeft: Math.max(0, s.seatsLeft - seatCount) } : s
-      )
-    );
-    setBookedId(id);
-    setTimeout(() => setBookedId(null), 3000);
-  };
+  const handleBook = id => book("TRANSPORT", [{ id, quantity: seatCount }]);
 
   return (
     <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-6">
@@ -54,6 +50,7 @@ const ShuttlePage = () => {
         </div>
 
         <div className="space-y-3">
+          {!schedules.length && <p role="status">No matching departures are available.</p>}
           {schedules.map((s) => {
             const isFull = s.seatsLeft < seatCount;
             const justBooked = bookedId === s.id;
@@ -88,7 +85,7 @@ const ShuttlePage = () => {
                   ) : (
                     <button
                       onClick={() => handleBook(s.id)}
-                      disabled={isFull}
+                      disabled={isFull || busy}
                       className="bg-[#F97316] hover:bg-[#df5f18] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold px-5 py-2 rounded-lg text-xs transition"
                     >
                       {isFull ? "Full" : "Book Seat"}

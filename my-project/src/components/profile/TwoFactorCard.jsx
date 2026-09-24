@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import React, { useState } from "react";
 import { ShieldCheck } from "lucide-react";
 
@@ -23,7 +24,7 @@ const TwoFactorCard = () => {
 
       <button
         type="button"
-        onClick={() => setEnabled((prev) => !prev)}
+        onClick={() => toast.error("Two-factor authentication is not configured yet.")}
         className={`w-11 h-6 rounded-full transition shrink-0 relative ${
           enabled ? "bg-[#3F783D]" : "bg-gray-300"
         }`}

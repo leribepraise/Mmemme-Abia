@@ -66,13 +66,11 @@ const CreateAccount = ({ onNext }) => {
     reader.readAsDataURL(file);
   };
 
-  const onSubmit = (data) => {
-    onNext({
-      ...data,
-      profilePicture: profilePreview,
-    });
-
-    toast.success("Details saved! Let's choose your plan.");
+  const onSubmit = async (data) => {
+    try {
+      await onNext({ ...data, profilePicture: profilePreview });
+      toast.success("Details saved! Let's choose your plan.");
+    } catch (error) { toast.error(error.message); }
   };
 
   const lgas = [

@@ -1,3 +1,9 @@
+import { useOrganizerStats } from '@/hooks/useOrganizerStats';
+import { useCollection } from "@/hooks/useApi";
+import { organizerEvent } from "@/lib/catalog";
+import { api } from "@/lib/api";
+import { useAuth } from "@/components/context/AuthContext";
+import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import {
   Banknote, Check, ChevronDown, CreditCard, Copy, Pencil, Percent, Plus,
@@ -44,35 +50,30 @@ function RowActions({ onEdit, onDelete }) {
 }
 
 function TicketTypesPanel({ event, onReady }) {
-  const [items, setItems] = useState(() => {
-    const store = load("mmemme-ticket-types", {});
-    return store[event.id] || seedTicketTypes[event.id] || defaultTicketTypes(event);
-  });
+  const { data: currentEvents, reload } = useCollection('/events/mine/', organizerEvent);
+  const currentEvent = currentEvents.find(e => e.id === event.id) || event;
+  const items = currentEvent.ticket_types.map(t => ({ ...t, price: Number(t.price), sold: t.quantity_sold, limit: t.quantity, status: t.is_active ? 'Active' : 'Inactive' }));
   const [editingId, setEditingId] = useState(null);
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState({ name: "", description: "", price: "", limit: "" });
 
-  const persist = (next) => {
-    setItems(next);
-    const store = load("mmemme-ticket-types", {});
-    save("mmemme-ticket-types", { ...store, [event.id]: next });
-  };
+
 
   const startAdd = () => { setAdding(true); setEditingId(null); setDraft({ name: "", description: "", price: "", limit: "" }); };
   const startEdit = (item) => { setEditingId(item.id); setAdding(false); setDraft(item); };
   const cancel = () => { setAdding(false); setEditingId(null); };
 
-  const submit = () => {
-    if (!draft.name.trim() || !draft.price || !draft.limit) return;
-    if (editingId) {
-      persist(items.map(i => (i.id === editingId ? { ...i, ...draft, price: Number(draft.price), limit: Number(draft.limit) } : i)));
-    } else {
-      persist([...items, { id: `tt-${Date.now()}`, name: draft.name, description: draft.description, price: Number(draft.price), sold: 0, limit: Number(draft.limit), status: "Active" }]);
-    }
-    cancel();
+  const submit = async () => {
+    if (!draft.name.trim() || draft.price === '' || !draft.limit) return;
+    try {
+      await api(`/events/${event.id}/ticket-types/`, { method: editingId ? 'PATCH' : 'POST', body: { ...(editingId ? { id: editingId } : {}), name: draft.name, description: draft.description, price: Number(draft.price), quantity: Number(draft.limit) } });
+      reload(); cancel();
+    } catch (error) { toast.error(error.message); }
   };
-
-  const remove = (id) => { if (window.confirm("Remove this ticket type?")) persist(items.filter(i => i.id !== id)); };
+  const remove = async id => {
+    try { await api(`/events/${event.id}/ticket-types/`, { method: 'PATCH', body: { id, is_active: false } }); reload(); }
+    catch (error) { toast.error(error.message); }
+  };
 
   useEffect(() => { onReady?.({ startAdd }); }, [event.id]);
 
@@ -349,26 +350,17 @@ function TicketSettingsPanel() {
 }
 
 function SalesReportPanel() {
-  const events = load("mmemme-events", seedEvents);
+  const stats = useOrganizerStats();
   const [search, setSearch] = useState("");
-  const sales = events
-    .flatMap((e, index) => [{
-      id: `sale-${index}1`,
-      event: e.title,
-      buyer: ["Adaeze Kalu", "Daniel Chukwu", "Nneoma Eze"][index % 3],
-      ticket: index % 2 ? "VIP Pass" : "Regular Pass",
-      amount: index % 2 ? 12000 : 7000,
-      date: fmtDate(e.date),
-    }])
-    .filter(s => s.event.toLowerCase().includes(search.toLowerCase()) || s.buyer.toLowerCase().includes(search.toLowerCase()));
+  const sales = stats.confirmed.map(booking => ({ id: booking.booking_reference, event: booking.details.title || 'Event', buyer: booking.customer_name, ticket: booking.items.map(item => `${item.description} x${item.quantity}`).join(', '), amount: Number(booking.total_amount), date: fmtDate(booking.created_at) })).filter(row => `${row.event} ${row.buyer}`.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <OrganizerStatCard title="Gross Sales" value={naira(4560000)} trend="+15%" icon={Banknote} />
-        <OrganizerStatCard title="Tickets Sold" value="1,245" trend="+18%" icon={Ticket} />
-        <OrganizerStatCard title="Average Order" value={naira(8340)} trend="+6.4%" icon={ReceiptText} />
-        <OrganizerStatCard title="Refunds" value={naira(48000)} trend="-2.1%" isPositive={false} icon={CreditCard} />
+        <OrganizerStatCard title="Gross Sales" value={naira(stats.revenue)} trend="" icon={Banknote} />
+        <OrganizerStatCard title="Tickets Sold" value={stats.sold.toLocaleString()} trend="" icon={Ticket} />
+        <OrganizerStatCard title="Average Order" value={naira(stats.average)} trend="" icon={ReceiptText} />
+        <OrganizerStatCard title="Refunds" value={naira(stats.refunded)} trend="" isPositive={false} icon={CreditCard} />
       </div>
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <div className="relative mb-6 max-w-sm">
@@ -397,7 +389,7 @@ function SalesReportPanel() {
                   <td className="py-3 pr-4 text-gray-600">{s.ticket}</td>
                   <td className="py-3 pr-4 text-gray-600">{s.date}</td>
                   <td className="py-3 pr-4 font-bold text-black">{naira(s.amount)}</td>
-                  <td className="py-3"><span className="text-[10px] font-bold px-2 py-1 rounded-full bg-green-100 text-green-700">Paid</span></td>
+                  <td className="py-3"><span className="text-[10px] font-bold px-2 py-1 rounded-full bg-green-100 text-green-700">{s.amount ? "Paid" : "Free"}</span></td>
                 </tr>
               ))}
             </tbody>
@@ -409,11 +401,12 @@ function SalesReportPanel() {
 }
 
 export default function OrganizerTicketSales() {
-  const events = load("mmemme-events", seedEvents);
+  const { data: events } = useCollection("/events/mine/", organizerEvent);
   const [eventId, setEventId] = useState(events[0]?.id);
   const event = events.find(e => e.id === eventId) || events[0];
   const [tab, setTab] = useState("types");
   const [typesApi, setTypesApi] = useState(null);
+  if (!event) return <OrganizerShell title="Ticket Management"><p>No events yet. Create an event to manage its tickets.</p></OrganizerShell>;
 
   return (
     <div className="pt-24">
@@ -438,7 +431,7 @@ export default function OrganizerTicketSales() {
           {TABS.map(item => (
             <button
               key={item.key}
-              onClick={() => setTab(item.key)}
+              onClick={() => ["discounts", "promos", "settings"].includes(item.key) ? toast.error("This feature is not available on the backend yet.") : setTab(item.key)}
               className={`flex items-center gap-2.5 text-left px-4 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-colors ${
                 tab === item.key ? "bg-[#EAF5EA] text-[#3F7D3D]" : "text-gray-600 hover:bg-gray-50"
               }`}
