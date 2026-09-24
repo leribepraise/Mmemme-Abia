@@ -1,3 +1,4 @@
+import Seo from "../components/seo/Seo";
 import React from "react";
 import DiscoverHero from "../components/discover/DiscoverHero";
 import OurStorySection from "../components/discover/OurStorySection";
@@ -7,6 +8,7 @@ import DiscoverCTA from "../components/discover/DiscoverCTA";
 const DiscoverAbia = () => {
   return (
     <div className="min-h-screen bg-[#F5F7F3] px-4 md:px-8 py-6">
+      <Seo title="Discover Abia State" description="Explore the people, places and stories that make Abia State worth discovering." path="/discover" />
       <div className="max-w-6xl mx-auto space-y-10">
         <DiscoverHero />
         <OurStorySection />

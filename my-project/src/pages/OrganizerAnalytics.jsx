@@ -2,6 +2,7 @@ import { ArrowRight, Banknote, ChevronDown, Eye, Percent, Ticket } from "lucide-
 import OrganizerShell from "@/components/organizer/OrganizerShell";
 import OrganizerStatCard from "@/components/organizer/OrganizerStatCard";
 import { naira } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const TOP_EVENTS = [
   { title: "Shane Bangs Live Concert", date: "Sat, 25 Oct, 2026", loc: "Umuahia Sports Arena, Umuahia", tix: 450, rev: naira(9450000), image: "/event1.jpg" },
@@ -27,6 +28,7 @@ const TRAFFIC_SOURCES = [
 ];
 
 export default function OrganizerAnalytics() {
+  const { toast } = useToast();
   return (
     <OrganizerShell
       breadcrumb={["Home", "Organizer", "Analytics"]}
@@ -38,7 +40,7 @@ export default function OrganizerAnalytics() {
             This Month <ChevronDown className="w-4 h-4 text-gray-400" />
           </button>
           <button
-            onClick={() => window.alert("Report prepared for download.")}
+            onClick={() => toast({ title: "Report ready", description: "Your report has been prepared for download." })}
             className="bg-[#3F7D3D] text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-[#336633] transition-colors"
             data-testid="button-export-report"
           >

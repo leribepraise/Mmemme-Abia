@@ -5,9 +5,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "./validation/schemas/loginSchemas";
 import { NavLink } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const LoginForm = ({ onLogin }) => {
   const [inputType, setInputType] = useState("password");
+  const { toast } = useToast();
   const {
     register,
     handleSubmit,
@@ -17,12 +19,14 @@ const LoginForm = ({ onLogin }) => {
   });
 
   const onSubmit = (data) => {
-    console.log(data);
-
     const savedUser = JSON.parse(sessionStorage.getItem("user"));
 
     if (!savedUser) {
-      console.log("No account found");
+      toast({
+        title: "No account found",
+        description: "Sign up first, then come back to log in.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -30,11 +34,17 @@ const LoginForm = ({ onLogin }) => {
       data.email === savedUser.email &&
       data.password === savedUser.password
     ) {
-      console.log("Login successful");
-
+      toast({
+        title: "Welcome back",
+        description: `Logged in as ${data.email}.`,
+      });
       onLogin();
     } else {
-      console.log("Invalid email or password");
+      toast({
+        title: "Invalid email or password",
+        description: "Double check your details and try again.",
+        variant: "destructive",
+      });
     }
   };
   const toggleVisibility = () => {
@@ -102,7 +112,16 @@ const LoginForm = ({ onLogin }) => {
                 Remember me
               </label>
 
-              <button className="text-[#EF6C00] font-semibold hover:underline">
+              <button
+                type="button"
+                onClick={() =>
+                  toast({
+                    title: "Check your email",
+                    description: "If an account matches, reset instructions are on the way.",
+                  })
+                }
+                className="text-[#EF6C00] font-semibold hover:underline"
+              >
                 Forgot Password?
               </button>
             </div>

@@ -4,10 +4,12 @@ import OrganizerShell from "@/components/organizer/OrganizerShell";
 import OrganizerStatCard from "@/components/organizer/OrganizerStatCard";
 import { seedPayouts } from "@/data/organizerData";
 import { naira, load, save } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const STATUS_STYLE = { Paid: "bg-green-100 text-green-700", Pending: "bg-amber-100 text-amber-700" };
 
 export default function OrganizerPayouts() {
+  const { toast } = useToast();
   const [payouts, setPayouts] = useState(() => load("mmemme-payouts", seedPayouts));
 
   return (
@@ -17,7 +19,7 @@ export default function OrganizerPayouts() {
       subtitle="Know what has landed, what is moving and what is next."
       actions={
         <button
-          onClick={() => window.alert("Payout request started.")}
+          onClick={() => toast({ title: "Payout requested", description: "Your payout request has been started." })}
           className="flex items-center gap-2 bg-[#3F7D3D] text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-[#336633] transition-colors"
           data-testid="button-request-payout"
         >
@@ -57,7 +59,7 @@ export default function OrganizerPayouts() {
                   <td className="py-3 pr-4 font-mono text-xs text-gray-500">{p.reference}</td>
                   <td className="py-3 pr-4 font-bold text-black">{naira(p.amount)}</td>
                   <td className="py-3 pr-4"><span className={`text-[10px] font-bold px-2 py-1 rounded-full ${STATUS_STYLE[p.status] || "bg-gray-100 text-gray-600"}`}>{p.status}</span></td>
-                  <td className="py-3"><button onClick={() => window.alert("Receipt downloaded.")} className="text-xs font-bold text-[#3F7D3D] hover:underline" data-testid={`button-receipt-${p.id}`}>Receipt</button></td>
+                  <td className="py-3"><button onClick={() => toast({ title: "Receipt downloaded" })} className="text-xs font-bold text-[#3F7D3D] hover:underline" data-testid={`button-receipt-${p.id}`}>Receipt</button></td>
                 </tr>
               ))}
             </tbody>

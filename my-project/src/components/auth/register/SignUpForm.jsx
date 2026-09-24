@@ -6,9 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema } from "./validation/schemas/signupSchema";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const SignUpForm = ({ onLogin }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [inputType, setInputType] = useState("password");
   const [comfireInputType, setComfireInputType] = useState("password");
   const {
@@ -28,12 +30,22 @@ const SignUpForm = ({ onLogin }) => {
       terms: data.terms,
     };
 
-    console.log("UPDATED SIGN UP DATA:", updatedData);
-
     sessionStorage.setItem("signupData", JSON.stringify(updatedData));
-    // sessionStorage.setItem("user", JSON.stringify(user));
+
+    toast({
+      title: "Account details saved",
+      description: `Welcome, ${data.fullName.split(" ")[0]}! Let's finish setting up your account.`,
+    });
 
     navigate("/Signup/onboarding");
+  };
+
+  const onInvalid = () => {
+    toast({
+      title: "Check the form",
+      description: "Some fields need your attention before you can continue.",
+      variant: "destructive",
+    });
   };
   const toggleVisibility = () => {
     setInputType((prevType) => (prevType === "password" ? "text" : "password"));
@@ -52,7 +64,7 @@ const SignUpForm = ({ onLogin }) => {
         </h1>
         <p className="text-[14px] text-[#6B7280] mb-8">Let's get you started</p>
         <div className="space-y-5">
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
             {/* Full Name */}
             <div>
               <label className="block text-[14px] font-medium text-[#374151] mb-2">

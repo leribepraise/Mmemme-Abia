@@ -3,6 +3,7 @@ import { Filter, MoreHorizontal, Search } from "lucide-react";
 import OrganizerShell from "@/components/organizer/OrganizerPublicShell";
 import { seedEvents } from "@/data/organizerData";
 import { fmtDate, load } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const TICKET_TYPES = ["VIP", "Regular", "VVIP"];
 const CHECKIN_STYLE = { "Checked In": "text-green-600", "Not Checked In": "text-amber-600" };
@@ -35,6 +36,7 @@ function paginationRange(current, total) {
 }
 
 export default function OrganizerAttendees() {
+  const { toast } = useToast();
   const events = load("mmemme-events", seedEvents);
   const [eventId, setEventId] = useState(events[0]?.id);
   const event = events.find(e => e.id === eventId) || events[0];
@@ -63,14 +65,14 @@ export default function OrganizerAttendees() {
         actions={
           <>
             <button
-              onClick={() => window.alert("Attendee list exported.")}
+              onClick={() => toast({ title: "Export started", description: "Attendee list exported." })}
               className="flex items-center gap-2 border border-gray-200 bg-white text-gray-700 px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-gray-50"
               data-testid="button-export-attendees"
             >
               Export
             </button>
             <button
-              onClick={() => window.alert("Message sent to attendees.")}
+              onClick={() => toast({ title: "Message sent", description: "Your message was sent to attendees." })}
               className="bg-[#3F7D3D] hover:bg-[#336633] text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-colors"
               data-testid="button-send-message"
             >
@@ -159,7 +161,7 @@ export default function OrganizerAttendees() {
                       </span>
                     </td>
                     <td className="py-4">
-                      <button onClick={() => window.alert(`${a.name} ticket details opened.`)} className="p-2 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors" data-testid={`button-view-attendee-${i}`}>
+                      <button onClick={() => toast({ title: a.name, description: "Ticket details opened." })} className="p-2 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors" data-testid={`button-view-attendee-${i}`}>
                         <MoreHorizontal className="w-5 h-5" />
                       </button>
                     </td>

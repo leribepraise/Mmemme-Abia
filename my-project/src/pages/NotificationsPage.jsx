@@ -1,3 +1,4 @@
+import Seo from "../components/seo/Seo";
 import React, { useState } from "react";
 import FilterTabs from "../components/notifications/FilterTabs";
 import NotificationGroup from "../components/notifications/NotificationGroup";
@@ -25,6 +26,7 @@ const NotificationsPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8">
+      <Seo title="Notifications" noIndex path="/notifications" />
       <div className="max-w-3xl mx-auto space-y-6">
         <div>
           <h1 className="font-bold text-3xl text-[#172033]">Notifications</h1>

@@ -1,3 +1,4 @@
+import Seo from "../components/seo/Seo";
 import React, { useState, useMemo, useEffect } from "react";
 import FilterSidebar from "../components/events/FilterSidebar";
 import EventsTopBar from "../components/events/EventsTopBar";
@@ -99,6 +100,7 @@ const Events = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f7f3] px-4 py-5 md:px-6">
+      <Seo title="Explore Events" description="Find and book concerts, business summits, festivals and more happening across Abia State." path="/events" />
       <div className="mb-4">
         <h1 className="text-[25px] font-semibold">Explore Events</h1>
 

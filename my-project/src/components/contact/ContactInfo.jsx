@@ -7,8 +7,8 @@ const ContactInfo = () => {
     {
       icon: Mail,
       label: "Email Us",
-      lines: ["support@mmemmeabia.com"],
-      href: "mailto:support@mmemmeabia.com",
+      lines: ["support@mmemme.com.ng"],
+      href: "mailto:support@mmemme.com.ng",
     },
     {
       icon: Phone,

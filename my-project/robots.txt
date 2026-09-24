@@ -1,0 +1,12 @@
+# Allow all crawlers everywhere except logged-in/organizer-only areas.
+User-agent: *
+Allow: /
+Disallow: /organizer/
+Disallow: /message
+Disallow: /checkout
+Disallow: /payment
+Disallow: /profile
+Disallow: /login
+Disallow: /SignUp
+
+Sitemap: https://www.mmemme.com.ng/sitemap.xml

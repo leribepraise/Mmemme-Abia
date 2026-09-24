@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPublicEventById } from "../data/eventData";
+import Seo from "../components/seo/Seo";
 
 import EventBreadcrumb from "../components/eventDetails/EventBreadcrumb";
 import EventGallery from "../components/eventDetails/Gallary";
@@ -37,6 +38,15 @@ export default function EventDetails() {
 
   return (
     <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8 font-sans text-slate-800">
+      <Seo
+        title={event?.text}
+        description={
+          event?.description ||
+          `${event?.text || "Event"} at ${event?.text2 || "Abia State"}. Get your tickets on Mmemme Abia.`
+        }
+        image={event?.image}
+        path={`/events/${id}`}
+      />
       <div className="max-w-7xl mx-auto space-y-6">
         <EventBreadcrumb eventName={event?.text} />
 

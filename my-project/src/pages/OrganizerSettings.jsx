@@ -3,6 +3,7 @@ import { Bell, CreditCard, KeyRound, Landmark, Link2, Shield, User } from "lucid
 import OrganizerShell from "@/components/organizer/OrganizerPublicShell";
 import { seedOrganizer } from "@/data/organizerData";
 import { load, save } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const TABS = [
   { key: "profile", label: "Profile Information", icon: User },
@@ -20,13 +21,19 @@ const labelClass = "block text-xs font-bold text-gray-600 mb-1.5";
 const BIO_LIMIT = 200;
 
 export default function OrganizerSettings() {
+  const { toast } = useToast();
   const [organizer, setOrganizer] = useState(() => load("mmemme-organizer", seedOrganizer));
   const [tab, setTab] = useState("profile");
   const [saved, setSaved] = useState(false);
   const [toggles, setToggles] = useState({ email: true, sms: false, security: true });
 
   const update = (key, value) => setOrganizer(prev => ({ ...prev, [key]: value }));
-  const saveProfile = () => { save("mmemme-organizer", organizer); setSaved(true); setTimeout(() => setSaved(false), 1600); };
+  const saveProfile = () => {
+    save("mmemme-organizer", organizer);
+    setSaved(true);
+    toast({ title: "Settings saved", description: "Your account settings have been updated." });
+    setTimeout(() => setSaved(false), 1600);
+  };
 
   return (
     <OrganizerShell
@@ -74,7 +81,7 @@ export default function OrganizerSettings() {
                   <h3 className="font-bold text-sm text-black">Profile Photo</h3>
                   <p className="text-xs text-gray-500 mb-2">JPG, PNG or GIF. Max size 2MB.</p>
                   <button
-                    onClick={() => window.alert("Choose a photo to upload.")}
+                    onClick={() => toast({ title: "Upload a photo", description: "Choose a photo to upload." })}
                     className="text-xs font-bold border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50"
                     data-testid="button-upload-photo"
                   >
