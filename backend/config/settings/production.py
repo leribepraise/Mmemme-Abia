@@ -86,7 +86,8 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS=True
 # This emits eligibility in the header; browser preload enrollment is a separate operator action.
 SECURE_HSTS_PRELOAD=True
 SECURE_CONTENT_TYPE_NOSNIFF=True
-SECURE_REFERRER_POLICY="no-referrer"
+# Same-origin form submissions need their origin/referrer for Django's CSRF checks.
+SECURE_REFERRER_POLICY="same-origin"
 X_FRAME_OPTIONS="DENY"
 REQUIRE_WORKER_HEARTBEAT=True
 # Enable only behind a trusted proxy that overwrites this header.
