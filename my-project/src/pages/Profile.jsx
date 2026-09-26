@@ -14,6 +14,7 @@ import SavedItems from "../components/profile/SavedItems";
 import PaymentHistory from "../components/profile/PaymentHistory";
 import Notifications from "../components/profile/Notifications";
 import SettingsSection from "../components/profile/SettingsSection";
+import Seo from "../components/seo/Seo";
 
 const Profile = () => {
   const navigate = useNavigate();
