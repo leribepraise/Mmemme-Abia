@@ -1,13 +1,18 @@
 # MMEMME ABIA: Railway Hobby setup with Resend
 
+**Frontend migration update (26 September 2026):** If the backend and database
+are already running, follow [RAILWAY_FRONTEND_DEPLOYMENT.md](RAILWAY_FRONTEND_DEPLOYMENT.md).
+Keep the backend public address for Django admin. The current React staff
+dashboard owns `/admin` on the frontend.
+
 Prepared 17 September 2026 for `mmemme.com.ng`. The project, PostgreSQL and Redis have already been created. This guide continues from there. Deployment files are prepared locally; Railway needs the commit containing them on GitHub before it can use them.
 
 ## What runs on Railway
 
 | Name | Purpose | Public access |
 | --- | --- | --- |
-| `frontend` | React website, served by Caddy; forwards API/admin requests to Django | One HTTPS domain |
-| `backend` | Django API and admin | Private network |
+| `frontend` | React website, served by Caddy; forwards API requests to Django | Website HTTPS domain |
+| `backend` | Django API and admin | Private API traffic; public domain for Django admin |
 | `worker` | Email, payment reconciliation, booking expiry, refunds and payouts | Private; no HTTP server |
 | `Postgres` | Persistent application database | Private |
 | `Redis` | Cache and worker health signal | Private |
@@ -57,7 +62,7 @@ Create three empty services and name them exactly **`frontend`**, **`backend`** 
 
 The config-file path is relative to the repository root even when Root Directory is set. The JSON files supply Docker build, start, restart and health settings. Leave dashboard build/start overrides empty unless diagnosing a specific issue. [Railway monorepo configuration](https://docs.railway.com/deployments/monorepo).
 
-Only **frontend** needs a public domain. In its **Settings → Networking**, generate a Railway domain with target port **8080**. Leave backend and worker without public domains. PostgreSQL and Redis use their private connection URLs.
+In **frontend → Settings → Networking**, generate a Railway domain with target port **8080**. Keep the backend public domain on port **8000** for Django admin. Worker needs no public domain. PostgreSQL and Redis use their private connection URLs.
 
 ## 5. Enter the variables
 
@@ -132,7 +137,7 @@ The config files use `/health/live/` for backend and `/health/frontend/` for fro
 Now visit these paths on the **frontend's HTTPS domain**:
 
 - `/` — website loads.
-- `/admin/` — styled Django admin login loads.
+- Frontend `/admin/login` — React staff login loads. Django admin uses the backend domain's `/admin/`.
 - `/health/live/` — Django responds successfully.
 - `/health/ready/` — PostgreSQL, Redis and the worker are ready. Allow the worker its first cycle; a persistent 503 needs investigation.
 - `/login` — refreshing a frontend route loads the application.
@@ -151,7 +156,7 @@ python manage.py check --deploy --fail-level WARNING --settings=config.settings.
 python manage.py operational_status --settings=config.settings.production
 ```
 
-Use a new strong password and log in at `/admin/` with that username. Running `createsuperuser` in an ordinary local terminal would create the user in your local database instead. Do not bulk-copy local payment test records into production.
+Use a new strong password and log in at `/admin/` on the backend domain with that username. Running `createsuperuser` in an ordinary local terminal would create the user in your local database instead. Do not bulk-copy local payment test records into production.
 
 ## 7. Verify email and persistent uploads
 

@@ -22,42 +22,30 @@ import BookingCard from "./common/BookingCard";
 import Info from "./common/Info";
 import Preference from "./common/Preference";
 
-<<<<<<< HEAD
-const Dashboard = ({ user, onEditProfile }) => {
-  const [bookings, setBookings] = useState([]);
-  const [savedCount, setSavedCount] = useState(0);
-=======
 const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
   const { data: bookings } = useCollection("/bookings/", bookingCard);
->>>>>>> eb4fa6af2167688e8c6ab615a9bfd594875cc605
-
-
-
+  const { data: savedEvents } = useCollection('/saved-events/');
+  const [savedHotelCount, setSavedHotelCount] = useState(0);
+  const savedCount = savedEvents.length + savedHotelCount;
   useEffect(() => {
     const loadSavedCount = () => {
       try {
-        const savedEvents = JSON.parse(
-          sessionStorage.getItem("savedEvents") || "[]",
-        );
-
         const savedHotels = JSON.parse(
           sessionStorage.getItem("savedHotels") || "[]",
         );
 
-        setSavedCount(savedEvents.length + savedHotels.length);
+        setSavedHotelCount(savedHotels.length);
       } catch (error) {
         console.error("Error reading saved items:", error);
-        setSavedCount(0);
+        setSavedHotelCount(0);
       }
     };
 
     loadSavedCount();
 
-    window.addEventListener("savedEventsUpdated", loadSavedCount);
     window.addEventListener("savedHotelsUpdated", loadSavedCount);
 
     return () => {
-      window.removeEventListener("savedEventsUpdated", loadSavedCount);
       window.removeEventListener("savedHotelsUpdated", loadSavedCount);
     };
   }, []);

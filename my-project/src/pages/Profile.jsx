@@ -17,7 +17,6 @@ import SettingsSection from "../components/profile/SettingsSection";
 import Seo from "../components/seo/Seo";
 
 const Profile = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { logout } = useAuth();

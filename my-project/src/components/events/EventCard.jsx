@@ -1,16 +1,17 @@
 import { api } from "@/lib/api";
 import { useCollection } from "@/hooks/useApi";
 import toast from "react-hot-toast";
-import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Heart, MapPin } from "lucide-react";
-import { useSavedEvent } from "../../hooks/useSavedEvent";
+import { useAuth } from "../context/AuthContext";
 
 const EventCard = ({ event }) => {
-  const { data: savedEvents, reload } = useCollection('/saved-events/');
+  const { user } = useAuth();
+  const { data: savedEvents, reload } = useCollection(user ? '/saved-events/' : null);
   const isSaved = savedEvents.some(saved => saved.id === event.id);
   const handleSave = async e => {
     e.preventDefault(); e.stopPropagation();
+    if (!user) { toast.error('Please log in to save events.'); return; }
     try { await api('/saved-events/', { method: isSaved ? 'DELETE' : 'POST', body: { event: event.id } }); reload(); }
     catch (error) { toast.error(error.message); }
   };

@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 // import { useState } from "react";
 // import { Link } from "react-router-dom";
 // import { FiBookmark, FiMinus, FiPlus } from "react-icons/fi";
@@ -423,16 +423,13 @@
 // };
 
 // export default TicketCard;
-
-=======
 import { useEffect } from "react";
 import { api, allPages, money } from "@/lib/api";
 import toast from "react-hot-toast";
 import { useState } from "react";
->>>>>>> eb4fa6af2167688e8c6ab615a9bfd594875cc605
 import { Link } from "react-router-dom";
 import { FiBookmark, FiMinus, FiPlus } from "react-icons/fi";
-import { useSavedEvent } from "../../hooks/useSavedEvent";
+import { useAuth } from "../context/AuthContext";
 
 const TicketCard = ({
   tickets,
@@ -442,25 +439,26 @@ const TicketCard = ({
   event,
 }) => {
   const isFree = event?.text3?.toLowerCase() === "free";
-<<<<<<< HEAD
-  const { isSaved, toggleSaved } = useSavedEvent(event);
 
-  const tierData = [
-    { key: "regular", label: "Regular", price: event?.text3 || "N0" },
-    { key: "vip", label: "VIP", price: "N10,000" },
-    { key: "vvip", label: "VVIP", price: "N20,000" },
-  ];
-
-=======
+  const { user } = useAuth();
 
   const [isSaved, setIsSaved] = useState(false);
-  useEffect(() => { let active = true; allPages('/saved-events/').then(rows => { if (active) setIsSaved(rows.some(row => row.id === event.id)); }).catch(error => toast.error(error.message)); return () => { active = false; }; }, [event.id]);
+  useEffect(() => {
+    setIsSaved(false);
+    if (!user) return;
+    const controller = new AbortController();
+    allPages('/saved-events/', { signal: controller.signal })
+      .then(rows => { if (!controller.signal.aborted) setIsSaved(rows.some(row => row.id === event.id)); })
+      .catch(error => { if (!controller.signal.aborted) toast.error(error.message); });
+    return () => controller.abort();
+  }, [event.id, user]);
   const handleSaveEvent = async () => {
+    if (!user) { toast.error('Please log in to save events.'); return; }
     try { await api('/saved-events/', { method: isSaved ? 'DELETE' : 'POST', body: { event: event.id } }); setIsSaved(value => !value); }
     catch (error) { toast.error(error.message); }
   };
   const tierData = event.ticket_types.map(t => ({ key: t.id, label: t.name, price: Number(t.price) === 0 ? 'Free' : money(t.price) }));
->>>>>>> eb4fa6af2167688e8c6ab615a9bfd594875cc605
+
   const hasAnyTicket = Object.values(tickets).some((qty) => qty > 0);
 
   return (
@@ -559,16 +557,12 @@ const TicketCard = ({
 
       <div className="space-y-2 pt-2">
         <Link
-<<<<<<< HEAD
-          to={hasAnyTicket || isFree ? "/checkout" : "#"}
-          state={{ event, tickets }}
-=======
+
           to={hasAnyTicket ? "/checkout" : "#"}
           state={{
             event,
             tickets,
           }}
->>>>>>> eb4fa6af2167688e8c6ab615a9bfd594875cc605
           className="block"
           onClick={(e) => {
             if (!hasAnyTicket) e.preventDefault();
@@ -583,7 +577,7 @@ const TicketCard = ({
         </Link>
 
         <button
-          onClick={toggleSaved}
+          onClick={handleSaveEvent}
           className={`w-full border py-2.5 rounded-xl flex items-center justify-center space-x-2 cursor-pointer ${
             isSaved
               ? "border-orange-500 text-orange-600 bg-orange-50"
