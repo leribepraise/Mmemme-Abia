@@ -97,7 +97,8 @@
 // export default Profile;
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import SEO from "../components/SEO/SEO";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../components/context/AuthContext";
 import { useUser } from "../components/context/UserContext";
 
@@ -113,11 +114,14 @@ import Notifications from "../components/profile/Notifications";
 import SettingsSection from "../components/profile/SettingsSection";
 
 const Profile = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { user } = useUser();
 
-  const [activeSection, setActiveSection] = useState("Dashboard");
+  const [activeSection, setActiveSection] = useState(
+    location.state?.activeSection || "Dashboard",
+  );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Handle sidebar navigation
@@ -157,6 +161,10 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-[#F7F9F7]">
+      <SEO
+        title="My Profile | Mmemme Abia"
+        description="Manage your Mmemme Abia profile, bookings, tickets, saved items and account settings."
+      />
       {/* MOBILE HEADER */}
       <ProfileMobileHeader
         mobileMenuOpen={mobileMenuOpen}

@@ -2,8 +2,8 @@ import React from "react";
 
 const DiscoverHero = () => {
   return (
-    <section className="pt-20 md:pt-24 w-full overflow-hidden">
-      <div className="grid lg:grid-cols-2 gap-8 items-center py-4">
+    <section className="w-full overflow-hidden">
+      <div className="grid lg:grid-cols-2 gap-8 items-center">
         <div>
           <h1 className="text-4xl md:text-5xl font-bold leading-tight">
             <span className="text-[#48782E]">Discover Abia.</span>

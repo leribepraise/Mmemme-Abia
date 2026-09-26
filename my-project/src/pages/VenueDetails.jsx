@@ -11,14 +11,14 @@ export default function VenueDetails() {
 
   if (!hotel) {
     return (
-      <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8 text-center">
+      <div className="min-h-screen bg-[#F5F7F3] text-center">
         <p className="text-lg font-semibold">Hotel not found</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8">
+    <div className="min-h-screen bg-[#F5F7F3]">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Breadcrumb */}
         <div className="text-sm text-gray-500">Hotels &gt; {hotel.name}</div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 
 const BookingAlert = ({ hotel, bookingRef }) => {
@@ -42,18 +42,28 @@ const BookingAlert = ({ hotel, bookingRef }) => {
       <p className="text-sm font-semibold text-gray-600 md:text-base">
         We have sent the confirmation details to:
         <br />
-        <span className="font-bold text-gray-900">chioma.okafor@gmail.com</span>{" "}
-        &amp;{" "}
-        <span className="font-bold text-gray-900">+234 813 245 6789</span>
+        <span className="font-bold text-gray-900">
+          chioma.okafor@gmail.com
+        </span>{" "}
+        &amp; <span className="font-bold text-gray-900">+234 813 245 6789</span>
       </p>
 
       {/* Navigation Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
-        <NavLink to="/my-bookings" className="w-full sm:w-auto">
+        {/* <NavLink to="/my-bookings" className="w-full sm:w-auto">
           <button className="w-full cursor-pointer rounded-xl bg-[#F97316] px-6 py-3.5 text-sm font-extrabold text-white shadow-md transition hover:bg-[#ea580c] md:text-base">
             View My Bookings
           </button>
-        </NavLink>
+        </NavLink> */}
+        <Link
+          to="/profile"
+          className="w-full sm:w-auto"
+          state={{ activeSection: "My Bookings" }}
+        >
+          <button className="w-full cursor-pointer rounded-xl bg-[#F97316] px-6 py-3.5 text-sm font-extrabold text-white shadow-md transition hover:bg-[#ea580c] md:text-base">
+            View My Bookings
+          </button>
+        </Link>
 
         <NavLink to="/" className="w-full sm:w-auto">
           <button className="w-full cursor-pointer rounded-xl border-2 border-[#265F27] bg-transparent px-6 py-3.5 text-sm font-bold text-[#265F27] transition hover:bg-[#265F27] hover:text-white md:text-base">

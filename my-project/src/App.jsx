@@ -60,6 +60,25 @@ import CommunityPage from "./pages/CommunityPage";
 import GroupDetailPage from "./pages/GroupDetailPage";
 import CreatePostPage from "./pages/CreatePostPage";
 import PersonProfilePage from "./pages/PersonProfilePage";
+import AdminLogin from "../src/components/Admin/login/AdminLogin";
+import AdminForgotPassword from "./components/Admin/login/AdminForgotPassword";
+import AdminVerifyOtp from "./components/Admin/login/AdminVerifyOtp";
+import AdminLayout from "./components/Admin/layout/AdminLayout";
+import AdminDashboard from "./components/Admin/dashboard/AdminDashboard";
+import AdminUsers from "./components/Admin/users/AdminUsers";
+import AdminUserDetails from "./components/Admin/users/AdminUserDetails";
+import AdminOrganizers from "./components/Admin/organizers/AdminOrganizers";
+import AdminOrganizerDetails from "./components/Admin/organizers/details/AdminOrganizerDetails";
+import AdminEvents from "./components/Admin/events/AdminEvents";
+import AdminEventDetails from "./components/Admin/events/details/AdminEventDetails";
+import AdminEventReview from "./components/Admin/events/details/eventReviewPage/AdminEventReview";
+import AdminTourism from "./components/Admin/tourism/AdminTourism";
+import DestinationDetail from "./components/Admin/tourism/details/DestinationDetail";
+import AdminProperties from "./components/Admin/hotels/properties/AdminProperties";
+import PropertyDetail from "./components/Admin/hotels/properties/details/PropertyDetail";
+import AdminFood from "./components/Admin/food/AdminFood";
+import FoodVendorDetail from "./components/Admin/food/details/FoodVendorDetail";
+import AdminTransportDashboard from "./components/Admin/transport/AdminTransportDashboard";
 
 // /organizer/events/:id/edit needs the :id param handed to OrganizerEventForm
 // as the `editId` prop.
@@ -430,6 +449,39 @@ const App = () => {
     { path: "/login", element: <Login /> },
     { path: "/Signup", element: <SignUp /> },
     { path: "/Signup/onboarding", element: <Onboarding /> },
+    { path: "/admin/login", element: <AdminLogin /> },
+    { path: "/admin/forgot-password", element: <AdminForgotPassword /> },
+    { path: "/admin/verify-otp", element: <AdminVerifyOtp /> },
+  ];
+
+  // Pages shown inside the admin layout (sidebar + header + footer).
+  // Paths are relative to /admin, so "users" becomes /admin/users.
+  const adminRouter = [
+    { index: true, element: <AdminDashboard /> },
+    { path: "users", element: <AdminUsers /> },
+    { path: "users/:id", element: <AdminUserDetails /> },
+    { path: "organizers", element: <AdminOrganizers /> },
+    { path: "organizers/:id", element: <AdminOrganizerDetails /> },
+    { path: "events", element: <AdminEvents /> },
+    { path: "events/:id", element: <AdminEventDetails /> },
+    { path: "events/:id/review", element: <AdminEventReview /> },
+    { path: "tourism", element: <AdminTourism /> },
+    { path: "tourism/:id", element: <DestinationDetail /> },
+    { path: "hotels/properties", element: <AdminProperties /> },
+    { path: "hotels/properties/:id", element: <PropertyDetail /> },
+    { path: "food", element: <AdminFood /> },
+    { path: "food/:id", element: <FoodVendorDetail /> },
+    { path: "transport", element: <AdminTransportDashboard /> },
+    // add each new admin page here as we build it, for example:
+    // { path: "events", element: <AdminEvents /> },
+    {
+      path: "*",
+      element: (
+        <div className="p-6 text-sm text-slate-500">
+          This page isn't built yet.
+        </div>
+      ),
+    },
   ];
 
   const organizerRouter = [
@@ -460,7 +512,7 @@ const App = () => {
       <div className="min-h-screen bg-[#f5f7f3]">
         <div>
           <UserProvider>
-            <Routes>
+            {/* <Routes>
               <Route path="/" element={<Layout />}>
                 {navList.map((item, index) => (
                   <Route key={index} path={item.path} element={item.element} />
@@ -473,6 +525,41 @@ const App = () => {
                   element={item.element}
                 />
               ))}
+              {organizerRouter.map((item, index) => (
+                <Route
+                  key={`organizer-${index}`}
+                  path={item.path}
+                  element={item.element}
+                />
+              ))}
+            </Routes> */}
+
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                {navList.map((item, index) => (
+                  <Route key={index} path={item.path} element={item.element} />
+                ))}
+              </Route>
+
+              {authRouter.map((item, index) => (
+                <Route
+                  key={`auth-${index}`}
+                  path={item.path}
+                  element={item.element}
+                />
+              ))}
+
+              <Route path="/admin" element={<AdminLayout />}>
+                {adminRouter.map((item, index) => (
+                  <Route
+                    key={`admin-${index}`}
+                    index={item.index}
+                    path={item.path}
+                    element={item.element}
+                  />
+                ))}
+              </Route>
+
               {organizerRouter.map((item, index) => (
                 <Route
                   key={`organizer-${index}`}

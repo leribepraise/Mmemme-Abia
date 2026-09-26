@@ -5,7 +5,7 @@ import { IoArrowBack, IoArrowForward, IoPlay } from "react-icons/io5";
 const heroData = [
   {
     id: 1,
-    image: "/hero1.png",
+    image: "/hero1.jpg",
     title: "Hotel Oris Live Concert",
     date: "25th - 27th Oct, 2026",
     location: "Umueze Sports Arena, Umuahia",
@@ -15,7 +15,7 @@ const heroData = [
   },
   {
     id: 2,
-    image: "/hero2.png",
+    image: "/hero2.jpg",
     title: "St. Thomas Catholic Church 25th Anniversary",
     date: "13th - 14th Aug, 2026",
     location: "St Thomas Catholic Church, Umuahia",
@@ -25,7 +25,7 @@ const heroData = [
   },
   {
     id: 3,
-    image: "/hero3.png",
+    image: "/hero3.jpg",
     title: "Apostolic Invasion Grand Finale",
     date: "13th - 14th Sept, 2026",
     location: "Aba Mega Mall",
@@ -35,7 +35,7 @@ const heroData = [
   },
   {
     id: 4,
-    image: "/hero4.png",
+    image: "/hero4.jpg",
     title: "ABA The Gathering on n'abia",
     date: "23rd - 29th Oct, 2026",
     location: "Aba Mega Mall",
@@ -45,7 +45,7 @@ const heroData = [
   },
   {
     id: 5,
-    image: "/hero5.png",
+    image: "/hero5.jpg",
     title: "Techrise Cohort 3 by LearnFactory",
     date: "20th May - 21st Aug, 2026",
     location: "Hotel de la Poste, Aba",
@@ -55,7 +55,7 @@ const heroData = [
   },
   {
     id: 6,
-    image: "/hero6.png",
+    image: "/hero6.jpg",
     title: "Abia State Tech Conference",
     date: "2nd May - 4th Dec, 2026",
     location: "JMAC, Umuahia",
@@ -65,7 +65,7 @@ const heroData = [
   },
   {
     id: 7,
-    image: "/hero7.png",
+    image: "/hero7.jpg",
     title: "Techrise Alumni Homecoming",
     date: "Community Appreciation Walk - Umuahia Edition",
     location: "Umuahia, Abia State",
@@ -100,11 +100,11 @@ const Hero = () => {
 
     return () => clearInterval(interval);
   }, []);
-//   useEffect(() => {
-//   const nextIndex = slideIndex === heroData.length - 1 ? 0 : slideIndex + 1;
-//   const img = new Image();
-//   img.src = heroData[nextIndex].image;
-// }, [slideIndex]);
+  //   useEffect(() => {
+  //   const nextIndex = slideIndex === heroData.length - 1 ? 0 : slideIndex + 1;
+  //   const img = new Image();
+  //   img.src = heroData[nextIndex].image;
+  // }, [slideIndex]);
 
   return (
     <>
@@ -122,13 +122,13 @@ const Hero = () => {
             space-y-3 z-10
           "
         >
-          <h1 className="font-semibold text-[48px] leading-tight">
+          <h1 className="font-semibold text-3xl md:text-4xl lg:text-[48px] leading-tight">
             Discover. Experience. Celebrate
             <span className="text-[#3f783d]"> Abia</span>
             <span className="text-[#F46F1A]">.</span>
           </h1>
 
-          <p className="font-normal text-[18px] leading-tight">
+          <p className="font-normal text-sm md:text-base lg:text-[18px] leading-tight">
             Your go-to platform for discovering amazing events happening around
             Abia State and beyond.
           </p>
@@ -278,7 +278,7 @@ const Hero = () => {
 
             {/* BOTTOM INFORMATION */}
             <div className="text-white max-w-[400px]">
-              <h2 className="font-bold text-[25px] leading-tight">
+              <h2 className="font-bold text-xl md:text-[25px] leading-tight">
                 {currentSlide.title}
               </h2>
 

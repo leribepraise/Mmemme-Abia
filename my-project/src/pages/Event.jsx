@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import SEO from "../components/SEO/SEO";
 import FilterSidebar from "../components/events/FilterSidebar";
 import EventsTopBar from "../components/events/EventsTopBar";
 import EventGrid from "../components/events/EventGrid";
@@ -75,6 +76,10 @@ const Events = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f7f3] px-4 py-5 md:px-6">
+      <SEO
+        title="Events in Abia | Concerts, Festivals & Experiences | Mmemme"
+        description="Discover concerts, festivals, cultural events and exciting experiences happening across Abia State on Mmemme."
+      />
       <div className="mb-4">
         <h1 className="text-[25px] font-semibold">Explore Events</h1>
 

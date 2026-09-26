@@ -3,7 +3,7 @@ import { MapPin, Calendar, Users, Search } from "lucide-react";
 
 const HotelHero = () => {
   return (
-    <div className="pt-24 px-4 md:px-6">
+    <div className="px-4 md:px-6">
       <div
         className="rounded-3xl overflow-hidden p-6 md:p-12 text-white relative bg-cover bg-center"
         style={{ backgroundImage: "url('/hotel.png')" }}

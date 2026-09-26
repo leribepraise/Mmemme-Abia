@@ -1,4 +1,5 @@
 import React from "react";
+import SEO from "../components/SEO/SEO";
 import {
   Building,
   Gem,
@@ -78,9 +79,12 @@ export default function Hotel() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8 pt-24">
+    <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8">
+      <SEO
+        title="Hotels in Abia | Find Places to Stay | Mmemme"
+        description="Discover hotels, accommodations and places to stay across Abia State. Find the right place for your visit with Mmemme."
+      />
       <div className="max-w-7xl mx-auto space-y-8">
-        
         {/* Top Grid with Hero + Cards */}
         <div className="grid lg:grid-cols-12 gap-6">
           <div className="lg:col-span-9">
@@ -97,7 +101,9 @@ export default function Hotel() {
         <div className="grid lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-9 min-w-0">
             <div className="flex justify-between items-center mb-5">
-              <h2 className="font-bold text-xl text-gray-900">Browse By Category</h2>
+              <h2 className="font-bold text-xl text-gray-900">
+                Browse By Category
+              </h2>
               <button className="text-green-700 font-semibold text-sm hover:underline">
                 View all
               </button>
@@ -123,7 +129,9 @@ export default function Hotel() {
         {/* Full Width Top Hotels Section */}
         <div className="w-full">
           <div className="flex justify-between items-center mb-5">
-            <h2 className="font-bold text-xl text-gray-900">Top Hotels in Abia</h2>
+            <h2 className="font-bold text-xl text-gray-900">
+              Top Hotels in Abia
+            </h2>
             <button className="text-green-700 font-semibold text-sm hover:underline">
               View all hotels
             </button>
@@ -142,7 +150,9 @@ export default function Hotel() {
 
         {/* Quick Hotel Finder */}
         <div>
-          <h2 className="font-bold text-xl mb-5 text-gray-900">Quick Hotel Finder</h2>
+          <h2 className="font-bold text-xl mb-5 text-gray-900">
+            Quick Hotel Finder
+          </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {finder.map((item) => (
               <QuickFinderCard key={item.title} {...item} />
@@ -152,7 +162,6 @@ export default function Hotel() {
 
         {/* Help Choosing Banner */}
         <HelpChoosing />
-
       </div>
     </div>
   );

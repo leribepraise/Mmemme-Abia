@@ -51,11 +51,21 @@ const MobileNav = () => {
                   onClick={closeMenu}
                   className="flex items-center gap-2"
                 >
-                  <img
-                    src={user.profilePicture || "/user.png"}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
+                  <div className="h-7 w-7 overflow-hidden rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center">
+                    {user.profilePicture ? (
+                      <img
+                        src={user.profilePicture}
+                        alt={user.fullName || "User profile"}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-sm font-semibold text-[#3F783D]">
+                        {user.fullName
+                          ? user.fullName.charAt(0).toUpperCase()
+                          : "U"}
+                      </span>
+                    )}
+                  </div>
                   <span className="font-semibold text-sm">
                     {user.fullName || "My Profile"}
                   </span>

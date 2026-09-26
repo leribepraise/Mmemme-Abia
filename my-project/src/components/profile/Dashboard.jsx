@@ -273,6 +273,7 @@ import Preference from "./common/Preference";
 
 const Dashboard = ({ user, onEditProfile }) => {
   const [bookings, setBookings] = useState([]);
+  const [savedCount, setSavedCount] = useState(0);
 
   // Get bookings from sessionStorage
   useEffect(() => {
@@ -290,6 +291,35 @@ const Dashboard = ({ user, onEditProfile }) => {
         setBookings([]);
       }
     }
+  }, []);
+
+  useEffect(() => {
+    const loadSavedCount = () => {
+      try {
+        const savedEvents = JSON.parse(
+          sessionStorage.getItem("savedEvents") || "[]",
+        );
+
+        const savedHotels = JSON.parse(
+          sessionStorage.getItem("savedHotels") || "[]",
+        );
+
+        setSavedCount(savedEvents.length + savedHotels.length);
+      } catch (error) {
+        console.error("Error reading saved items:", error);
+        setSavedCount(0);
+      }
+    };
+
+    loadSavedCount();
+
+    window.addEventListener("savedEventsUpdated", loadSavedCount);
+    window.addEventListener("savedHotelsUpdated", loadSavedCount);
+
+    return () => {
+      window.removeEventListener("savedEventsUpdated", loadSavedCount);
+      window.removeEventListener("savedHotelsUpdated", loadSavedCount);
+    };
   }, []);
 
   // Get the user's selected plan
@@ -326,7 +356,7 @@ const Dashboard = ({ user, onEditProfile }) => {
             <div className="mt-1 flex flex-wrap gap-3 text-[10px] text-gray-200">
               <span className="flex items-center gap-1">
                 <MapPin size={11} />
-                Abia, Nigeria
+                {user?.address}, {user?.lga}
               </span>
 
               <span className="flex items-center gap-1">
@@ -362,7 +392,11 @@ const Dashboard = ({ user, onEditProfile }) => {
           label="Events Attended"
         />
 
-        <StatCard icon={<Heart size={17} />} number="0" label="Saved Places" />
+        <StatCard
+          icon={<Heart size={17} />}
+          number={savedCount}
+          label="Saved Places"
+        />
 
         <StatCard
           icon={<Users size={17} />}

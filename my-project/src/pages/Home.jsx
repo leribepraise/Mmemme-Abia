@@ -1,4 +1,5 @@
 import React from "react";
+import SEO from "../components/SEO/SEO";
 import Hero from "@/components/home/Hero";
 import SearchBar from "@/components/home/SearchBar";
 import Categories from "@/components/home/Categories";
@@ -12,6 +13,10 @@ import DisplayImage from "../components/home/DisplayImage";
 const Home = () => {
   return (
     <div>
+      <SEO
+        title="Mmemme Abia | Discover Events, Hotels & Experiences in Abia"
+        description="Discover events, hotels, food, tourism, transportation and exciting experiences across Abia State with Mmemme."
+      />
       <Hero />
       <SearchBar />
       <Categories />

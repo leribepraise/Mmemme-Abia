@@ -1,4 +1,5 @@
 import React from "react";
+import SEO from "../components/SEO/SEO";
 import {
   Calendar,
   Navigation,
@@ -83,7 +84,11 @@ export default function ExploreAbiaPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-16 pt-24 font-sans text-gray-800 md:pt-28">
+    <div className="min-h-screen bg-gray-50/50 pb-16 font-sans text-gray-800">
+      <SEO
+        title="Explore Abia Tourism | Destinations & Attractions | Mmemme"
+        description="Explore Abia State's tourist destinations, attractions, historical sites, caves, hills and unforgettable experiences with Mmemme."
+      />
       <div className="mx-auto max-w-[88rem] px-4 md:px-8">
         {/* TOP ROW: Enforced Alignment with items-stretch */}
         <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-12">
