@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import React from "react";
 import { CreditCard, Plus, MoreVertical } from "lucide-react";
 
@@ -11,7 +12,7 @@ const SavedCardsCard = () => {
 
         <div>
           <h3 className="font-bold text-base text-[#172033]">Saved Cards</h3>
-          <p className="text-sm text-gray-500">Your saved payment cards</p>
+          <p className="text-sm text-gray-500">Payments are handled securely by Paystack.</p>
         </div>
       </div>
 
@@ -24,22 +25,22 @@ const SavedCardsCard = () => {
 
             <div>
               <p className="text-sm font-semibold text-[#172033]">
-                Visa **** 4242
+                No saved card
               </p>
-              <p className="text-xs text-gray-400">Expires 04/28</p>
+              <p className="text-xs text-gray-400">Enter card details at checkout</p>
             </div>
 
             <span className="bg-[#EAF4EB] text-[#3F783D] text-xs font-semibold px-2 py-0.5 rounded-full">
-              Default
+              Not linked
             </span>
           </div>
 
-          <button className="text-gray-400 hover:text-gray-600">
+          <button onClick={() => toast("Add payment details securely on Paystack during checkout.")} className="text-gray-400 hover:text-gray-600">
             <MoreVertical className="w-4 h-4" />
           </button>
         </div>
 
-        <button className="w-full flex items-center gap-3 border border-dashed border-gray-300 rounded-lg px-4 py-3 hover:bg-gray-50 transition">
+        <button onClick={() => toast("Add payment details securely on Paystack during checkout.")} className="w-full flex items-center gap-3 border border-dashed border-gray-300 rounded-lg px-4 py-3 hover:bg-gray-50 transition">
           <div className="w-8 h-8 rounded-full bg-[#EAF4EB] flex items-center justify-center shrink-0">
             <Plus className="w-4 h-4 text-[#3F783D]" />
           </div>

@@ -1,8 +1,13 @@
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/components/context/AuthContext";
+import { api } from "@/lib/api";
 import React from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const OrderSummaryCard = ({
+  attendee,
   tickets = [],
   formatCurrency = (val) => `₦${val.toLocaleString()}`,
   event,
@@ -14,15 +19,28 @@ const OrderSummaryCard = ({
   );
 
   const hasAnyTicket = tickets.some((ticket) => (ticket.qty || 0) > 0);
-  const canProceed = isFree || hasAnyTicket;
+  const canProceed = hasAnyTicket;
 
-  const serviceFee = isFree ? 0 : 1250;
+  const serviceFee = 0;
   const total = subtotal + serviceFee;
 
-  const handleProceedClick = () => {
-    if (!canProceed) {
-      toast.error("Please select at least one ticket before proceeding.");
-    }
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const request = useRef(null);
+  const handleProceedClick = async () => {
+    if (busy) return;
+    if (!canProceed) { toast.error('Please select at least one ticket.'); return; }
+    if (!user.email_verified) { navigate('/verify-email'); return; }
+    if (!user.phone) { toast.error('Add your phone number in Profile settings before booking.'); return; }
+    const body = { kind: 'EVENT', items: tickets.filter(t => t.qty > 0).map(t => ({ id: t.id, quantity: t.qty })), customer_name: attendee?.fullName || user.fullName, customer_phone: user.phone, details: { attendee_email: attendee?.email || user.email, booking_for_someone_else: !!attendee?.buyingForSomeoneElse } };
+    const signature = JSON.stringify(body);
+    if (request.current?.signature !== signature) request.current = { signature, key: crypto.randomUUID() };
+    setBusy(true);
+    try {
+      const booking = await api('/bookings/', { method: 'POST', body, key: request.current.key });
+      navigate(booking.status === 'CONFIRMED' ? `/Paymentsuccess?booking=${booking.id}` : `/Payment?booking=${booking.id}`, { state: { event, tickets, attendee, booking } });
+    } catch (error) { toast.error(error.message); } finally { setBusy(false); }
   };
 
   return (
@@ -57,23 +75,11 @@ const OrderSummaryCard = ({
       </div>
 
       {/* ACTION BUTTON */}
-      <div className="mb-6" onClick={handleProceedClick}>
-        <Link
-          to={canProceed ? "/Payment" : "#"}
-          state={{
-            event,
-            tickets,
-            subtotal,
-            serviceFee,
-            total,
-            isFree,
-          }}
-          className="block"
-          onClick={(e) => {
-            if (!canProceed) e.preventDefault();
-          }}
-        >
+      <div className="mb-6">
+        <div className="block">
           <button
+            disabled={busy}
+            onClick={handleProceedClick}
             type="button"
             className={`w-full rounded-xl py-4 text-sm font-extrabold text-white shadow-md transition md:text-base ${
               canProceed
@@ -83,7 +89,7 @@ const OrderSummaryCard = ({
           >
             {isFree ? "Confirm Free Registration" : "Proceed to Payment"}
           </button>
-        </Link>
+        </div>
       </div>
 
       {!isFree && (

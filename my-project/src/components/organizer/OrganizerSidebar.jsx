@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutGrid,
@@ -11,10 +12,10 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-import { seedMessages } from "@/data/organizerData";
+import { useCollection } from "@/hooks/useApi";
 import { useAuth } from "@/components/context/AuthContext";
 
-const unreadCount = seedMessages.filter((m) => m.unread).length;
+
 
 const NAV_ITEMS = [
   { href: "/organizer/dashboard", icon: LayoutGrid, label: "Dashboard" },
@@ -22,7 +23,7 @@ const NAV_ITEMS = [
   { href: "/organizer/events/new", icon: PlusSquare, label: "Create Event" },
   { href: "/organizer/ticket-sales", icon: Ticket, label: "Ticket & Sales" },
   { href: "/organizer/attendees", icon: Users, label: "Attendees" },
-  { href: "/organizer/messages", icon: MessageSquare, label: "Messages", badge: unreadCount || null },
+  { href: "/organizer/messages", icon: MessageSquare, label: "Messages", badge: null },
   { href: "/organizer/analytics", icon: BarChart2, label: "Analytics" },
   { href: "/organizer/payouts", icon: CreditCard, label: "Payouts" },
   { href: "/organizer/settings", icon: Settings, label: "Settings" },
@@ -54,12 +55,13 @@ const NavItem = ({ href, icon: Icon, label, badge, active }) => (
 );
 
 export default function OrganizerSidebar() {
+  const { data: conversations } = useCollection("/conversations/");
+  const unreadCount = conversations.filter(row => row.unread).length;
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const handleLogout = () => {
-    logout();
-    navigate("/organizer/login");
+  const handleLogout = async () => {
+    try { await logout(); navigate("/organizer/login"); } catch (error) { toast.error(error.message); }
   };
   return (
     <aside
@@ -72,7 +74,7 @@ export default function OrganizerSidebar() {
         </Link>
         <nav className="space-y-1.5">
           {NAV_ITEMS.map((item) => (
-            <NavItem key={item.label} {...item} active={isActive(item.href, pathname)} />
+            <NavItem key={item.label} {...item} badge={item.label === "Messages" ? unreadCount : item.badge} active={isActive(item.href, pathname)} />
           ))}
         </nav>
       </div>

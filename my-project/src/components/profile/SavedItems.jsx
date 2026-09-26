@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+import { useCollection } from "@/hooks/useApi";
+import { api } from "@/lib/api";
+import { eventCard } from "@/lib/catalog";
+import toast from "react-hot-toast";
+>>>>>>> eb4fa6af2167688e8c6ab615a9bfd594875cc605
 import React, { useEffect, useState } from "react";
 import { Heart, MapPin, Trash2, Star } from "lucide-react";
 import { NavLink } from "react-router-dom";
@@ -5,17 +12,10 @@ import { NavLink } from "react-router-dom";
 import SectionHeader from "./common/SectionHeader";
 
 const SavedItems = () => {
-  const [savedEvents, setSavedEvents] = useState([]);
+  const { data: savedEvents, reload } = useCollection("/saved-events/", eventCard);
   const [savedHotels, setSavedHotels] = useState([]);
 
-  // Load saved events
-  const loadSavedEvents = () => {
-    const storedEvents = JSON.parse(
-      sessionStorage.getItem("savedEvents") || "[]",
-    );
-
-    setSavedEvents(storedEvents);
-  };
+  const loadSavedEvents = () => {};
 
   // Load saved hotels
   const loadSavedHotels = () => {
@@ -44,14 +44,9 @@ const SavedItems = () => {
   }, []);
 
   // Remove an event
-  const handleRemoveEvent = (eventId) => {
-    const updatedEvents = savedEvents.filter((event) => event.id !== eventId);
-
-    sessionStorage.setItem("savedEvents", JSON.stringify(updatedEvents));
-
-    setSavedEvents(updatedEvents);
-
-    window.dispatchEvent(new Event("savedEventsUpdated"));
+  const handleRemoveEvent = async eventId => {
+    try { await api('/saved-events/', { method: 'DELETE', body: { event: eventId } }); reload(); }
+    catch (error) { toast.error(error.message); }
   };
 
   // Remove a hotel

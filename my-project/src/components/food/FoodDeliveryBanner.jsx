@@ -15,13 +15,12 @@ const FoodDeliveryBanner = () => {
         <div>
           {/* Headline */}
           <h3 className="text-base font-extrabold text-[#265F27] md:text-xl">
-            Free Delivery on Orders ₦5,000 and above!
+            Order from local restaurants
           </h3>
 
           {/* Subtext */}
           <p className="mt-1 text-xs font-medium leading-relaxed text-gray-600 md:text-sm">
-            Enjoy tasty meals from your favorite vendors with fast and reliable
-            delivery.
+            Choose a dish from an available menu and collect your order from the restaurant.
           </p>
 
           {/* Pagination Indicators */}
@@ -34,7 +33,7 @@ const FoodDeliveryBanner = () => {
       </div>
 
       {/* Action Button */}
-      <button className="flex w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#265F27] px-6 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#1e4a1f] sm:w-auto md:text-base">
+      <button onClick={() => document.getElementById("available-dishes")?.scrollIntoView({ behavior: "smooth" })} className="flex w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#265F27] px-6 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#1e4a1f] sm:w-auto md:text-base">
         <span>Order Now</span>
         <ArrowRight className="h-4 w-4" />
       </button>

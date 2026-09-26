@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   MapPin,
@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 const FoodSearchBar = () => {
+  const [query, setQuery] = useState("");
   return (
     <div className="relative z-20 mx-3 -mt-4 md:mx-6 md:-mt-6">
       <div className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-xl md:p-5">
@@ -25,7 +26,7 @@ const FoodSearchBar = () => {
 
               <input
                 type="text"
-                placeholder="Search food or cuisine..."
+                value={query} onChange={event => setQuery(event.target.value)} placeholder="Search food or cuisine..."
                 className="w-full text-sm font-semibold text-gray-900 placeholder-gray-400 focus:outline-none md:text-base"
               />
             </div>
@@ -88,7 +89,7 @@ const FoodSearchBar = () => {
           </div>
 
           {/* Search Button */}
-          <NavLink to="/search">
+          <NavLink to={`/search?q=${encodeURIComponent(query)}`}>
             <button className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#F97316] py-3.5 text-sm font-extrabold text-white shadow-md transition hover:bg-[#ea580c] md:text-base">
               <Search className="h-5 w-5" />
               <span>Search Food</span>

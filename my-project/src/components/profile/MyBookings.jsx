@@ -1,3 +1,8 @@
+import { api } from '@/lib/api';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { useCollection } from "@/hooks/useApi";
+import { bookingCard } from "@/lib/catalog";
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
@@ -15,38 +20,20 @@ import {
 import SectionHeader from "./common/SectionHeader";
 
 const MyBookings = () => {
-  const [bookings, setBookings] = useState([]);
+  const navigate = useNavigate();
+  const [contacting, setContacting] = useState(false);
+  const contactProvider = async booking => {
+    if (contacting) return;
+    setContacting(true);
+    try { const conversation = await api('/conversations/', { method: 'POST', body: { booking: booking.id } }); navigate(`/message?conversation=${conversation.id}`); }
+    catch (error) { toast.error(error.message); }
+    finally { setContacting(false); }
+  };
+  const { data: bookings } = useCollection("/bookings/", bookingCard);
   const [activeType, setActiveType] = useState("All");
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilter, setShowFilter] = useState(false);
-
-  const loadBookings = () => {
-    const savedBookings = sessionStorage.getItem("bookings");
-
-    try {
-      const parsedBookings = savedBookings ? JSON.parse(savedBookings) : [];
-
-      if (Array.isArray(parsedBookings)) {
-        setBookings(parsedBookings);
-      } else {
-        setBookings([]);
-      }
-    } catch (error) {
-      console.error("Error reading bookings:", error);
-      setBookings([]);
-    }
-  };
-
-  useEffect(() => {
-    loadBookings();
-
-    window.addEventListener("bookingsUpdated", loadBookings);
-
-    return () => {
-      window.removeEventListener("bookingsUpdated", loadBookings);
-    };
-  }, []);
 
   const getBookingType = (booking) => {
     if (booking.type) {
@@ -101,19 +88,7 @@ const MyBookings = () => {
     return "N/A";
   };
 
-  const getDetailsLink = (booking) => {
-    const type = getBookingType(booking);
-
-    if (type === "event") {
-      return booking.eventId ? `/events/${booking.eventId}` : null;
-    }
-
-    if (type === "hotel") {
-      return booking.hotelId ? `/hotels/${booking.hotelId}` : null;
-    }
-
-    return null;
-  };
+  const getDetailsLink = booking => booking.status === 'Pending' ? `/Payment?booking=${booking.id}` : `/Paymentsuccess?booking=${booking.id}`;
 
   const filteredBookings = bookings.filter((booking) => {
     const type = getBookingType(booking);
@@ -363,6 +338,7 @@ const MyBookings = () => {
 
                   <button
                     type="button"
+                    title="Contact provider" aria-label="Contact provider" disabled={contacting} onClick={() => contactProvider(booking)}
                     className="flex h-8 w-8 items-center justify-center rounded border border-gray-200 text-gray-400 hover:bg-gray-50"
                   >
                     <MoreHorizontal size={15} />

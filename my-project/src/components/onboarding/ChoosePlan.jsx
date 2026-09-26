@@ -13,7 +13,7 @@ import {
 const ChoosePlan = ({ onNext, onBack }) => {
   const { register, handleSubmit, watch } = useForm({
     defaultValues: {
-      plan: "silver",
+      plan: "bronze",
     },
   });
 
@@ -71,15 +71,15 @@ const ChoosePlan = ({ onNext, onBack }) => {
     },
   ];
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const planNames = {
       bronze: "Bronze",
       silver: "Silver",
       diamond: "Diamond",
     };
 
-    onNext(data);
-    toast.success(`${planNames[data.plan]} plan selected!`);
+    try { await onNext(data); toast.success(`${planNames[data.plan]} plan selected!`); }
+    catch (error) { toast.error(error.message); }
   };
 
   return (

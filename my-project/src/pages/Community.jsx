@@ -1,3 +1,4 @@
+import Seo from "../components/seo/Seo";
 import React, { useState } from "react";
 import {
   Search,
@@ -14,7 +15,8 @@ const Community = () => {
   const tabs = ["For You", "Following", "Trending"];
 
   return (
-    <div className="min-h-screen bg-[#F6F7F3] pt-24 px-4 py-6 md:px-8 lg:px-12">
+    <div className="min-h-screen bg-[#F6F7F3] px-4 py-6 md:px-8 lg:px-12">
+      <Seo title="Community" description="Connect with other people exploring Abia State — share posts, follow trending topics, and join the conversation." path="/community" />
       <div className="mx-auto max-w-3xl">
         {/* HEADER SECTION */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

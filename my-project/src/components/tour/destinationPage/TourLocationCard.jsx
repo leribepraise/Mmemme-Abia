@@ -8,7 +8,7 @@ const TourLocationCard = ({ tour }) => {
 
       <div className="w-full h-32 rounded-lg overflow-hidden mb-3">
         <img
-          src={tour.mapImage}
+          src={tour.mapImage || undefined}
           alt="Map"
           className="w-full h-full object-cover"
         />

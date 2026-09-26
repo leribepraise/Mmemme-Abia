@@ -1,52 +1,13 @@
+import { useCollection } from "@/hooks/useApi";
 import React from "react";
 import RouteCard from "./RouteCard";
 
-const routes = [
-  {
-    image: "/first.png",
-    route: "Umuahia → Aba",
-    time: "30 mins (20 km)",
-    price: "1,500",
-    tag: "Most Popular",
-  },
-  {
-    image: "/first2.png",
-    route: "Umuahia → Owerri",
-    time: "1 hr 20 mins (61 km)",
-    price: "3,000",
-    tag: "Top Route",
-  },
-  {
-    image: "/first3.png",
-    route: "Aba → Port Harcourt",
-    time: "3 hrs (95 km)",
-    price: "4,000",
-    tag: "Popular",
-  },
-  {
-    image: "/first4.jpg",
-    route: "Umuahia → Enugu",
-    time: "1 hr (60 km)",
-    price: "2,500",
-    tag: "Popular",
-  },
-  {
-    image: "/first5.jpg",
-    route: "Aba → Umuahia",
-    time: "30 mins (20 km)",
-    price: "1,500",
-    tag: "Popular",
-  },
-  {
-    image: "/first6.jpg",
-    route: "Aba → Arochukwu",
-    time: "3 hrs (120 km)",
-    price: "1,500",
-    tag: "Popular",
-  },
-];
+
 
 const PopularRoutes = () => {
+  const { data: catalog } = useCollection('/transport-routes/');
+  const { data: departures } = useCollection('/departures/');
+  const routes = catalog.map(route => { const trips = departures.filter(d => d.route === route.id && d.quantity_available > 0); return { ...route, route: `${route.origin} → ${route.destination}`, image: '/first.png', time: route.pickup_address, price: trips.length ? Math.min(...trips.map(d => Number(d.price))).toLocaleString() : '—', tag: trips.length ? 'Available' : 'No departures' }; });
   return (
     <section className="space-y-4">
       <h2 className="font-bold text-xl">Popular Routes</h2>

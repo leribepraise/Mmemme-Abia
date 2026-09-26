@@ -1,7 +1,6 @@
 import React from "react";
 import { MdOutlineSecurity } from "react-icons/md";
-import { IoLocationOutline } from "react-icons/io5";
-import { IoTicketOutline } from "react-icons/io5";
+import { IoLocationOutline, IoTicketOutline } from "react-icons/io5";
 import { BiSupport } from "react-icons/bi";
 
 const WhyChose = () => {
@@ -31,18 +30,31 @@ const WhyChose = () => {
       color: "text-[#ff720c]",
     },
   ];
+
   return (
     <section className="my-10">
       <h1 className="font-bold text-[30px] text-center mb-5">
         Why Choose <span className="text-[#3C6E16]">Mmemme Abia</span>?
       </h1>
-      <div className="flex flex-col items-center md:grid md:grid-cols-2 md:place-items-center lg:grid lg:grid-cols-4 lg:gap-8 gap-5">
+
+      <div className="flex flex-col items-center md:grid md:grid-cols-2 md:place-items-center lg:grid-cols-4 lg:gap-8 gap-5">
         {reasons.map((reason) => (
-          <div className="h-[190px] w-full md:w-[300px] bg-[#FFFFFF] rounded-[15px] shadow-xl flex gap-[15px] justify-center items-center p-2">
-            <p className={`text-5xl ${reason.color}`}>{reason.icon}</p>
+          <div
+            key={reason.title}
+            className="h-[190px] w-full md:w-[300px] bg-white rounded-[15px] shadow-xl flex gap-[15px] justify-center items-center p-2"
+          >
+            <p className={`text-5xl ${reason.color}`}>
+              {reason.icon}
+            </p>
+
             <div>
-              <h2 className="font-bold text-[16px] mb-2">{reason.title}</h2>
-              <p className="font-normal text-[16px]">{reason.text}</p>
+              <h2 className="font-bold text-[16px] mb-2">
+                {reason.title}
+              </h2>
+
+              <p className="font-normal text-[16px]">
+                {reason.text}
+              </p>
             </div>
           </div>
         ))}

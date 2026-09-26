@@ -1,7 +1,10 @@
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import React from "react";
 import { Heart, Plus, Star } from "lucide-react";
 
 const DishCard = ({ dish }) => {
+  const navigate = useNavigate();
   return (
     <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden min-w-[220px] sm:min-w-[250px] lg:flex-1 shadow-sm hover:shadow-md transition group">
       {/* Image */}
@@ -12,7 +15,7 @@ const DishCard = ({ dish }) => {
           className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
         />
 
-        <button className="absolute top-2.5 right-2.5 bg-white/90 hover:bg-white rounded-full p-2 cursor-pointer shadow-sm transition">
+        <button aria-label="Save dish" onClick={() => toast("Saving dishes is not available yet.")} className="absolute top-2.5 right-2.5 bg-white/90 hover:bg-white rounded-full p-2 cursor-pointer shadow-sm transition">
           <Heart className="w-4 h-4 text-gray-600 hover:text-red-500 transition" />
         </button>
       </div>
@@ -34,7 +37,7 @@ const DishCard = ({ dish }) => {
             ₦{dish.price.toLocaleString()}
           </p>
 
-          <button className="w-8 h-8 bg-[#265F27] text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-[#1e4a1f] shadow-sm transition">
+          <button aria-label={`View ${dish.name} at restaurant`} onClick={() => navigate(`/fooddetail/${dish.restaurant}`)} className="w-8 h-8 bg-[#265F27] text-white rounded-full flex items-center justify-center cursor-pointer hover:bg-[#1e4a1f] shadow-sm transition">
             <Plus className="w-4 h-4" />
           </button>
         </div>

@@ -1,43 +1,19 @@
+import { useCollection } from '@/hooks/useApi';
 import React from "react";
 import DishCard from "./DishCard";
 
-const dishes = [
-  {
-    name: "Ofe Akwu Soup",
-    image: "/dish1.jpg",
-    rating: "4.8",
-    price: 2500,
-  },
-  {
-    name: "Jollof Rice & Chicken",
-    image: "/dish2.jpg",
-    rating: "4.7",
-    price: 2200,
-  },
-  {
-    name: "Pepper Soup",
-    image: "/dish3.jpg",
-    rating: "4.7",
-    price: 1800,
-  },
-  {
-    name: "Suya (Beef)",
-    image: "/dish4.jpg",
-    rating: "4.6",
-    price: 1500,
-  },
-];
-
 const TopDishes = () => {
+  const { data: menu } = useCollection('/menu-items/');
+  const dishes = menu.map(item => ({ ...item, price: Number(item.price), image: item.image || '/food1.jpg', rating: 'Not rated' }));
   return (
-    <section className="py-6">
+    <section id="available-dishes" className="py-6">
       {/* SECTION HEADER */}
       <div className="mb-5 flex items-center justify-between px-1">
         <h2 className="text-xl font-extrabold text-gray-900 md:text-3xl">
-          Top Dishes This Week
+          Available Dishes
         </h2>
 
-        <button className="text-base font-bold text-[#265F27] transition hover:underline md:text-lg">
+        <button onClick={() => document.getElementById("available-dishes")?.scrollIntoView({ behavior: "smooth" })} className="text-base font-bold text-[#265F27] transition hover:underline md:text-lg">
           View all dishes
         </button>
       </div>

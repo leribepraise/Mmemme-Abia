@@ -1,10 +1,80 @@
+
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- ============ CORE SEO ============ -->
+    <!-- This is the SITE-WIDE fallback for "/" and any route that hasn't
+         set its own <Seo> yet. Every real page now overrides this via the
+         <Seo> component in src/components/seo/Seo.jsx (see main.jsx for
+         the HelmetProvider wiring). -->
+    <title>Mmemme Abia | Events, Food, Transport & Tourism in Abia State</title>
+    <meta
+      name="description"
+      content="Mmemme Abia is your guide to Abia State — book events, order food from local restaurants, arrange transport and rides, find hotels, and explore tourism across Umuahia, Aba and beyond."
+    />
+    <meta
+      name="keywords"
+      content="Abia State, Umuahia, Aba, Nigeria events, Abia food delivery, Abia transport, Abia tourism, Abia hotels"
+    />
+    <meta name="author" content="Mmemme Abia" />
+
+    <!-- Set dynamically per route by <Seo>; this is just the "/" default. -->
+    <link rel="canonical" href="https://www.mmemme.com.ng/" />
+
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+
+    <!-- ============ VIEWPORT / MOBILE ============ -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>my-project</title>
+    <meta name="theme-color" content="#48782E" />
+
+    <!-- ============ FAVICON / ICONS ============ -->
+ 
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+
+    <!-- ============ OPEN GRAPH (Facebook, WhatsApp, LinkedIn, Slack) ============ -->
+   
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Mmemme Abia" />
+    <meta property="og:title" content="Mmemme Abia | Events, Food, Transport & Tourism in Abia State" />
+    <meta
+      property="og:description"
+      content="Book events, order food, arrange transport and discover Abia State — all in one place."
+    />
+    <meta property="og:url" content="https://www.mmemme.com.ng/" />
+    <meta property="og:image" content="https://www.mmemme.com.ng/logo.png" />
+    <meta property="og:locale" content="en_NG" />
+
+    <!-- ============ TWITTER / X CARD ============ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mmemme Abia | Events, Food, Transport & Tourism in Abia State" />
+    <meta
+      name="twitter:description"
+      content="Book events, order food, arrange transport and discover Abia State — all in one place."
+    />
+    <meta name="twitter:image" content="https://www.mmemme.com.ng/logo.png" />
+
+    <!-- ============ STRUCTURED DATA (JSON-LD) ============ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Mmemme Abia",
+        "url": "https://www.mmemme.com.ng/",
+        "logo": "https://www.mmemme.com.ng/logo.png",
+        "description": "A platform for events, food delivery, transport and tourism across Abia State, Nigeria.",
+        "areaServed": {
+          "@type": "State",
+          "name": "Abia State"
+        }
+      }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
   <body>
     <div id="root"></div>

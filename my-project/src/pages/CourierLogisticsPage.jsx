@@ -35,7 +35,7 @@ const features = [
 
 const CourierLogisticsPage = () => {
   return (
-    <div className="min-h-screen bg-[#f8f9fa] pt-24 pb-16 px-4 md:px-8 font-sans">
+    <div className="min-h-screen bg-[#f8f9fa] pb-16 px-4 md:px-8 font-sans">
       <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Breadcrumb Navigation */}

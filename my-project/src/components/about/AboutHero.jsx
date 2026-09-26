@@ -3,7 +3,7 @@ import React from "react";
 const AboutHero = () => {
   return (
     /* Outer wrapper compensates for fixed/absolute header clearance */
-    <div className="pt-20 md:pt-24 w-full">
+    <div className="w-full">
       <div
         className="relative rounded-3xl overflow-hidden h-[220px] md:h-[340px] bg-cover bg-center"
         style={{ backgroundImage: "url('/about-hero.jpg')" }}

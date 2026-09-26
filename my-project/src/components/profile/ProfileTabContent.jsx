@@ -48,7 +48,7 @@ const ProfileTabContent = () => {
     setSaved(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const result = profileSchema.safeParse(form);
 
     if (!result.success) {
@@ -69,10 +69,8 @@ const ProfileTabContent = () => {
     }
 
     setErrors({});
-    updateUser(result.data);
-    setSaved(true);
-
-    toast.success("Profile updated successfully!");
+    try { await updateUser(result.data); setSaved(true); toast.success("Profile updated successfully!"); }
+    catch (error) { toast.error(error.message); }
   };
 
   return (
@@ -139,7 +137,8 @@ const ProfileTabContent = () => {
           <input
             type="email"
             value={form.email || ""}
-            onChange={handleChange("email")}
+            readOnly
+            title="Contact support to change your verified email address."
             className={`w-full rounded-lg border px-4 py-3 text-sm outline-none focus:border-green-700 ${
               errors.email ? "border-red-500" : "border-gray-200"
             }`}

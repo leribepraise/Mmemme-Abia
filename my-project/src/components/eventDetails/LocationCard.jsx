@@ -1,6 +1,6 @@
 import { FiMapPin } from "react-icons/fi";
 
-const LocationCard = () => {
+const LocationCard = ({ event }) => {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-4">
       <h2 className="text-base font-bold text-slate-900">Location</h2>
@@ -19,12 +19,12 @@ const LocationCard = () => {
 
           <div>
             <h3 className="text-base font-bold text-slate-900">
-              Umueze Sports Arena
+              {event.venue}
             </h3>
 
-            <p className="text-sm text-slate-500 mb-1">Umuahia, Abia</p>
+            <p className="text-sm text-slate-500 mb-1">{event.address || event.text2}</p>
 
-            <button className="text-sm font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer">
+            <button onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address || event.venue)}`, "_blank", "noopener,noreferrer")} className="text-sm font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer">
               Get Directions
             </button>
           </div>

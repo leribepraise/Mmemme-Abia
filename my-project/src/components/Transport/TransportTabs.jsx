@@ -1,5 +1,6 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import toast from 'react-hot-toast';
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Car,
   Bus,
@@ -19,6 +20,9 @@ const tabs = [
 
 const TransportTabs = () => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [search, setSearch] = useState({ origin: '', destination: '', date: '', seats: '1' });
+  const field = name => ({ value: search[name], onChange: event => setSearch({ ...search, [name]: event.target.value }) });
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
@@ -29,6 +33,7 @@ const TransportTabs = () => {
             <Link
               key={to}
               to={to}
+              onClick={event => { if (to !== "/transport/shuttle") { event.preventDefault(); toast("Only scheduled shuttle bookings are available right now."); } }}
               className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
                 isActive
                   ? "bg-[#48782E] text-white"
@@ -43,26 +48,26 @@ const TransportTabs = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        <Input icon={MapPin} label="Pick-up Location" placeholder="Enter pickup location" />
-        <Input icon={MapPin} label="Destination" placeholder="Enter destination" />
-        <Input icon={CalendarDays} label="Date & Time" placeholder="Select date & time" />
-        <Input icon={Users} label="Passengers" placeholder="1 Passenger" />
+        <Input icon={MapPin} label="Pick-up Location" {...field("origin")} placeholder="Enter pickup location" />
+        <Input icon={MapPin} label="Destination" {...field("destination")} placeholder="Enter destination" />
+        <Input icon={CalendarDays} label="Date" type="date" {...field("date")} placeholder="Select date & time" />
+        <Input icon={Users} label="Passengers" type="number" min="1" max="6" {...field("seats")} placeholder="1 Passenger" />
 
-        <button className="bg-[#F97316] hover:bg-[#df5f18] text-white rounded-lg font-semibold h-12 self-end">
-          Search Ride
+        <button onClick={() => navigate(`/transport/shuttle?${new URLSearchParams(search)}`)} className="bg-[#F97316] hover:bg-[#df5f18] text-white rounded-lg font-semibold h-12 self-end">
+          Search Shuttles
         </button>
       </div>
     </div>
   );
 };
 
-const Input = ({ icon: Icon, label, placeholder }) => (
+const Input = ({ icon: Icon, label, placeholder, ...props }) => (
   <div className="border border-gray-200 rounded-lg px-3 py-2">
     <div className="flex items-center gap-2 text-xs text-gray-400 uppercase">
       <Icon className="w-3 h-3" />
       {label}
     </div>
-    <input placeholder={placeholder} className="w-full outline-none text-sm mt-1" />
+    <input {...props} placeholder={placeholder} className="w-full outline-none text-sm mt-1" />
   </div>
 );
 

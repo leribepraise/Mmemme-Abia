@@ -20,7 +20,7 @@ const PaymentSummary = ({ event, tickets, subtotal, serviceFee, total }) => {
           </h3>
 
           <p className="text-[10px] text-gray-500 mb-1">
-            Event date coming soon
+            {event?.date || "See booking details"}
           </p>
 
           <p className="text-[10px] text-gray-500 leading-tight">
@@ -30,7 +30,7 @@ const PaymentSummary = ({ event, tickets, subtotal, serviceFee, total }) => {
       </div>
 
       <div className="mb-6">
-        <h3 className="font-bold text-black text-sm mb-4">Tickets</h3>
+        <h3 className="font-bold text-black text-sm mb-4">Booking items</h3>
 
         <div className="space-y-3 text-sm font-semibold text-gray-600">
           {tickets

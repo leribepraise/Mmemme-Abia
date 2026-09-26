@@ -2,9 +2,10 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 
 const GuestGuard = ({ children }) => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, loading } = useAuth();
 
-  return isLoggedIn ? children : <Navigate to="/SignUp" replace />;
+  if (loading) return <p role="status">Loading your account...</p>;
+  return isLoggedIn ? children : <Navigate to="/login" replace />;
 };
 
 export default GuestGuard;

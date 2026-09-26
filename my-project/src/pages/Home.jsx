@@ -1,3 +1,4 @@
+import Seo from "@/components/seo/Seo";
 import React from "react";
 import SEO from "../components/SEO/SEO";
 import Hero from "@/components/home/Hero";
@@ -13,10 +14,7 @@ import DisplayImage from "../components/home/DisplayImage";
 const Home = () => {
   return (
     <div>
-      <SEO
-        title="Mmemme Abia | Discover Events, Hotels & Experiences in Abia"
-        description="Discover events, hotels, food, tourism, transportation and exciting experiences across Abia State with Mmemme."
-      />
+      <Seo title="Home" description="Mmemme Abia is your guide to Abia State — book events, order food, arrange transport and discover hotels and tourism across Umuahia, Aba and beyond." path="/" />
       <Hero />
       <SearchBar />
       <Categories />

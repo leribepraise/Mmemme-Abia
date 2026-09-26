@@ -10,8 +10,8 @@ const EventHighlights = ({ event }) => {
           <FiCalendar />
 
           <div>
-            <p>Event date coming soon</p>
-            <p>Time coming soon</p>
+            <p>{new Date(event.start_datetime).toLocaleDateString()}</p>
+            <p>{event.time}</p>
           </div>
         </div>
 
@@ -21,7 +21,7 @@ const EventHighlights = ({ event }) => {
           <div>
             <p>{event?.text2 || "Location unavailable"}</p>
 
-            <button className="text-green-700 text-sm">View on map</button>
+            <button onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address || event.venue)}`, "_blank", "noopener,noreferrer")} className="text-green-700 text-sm">View on map</button>
           </div>
         </div>
       </div>
@@ -34,11 +34,11 @@ const EventHighlights = ({ event }) => {
         <div>
           <p className="text-xs">Organized By</p>
 
-          <h3 className="font-semibold">All Africa Leaders</h3>
+          <h3 className="font-semibold">{event.organizer?.name}</h3>
         </div>
       </div>
 
-      <p className="text-lg">Get ready for an unforgettable event...</p>
+      <p className="text-lg">{event.description}</p>
     </div>
   );
 };

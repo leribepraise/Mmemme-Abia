@@ -14,9 +14,9 @@ const EventGallery = ({
         />
 
         <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-xl">
-          <span className="block text-sm font-bold text-orange-600">28</span>
+          <span className="block text-sm font-bold text-orange-600">{event.dateDay}</span>
 
-          <span className="block text-xs font-bold">OCT</span>
+          <span className="block text-xs font-bold">{event.dateMonth}</span>
         </div>
       </div>
 

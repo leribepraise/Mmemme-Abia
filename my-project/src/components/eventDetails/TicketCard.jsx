@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // import { useState } from "react";
 // import { Link } from "react-router-dom";
 // import { FiBookmark, FiMinus, FiPlus } from "react-icons/fi";
@@ -423,6 +424,12 @@
 
 // export default TicketCard;
 
+=======
+import { useEffect } from "react";
+import { api, allPages, money } from "@/lib/api";
+import toast from "react-hot-toast";
+import { useState } from "react";
+>>>>>>> eb4fa6af2167688e8c6ab615a9bfd594875cc605
 import { Link } from "react-router-dom";
 import { FiBookmark, FiMinus, FiPlus } from "react-icons/fi";
 import { useSavedEvent } from "../../hooks/useSavedEvent";
@@ -435,6 +442,7 @@ const TicketCard = ({
   event,
 }) => {
   const isFree = event?.text3?.toLowerCase() === "free";
+<<<<<<< HEAD
   const { isSaved, toggleSaved } = useSavedEvent(event);
 
   const tierData = [
@@ -443,6 +451,16 @@ const TicketCard = ({
     { key: "vvip", label: "VVIP", price: "N20,000" },
   ];
 
+=======
+
+  const [isSaved, setIsSaved] = useState(false);
+  useEffect(() => { let active = true; allPages('/saved-events/').then(rows => { if (active) setIsSaved(rows.some(row => row.id === event.id)); }).catch(error => toast.error(error.message)); return () => { active = false; }; }, [event.id]);
+  const handleSaveEvent = async () => {
+    try { await api('/saved-events/', { method: isSaved ? 'DELETE' : 'POST', body: { event: event.id } }); setIsSaved(value => !value); }
+    catch (error) { toast.error(error.message); }
+  };
+  const tierData = event.ticket_types.map(t => ({ key: t.id, label: t.name, price: Number(t.price) === 0 ? 'Free' : money(t.price) }));
+>>>>>>> eb4fa6af2167688e8c6ab615a9bfd594875cc605
   const hasAnyTicket = Object.values(tickets).some((qty) => qty > 0);
 
   return (
@@ -465,7 +483,7 @@ const TicketCard = ({
         <div className="space-y-3.5 divide-y divide-slate-100">
           {tierData.map((tier) => {
             const isEnabled = enabledTiers[tier.key];
-            const stepperDisabled = isFree || !isEnabled;
+            const stepperDisabled = !isEnabled;
 
             return (
               <div
@@ -477,10 +495,10 @@ const TicketCard = ({
 
                   <div className="flex items-center gap-3">
                     <p className="font-bold text-[18px]">
-                      {isFree ? "Free" : tier.price}
+                      {tier.price}
                     </p>
 
-                    {!isFree && (
+                    {true && (
                       <button
                         type="button"
                         onClick={() => toggleTier(tier.key)}
@@ -501,7 +519,7 @@ const TicketCard = ({
                 <div className="flex justify-between">
                   <p className="text-[12px] font-medium">
                     {isFree
-                      ? "Free entry — quantity fixed"
+                      ? "Choose the number of tickets"
                       : isEnabled
                         ? "Choose the number of tickets to buy"
                         : "Turn on to select this ticket type"}
@@ -521,7 +539,7 @@ const TicketCard = ({
                     </button>
 
                     <span className="px-2 text-sm font-bold">
-                      {tickets[tier.key]}
+                      {tickets[tier.key] || 0}
                     </span>
 
                     <button
@@ -541,15 +559,23 @@ const TicketCard = ({
 
       <div className="space-y-2 pt-2">
         <Link
+<<<<<<< HEAD
           to={hasAnyTicket || isFree ? "/checkout" : "#"}
           state={{ event, tickets }}
+=======
+          to={hasAnyTicket ? "/checkout" : "#"}
+          state={{
+            event,
+            tickets,
+          }}
+>>>>>>> eb4fa6af2167688e8c6ab615a9bfd594875cc605
           className="block"
           onClick={(e) => {
-            if (!hasAnyTicket && !isFree) e.preventDefault();
+            if (!hasAnyTicket) e.preventDefault();
           }}
         >
           <button
-            disabled={!hasAnyTicket && !isFree}
+            disabled={!hasAnyTicket}
             className="w-full bg-[#F46F1A] hover:bg-[#e05600] text-white font-bold py-3 rounded-xl cursor-pointer mb-2 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Buy Tickets
@@ -586,7 +612,7 @@ const TicketCard = ({
           />
         </div>
 
-        <p className="text-[12px] font-semibold">15.7k people are interested</p>
+        <p className="text-[12px] font-semibold">Book securely with Mmemme Abia</p>
       </div>
     </div>
   );

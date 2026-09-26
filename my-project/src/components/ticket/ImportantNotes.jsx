@@ -17,7 +17,7 @@ const ImportantNotes = () => {
 
         <li className="flex gap-3">
           <span className="text-[#F36B25]">•</span>
-          This ticket is non-transferable and non-refundable.
+          Check your booking’s cancellation policy before cancelling.
         </li>
 
         <li className="flex gap-3">

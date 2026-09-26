@@ -117,7 +117,7 @@ const Welcome = ({ userData }) => {
         {/* CLAIM GIFT */}
         <button
           type="button"
-          onClick={() => toast.success("10% off code copied: WELCOME10")}
+          onClick={() => toast("Welcome gifts are not available yet.")}
           className="mx-auto mt-4 flex h-8 w-full max-w-[540px] cursor-pointer items-center justify-center rounded-lg bg-[#F36B0A] text-[8px] font-semibold text-white transition hover:bg-[#DF5F06] active:scale-[0.99]"
         >
           Claim Gift
@@ -127,21 +127,8 @@ const Welcome = ({ userData }) => {
         <button
           type="button"
           onClick={() => {
-            const savedData = JSON.parse(sessionStorage.getItem("signupData"));
-
-            if (!savedData) {
-              toast.error("Something went wrong. Please sign up again.");
-              navigate("/signup");
-              return;
-            }
-
-            sessionStorage.setItem("user", JSON.stringify(savedData));
-
-            toast.success(
-              "Welcome to Mmemme Abia! Account created successfully.",
-            );
-
-            navigate("/login");
+            toast.success("Welcome! Verify your email before making a booking.");
+            navigate("/profile");
           }}
           className="mx-auto mt-3 block cursor-pointer text-[7px] font-medium text-gray-500 transition hover:text-[#3F783D]"
         >

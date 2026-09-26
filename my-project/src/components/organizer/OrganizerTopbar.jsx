@@ -1,3 +1,5 @@
+import { useCollection } from '@/hooks/useApi';
+import toast from 'react-hot-toast';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, ChevronDown, MessageSquare } from "lucide-react";
@@ -7,10 +9,13 @@ import { useAuth } from "@/components/context/AuthContext";
 
 export default function OrganizerTopbar() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [open, setOpen] = useState(false);
-  const organizer = load("mmemme-organizer", seedOrganizer);
-  const unreadMessages = seedMessages.filter((m) => m.unread).length;
+  const organizer = { avatar: (user?.fullName || user?.email || "").split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase() };
+  const { data: conversations } = useCollection("/conversations/");
+  const { data: notifications } = useCollection("/notifications/");
+  const unreadMessages = conversations.filter(row => row.unread).length;
+  const unreadNotifications = notifications.filter(row => !row.read_at).length;
 
   return (
     <div className="flex items-center gap-3 shrink-0" data-testid="topbar-organizer-utility">
@@ -29,12 +34,13 @@ export default function OrganizerTopbar() {
       </button>
       <button
         className="relative w-9 h-9 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center text-gray-500 hover:text-[#3F7D3D]"
+        onClick={() => navigate("/profile?section=Notifications")}
         aria-label="Notifications"
         data-testid="button-topbar-notifications"
       >
         <Bell className="w-4 h-4" />
         <span className="absolute -top-1 -right-1 bg-[#F36B25] text-white text-[9px] font-black min-w-[16px] h-[16px] flex items-center justify-center rounded-full px-1">
-          3
+          {unreadNotifications}
         </span>
       </button>
       <div className="relative">
@@ -60,7 +66,7 @@ export default function OrganizerTopbar() {
               Account Settings
             </button>
             <button
-              onClick={() => { setOpen(false); logout(); navigate("/organizer/login"); }}
+              onClick={async () => { try { await logout(); setOpen(false); navigate("/organizer/login"); } catch (error) { toast.error(error.message); } }}
               className="w-full text-left px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-50"
             >
               Log Out

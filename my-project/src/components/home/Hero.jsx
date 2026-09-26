@@ -1,7 +1,10 @@
+import { useCollection } from "@/hooks/useApi";
+import { eventCard } from "@/lib/catalog";
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { IoArrowBack, IoArrowForward, IoPlay } from "react-icons/io5";
 
+<<<<<<< HEAD
 const heroData = [
   {
     id: 1,
@@ -74,11 +77,16 @@ const heroData = [
     color: "#F46F1A",
   },
 ];
+=======
+
+>>>>>>> eb4fa6af2167688e8c6ab615a9bfd594875cc605
 
 const Hero = () => {
+  const { data: events } = useCollection('/events/', eventCard);
+  const heroData = events.length ? events.slice(0, 7).map(event => ({ ...event, title: event.text, date: new Date(event.start_datetime).toLocaleDateString(), location: event.venue, attendees: '', buttonText: 'Get Ticket', color: '#F46F1A' })) : [{ image: '/hero1.png', title: 'Explore events in Abia', date: '', location: '', attendees: '', buttonText: 'Explore Events', color: '#F46F1A' }];
   const [slideIndex, setSlideIndex] = useState(0);
 
-  const currentSlide = heroData[slideIndex];
+  const currentSlide = heroData[slideIndex % heroData.length];
 
   const nextSlide = () => {
     setSlideIndex((prevIndex) =>
@@ -99,12 +107,21 @@ const Hero = () => {
     }, 2000);
 
     return () => clearInterval(interval);
+<<<<<<< HEAD
   }, []);
   //   useEffect(() => {
   //   const nextIndex = slideIndex === heroData.length - 1 ? 0 : slideIndex + 1;
   //   const img = new Image();
   //   img.src = heroData[nextIndex].image;
   // }, [slideIndex]);
+=======
+  }, [heroData.length]);
+//   useEffect(() => {
+//   const nextIndex = slideIndex === heroData.length - 1 ? 0 : slideIndex + 1;
+//   const img = new Image();
+//   img.src = heroData[nextIndex].image;
+// }, [slideIndex]);
+>>>>>>> eb4fa6af2167688e8c6ab615a9bfd594875cc605
 
   return (
     <>

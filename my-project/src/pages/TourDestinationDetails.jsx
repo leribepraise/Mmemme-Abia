@@ -1,7 +1,8 @@
 import React from "react";
 import { useParams, NavLink } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { tours } from "../data/tours";
+import { useApi } from "@/hooks/useApi";
+import { tourCard } from "@/lib/catalog";
 import Breadcrumb from "../components/tour/categoryCardPages/historicalSitesPage/Breadcrumb";
 import TourDestinationHero from "../components/tour/destinationPage/TourDestinationHero";
 import TourDestinationInfo from "../components/tour/destinationPage/TourDestinationInfo";
@@ -11,12 +12,12 @@ import TourLocationCard from "../components/tour/destinationPage/TourLocationCar
 
 const TourDestinationDetails = () => {
   const { id } = useParams();
-  const tour = tours.find((t) => t.id === id);
+  const { data: tour, loading, error } = useApi(`/tourism/${id}/`, { map: tourCard });
 
   if (!tour) {
     return (
       <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8 text-center">
-        <p className="text-lg font-semibold">Destination not found</p>
+        <p className="text-lg font-semibold">{loading ? "Loading destination..." : error?.message || "Destination not found"}</p>
       </div>
     );
   }
@@ -28,7 +29,7 @@ const TourDestinationDetails = () => {
           <Breadcrumb items={["Home", "Tourism", "Destinations", tour.name]} />
 
           <NavLink
-            to="/explore"
+            to="/tourism"
             className="flex items-center gap-1 text-sm text-gray-500 hover:text-[#3F783D] transition"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -45,7 +46,7 @@ const TourDestinationDetails = () => {
           </div>
 
           <div className="w-full lg:w-80 shrink-0 space-y-5">
-            <TourPlanVisitCard />
+            <TourPlanVisitCard tour={tour} />
             <TourLocationCard tour={tour} />
           </div>
         </div>

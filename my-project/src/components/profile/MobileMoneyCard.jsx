@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import React from "react";
 import { Smartphone, MoreVertical } from "lucide-react";
 
@@ -12,7 +13,7 @@ const MobileMoneyCard = () => {
         <div>
           <h3 className="font-bold text-base text-[#172033]">Mobile Money</h3>
           <p className="text-sm text-gray-500">
-            Link your mobile money account for seamless payments.
+            Available payment methods are shown at Paystack checkout.
           </p>
         </div>
       </div>
@@ -27,11 +28,11 @@ const MobileMoneyCard = () => {
             <p className="text-sm font-semibold text-[#172033]">
               MTN Mobile Money
             </p>
-            <p className="text-xs text-gray-400">+234 812 245 6789</p>
+            <p className="text-xs text-gray-400">No account linked</p>
           </div>
         </div>
 
-        <button className="text-gray-400 hover:text-gray-600">
+        <button onClick={() => toast("Choose an available payment method at Paystack checkout.")} className="text-gray-400 hover:text-gray-600">
           <MoreVertical className="w-4 h-4" />
         </button>
       </div>

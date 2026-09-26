@@ -1,3 +1,4 @@
+import Seo from "../components/seo/Seo";
 import React from "react";
 import { Link } from "react-router-dom";
 import {
@@ -57,6 +58,7 @@ const festivalList = [
 export default function Blog() {
   return (
     <div className="min-h-screen bg-[#F6F7F3] text-gray-900 font-sans">
+      <Seo title="Blog" description="News, guides and stories about events, food, transport and life across Abia State." path="/blog" />
       {/* NAVBAR */}
       {/* BREADCRUMBS MATCHING SCREENSHOT */}
         <nav className="flex items-center gap-2 text-xs font-medium text-gray-500 mb-6">

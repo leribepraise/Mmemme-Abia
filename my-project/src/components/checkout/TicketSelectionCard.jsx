@@ -85,7 +85,7 @@
 //                     : formatCurrency(0)}
 //                 </span>
 
-//                 {!isFree && (
+//                 {true && (
 //                   <button
 //                     type="button"
 //                     onClick={() => updateQty(ticket.id, -ticket.qty)}
@@ -102,7 +102,7 @@
 //       </div>
 
 //       {/* ADD MORE TICKETS */}
-//       {!isFree && (
+//       {true && (
 //         <button
 //           type="button"
 //           className="flex cursor-pointer items-center gap-2 rounded-xl border border-[#265F27] px-4 py-2.5 text-sm font-extrabold text-[#265F27] transition hover:bg-green-50/60"
@@ -145,7 +145,7 @@ const TicketSelectionCard = ({
         {tickets.map((ticket) => {
           const itemTotal = ticket.qty > 0 ? ticket.basePrice * ticket.qty : 0;
           const isEnabled = enabledTiers[ticket.id];
-          const stepperDisabled = isFree || !isEnabled;
+          const stepperDisabled = !isEnabled;
 
           return (
             <div
@@ -164,7 +164,7 @@ const TicketSelectionCard = ({
                     </p>
                   </div>
 
-                  {!isFree && (
+                  {true && (
                     <button
                       type="button"
                       onClick={() => toggleTier(ticket.id)}

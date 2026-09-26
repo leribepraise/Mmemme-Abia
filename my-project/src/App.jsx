@@ -1,3 +1,6 @@
+import ShuttlePage from "./pages/ShuttlePage";
+import AccountAction from "./pages/AccountAction";
+import OrganizerGuard from "./components/OrganizerGuard";
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { NavLink } from "react-router-dom";
@@ -46,6 +49,7 @@ import OrganizerNotFound from "./pages/OrganizerNotFound";
 import { useParams, Navigate } from "react-router-dom";
 
 import { UserProvider } from "./components/context/UserContext";
+import { Toaster } from "@/components/ui/toaster";
 import ContactPage from "./pages/ContactPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import HistoricalSitesPage from "./pages/HistoricalSitesPage";
@@ -89,6 +93,7 @@ const OrganizerEventEditRoute = () => {
 
 const App = () => {
   const navList = [
+    { path: "/transport/shuttle", element: <GuestGuard><ShuttlePage /></GuestGuard> },
     {
       path: "/",
       element: (
@@ -446,6 +451,9 @@ const App = () => {
     },
   ];
   const authRouter = [
+    { path: "/verify-email", element: <AccountAction /> },
+    { path: "/reset-password", element: <AccountAction /> },
+    { path: "/payment/return", element: <GuestGuard><PaymentSuccessfulScreen /></GuestGuard> },
     { path: "/login", element: <Login /> },
     { path: "/Signup", element: <SignUp /> },
     { path: "/Signup/onboarding", element: <Onboarding /> },
@@ -529,7 +537,7 @@ const App = () => {
                 <Route
                   key={`organizer-${index}`}
                   path={item.path}
-                  element={item.element}
+                  element={item.path === "/organizer/login" || item.path === "/organizer" ? item.element : <OrganizerGuard>{item.element}</OrganizerGuard>}
                 />
               ))}
             </Routes> */}
@@ -571,6 +579,7 @@ const App = () => {
           </UserProvider>
         </div>
       </div>
+      <Toaster />
     </>
   );
 };

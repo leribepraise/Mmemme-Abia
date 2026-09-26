@@ -1,0 +1,13 @@
+venv
+.venv
+Abia
+.git
+.env
+.env.*
+!.env.example
+__pycache__
+*.sqlite3
+media
+staticfiles
+.idea
+

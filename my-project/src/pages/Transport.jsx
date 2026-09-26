@@ -1,3 +1,4 @@
+import Seo from "../components/seo/Seo";
 import React from "react";
 import SEO from "../components/SEO/SEO";
 import TranportHero from "../components/Transport/TransportHero";
@@ -10,10 +11,7 @@ import SafetyBanner from "../components/Transport/SafetyBanner";
 const Transport = () => {
   return (
     <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-6">
-      <SEO
-        title="Transport in Abia | Travel Around Abia | Mmemme"
-        description="Discover transportation options and travel information for moving around Abia State with Mmemme."
-      />
+      <Seo title="Transport & Rides in Abia State" description="Book a ride, rent a car, arrange event shuttles or send a package anywhere in Abia State." path="/transport" />
       <div className="max-w-7xl mx-auto space-y-6">
         <TranportHero />
         <TransportTabs />

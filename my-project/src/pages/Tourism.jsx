@@ -1,3 +1,4 @@
+import Seo from "../components/seo/Seo";
 import React from "react";
 import {
   IoSearchOutline,
@@ -48,7 +49,8 @@ const results = [
 
 const SearchResults = () => {
   return (
-    <div className="min-h-screen bg-[#f7f8f8] px-4 pt-24 pb-12 md:px-10 lg:px-16">
+    <div className="min-h-screen bg-[#f7f8f8] px-4 pb-12 md:px-10 lg:px-16">
+      <Seo title="Tourism in Abia State" description="Discover waterfalls, historical sites, nature and adventure spots to visit across Abia State." path="/tourism" />
       {/* SEARCH BAR */}
       <div className="mb-6 rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-[1.2fr_1fr_1fr_auto]">

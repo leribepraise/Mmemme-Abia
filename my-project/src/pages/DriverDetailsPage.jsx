@@ -29,7 +29,7 @@ export const DriverDetailsPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] pt-28 pb-16 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-[#f8f9fa] pb-16 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb Navigation */}
         <nav className="text-xs text-gray-400 mb-6 flex items-center space-x-1.5">

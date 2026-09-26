@@ -1,6 +1,6 @@
 import { FiUsers, FiMic, FiCoffee, FiShield } from "react-icons/fi";
 
-const AboutEvent = () => {
+const AboutEvent = ({ event }) => {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
       <h2 className="text-[20px] font-semibold text-slate-900 mb-6">
@@ -11,50 +11,50 @@ const AboutEvent = () => {
         <div className="flex flex-col items-center p-3 rounded-xl bg-slate-50">
           <FiUsers className="w-6 h-6 text-emerald-600 mb-1.5" />
           <span className="text-[18px] font-semibold text-[#000000]">
-            10k+
+            {event.capacity}
           </span>
           <span className="text-[16px] font-medium text-[#000000]">
-            Expected People
+            Capacity
           </span>
         </div>
 
         <div className="flex flex-col items-center p-3 rounded-xl bg-slate-50">
           <FiUsers className="w-6 h-6 text-emerald-600 mb-1.5" />
           <span className="text-[18px] font-semibold text-[#000000]">
-            10k+
+            {event.ticket_types.reduce((sum, t) => sum + t.quantity_available, 0)}
           </span>
           <span className="text-xs text-slate-500">
-            Expected People
+            Available tickets
           </span>
         </div>
 
         <div className="flex flex-col items-center p-3 rounded-xl bg-slate-50">
           <FiMic className="w-6 h-6 text-emerald-600 mb-1.5" />
           <span className="text-[18px] font-semibold text-[#000000]">
-            Live
+            {event.category}
           </span>
           <span className="text-xs text-slate-500">
-            Performances
+            Category
           </span>
         </div>
 
         <div className="flex flex-col items-center p-3 rounded-xl bg-slate-50">
           <FiCoffee className="w-6 h-6 text-emerald-600 mb-1.5" />
           <span className="text-[18px] font-semibold text-[#000000]">
-            Food & Drinks
+            {event.city}
           </span>
           <span className="text-xs text-slate-500">
-            Available
+            City
           </span>
         </div>
 
         <div className="flex flex-col items-center p-3 rounded-xl bg-slate-50 col-span-2 sm:col-span-1">
           <FiShield className="w-6 h-6 text-emerald-600 mb-1.5" />
           <span className="text-[18px] font-semibold text-[#000000]">
-            Secured
+            {event.organizer?.verified ? "Verified" : "Unverified"}
           </span>
           <span className="text-xs text-slate-500">
-            Environment
+            Provider
           </span>
         </div>
       </div>

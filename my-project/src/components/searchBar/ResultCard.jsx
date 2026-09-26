@@ -16,7 +16,7 @@ const ResultCard = ({ result }) => {
 
         {isEvent && (
           <span className="absolute top-2 left-2 bg-[#F97316] text-white text-[10px] font-bold px-2 py-1 rounded">
-            TOUR
+            EVENT
           </span>
         )}
       </div>
@@ -79,7 +79,7 @@ const ResultCard = ({ result }) => {
           <div className="flex items-center justify-between mt-3">
             {result.price === 0 ? (
               <span className="bg-[#EAF4EB] text-[#3F783D] text-xs font-semibold px-3 py-1 rounded-full">
-                Free Entry
+                {result.priceLabel || "Free Entry"}
               </span>
             ) : (
               <span className="font-bold text-[#172033]">

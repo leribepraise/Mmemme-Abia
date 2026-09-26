@@ -139,7 +139,7 @@ const HelpSupport = () => {
             </div>
 
             <p className="mt-1 pl-6 text-[12px] text-[#3D3E3E] font-medium">
-              hello@mmemmeabia.com
+              hello@mmemme.com.ng
             </p>
           </div>
 
