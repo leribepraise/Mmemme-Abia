@@ -18,4 +18,4 @@ const SEO = ({ title, description }) => {
   return null;
 };
 
-export default Seo;
+export default SEO;
