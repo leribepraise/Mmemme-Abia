@@ -13,81 +13,115 @@ const EVENTS_PER_PAGE = 9;
 
 const parsePrice = (text3) => {
   if (!text3) return 0;
-  if (text3.toLowerCase() === "free") return 0;
+
+  if (text3.toLowerCase() === "free") {
+    return 0;
+  }
+
   const digitsOnly = text3.replace(/[^0-9.]/g, "");
+
   return digitsOnly ? Number(digitsOnly) : 0;
 };
 
 const Events = () => {
-  const { data: eventss } = useCollection("/events/", eventCard);
-  const maxPrice = useMemo(
-    () => Math.max(...eventss.map((e) => parsePrice(e.text3)), 0),
-    [eventss],
-  );
+  const { data: events = [] } = useCollection("/events/", eventCard);
 
-  const [slider, setSlider] = useState(maxPrice);
-  useEffect(() => setSlider(maxPrice), [maxPrice]);
+  const maxPrice = useMemo(() => {
+    return Math.max(
+      ...events.map((event) => parsePrice(event.text3)),
+      0
+    );
+  }, [events]);
+
+  const [slider, setSlider] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+
   const [appliedFilters, setAppliedFilters] = useState({
     location: "All locations",
     date: "",
   });
+
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Keep the price slider's ceiling in sync if a newly published event
-  // changes what the highest ticket price is.
+  // Keep the price slider in sync with the highest available event price
   useEffect(() => {
     setSlider(maxPrice);
   }, [maxPrice]);
 
+  // Get unique event locations
   const locations = useMemo(() => {
-    const unique = new Set(events.map((e) => e.text2).filter(Boolean));
-    return Array.from(unique);
-  }, [eventss]);
+    const uniqueLocations = new Set(
+      events
+        .map((event) => event.text2)
+        .filter(Boolean)
+    );
 
+    return Array.from(uniqueLocations);
+  }, [events]);
+
+  // Apply search and filters
   const filteredEvents = useMemo(() => {
-    let result = events;
+    let result = [...events];
 
     if (searchTerm.trim()) {
       const query = searchTerm.toLowerCase();
+
       result = result.filter(
         (event) =>
           event.text?.toLowerCase().includes(query) ||
-          event.text2?.toLowerCase().includes(query),
+          event.text2?.toLowerCase().includes(query)
       );
     }
 
     if (appliedFilters.location !== "All locations") {
       result = result.filter(
-        (event) => event.text2 === appliedFilters.location,
+        (event) => event.text2 === appliedFilters.location
       );
     }
 
     if (appliedFilters.date) {
-      result = result.filter((event) => event.date === appliedFilters.date);
+      result = result.filter(
+        (event) => event.date === appliedFilters.date
+      );
     }
 
-    result = result.filter((event) => parsePrice(event.text3) <= slider);
+    result = result.filter(
+      (event) => parsePrice(event.text3) <= slider
+    );
 
     return result;
-  }, [eventss, searchTerm, appliedFilters, slider]);
+  }, [events, searchTerm, appliedFilters, slider]);
 
+  // Reset pagination whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [filteredEvents]);
+  }, [searchTerm, appliedFilters, slider]);
 
-  const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE);
+  const totalPages = Math.ceil(
+    filteredEvents.length / EVENTS_PER_PAGE
+  );
 
   const paginatedEvents = useMemo(() => {
     const start = (currentPage - 1) * EVENTS_PER_PAGE;
-    return filteredEvents.slice(start, start + EVENTS_PER_PAGE);
+
+    return filteredEvents.slice(
+      start,
+      start + EVENTS_PER_PAGE
+    );
   }, [filteredEvents, currentPage]);
 
   return (
     <div className="min-h-screen bg-[#f5f7f3] px-4 py-5 md:px-6">
-      <Seo title="Explore Events" description="Find and book concerts, business summits, festivals and more happening across Abia State." path="/events" />
+      <Seo
+        title="Explore Events"
+        description="Find and book concerts, business summits, festivals and more happening across Abia State."
+        path="/events"
+      />
+
       <div className="mb-4">
-        <h1 className="text-[25px] font-semibold">Explore Events</h1>
+        <h1 className="text-[25px] font-semibold">
+          Explore Events
+        </h1>
 
         <p className="text-[18px] text-[#3D3E3E]">
           Discover amazing events happening across Abia State.
