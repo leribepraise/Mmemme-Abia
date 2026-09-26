@@ -5,12 +5,12 @@ import SocialButtons from "./SocialButtons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "./validation/schemas/loginSchemas";
-import { NavLink } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const LoginForm = ({ onLogin }) => {
   const [inputType, setInputType] = useState("password");
-  const { toast } = useToast();
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -19,48 +19,26 @@ const LoginForm = ({ onLogin }) => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data) => {
-    const savedUser = JSON.parse(sessionStorage.getItem("user"));
-
-    if (!savedUser) {
-      toast({
-        title: "No account found",
-        description: "Sign up first, then come back to log in.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (
-      data.email === savedUser.email &&
-      data.password === savedUser.password
-    ) {
-      toast({
-        title: "Welcome back",
-        description: `Logged in as ${data.email}.`,
-      });
-      onLogin();
-    } else {
-      toast({
-        title: "Invalid email or password",
-        description: "Double check your details and try again.",
-        variant: "destructive",
-      });
-    }
   const onSubmit = async (data) => {
-    try { await onLogin(data); toast.success("Login successful!"); }
-    catch (error) { toast.error(error.message); }
+    try {
+      await onLogin(data);
+      toast.success("Login successful!");
+    } catch (error) {
+      toast.error(error.message || "Login failed. Please try again.");
+    }
   };
 
   const toggleVisibility = () => {
-    setInputType((prevType) => (prevType === "password" ? "text" : "password"));
+    setInputType((prevType) =>
+      prevType === "password" ? "text" : "password"
+    );
   };
 
   return (
     <div className="p-8 md:p-12 flex items-center">
       <div className="w-full">
         <div className="space-y-6">
-          <form onSubmit={handleSubmit(onSubmit)} action="">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <label className="block text-[14px] font-medium text-[#374151] mb-2">
                 Email Address
@@ -105,6 +83,7 @@ const LoginForm = ({ onLogin }) => {
                   />
                 )}
               </div>
+
               {errors.password && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.password.message}
@@ -120,21 +99,19 @@ const LoginForm = ({ onLogin }) => {
 
               <button
                 type="button"
-                onClick={() =>
-                  toast({
-                    title: "Check your email",
-                    description: "If an account matches, reset instructions are on the way.",
-                  })
-                }
-                onClick={() => window.location.assign("/reset-password")}
+                onClick={() => navigate("/reset-password")}
                 className="text-[#EF6C00] font-semibold hover:underline"
               >
                 Forgot Password?
               </button>
             </div>
 
-            <button disabled={isSubmitting} className="w-full bg-[#1B5E20] hover:bg-[#3d6626] text-white font-semibold py-3 rounded-[8px] transition cursor-pointer text-[14px]">
-              Log In
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-[#1B5E20] hover:bg-[#3d6626] text-white font-semibold py-3 rounded-[8px] transition cursor-pointer text-[14px] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? "Logging in..." : "Log In"}
             </button>
           </form>
 
@@ -148,10 +125,11 @@ const LoginForm = ({ onLogin }) => {
 
           <p className="text-center text-sm text-[#666666]">
             Don't have an account?{" "}
-            <NavLink to="/signup">
-              <button className="text-[#F36B25] font-semibold hover:underline">
-                Sign up
-              </button>
+            <NavLink
+              to="/signup"
+              className="text-[#F36B25] font-semibold hover:underline"
+            >
+              Sign up
             </NavLink>
           </p>
         </div>
