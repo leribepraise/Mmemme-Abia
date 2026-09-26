@@ -73,12 +73,24 @@ PAYSTACK_CALLBACK_URL=FRONTEND_URL+"/payment/return"
 PAYSTACK_SECRET_KEY=required("PAYSTACK_SECRET_KEY")
 if not PAYSTACK_SECRET_KEY.startswith(("sk_test_","sk_live_")):
     raise ImproperlyConfigured("Configure a Paystack secret key.")
-CORS_ALLOWED_ORIGINS=[x.strip() for x in os.getenv("CORS_ALLOWED_ORIGINS",FRONTEND_URL).split(",") if x.strip()]
-CSRF_TRUSTED_ORIGINS=CORS_ALLOWED_ORIGINS
-SESSION_COOKIE_SECURE=True
-CSRF_COOKIE_SECURE=True
-REFRESH_COOKIE_SECURE=True
-SECURE_SSL_REDIRECT=True
+CORS_ALLOWED_ORIGINS = [
+    x.strip()
+    for x in os.getenv("CORS_ALLOWED_ORIGINS", FRONTEND_URL).split(",")
+    if x.strip()
+]
+
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = "None"
+
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = "None"
+
+REFRESH_COOKIE_SECURE = True
+REFRESH_COOKIE_SAMESITE = "None"
 # Railway probes this non-sensitive endpoint over the container's HTTP port.
 SECURE_REDIRECT_EXEMPT=[r"^health/live/$"]
 SECURE_HSTS_SECONDS=31536000
