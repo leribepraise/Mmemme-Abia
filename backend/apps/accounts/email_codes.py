@@ -77,7 +77,8 @@ def complete_email_code(email, code, registration=None):
                 if registration is not None:
                     details = dict(registration)
                     password = details.pop("password")
-                    user = User(username="u_" + uuid.uuid4().hex, email_verified=True, **details)
+                    username = details.pop('username', 'u_' + uuid.uuid4().hex)
+                    user = User(username=username, email_verified=True, **details)
                     user.set_password(password)
                     user.save()
                 else:

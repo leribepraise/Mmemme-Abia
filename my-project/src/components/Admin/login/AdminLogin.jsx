@@ -1,3 +1,4 @@
+import { useAuth } from '@/components/context/AuthContext';
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -12,13 +13,14 @@ import logo from "/logo.png";
 import adminHero from "/admin-login-hero.png";
 
 const schema = z.object({
-  identifier: z.string().trim().min(1, "Enter your email or username"),
+  identifier: z.string().trim().email("Enter your email address"),
   password: z.string().min(1, "Enter your password"),
   remember: z.boolean().optional(),
 });
 
 const AdminLogin = () => {
   const navigate = useNavigate();
+  const {login} = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -30,12 +32,15 @@ const AdminLogin = () => {
     defaultValues: { identifier: "", password: "", remember: true },
   });
 
-  const onSubmit = async () => {
-    // TODO: replace with the real admin auth call once the Django backend is connected.
-    // This placeholder does NOT check credentials, so it is UI-only.
-    await new Promise((r) => setTimeout(r, 600));
-    toast.success("Welcome back, Admin");
-    navigate("/admin");
+  const onSubmit = async data => {
+    try {
+      const user = await login({email:data.identifier,password:data.password});
+      if (!user.is_staff) {toast.error('Administrator access is required.');return;}
+      navigate('/admin');
+    } catch(error) {
+      toast.error(error.message);
+      if(error.code === 'email_not_verified') navigate('/verify-email', {state:{email:data.identifier}});
+    }
   };
 
   const fieldBase =
@@ -81,9 +86,9 @@ const AdminLogin = () => {
             <div className="mt-8 flex items-center gap-2 text-sm">
               <ShieldCheck className="h-5 w-5 text-white" aria-hidden="true" />
               <span className="text-white/70">Secure</span>
-              <span aria-hidden="true">•</span>
+              <span aria-hidden="true">â€¢</span>
               <span>Trusted</span>
-              <span aria-hidden="true">•</span>
+              <span aria-hidden="true">â€¢</span>
               <span>Mmemme Abia</span>
             </div>
           </div>
@@ -110,7 +115,7 @@ const AdminLogin = () => {
                 htmlFor="identifier"
                 className="mb-1.5 block text-xs font-semibold text-slate-700"
               >
-                Email or Username
+                Email Address
               </label>
               <div
                 className={`${fieldBase} ${errors.identifier ? "border-red-400" : "border-slate-200"}`}
@@ -181,7 +186,7 @@ const AdminLogin = () => {
                 Remember me
               </label>
               <Link
-                to="/admin/forgot-password"
+                to="/reset-password"
                 className="font-semibold text-[#14481f] hover:underline"
               >
                 Forgot password?

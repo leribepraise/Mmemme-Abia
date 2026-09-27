@@ -70,7 +70,7 @@ def _validate_resources(kind, parent, resources, entries, details):
     owner = supplier_of(kind, parent)
     if not owner or not owner.is_active or not owner.is_verified:
         raise Conflict("This provider is not available for bookings.")
-    if (kind == "EVENT" and (parent.status != "PUBLISHED" or parent.start_datetime <= now)) or (kind != "EVENT" and not parent.is_active):
+    if (kind == "EVENT" and (parent.status != "PUBLISHED" or parent.is_suspended or parent.start_datetime <= now)) or (kind != "EVENT" and not parent.is_active):
         raise Conflict("This listing is not available for bookings.")
     for entry in entries:
         r = resources[str(entry["id"])]
@@ -194,7 +194,7 @@ def still_deliverable(booking,parent):
     owner=supplier_of(booking.kind,parent)
     if not owner or not owner.is_active or not owner.is_verified: return False
     now=timezone.now()
-    if booking.kind=="EVENT": return parent.status=="PUBLISHED" and parent.start_datetime>now
+    if booking.kind=="EVENT": return parent.status=="PUBLISHED" and not parent.is_suspended and parent.start_datetime>now
     if not parent.is_active: return False
     if booking.kind=="HOTEL": return booking.details["check_in"]>=str(timezone.localdate())
     if booking.kind=="TRANSPORT": return booking.items.first().departure.departs_at>now

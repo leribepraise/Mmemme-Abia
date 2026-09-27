@@ -7,6 +7,7 @@ export default function EmailCodeForm({ email, onVerify, onResend, onBack, submi
   const [deadline, setDeadline] = useState(() => Date.now() + 60000);
   const [seconds, setSeconds] = useState(60);
   const working = useRef(false);
+  const inputs = useRef([]);
   useEffect(() => {
     const update = () => setSeconds(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)));
     update();
@@ -36,11 +37,13 @@ export default function EmailCodeForm({ email, onVerify, onResend, onBack, submi
   };
   return <form className="space-y-5" onSubmit={event => { event.preventDefault(); void run(false); }}>
     <p className="text-sm text-[#6B7280]">Enter the six-digit code sent to <strong>{email}</strong>.{submitLabel === 'Verify and create account' && ' Your account is created only after verification.'}</p>
-    <label className="block text-sm font-medium text-[#374151]">Email verification code
-      <input required type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} value={code} onChange={event => setCode(event.target.value.replace(/[^0-9]/g, ''))} className="mt-2 w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#48782E]" />
-    </label>
+    <fieldset><legend className="sr-only">Email verification code</legend><div className="flex justify-between gap-2">{Array.from({length:6},(_,index)=><input key={index} ref={node=>{inputs.current[index]=node;}} aria-label={`Code digit ${index+1}`} required type="text" inputMode="numeric" autoComplete={index===0?'one-time-code':'off'} pattern="[0-9]" maxLength={6} value={code[index]||''} disabled={busy} onChange={event=>{
+      const digits=event.target.value.replace(/[^0-9]/g,'');
+      if(digits.length>1){setCode(digits.slice(0,6));inputs.current[Math.min(digits.length,5)]?.focus();return;}
+      const next=Array.from({length:6},(_,i)=>code[i]||' ');next[index]=digits||' ';setCode(next.join('').trimEnd());if(digits)inputs.current[Math.min(index+1,5)]?.focus();
+    }} onPaste={event=>{const digits=event.clipboardData.getData('text').replace(/[^0-9]/g,'').slice(0,6);if(digits){event.preventDefault();setCode(digits);inputs.current[Math.min(digits.length,5)]?.focus();}}} onFocus={event=>event.target.select()} onKeyDown={event=>{if(event.key==='Backspace'&&!code[index])inputs.current[Math.max(0,index-1)]?.focus();if(event.key==='ArrowLeft')inputs.current[Math.max(0,index-1)]?.focus();if(event.key==='ArrowRight')inputs.current[Math.min(5,index+1)]?.focus();}} className="h-14 min-w-0 w-14 rounded-xl border border-gray-200 bg-white text-center text-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-700"/>)}</div></fieldset>
     <p role="status" className="text-sm">{message}</p>
-    <button disabled={busy || code.length !== 6} className="w-full bg-[#F97316] hover:bg-[#df5f18] text-white text-sm font-medium py-3 rounded-lg disabled:opacity-50">{busy ? 'Please wait...' : submitLabel}</button>
+    <button disabled={busy || !/^[0-9]{6}$/.test(code)} className="w-full bg-[#1d5027] hover:bg-[#174a20] text-white text-sm font-medium py-3 rounded-lg disabled:opacity-50">{busy ? 'Please wait...' : submitLabel+' →'}</button>
     <button type="button" disabled={busy || seconds > 0} onClick={() => void run(true)} className="text-[#48782E] text-sm disabled:opacity-50">{seconds > 0 ? `Resend code in ${seconds}s` : 'Resend code'}</button>
     <button type="button" disabled={busy} onClick={onBack} className="block text-[#48782E] text-sm">Change details</button>
   </form>;

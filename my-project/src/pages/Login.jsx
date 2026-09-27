@@ -11,8 +11,8 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (credentials) => {
-    await login(credentials);
-    navigate("/");
+    const user = await login(credentials);
+    navigate(user.onboarding_completed_at ? "/dashboard" : "/Signup/onboarding");
   };
   return (
     <div className="min-h-screen bg-[#F5F7F3] px-5 py-8 md:px-12">

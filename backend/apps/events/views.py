@@ -20,7 +20,7 @@ class EventViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = Event.objects.select_related("organizer","organizer__organizer_profile").prefetch_related("ticket_types")
         if self.action in {"list","retrieve"}:
-            qs = qs.filter(status="PUBLISHED",organizer__is_active=True,organizer__is_verified=True)
+            qs = qs.filter(status="PUBLISHED",is_suspended=False,organizer__is_active=True,organizer__is_verified=True)
             if self.action=="list": qs=qs.filter(end_datetime__gt=timezone.now())
         elif not self.request.user.is_staff:
             qs = qs.filter(organizer=self.request.user)
@@ -73,23 +73,16 @@ class EventViewSet(viewsets.ModelViewSet):
         audit(request.user,"event.submitted",event.pk)
         return Response(self.get_serializer(event).data)
     @action(detail=True,methods=["post"])
-    @transaction.atomic
     def approve(self,request,pk=None):
-        if not request.user.has_perm("events.change_event"): raise PermissionDenied()
-        event=Event.objects.select_for_update().get(pk=self.get_object().pk)
-        if event.status!="IN_REVIEW" or not event.organizer.is_verified or event.start_datetime<=timezone.now():
-            raise Conflict("This event cannot be approved.")
-        event.status="PUBLISHED"; event.save(update_fields=["status","updated_at"])
-        audit(request.user,"event.approved",event.pk)
+        from .moderation import moderate_event
+        from apps.accounts.admin_api import reason_from
+        event = moderate_event(request.user, self.get_object().pk, 'approve', reason_from(request))
         return Response(self.get_serializer(event).data)
     @action(detail=True,methods=["post"])
-    @transaction.atomic
     def reject(self,request,pk=None):
-        if not request.user.has_perm("events.change_event"): raise PermissionDenied()
-        event=Event.objects.select_for_update().get(pk=self.get_object().pk)
-        if event.status!="IN_REVIEW": raise Conflict("Only submitted events can be rejected.")
-        event.status="REJECTED"; event.save(update_fields=["status","updated_at"])
-        audit(request.user,"event.rejected",event.pk)
+        from .moderation import moderate_event
+        from apps.accounts.admin_api import reason_from
+        event = moderate_event(request.user, self.get_object().pk, 'reject', reason_from(request))
         return Response(self.get_serializer(event).data)
     @action(detail=True,methods=["post"])
     @transaction.atomic

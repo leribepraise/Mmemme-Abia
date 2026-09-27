@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from '@/components/context/AuthContext';
 import AdminHeader from "./AdminHeader";
 import AdminSidebar from "./AdminSidebar";
 import AdminFooter from "./AdminFooter";
 
 const AdminLayout = () => {
+  const {user, loading} = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { pathname } = useLocation();
 
@@ -13,6 +15,9 @@ const AdminLayout = () => {
     setSidebarOpen(false);
   }, [pathname]);
 
+  if (loading) return <p role="status" className="p-8">Loading your account…</p>;
+  if (!user) return <Navigate to="/admin/login" replace/>;
+  if (!user.is_staff) return <div role="alert" className="p-8">Administrator access is required.</div>;
   return (
     <div className="min-h-screen bg-[#f3f6f1] text-slate-800">
       <AdminHeader onMenuClick={() => setSidebarOpen(true)} />

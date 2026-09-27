@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
 from django.db import transaction
+from django.utils import timezone
 from django.middleware.csrf import get_token
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
@@ -54,6 +55,7 @@ class LoginView(PublicAuthView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
         refresh = RefreshToken.for_user(user)
+        refresh['session_version'] = user.session_version
         audit(user,"account.login",user.pk)
         return set_refresh(Response({"access":str(refresh.access_token),"user":UserSerializer(user).data,"csrf_token":get_token(request)}),refresh)
 
@@ -70,6 +72,8 @@ class RefreshView(PublicAuthView):
             user=User.objects.select_for_update(no_key=True).get(pk=parsed["user_id"],is_active=True)
             if not user.email_verified:
                 raise InvalidToken("Verify your email before continuing.")
+            if parsed.get('session_version', 0) != user.session_version:
+                raise InvalidToken('This refresh session has been revoked.')
             outstanding=OutstandingToken.objects.select_for_update().get(jti=parsed["jti"],user=user)
             if BlacklistedToken.objects.filter(token=outstanding).exists() or parsed.get("hash_password")!=get_md5_hash_password(user.password):
                 raise InvalidToken("This refresh session has been revoked.")
@@ -95,6 +99,19 @@ class MeView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     http_method_names = ["get","patch","head","options"]
     def get_object(self): return self.request.user
+
+class CompleteOnboardingView(APIView):
+    @transaction.atomic
+    def post(self, request):
+        user = User.objects.select_for_update().get(pk=request.user.pk)
+        missing = {field: 'Complete this field before continuing.' for field in ['phone', 'lga', 'address', 'gender'] if not getattr(user, field).strip()}
+        if missing:
+            raise serializers.ValidationError(missing)
+        if not user.onboarding_completed_at:
+            user.onboarding_completed_at = timezone.now()
+            user.save(update_fields=['onboarding_completed_at', 'updated_at'])
+            audit(user, 'account.onboarded', user.pk)
+        return Response(UserSerializer(user).data)
 
 @method_decorator(csrf_protect,name="dispatch")
 class VerifyEmailView(PublicAuthView):
@@ -165,6 +182,8 @@ class OrganizerApplicationView(APIView):
             raise serializers.ValidationError("Your organizer account is already approved.")
         serializer = OrganizerSerializer(profile,data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user,status="PENDING")
+        serializer.validated_data.pop('accept_terms')
+        serializer.save(user=request.user,status="PENDING",review_note='',reviewed_by=None,reviewed_at=None,
+                        terms_accepted_at=timezone.now(), terms_version='2026-09')
         audit(request.user,"organizer.applied",request.user.pk)
         return Response(serializer.data,status=201)

@@ -29,11 +29,24 @@ class AccountAdmin(UserAdmin):
     def has_add_permission(self,request): return request.user.is_superuser
     def has_delete_permission(self,request,obj=None): return False
 
+    @transaction.atomic
+    def save_model(self, request, obj, form, change):
+        if change:
+            original = User.objects.select_for_update().get(pk=obj.pk)
+            if original.is_active != obj.is_active:
+                obj.session_version = original.session_version + 1
+                from apps.accounts.services import revoke_tokens
+                revoke_tokens(original)
+                audit(request.user, 'account.activated' if obj.is_active else 'account.suspended', obj.pk, reason='Updated in Django administration')
+        super().save_model(request, obj, form, change)
+
 @admin.register(OrganizerProfile)
 class OrganizerAdmin(admin.ModelAdmin):
     list_display=("business_name","user","status","reviewed_at")
     readonly_fields=("user","business_name","description","contact_phone","verification_reference","status","reviewed_by","reviewed_at","created_at")
-    actions=["approve","reject"]
+    actions=["approve"]
+    def get_readonly_fields(self, request, obj=None):
+        return [f.name for f in self.model._meta.fields]
     def has_add_permission(self,request): return False
     def has_delete_permission(self,request,obj=None): return False
     @admin.action(description="Approve selected organizer applications",permissions=["change"])
@@ -41,20 +54,13 @@ class OrganizerAdmin(admin.ModelAdmin):
     @admin.action(description="Reject selected organizer applications",permissions=["change"])
     def reject(self,request,queryset): self.review(request,queryset,"REJECTED")
     def review(self,request,queryset,status):
-        for pk in queryset.values_list("pk",flat=True):
-            with transaction.atomic():
-                original=OrganizerProfile.objects.get(pk=pk)
-                user=User.objects.select_for_update().get(pk=original.user_id)
-                profile=OrganizerProfile.objects.select_for_update().get(pk=pk)
-                if profile.status!="PENDING": continue
-                if status=="APPROVED" and not user.email_verified: continue
-                profile.status=status;profile.reviewed_by=request.user;profile.reviewed_at=timezone.now()
-                profile.save(update_fields=["status","reviewed_by","reviewed_at"])
-                if status=="APPROVED":
-                    user.role="ORGANIZER";user.is_verified=True;user.save(update_fields=["role","is_verified"])
-                audit(request.user,"organizer."+status.lower(),user.pk)
-                from apps.notifications.services import notify
-                notify(user,f"organizer:{profile.pk}:{profile.reviewed_at}","Organizer application update",f"Your organizer application is {status.lower()}.")
+        from apps.accounts.administration import review_organizer
+        from rest_framework.exceptions import APIException
+        for pk in queryset.values_list('pk', flat=True):
+            try:
+                review_organizer(request.user, pk, status)
+            except APIException as exc:
+                self.message_user(request, str(exc.detail), level='ERROR')
 
 @admin.register(EventReview)
 class ReviewAdmin(admin.ModelAdmin):

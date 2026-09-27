@@ -32,7 +32,7 @@ export default function OrganizerLogin() {
       const user = await login({ email, password });
       if (!user.is_staff && !(user.role === 'ORGANIZER' && user.is_verified)) {
         hotToast.error('Your provider account needs approval before you can manage events.');
-        navigate('/profile'); return;
+        navigate('/organizer/apply'); return;
       }
       navigate('/organizer/dashboard');
     } catch (error) {
@@ -201,7 +201,7 @@ export default function OrganizerLogin() {
                     onClick={() =>
                       toast({
                         title: "Coming soon",
-                        description: "Organizer registration isn't open yet — check back shortly.",
+                        description: "Organizer registration isn't open yet â€” check back shortly.",
                       })
                     }
                     className="text-[#F36B25] font-semibold hover:underline inline-flex items-center gap-1"

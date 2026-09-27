@@ -10,8 +10,9 @@ import { signupSchema } from "./validation/schemas/signupSchema";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import EmailCodeForm from '../EmailCodeForm';
+import VerificationScreen from '../VerificationScreen';
 
-const SignUpForm = () => {
+const SignUpForm = ({onChallenge = () => {}}) => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [pending, setPending] = useState(null);
@@ -29,6 +30,7 @@ const SignUpForm = () => {
       const details = { email: data.email.trim().toLowerCase(), password: data.password, first_name, last_name: last.join(' ') };
       await api('/auth/resend-verification/', { method: 'POST', body: { email: details.email } });
       setPending(details);
+      onChallenge(true);
     } catch (error) { toast.error(error.message); }
   };
 
@@ -39,6 +41,7 @@ const SignUpForm = () => {
     await api('/auth/register/', { method: 'POST', body: { ...pending, otp_code } });
     const credentials = { email: pending.email, password: pending.password };
     setPending(null);
+    onChallenge(false);
     toast.success('Email verified and account created.');
     try {
       await login(credentials);
@@ -57,6 +60,7 @@ const SignUpForm = () => {
     );
   };
 
+  if (pending) return <VerificationScreen email={pending.email} onVerify={finishSignup} onResend={() => api('/auth/resend-verification/', {method:'POST',body:{email:pending.email}})} onBack={() => {setPending(null);onChallenge(false);}} submitLabel="Verify and create account"/>;
   return (
     <div className="p-8 md:p-10 flex items-center">
       <div className="w-full">

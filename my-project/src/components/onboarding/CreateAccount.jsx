@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { dateOfBirthSchema, todayInLagos } from '@/lib/dateOfBirth';
+import { useAuth } from '../context/AuthContext';
 import toast from "react-hot-toast";
 import {
   Upload,
@@ -16,13 +16,13 @@ import {
 const createAccountSchema = z.object({
   phone: z.string().min(10, "Please enter a valid phone number"),
 
-  whatsapp: z.string().min(10, "Please enter a valid WhatsApp number"),
+
 
   lga: z.string().min(1, "Please select your Local Government Area"),
 
   address: z.string().min(5, "Please enter your home address"),
 
-  dateOfBirth: dateOfBirthSchema,
+
 
   gender: z.string().min(1, "Please select your gender"),
 
@@ -30,24 +30,25 @@ const createAccountSchema = z.object({
 });
 
 const CreateAccount = ({ onNext }) => {
-  const [profilePreview, setProfilePreview] = useState(null);
+  const {user} = useAuth();
+  const [profilePreview, setProfilePreview] = useState(user?.avatar || null);
 
   const {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(createAccountSchema),
 
     defaultValues: {
-      phone: "",
-      whatsapp: "",
-      lga: "",
-      address: "",
-      dateOfBirth: "",
-      gender: "",
-      bio: "",
+      phone: user?.phone || "",
+
+      lga: user?.lga || "",
+      address: user?.address || "",
+
+      gender: user?.gender || "",
+      bio: user?.bio || "",
     },
   });
 
@@ -57,6 +58,7 @@ const CreateAccount = ({ onNext }) => {
     const file = event.target.files?.[0];
 
     if (!file) return;
+    if (file.size > 5*1024*1024 || !["image/png","image/jpeg"].includes(file.type)) {toast.error("Use a JPG or PNG image up to 5MB.");return;}
 
     const reader = new FileReader();
 
@@ -69,8 +71,8 @@ const CreateAccount = ({ onNext }) => {
 
   const onSubmit = async (data) => {
     try {
-      await onNext({ ...data, profilePicture: profilePreview });
-      toast.success("Details saved! Let's choose your plan.");
+      await onNext({ ...data, whatsapp:data.phone, profilePicture: profilePreview });
+      toast.success("Your profile is ready.");
     } catch (error) { toast.error(error.message); }
   };
 
@@ -111,66 +113,45 @@ const CreateAccount = ({ onNext }) => {
 
         {/* FORM */}
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_188px]">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">
             {/* LEFT SIDE */}
             <div className="space-y-4">
               {/* PHONE + WHATSAPP */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 ">
                 {/* PHONE */}
                 <div>
-                  <label className="mb-1 block text-[11px] font-semibold text-[#374151]">
-                    Phone Number
+                  <label className="mb-1 block text-sm font-semibold text-[#374151]">
+                    Phone Number (WhatsApp)
                   </label>
 
                   <input
                     type="tel"
                     placeholder="Enter your phone number"
                     {...register("phone")}
-                    className={`h-8 w-full rounded-md border bg-white px-3 text-[9px] text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#48782E] ${
+                    className={`h-11 w-full rounded-md border bg-white px-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#48782E] ${
                       errors.phone ? "border-red-400" : "border-gray-200"
                     }`}
                   />
 
                   {errors.phone && (
-                    <p className="mt-1 text-[8px] text-red-500">
+                    <p className="mt-1 text-xs text-red-500">
                       {errors.phone.message}
                     </p>
                   )}
                 </div>
 
-                {/* WHATSAPP */}
-                <div>
-                  <label className="mb-1 block text-[11px] font-semibold text-[#374151]">
-                    WhatsApp Number
-                  </label>
-
-                  <input
-                    type="tel"
-                    placeholder="Enter your WhatsApp number"
-                    {...register("whatsapp")}
-                    className={`h-8 w-full rounded-md border bg-white px-3 text-[9px] text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#48782E] ${
-                      errors.whatsapp ? "border-red-400" : "border-gray-200"
-                    }`}
-                  />
-
-                  {errors.whatsapp && (
-                    <p className="mt-1 text-[8px] text-red-500">
-                      {errors.whatsapp.message}
-                    </p>
-                  )}
-                </div>
               </div>
 
               {/* LGA */}
               <div>
-                <label className="mb-1 block text-[11px] font-semibold text-[#374151]">
+                <label className="mb-1 block text-sm font-semibold text-[#374151]">
                   Local Government Area
                 </label>
 
                 <div className="relative">
                   <select
                     {...register("lga")}
-                    className={`h-8 w-full appearance-none rounded-md border bg-white px-3 pr-8 text-[9px] text-gray-500 outline-none focus:border-[#48782E] ${
+                    className={`h-11 w-full appearance-none rounded-md border bg-white px-3 pr-8 text-sm text-gray-500 outline-none focus:border-[#48782E] ${
                       errors.lga ? "border-red-400" : "border-gray-200"
                     }`}
                   >
@@ -190,7 +171,7 @@ const CreateAccount = ({ onNext }) => {
                 </div>
 
                 {errors.lga && (
-                  <p className="mt-1 text-[8px] text-red-500">
+                  <p className="mt-1 text-xs text-red-500">
                     {errors.lga.message}
                   </p>
                 )}
@@ -198,7 +179,7 @@ const CreateAccount = ({ onNext }) => {
 
               {/* HOME ADDRESS */}
               <div>
-                <label className="mb-1 block text-[11px] font-semibold text-[#374151]">
+                <label className="mb-1 block text-sm font-semibold text-[#374151]">
                   Home Address
                 </label>
 
@@ -212,62 +193,31 @@ const CreateAccount = ({ onNext }) => {
                     type="text"
                     placeholder="Enter your full address"
                     {...register("address")}
-                    className={`h-8 w-full rounded-md border bg-white pl-7 pr-3 text-[9px] text-gray-700 outline-none placeholder:text-gray-400 focus:border-[#48782E] ${
+                    className={`h-11 w-full rounded-md border bg-white pl-7 pr-3 text-sm text-gray-700 outline-none placeholder:text-gray-400 focus:border-[#48782E] ${
                       errors.address ? "border-red-400" : "border-gray-200"
                     }`}
                   />
                 </div>
 
                 {errors.address && (
-                  <p className="mt-1 text-[8px] text-red-500">
+                  <p className="mt-1 text-xs text-red-500">
                     {errors.address.message}
                   </p>
                 )}
               </div>
 
               {/* DOB + GENDER */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {/* DATE OF BIRTH */}
-                <div>
-                  <label className="mb-1 block text-[11px] font-semibold text-[#374151]">
-                    Date of Birth
-                  </label>
-
-                  <div className="relative">
-                    <input
-                      type="date"
-                      {...register("dateOfBirth")}
-                      max={todayInLagos()}
-                      className={`h-8 w-full rounded-md border bg-white px-3 text-[9px] text-gray-500 outline-none focus:border-[#48782E] ${
-                        errors.dateOfBirth
-                          ? "border-red-400"
-                          : "border-gray-200"
-                      }`}
-                    />
-
-                    <CalendarDays
-                      size={11}
-                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-                    />
-                  </div>
-
-                  {errors.dateOfBirth && (
-                    <p className="mt-1 text-[8px] text-red-500">
-                      {errors.dateOfBirth.message}
-                    </p>
-                  )}
-                </div>
-
+              <div className="grid grid-cols-1 gap-4 ">
                 {/* GENDER */}
                 <div>
-                  <label className="mb-1 block text-[11px] font-semibold text-[#374151]">
+                  <label className="mb-1 block text-sm font-semibold text-[#374151]">
                     Gender
                   </label>
 
                   <div className="relative">
                     <select
                       {...register("gender")}
-                      className={`h-8 w-full appearance-none rounded-md border bg-white px-3 pr-8 text-[9px] text-gray-500 outline-none focus:border-[#48782E] ${
+                      className={`h-11 w-full appearance-none rounded-md border bg-white px-3 pr-8 text-sm text-gray-500 outline-none focus:border-[#48782E] ${
                         errors.gender ? "border-red-400" : "border-gray-200"
                       }`}
                     >
@@ -291,7 +241,7 @@ const CreateAccount = ({ onNext }) => {
                   </div>
 
                   {errors.gender && (
-                    <p className="mt-1 text-[8px] text-red-500">
+                    <p className="mt-1 text-xs text-red-500">
                       {errors.gender.message}
                     </p>
                   )}
@@ -300,7 +250,7 @@ const CreateAccount = ({ onNext }) => {
 
               {/* PROFILE PICTURE */}
               <div>
-                <label className="mb-1 block text-[9px] font-medium text-[#374151]">
+                <label className="mb-1 block text-sm font-medium text-[#374151]">
                   Profile Picture
                 </label>
 
@@ -321,11 +271,11 @@ const CreateAccount = ({ onNext }) => {
                   </div>
 
                   <div>
-                    <p className="text-[9px] font-semibold text-gray-700">
+                    <p className="text-sm font-semibold text-gray-700">
                       Upload a clear profile photo
                     </p>
 
-                    <p className="text-[8px] text-gray-400">
+                    <p className="text-xs text-gray-400">
                       JPG, PNG up to 5MB
                     </p>
                   </div>
@@ -342,7 +292,7 @@ const CreateAccount = ({ onNext }) => {
 
               {/* BIO */}
               <div>
-                <label className="mb-1 block text-[9px] font-medium text-[#374151]">
+                <label className="mb-1 block text-sm font-medium text-[#374151]">
                   Tell us a bit about yourself (optional)
                 </label>
 
@@ -352,16 +302,16 @@ const CreateAccount = ({ onNext }) => {
                     maxLength={120}
                     rows={2}
                     placeholder="E.g. I love exploring new places, food and culture..."
-                    className="h-9 w-full resize-none rounded-md border border-gray-200 bg-white px-3 py-2 text-[9px] text-gray-700 outline-none placeholder:text-gray-400 focus:border-[#48782E]"
+                    className="h-20 w-full resize-none rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none placeholder:text-gray-400 focus:border-[#48782E]"
                   />
 
-                  <span className="absolute bottom-1 right-2 text-[7px] text-gray-400">
+                  <span className="absolute bottom-1 right-2 text-xs text-gray-400">
                     {bioValue.length}/120
                   </span>
                 </div>
 
                 {errors.bio && (
-                  <p className="mt-1 text-[8px] text-red-500">
+                  <p className="mt-1 text-xs text-red-500">
                     {errors.bio.message}
                   </p>
                 )}
@@ -369,10 +319,10 @@ const CreateAccount = ({ onNext }) => {
 
               {/* CONTINUE BUTTON */}
               <button
-                type="submit"
-                className="h-8 w-full cursor-pointer rounded-lg bg-[#F36B0A] text-[9px] font-semibold text-white transition hover:bg-[#df5f06] active:scale-[0.99]"
+                type="submit" disabled={isSubmitting}
+                className="h-11 w-full cursor-pointer rounded-lg bg-[#F36B0A] text-sm font-semibold text-white transition hover:bg-[#df5f06] active:scale-[0.99]"
               >
-                Continue →
+                Continue â†’
               </button>
             </div>
 
@@ -392,18 +342,18 @@ const CreateAccount = ({ onNext }) => {
                   )}
                 </div>
 
-                <h3 className="mt-2 text-center text-[9px] font-bold text-gray-800">
+                <h3 className="mt-2 text-center text-sm font-bold text-gray-800">
                   Profile Preview
                 </h3>
 
-                <p className="mx-auto mt-1 max-w-[130px] text-center text-[7px] leading-3 text-gray-500">
+                <p className="mx-auto mt-1 max-w-[130px] text-center text-xs leading-3 text-gray-500">
                   This is how you'll appear to other Mmemme Abia users.
                 </p>
               </div>
 
               {/* WHY WE COLLECT THIS INFO */}
               <div className="relative overflow-hidden rounded-xl bg-[#EEF6EF] px-3 py-3">
-                <h3 className="text-[8px] font-bold text-gray-800">
+                <h3 className="text-xs font-bold text-gray-800">
                   Why we collect this info
                 </h3>
 
@@ -414,7 +364,7 @@ const CreateAccount = ({ onNext }) => {
                       className="shrink-0 text-[#3F783D]"
                     />
 
-                    <span className="text-[7px] text-gray-600">
+                    <span className="text-xs text-gray-600">
                       Personalize your experience
                     </span>
                   </div>
@@ -425,7 +375,7 @@ const CreateAccount = ({ onNext }) => {
                       className="shrink-0 text-[#3F783D]"
                     />
 
-                    <span className="text-[7px] text-gray-600">
+                    <span className="text-xs text-gray-600">
                       Improve event recommendations
                     </span>
                   </div>
@@ -436,7 +386,7 @@ const CreateAccount = ({ onNext }) => {
                       className="shrink-0 text-[#3F783D]"
                     />
 
-                    <span className="text-[7px] text-gray-600">
+                    <span className="text-xs text-gray-600">
                       Secure your account
                     </span>
                   </div>

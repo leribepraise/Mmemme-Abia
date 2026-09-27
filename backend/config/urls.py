@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from apps.events.views import EventViewSet
+from apps.events.admin_api import AdminEventViewSet
 from apps.events.community import SavedEventsView, ReviewViewSet
 from apps.bookings.views import BookingViewSet
 from apps.payments.api import PaymentViewSet, WebhookView
@@ -13,8 +14,12 @@ from apps.notifications.api import NotificationViewSet
 from apps.messaging.api import ConversationViewSet
 from apps.common.catalog import CONFIG, viewset_for
 from apps.common.views import live, ready
+from apps.accounts.admin_api import AdminUserViewSet, AdminOrganizerViewSet, AdminOverview
 
 router=DefaultRouter()
+router.register('admin/events', AdminEventViewSet, basename='admin-event')
+router.register('admin/users', AdminUserViewSet, basename='admin-user')
+router.register('admin/organizers', AdminOrganizerViewSet, basename='admin-organizer')
 router.register("events",EventViewSet,basename="event")
 router.register("bookings",BookingViewSet,basename="booking")
 router.register("payments",PaymentViewSet,basename="payment")
@@ -31,6 +36,7 @@ urlpatterns=[
     path("health/live/",live),
     path("health/ready/",ready),
     path("api/v1/auth/",include("apps.accounts.urls")),
+    path('api/v1/admin/overview/', AdminOverview.as_view()),
     path("api/v1/saved-events/",SavedEventsView.as_view()),
     path("api/v1/payments/webhook/paystack/",WebhookView.as_view()),
     path("api/v1/",include(router.urls)),

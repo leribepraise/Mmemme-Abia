@@ -1,20 +1,7 @@
 import React from "react";
 
 const ProgressSteps = ({ currentStep }) => {
-  const steps = [
-    {
-      number: 1,
-      title: "Tell Us About You",
-    },
-    {
-      number: 2,
-      title: "Choose Your Plan",
-    },
-    {
-      number: 3,
-      title: "Welcome Aboard",
-    },
-  ];
+  const steps = [{number:1,title:'Tell Us About You'},{number:2,title:'Welcome Aboard'}];
 
   return (
     <div className="w-full max-w-3xl mx-auto px-6 pt-8">
@@ -33,7 +20,7 @@ const ProgressSteps = ({ currentStep }) => {
                       : "bg-gray-200 text-gray-500"
                   }`}
                 >
-                  {isCompleted ? "✓" : step.number}
+                  {isCompleted ? "âœ“" : step.number}
                 </div>
 
                 <span

@@ -7,11 +7,12 @@ from .models import OrganizerProfile
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    organizer_status = serializers.CharField(source='organizer_profile.status', read_only=True, default=None)
     interests = serializers.ListField(child=serializers.CharField(max_length=100),max_length=20,required=False)
     class Meta:
         model = User
-        fields = ["id","email","first_name","last_name","phone","whatsapp","lga","address","date_of_birth","gender","bio","avatar","role","is_verified","email_verified","is_staff","interests","email_notifications"]
-        read_only_fields = ["id","email","role","is_verified","email_verified","is_staff"]
+        fields = ["id","email","first_name","last_name","phone","whatsapp","lga","address","date_of_birth","gender","bio","avatar","role","is_verified","email_verified","is_staff","interests","email_notifications","onboarding_completed_at","date_joined","organizer_status"]
+        read_only_fields = ["id","email","role","is_verified","email_verified","is_staff","onboarding_completed_at","date_joined","organizer_status"]
 
     def validate_avatar(self, value):
         from apps.common.api import validate_image
@@ -22,8 +23,9 @@ class RegisterSerializer(serializers.ModelSerializer):
     otp_code = serializers.RegexField(r"^[0-9]{6}$", write_only=True, trim_whitespace=True, max_length=6)
     class Meta:
         model = User
-        fields = ["id","email","first_name","last_name","phone","password","otp_code","date_of_birth"]
+        fields = ["id","email","username","first_name","last_name","phone","password","otp_code","date_of_birth"]
         read_only_fields = ["id"]
+        extra_kwargs = {'username': {'required': False}}
     def validate_email(self,value):
         value = value.strip().lower()
         if User.objects.filter(email__iexact=value).exists():
@@ -62,7 +64,25 @@ class EmailCodeVerifySerializer(EmailCodeRequestSerializer):
     otp_code = serializers.RegexField(r"^[0-9]{6}$", trim_whitespace=True, max_length=6)
 
 class OrganizerSerializer(serializers.ModelSerializer):
+    accept_terms = serializers.BooleanField(write_only=True, required=True)
     class Meta:
         model = OrganizerProfile
-        fields = ["business_name","description","contact_phone","verification_reference","status","reviewed_at"]
-        read_only_fields = ["status","reviewed_at"]
+        fields = ["business_name","description","contact_phone","verification_reference","event_type","coverage_region","accept_terms","terms_accepted_at","status","reviewed_at","review_note"]
+        read_only_fields = ["status","reviewed_at","review_note","terms_accepted_at"]
+
+    def validate_accept_terms(self, value):
+        if not value:
+            raise serializers.ValidationError('Accept the organizer terms before applying.')
+        return value
+
+    def validate_contact_phone(self, value):
+        import re
+        if not re.fullmatch(r'\+?[0-9 ()-]{10,20}', value):
+            raise serializers.ValidationError('Enter a valid contact phone number.')
+        return value
+
+    def validate(self, attrs):
+        for name in ['event_type', 'coverage_region']:
+            if not attrs.get(name, '').strip():
+                raise serializers.ValidationError({name: 'This field is required.'})
+        return attrs

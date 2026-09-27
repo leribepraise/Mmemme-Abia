@@ -29,6 +29,9 @@ class EventSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         if not data.get('image') and instance.image_url:
             data['image'] = instance.image_url
+        user = getattr(self.context.get('request'), 'user', None)
+        if user and user.is_authenticated and (user.is_staff or user.pk == instance.organizer_id):
+            data.update(review_note=instance.review_note, review_decision=instance.review_decision, is_suspended=instance.is_suspended)
         return data
 
     def validate_image_url(self, value):

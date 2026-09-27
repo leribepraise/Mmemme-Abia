@@ -11,12 +11,12 @@ from .serializers import EventSerializer
 class SavedEventsView(APIView):
     def get(self,request):
         from apps.common.api import Pagination
-        qs=Event.objects.filter(savedevent__user=request.user,status="PUBLISHED").select_related("organizer","organizer__organizer_profile").prefetch_related("ticket_types").order_by("start_datetime","id")
+        qs=Event.objects.filter(savedevent__user=request.user,status="PUBLISHED",is_suspended=False,organizer__is_active=True,organizer__is_verified=True).select_related("organizer","organizer__organizer_profile").prefetch_related("ticket_types").order_by("start_datetime","id")
         pager=Pagination();page=pager.paginate_queryset(qs,request)
         return pager.get_paginated_response(EventSerializer(page,many=True).data)
     def post(self,request):
         event_id=serializers.UUIDField().run_validation(request.data.get("event"))
-        event=get_object_or_404(Event,pk=event_id,status="PUBLISHED")
+        event=get_object_or_404(Event,pk=event_id,status="PUBLISHED",is_suspended=False,organizer__is_active=True,organizer__is_verified=True)
         SavedEvent.objects.get_or_create(user=request.user,event=event)
         return Response({"saved":True})
     def delete(self,request):

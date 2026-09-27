@@ -34,6 +34,7 @@ import NotFound from "./pages/NotFound";
 import RestaurantDetails from "./pages/RestaurantDetails";
 import Onboarding from "./components/onboarding/Onboarding";
 import Profile from "./pages/Profile";
+import OrganizerApplication, {OrganizerSignup} from './pages/OrganizerApplication';
 import OrganizerLogin from "./pages/OrganizerLogin";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import OrganizerEvents from "./pages/OrganizerEvents";
@@ -458,8 +459,8 @@ const App = () => {
     { path: "/Signup", element: <SignUp /> },
     { path: "/Signup/onboarding", element: <Onboarding /> },
     { path: "/admin/login", element: <AdminLogin /> },
-    { path: "/admin/forgot-password", element: <AdminForgotPassword /> },
-    { path: "/admin/verify-otp", element: <AdminVerifyOtp /> },
+    { path: "/admin/forgot-password", element: <Navigate to="/reset-password" replace /> },
+    { path: "/admin/verify-otp", element: <Navigate to="/reset-password" replace /> },
   ];
 
   // Pages shown inside the admin layout (sidebar + header + footer).
@@ -495,6 +496,8 @@ const App = () => {
   const organizerRouter = [
     { path: "/organizer", element: <Navigate to="/organizer/login" replace /> },
     { path: "/organizer/login", element: <OrganizerLogin /> },
+    { path: "/organizer/signup", element: <OrganizerSignup /> },
+    { path: "/organizer/apply", element: <OrganizerApplication /> },
     { path: "/organizer/dashboard", element: <OrganizerDashboard /> },
     { path: "/organizer/events", element: <OrganizerEvents /> },
     { path: "/organizer/events/new", element: <OrganizerEventForm /> },
@@ -520,28 +523,6 @@ const App = () => {
       <div className="min-h-screen bg-[#f5f7f3]">
         <div>
           <UserProvider>
-            {/* <Routes>
-              <Route path="/" element={<Layout />}>
-                {navList.map((item, index) => (
-                  <Route key={index} path={item.path} element={item.element} />
-                ))}
-              </Route>
-              {authRouter.map((item, index) => (
-                <Route
-                  key={`organizer-${index}`}
-                  path={item.path}
-                  element={item.element}
-                />
-              ))}
-              {organizerRouter.map((item, index) => (
-                <Route
-                  key={`organizer-${index}`}
-                  path={item.path}
-                  element={item.path === "/organizer/login" || item.path === "/organizer" ? item.element : <OrganizerGuard>{item.element}</OrganizerGuard>}
-                />
-              ))}
-            </Routes> */}
-
             <Routes>
               <Route path="/" element={<Layout />}>
                 {navList.map((item, index) => (
@@ -572,7 +553,7 @@ const App = () => {
                 <Route
                   key={`organizer-${index}`}
                   path={item.path}
-                  element={item.element}
+                  element={["/organizer/login", "/organizer", "/organizer/signup", "/organizer/apply"].includes(item.path) ? item.element : <OrganizerGuard>{item.element}</OrganizerGuard>}
                 />
               ))}
             </Routes>

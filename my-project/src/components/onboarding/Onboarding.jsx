@@ -1,38 +1,14 @@
-import { useAuth } from "../context/AuthContext";
-import GuestGuard from "../GuestGuard";
-import React, { useState } from "react";
-import ProgressSteps from "./ProgressSteps";
-import CreateAccount from "./CreateAccount";
-import AboutYou from "./AboutYou";
-import ChoosePlan from "./ChoosePlan";
-import Welcome from "./Welcome";
-
-const Onboarding = () => {
-  const [step, setStep] = useState(1);
-
-  const { user: userData, updateUser } = useAuth();
-  const nextStep = async (data = {}) => {
-    await updateUser(data);
-    setStep(value => value + 1);
-  };
-
-  const previousStep = () => {
-    setStep((prevStep) => prevStep - 1);
-  };
-
-  return (
-    <GuestGuard><div className="min-h-screen bg-[#F8F9F7]">
-      <ProgressSteps currentStep={step} />
-
-      <div className="mt-10">
-        {step === 1 && <CreateAccount onNext={nextStep} />}
-
-        {step === 2 && <ChoosePlan onNext={nextStep} onBack={previousStep} />}
-
-        {step === 3 && <Welcome userData={userData} />}
-      </div>
-    </div></GuestGuard>
-  );
-};
-
-export default Onboarding;
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import GuestGuard from '../GuestGuard';
+import { api } from '@/lib/api';
+import ProgressSteps from './ProgressSteps';
+import CreateAccount from './CreateAccount';
+import Welcome from './Welcome';
+export default function Onboarding(){
+  const {user,updateUser,reloadUser}=useAuth();
+  const [step,setStep]=useState(1);
+  const complete=async data=>{await updateUser(data);await api('/auth/onboarding/complete/',{method:'POST'});await reloadUser();setStep(2);};
+  const current=user?.onboarding_completed_at?2:step;
+  return <GuestGuard><div className="min-h-screen bg-[#f7f9f7]"><ProgressSteps currentStep={current}/><div className="mt-8">{current===1?<CreateAccount onNext={complete}/>:<Welcome userData={user}/>}</div></div></GuestGuard>;
+}
