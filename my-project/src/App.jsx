@@ -34,6 +34,8 @@ import NotFound from "./pages/NotFound";
 import RestaurantDetails from "./pages/RestaurantDetails";
 import Onboarding from "./components/onboarding/Onboarding";
 import Profile from "./pages/Profile";
+import Terms from './pages/Terms';
+import OrganizerApplication, {OrganizerSignup} from './pages/OrganizerApplication';
 import OrganizerLogin from "./pages/OrganizerLogin";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import OrganizerEvents from "./pages/OrganizerEvents";
@@ -173,7 +175,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <AnalyticsDashboard />
+            <Profile />
           </GuestGuard>
         </div>
       ),
@@ -451,6 +453,7 @@ const App = () => {
     },
   ];
   const authRouter = [
+    {path:"/terms",element:<Terms/>},
     { path: "/verify-email", element: <AccountAction /> },
     { path: "/reset-password", element: <AccountAction /> },
     { path: "/payment/return", element: <GuestGuard><PaymentSuccessfulScreen /></GuestGuard> },
@@ -458,8 +461,8 @@ const App = () => {
     { path: "/Signup", element: <SignUp /> },
     { path: "/Signup/onboarding", element: <Onboarding /> },
     { path: "/admin/login", element: <AdminLogin /> },
-    { path: "/admin/forgot-password", element: <AdminForgotPassword /> },
-    { path: "/admin/verify-otp", element: <AdminVerifyOtp /> },
+    { path: "/admin/forgot-password", element: <Navigate to="/reset-password" replace /> },
+    { path: "/admin/verify-otp", element: <Navigate to="/reset-password" replace /> },
   ];
 
   // Pages shown inside the admin layout (sidebar + header + footer).
@@ -473,13 +476,13 @@ const App = () => {
     { path: "events", element: <AdminEvents /> },
     { path: "events/:id", element: <AdminEventDetails /> },
     { path: "events/:id/review", element: <AdminEventReview /> },
-    { path: "tourism", element: <AdminTourism /> },
-    { path: "tourism/:id", element: <DestinationDetail /> },
-    { path: "hotels/properties", element: <AdminProperties /> },
-    { path: "hotels/properties/:id", element: <PropertyDetail /> },
-    { path: "food", element: <AdminFood /> },
-    { path: "food/:id", element: <FoodVendorDetail /> },
-    { path: "transport", element: <AdminTransportDashboard /> },
+    { path: "tourism", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
+    { path: "tourism/:id", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
+    { path: "hotels/properties", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
+    { path: "hotels/properties/:id", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
+    { path: "food", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
+    { path: "food/:id", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
+    { path: "transport", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
     // add each new admin page here as we build it, for example:
     // { path: "events", element: <AdminEvents /> },
     {
@@ -495,6 +498,8 @@ const App = () => {
   const organizerRouter = [
     { path: "/organizer", element: <Navigate to="/organizer/login" replace /> },
     { path: "/organizer/login", element: <OrganizerLogin /> },
+    { path: "/organizer/signup", element: <OrganizerSignup /> },
+    { path: "/organizer/apply", element: <OrganizerApplication /> },
     { path: "/organizer/dashboard", element: <OrganizerDashboard /> },
     { path: "/organizer/events", element: <OrganizerEvents /> },
     { path: "/organizer/events/new", element: <OrganizerEventForm /> },
@@ -520,28 +525,6 @@ const App = () => {
       <div className="min-h-screen bg-[#f5f7f3]">
         <div>
           <UserProvider>
-            {/* <Routes>
-              <Route path="/" element={<Layout />}>
-                {navList.map((item, index) => (
-                  <Route key={index} path={item.path} element={item.element} />
-                ))}
-              </Route>
-              {authRouter.map((item, index) => (
-                <Route
-                  key={`organizer-${index}`}
-                  path={item.path}
-                  element={item.element}
-                />
-              ))}
-              {organizerRouter.map((item, index) => (
-                <Route
-                  key={`organizer-${index}`}
-                  path={item.path}
-                  element={item.path === "/organizer/login" || item.path === "/organizer" ? item.element : <OrganizerGuard>{item.element}</OrganizerGuard>}
-                />
-              ))}
-            </Routes> */}
-
             <Routes>
               <Route path="/" element={<Layout />}>
                 {navList.map((item, index) => (
@@ -572,7 +555,7 @@ const App = () => {
                 <Route
                   key={`organizer-${index}`}
                   path={item.path}
-                  element={item.element}
+                  element={["/organizer/login", "/organizer", "/organizer/signup", "/organizer/apply"].includes(item.path) ? item.element : <OrganizerGuard>{item.element}</OrganizerGuard>}
                 />
               ))}
             </Routes>

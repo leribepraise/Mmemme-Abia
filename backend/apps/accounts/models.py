@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import uuid
+from .validators import validate_date_of_birth
 
 
 class User(AbstractUser):
@@ -18,13 +20,15 @@ class User(AbstractUser):
     whatsapp = models.CharField(max_length=20, blank=True)
     lga = models.CharField(max_length=100, blank=True)
     address = models.CharField(max_length=500, blank=True)
-    date_of_birth = models.DateField(null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True, validators=[validate_date_of_birth])
     gender = models.CharField(max_length=30, blank=True)
     bio = models.TextField(max_length=2000, blank=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True)
 
     is_verified = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
+    session_version = models.PositiveIntegerField(default=0, editable=False)
+    onboarding_completed_at = models.DateTimeField(null=True, blank=True, editable=False)
     interests = models.JSONField(default=list, blank=True)
     email_notifications = models.BooleanField(default=True)
 
@@ -38,13 +42,31 @@ class User(AbstractUser):
         return self.email
 
 
+class EmailVerificationCode(models.Model):
+    """A short-lived email challenge; never an account or a stored signup password."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(unique=True)
+    code_hash = models.CharField(max_length=128, blank=True)
+    expires_at = models.DateTimeField()
+    sent_at = models.DateTimeField()
+    window_started_at = models.DateTimeField()
+    send_count = models.PositiveSmallIntegerField(default=0)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    consumed_at = models.DateTimeField(null=True, blank=True)
+
+
 class OrganizerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="organizer_profile")
     business_name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     contact_phone = models.CharField(max_length=20)
-    verification_reference = models.CharField(max_length=200)
-    status = models.CharField(max_length=20, default="PENDING", choices=[(x,x.title()) for x in ["PENDING","APPROVED","REJECTED"]])
+    verification_reference = models.CharField(max_length=200, blank=True)
+    event_type = models.CharField(max_length=100, blank=True)
+    coverage_region = models.CharField(max_length=200, blank=True)
+    terms_accepted_at = models.DateTimeField(null=True, blank=True, editable=False)
+    terms_version = models.CharField(max_length=30, blank=True, editable=False)
+    status = models.CharField(max_length=20, default="PENDING", choices=[(x,x.replace('_',' ').title()) for x in ["PENDING","APPROVED","REJECTED","NEEDS_INFO"]])
     reviewed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="organizer_reviews")
     reviewed_at = models.DateTimeField(null=True, blank=True)
+    review_note = models.CharField(max_length=2000, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -41,17 +41,27 @@ class Fixture(TestCase):
         return {"id":12345,"reference":payment.reference,"status":"success","amount":int(payment.amount*100),"currency":"NGN","metadata":{"booking_id":str(payment.booking_id)},"customer":{"email":payment.user.email},**changes}
 
 class AccountTests(Fixture):
+    def setUp(self):
+        super().setUp()
+        from django.core.cache import cache
+        cache.clear()
+        self.addCleanup(cache.clear)
     def test_common_numeric_password_rejected(self):
         client=APIClient()
-        response=client.post("/api/v1/auth/register/",{"email":"new@example.com","password":"12345678"},format="json")
+        response=client.post("/api/v1/auth/register/",{"email":"new@example.com","password":"12345678","otp_code":"123456"},format="json")
         self.assertEqual(response.status_code,400)
     def test_registration_normalizes_email_and_queues_email(self):
         client=APIClient()
-        response=client.post("/api/v1/auth/register/",{"email":"NEW@EXAMPLE.COM","password":"UniqueS3curePhrase!894"},format="json")
+        from apps.notifications.models import Notification
+        with patch('apps.accounts.email_codes.secrets.randbelow', return_value=123456):
+            requested=client.post('/api/v1/auth/resend-verification/', {'email':'NEW@EXAMPLE.COM'}, format='json')
+        self.assertEqual(requested.status_code,202)
+        self.assertFalse(User.objects.filter(email='new@example.com').exists())
+        self.assertEqual(Notification.objects.filter(email='new@example.com',is_private=True,user__isnull=True).count(),1)
+        response=client.post("/api/v1/auth/register/",{"email":"NEW@EXAMPLE.COM","password":"UniqueS3curePhrase!894","otp_code":"123456"},format="json")
         self.assertEqual(response.status_code,201,response.data)
         user=User.objects.get(email="new@example.com")
-        self.assertFalse(user.email_verified)
-        self.assertEqual(user.notifications.filter(is_private=True).count(),1)
+        self.assertTrue(user.email_verified)
         duplicate=client.post("/api/v1/auth/register/",{"email":"New@example.com","password":"UniqueS3curePhrase!894"},format="json")
         self.assertEqual(duplicate.status_code,400)
     def test_login_uses_httponly_refresh_cookie(self):

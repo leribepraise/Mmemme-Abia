@@ -44,7 +44,7 @@ export async function api(path, options = {}) {
   if (response.status === 204) return null;
   if (blob && response.ok && !response.headers.get('content-type')?.includes('text/html')) return response.blob();
   const data = await json(response);
-  if (!response.ok) throw Object.assign(new Error(flatten(data?.error || data?.detail || data) || 'Request failed.'), { status: response.status });
+  if (!response.ok) throw Object.assign(new Error(flatten(data?.error?.detail || data?.error || data?.detail || data) || 'Request failed.'), { status: response.status, code: data?.error?.code || data?.code, retryAfter: Number(response.headers.get('Retry-After')) || 0 });
   if (data?.csrf_token) csrf = data.csrf_token;
   return data;
 }

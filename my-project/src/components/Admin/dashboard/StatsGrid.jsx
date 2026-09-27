@@ -14,9 +14,9 @@ const StatsGrid = ({ stats }) => {
             <p className="text-xl font-bold text-[#0f172a] sm:text-2xl">
               {value}
             </p>
-            <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700">
+            {change && <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700">
               {change}
-            </span>
+            </span>}
           </div>
         </div>
       ))}

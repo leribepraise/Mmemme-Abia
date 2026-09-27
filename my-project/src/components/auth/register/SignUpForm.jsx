@@ -9,11 +9,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema } from "./validation/schemas/signupSchema";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import EmailCodeForm from '../EmailCodeForm';
+import VerificationScreen from '../VerificationScreen';
 
-const SignUpForm = ({ onLogin }) => {
+const SignUpForm = ({onChallenge = () => {}}) => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [pending, setPending] = useState(null);
   const [inputType, setInputType] = useState("password");
   const [comfireInputType, setComfireInputType] = useState("password");
   const {
@@ -25,32 +27,29 @@ const SignUpForm = ({ onLogin }) => {
   const onSubmit = async (data) => {
     try {
       const [first_name, ...last] = data.fullName.trim().split(/\s+/);
-      await api("/auth/register/", {
-        method: "POST",
-        body: {
-          email: data.email,
-          password: data.password,
-          first_name,
-          last_name: last.join(" "),
-        },
-      });
-      await login({ email: data.email, password: data.password });
-      sessionStorage.setItem("pendingSignupEmail", data.email);
-      toast.success(
-        "Account created. Enter the verification code sent to your email.",
-      );
-      navigate("/signup/verify-otp", { state: { email: data.email } });
-    } catch (error) {
-      toast.error(error.message);
-    }
+      const details = { email: data.email.trim().toLowerCase(), password: data.password, first_name, last_name: last.join(' ') };
+      await api('/auth/resend-verification/', { method: 'POST', body: { email: details.email } });
+      setPending(details);
+      onChallenge(true);
+    } catch (error) { toast.error(error.message); }
   };
 
   const onInvalid = () => {
-    toast({
-      title: "Check the form",
-      description: "Some fields need your attention before you can continue.",
-      variant: "destructive",
-    });
+    toast.error('Some fields need your attention before you can continue.');
+  };
+  const finishSignup = async otp_code => {
+    await api('/auth/register/', { method: 'POST', body: { ...pending, otp_code } });
+    const credentials = { email: pending.email, password: pending.password };
+    setPending(null);
+    onChallenge(false);
+    toast.success('Email verified and account created.');
+    try {
+      await login(credentials);
+      navigate('/Signup/onboarding');
+    } catch {
+      toast('Your account is ready. Please log in to continue.');
+      navigate('/login');
+    }
   };
   const toggleVisibility = () => {
     setInputType((prevType) => (prevType === "password" ? "text" : "password"));
@@ -61,6 +60,7 @@ const SignUpForm = ({ onLogin }) => {
     );
   };
 
+  if (pending) return <VerificationScreen email={pending.email} onVerify={finishSignup} onResend={() => api('/auth/resend-verification/', {method:'POST',body:{email:pending.email}})} onBack={() => {setPending(null);onChallenge(false);}} submitLabel="Verify and create account"/>;
   return (
     <div className="p-8 md:p-10 flex items-center">
       <div className="w-full">
@@ -68,7 +68,7 @@ const SignUpForm = ({ onLogin }) => {
           Create Your Account
         </h1>
         <p className="text-[14px] text-[#6B7280] mb-8">Let's get you started</p>
-        <div className="space-y-5">
+        {pending ? <EmailCodeForm email={pending.email} onVerify={finishSignup} onResend={() => api('/auth/resend-verification/', { method: 'POST', body: { email: pending.email } })} onBack={() => setPending(null)} submitLabel="Verify and create account" /> : <div className="space-y-5">
           <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
             {/* Full Name */}
             <div>
@@ -193,7 +193,7 @@ const SignUpForm = ({ onLogin }) => {
               disabled={isSubmitting}
               className="w-full bg-[#F97316] hover:bg-[#df5f18] text-white text-[14px] font-medium py-3 rounded-lg transition cursor-pointer"
             >
-              Sign Up
+              {isSubmitting ? 'Sending code...' : 'Send verification code'}
             </button>
           </form>
           <div className="flex items-center gap-3 text-gray-400 text-xs">
@@ -210,7 +210,7 @@ const SignUpForm = ({ onLogin }) => {
               </button>
             </NavLink>
           </p>
-        </div>
+        </div>}
       </div>
     </div>
   );

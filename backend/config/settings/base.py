@@ -176,7 +176,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_THROTTLE_RATES": {"anon": "120/hour", "user": "1200/hour", "auth": "20/hour", "session":"120/hour", "finance":"120/hour"},
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "apps.accounts.authentication.VerifiedEmailAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
@@ -215,6 +215,9 @@ PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
 PAYSTACK_CALLBACK_URL = os.getenv("PAYSTACK_CALLBACK_URL", FRONTEND_URL + "/payment/return")
 RESERVATION_MINUTES = 15
 PLATFORM_COMMISSION_BPS = int(os.getenv("PLATFORM_COMMISSION_BPS", "0"))
+EVENT_COMMISSION_BPS = int(os.getenv("EVENT_COMMISSION_BPS", "500"))
+if not all(0 <= value <= 10000 for value in [PLATFORM_COMMISSION_BPS, EVENT_COMMISSION_BPS]):
+    raise ValueError('Commission rates must be between 0 and 10000 basis points')
 PAYSTACK_TRANSFERS_ENABLED = os.getenv("PAYSTACK_TRANSFERS_ENABLED", "false").lower() == "true"
 PAYOUT_HOLD_DAYS = int(os.getenv("PAYOUT_HOLD_DAYS", "7"))
 if PAYOUT_HOLD_DAYS < 0:

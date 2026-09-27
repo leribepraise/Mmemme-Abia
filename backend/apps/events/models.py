@@ -67,6 +67,11 @@ class Event(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_suspended = models.BooleanField(default=False, db_index=True)
+    review_note = models.CharField(max_length=2000, blank=True)
+    review_decision = models.CharField(max_length=30, blank=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='event_moderations')
     
     def clean(self):
         if self.end_datetime <= self.start_datetime:

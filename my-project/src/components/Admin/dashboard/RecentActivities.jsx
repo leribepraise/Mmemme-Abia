@@ -7,12 +7,7 @@ const RecentActivities = ({ activities }) => {
         <h2 className="text-sm font-semibold text-[#0f172a]">
           Recent Activities
         </h2>
-        <Link
-          to="/admin/notifications"
-          className="text-xs font-semibold text-[#14481f] hover:underline"
-        >
-          View all
-        </Link>
+        <span className="text-xs text-slate-400">Latest 10 entries</span>
       </div>
 
       <ul className="mt-2 divide-y divide-slate-100">

@@ -41,7 +41,7 @@ const PlatformActivity = ({ labels, series }) => {
   const [active, setActive] = useState(tabs[0]);
 
   const { label, prefix, values } = series[active];
-  const yMax = niceMax(Math.max(...values));
+  const yMax = niceMax(Math.max(1, ...values));
   const { points, line, area, baseY } = buildPaths(values, yMax);
   const ticks = [0, yMax / 2, yMax];
   const innerH = H - PAD.top - PAD.bottom;

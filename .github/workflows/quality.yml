@@ -57,5 +57,6 @@ jobs:
           cache-dependency-path: my-project/package-lock.json
       - run: npm ci --ignore-scripts
       - run: npm test
+      - run: npm run check:runtime
       - run: npm audit --audit-level=moderate
       - run: npm run build

@@ -60,6 +60,9 @@ class Command(BaseCommand):
         # Security links expire after one day; clear undelivered token bodies too.
         from apps.notifications.models import Notification
         Notification.objects.filter(is_private=True,created_at__lt=now-timedelta(days=1)).update(body="Security notification expired.",failed=True)
+        # Retain abandoned signup challenges only briefly, beyond the rate-limit window.
+        from apps.accounts.models import EmailVerificationCode
+        EmailVerificationCode.objects.filter(expires_at__lt=now-timedelta(days=1)).delete()
         cache.set("worker:heartbeat",True,180)
     def handle(self,*args,**options):
         while True:

@@ -107,7 +107,7 @@ const Footer = () => {
             <p className="font-bold text-[16px] text-white">Support</p>
             <p className="font-normal text-[#FFFFFF]">FAQs</p>
             <p className="font-normal text-[#FFFFFF]">Contact Support</p>
-            <p className="font-normal text-[#FFFFFF]">Terms & Conditions</p>
+            <NavLink to="/terms" className="font-normal text-[#FFFFFF]">Terms & Conditions</NavLink>
             <p className="font-normal text-[#FFFFFF]">Privacy Policy</p>
           </div>
 

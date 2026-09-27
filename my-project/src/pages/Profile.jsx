@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../components/context/AuthContext";
 import { useUser } from "../components/context/UserContext";
@@ -17,8 +17,8 @@ import SettingsSection from "../components/profile/SettingsSection";
 import Seo from "../components/seo/Seo";
 
 const Profile = () => {
-  const location = useLocation();
   const navigate = useNavigate();
+  useEffect(()=>{window.scrollTo(0,0);},[]);
   const [params] = useSearchParams();
   const { logout } = useAuth();
   const { user } = useUser();

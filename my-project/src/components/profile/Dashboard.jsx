@@ -1,4 +1,5 @@
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 import { useCollection } from "@/hooks/useApi";
 import { bookingCard } from "@/lib/catalog";
 import React, { useEffect, useState } from "react";
@@ -23,35 +24,31 @@ import Info from "./common/Info";
 import Preference from "./common/Preference";
 
 const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
-  const { data: bookings } = useCollection("/bookings/", bookingCard);
-
-
-
+  const { data: bookings, loading: bookingsLoading, error: bookingsError, reload: reloadBookings } = useCollection("/bookings/", bookingCard);
+  const { data: tickets, loading: ticketsLoading, error: ticketsError } = useCollection('/tickets/');
+  const { data: notifications } = useCollection('/notifications/');
+  const { data: savedEvents } = useCollection('/saved-events/');
+  const [savedHotelCount, setSavedHotelCount] = useState(0);
+  const savedCount = savedEvents.length + savedHotelCount;
   useEffect(() => {
     const loadSavedCount = () => {
       try {
-        const savedEvents = JSON.parse(
-          sessionStorage.getItem("savedEvents") || "[]",
-        );
-
         const savedHotels = JSON.parse(
           sessionStorage.getItem("savedHotels") || "[]",
         );
 
-        setSavedCount(savedEvents.length + savedHotels.length);
+        setSavedHotelCount(savedHotels.length);
       } catch (error) {
         console.error("Error reading saved items:", error);
-        setSavedCount(0);
+        setSavedHotelCount(0);
       }
     };
 
     loadSavedCount();
 
-    window.addEventListener("savedEventsUpdated", loadSavedCount);
     window.addEventListener("savedHotelsUpdated", loadSavedCount);
 
     return () => {
-      window.removeEventListener("savedEventsUpdated", loadSavedCount);
       window.removeEventListener("savedHotelsUpdated", loadSavedCount);
     };
   }, []);
@@ -95,7 +92,7 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
 
               <span className="flex items-center gap-1">
                 <CalendarDays size={11} />
-                Joined 2026
+                Joined {user?.date_joined ? new Date(user.date_joined).toLocaleDateString("en-NG", {month:"short",year:"numeric"}) : "Mmemme Abia"}
               </span>
             </div>
           </div>
@@ -116,13 +113,13 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
       <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard
           icon={<CalendarCheck size={17} />}
-          number={bookings.length}
+          number={bookingsLoading || bookingsError ? "—" : bookings.length}
           label="Bookings"
         />
 
         <StatCard
           icon={<Ticket size={17} />}
-          number="0"
+          number={ticketsLoading || ticketsError ? "—" : new Set(tickets.filter(t=>t.status==="USED").map(t=>t.event?.id || t.event)).size}
           label="Events Attended"
         />
 
@@ -134,11 +131,12 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
 
         <StatCard
           icon={<Users size={17} />}
-          number="0"
-          label="Community Posts"
+          number={notifications.filter(n=>!n.is_read).length}
+          label="Unread Notifications"
         />
       </div>
 
+      <div className="mt-5 flex flex-wrap gap-3"><Link to="/events" className="rounded-lg bg-[#f36b0a] px-5 py-3 text-sm font-semibold text-white">Explore Events</Link><Link to={user?.is_verified && user?.role === 'ORGANIZER' ? '/organizer/dashboard' : '/organizer/apply'} className="rounded-lg border border-green-800 px-5 py-3 text-sm font-semibold text-green-800">{user?.is_verified && user?.role === 'ORGANIZER' ? 'Organizer Dashboard' : user?.organizer_status ? 'View Organizer Application' : 'Host an Event'}</Link>{!user?.onboarding_completed_at && <Link to="/Signup/onboarding" className="rounded-lg border border-slate-300 px-5 py-3 text-sm">Complete Your Profile</Link>}{user?.is_staff && <Link to="/admin" className="rounded-lg border border-green-800 px-5 py-3 text-sm">Admin Dashboard</Link>}</div>
       {/* RECENT BOOKINGS */}
       <section className="mt-5 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
@@ -149,7 +147,7 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
           </button>
         </div>
 
-        {bookings.length === 0 ? (
+        {bookingsLoading ? <p role="status">Loading bookings…</p> : bookingsError ? <div role="alert"><p>{bookingsError.message}</p><button onClick={reloadBookings} className="mt-3 text-green-800 underline">Retry</button></div> : bookings.length === 0 ? (
           <div className="flex min-h-[150px] flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 px-5 text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF4EB]">
               <CalendarCheck size={18} className="text-[#3F783D]" />
@@ -167,13 +165,13 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
         ) : (
           <div className="w-full min-w-0 overflow-hidden">
             <div className="flex w-full gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {bookings.map((booking, index) => (
+              {bookings.slice(0, 5).map((booking, index) => (
                 <div
                   key={booking.id || index}
                   className="w-[280px] min-w-[280px] shrink-0 md:w-[300px] md:min-w-[300px]"
                 >
                   <BookingCard
-                    image={booking.image}
+                    image={booking.details?.image || null}
                     title={booking.title}
                     location={booking.location}
                     status={booking.status}
@@ -262,7 +260,7 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
             value="Disabled"
           />
 
-          <button className="mt-5 w-full rounded-lg border border-gray-200 py-2 text-xs transition hover:bg-gray-50">
+          <button onClick={onEditProfile} className="mt-5 w-full rounded-lg border border-gray-200 py-2 text-xs transition hover:bg-gray-50">
             Edit Preferences
           </button>
         </div>

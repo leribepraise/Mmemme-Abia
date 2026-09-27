@@ -6,7 +6,7 @@ const BookingCard = ({ image, title, location, status, price }) => {
     <div className="overflow-hidden rounded-lg border border-gray-200">
       {/* IMAGE */}
       <div className="h-32 overflow-hidden bg-gray-100">
-        <img src={image} alt={title} className="h-full w-full object-cover" />
+        {image ? <img src={image} alt={title} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-slate-400"><MapPin size={32}/></div>}
       </div>
 
       {/* CONTENT */}

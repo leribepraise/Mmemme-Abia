@@ -106,6 +106,7 @@ export default function OrganizerEventForm({ editId }) {
         }
       >
         <Stepper current={step} />
+        {existing?.review_note && <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm"><h2 className="font-semibold">Staff feedback</h2><p className="mt-2 whitespace-pre-wrap">{existing.review_note}</p></div>}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-8">

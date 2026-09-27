@@ -7,12 +7,15 @@ Errors: `{error: <field errors or detail>, request_id: <identifier>}`. HTTP 400 
 ## Authentication
 
 1. `GET /auth/csrf/` returns `csrf_token` and sets its cookie.
-2. `POST /auth/register/` with email, password, first_name, last_name, phone. Account starts unverified.
-3. `POST /auth/login/` with email/password and `X-CSRFToken`. Returns access token and user; refresh token stays in an HttpOnly cookie.
-4. Send `Authorization: Bearer <access>` for protected APIs. Keep access tokens in memory.
-5. `POST /auth/refresh/` rotates the refresh cookie. Send cookies and CSRF token. `POST /auth/logout/` blacklists it. Register, login, refresh and logout enforce CSRF.
+2. `POST /auth/resend-verification/` with `{email}` and `X-CSRFToken` requests a six-digit email code. Returns HTTP 202 with `expires_in: 600` and `resend_after: 60`. This queues an email; it creates no account and returns no authentication token. Keep signup details/password only in component memory.
+3. `POST /auth/register/` with email, password, `otp_code` (six-character string, preserving leading zeros), first_name, last_name and optional phone/date_of_birth. Send `X-CSRFToken`. Only a valid, unexpired code for that email can create a user. The user is created with `email_verified=true`, and the code is consumed atomically. No account exists before this step.
+4. `POST /auth/login/` with email/password and `X-CSRFToken`. Returns access token and user; refresh token stays in an HttpOnly cookie. Unverified accounts receive HTTP 403 with `error.code=email_not_verified`; route them to `/verify-email` to request and enter a code.
+5. Send `Authorization: Bearer <access>` for protected APIs. Keep access tokens in memory. Existing JWTs for unverified users are rejected too.
+6. `POST /auth/refresh/` rotates the refresh cookie for verified users only. Send cookies and CSRF token. `POST /auth/logout/` blacklists it. Register, login, code requests, code verification, refresh and logout enforce CSRF.
 
-Use `GET/PATCH /auth/me/` for names, phone, interests and email reminder preference. Users cannot assign roles, staff access, provider approval or email verification. `/auth/verify-email/`, `/auth/resend-verification/`, `/auth/password-reset/`, `/auth/password-reset/confirm/`, `/auth/password-change/` handle signed verification and one-use password recovery. `/auth/organizer-application/` accepts business details; staff approve the application in Django admin.
+Existing unverified accounts use `POST /auth/verify-email/` with `{email, otp_code}` and `X-CSRFToken`; this marks an existing account verified without creating a new one. Old verification links no longer work. Codes expire after 10 minutes, allow five incorrect attempts and are replaced on resend. Resends require 60 seconds between requests and allow five codes per email per hour, in addition to IP throttling. HTTP 429 includes `Retry-After`. The worker sends the queued email and discards expired OTP messages. Hashed challenges are removed after expiry plus one day; delivered private message bodies are scrubbed.
+
+Use `GET/PATCH /auth/me/` for names, phone, interests and email reminder preference. Birth dates must be real calendar dates and cannot be later than today in Africa/Lagos. No minimum age is imposed. Users cannot assign roles, staff access, provider approval or email verification. Password recovery still uses one-use links via `/auth/password-reset/` and `/auth/password-reset/confirm/`; `/auth/password-change/` changes a signed-in user's password. `/auth/organizer-application/` accepts business details; staff approve the application in Django admin.
 
 ## Catalog and approval
 

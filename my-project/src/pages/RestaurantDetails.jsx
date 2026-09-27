@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useApi } from "@/hooks/useApi";
 import { restaurantCard } from "@/lib/catalog";
+import Seo from "../components/seo/Seo";
 import RestaurantBreadcrumb from "../components/restaurant/RestaurantBreadcrumb";
 import RestaurantGallery from "../components/restaurant/RestaurantGallery";
 import RestaurantHeader from "../components/restaurant/RestaurantHeader";

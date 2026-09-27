@@ -4,6 +4,7 @@ ENV NPM_CONFIG_UPDATE_NOTIFIER=false NPM_CONFIG_FUND=false VITE_API_BASE_URL=/ap
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
 COPY . .
+RUN npm run check:runtime
 RUN npm run build
 
 FROM caddy:2-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648

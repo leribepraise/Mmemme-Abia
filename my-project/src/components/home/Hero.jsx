@@ -4,10 +4,83 @@ import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { IoArrowBack, IoArrowForward, IoPlay } from "react-icons/io5";
 
+const heroData = [
+  {
+    id: 1,
+    image: "/hero1.jpg",
+    title: "Hotel Oris Live Concert",
+    date: "25th - 27th Oct, 2026",
+    location: "Umueze Sports Arena, Umuahia",
+    attendees: "15.7k + Attending",
+    buttonText: "Get Ticket",
+    color: "#F46F1A",
+  },
+  {
+    id: 2,
+    image: "/hero2.jpg",
+    title: "St. Thomas Catholic Church 25th Anniversary",
+    date: "13th - 14th Aug, 2026",
+    location: "St Thomas Catholic Church, Umuahia",
+    attendees: "",
+    buttonText: "Attend",
+    color: "#F46F1A",
+  },
+  {
+    id: 3,
+    image: "/hero3.jpg",
+    title: "Apostolic Invasion Grand Finale",
+    date: "13th - 14th Sept, 2026",
+    location: "Aba Mega Mall",
+    attendees: "14.7k + Attending",
+    buttonText: "Attend",
+    color: "#F46F1A",
+  },
+  {
+    id: 4,
+    image: "/hero4.jpg",
+    title: "ABA The Gathering on n'abia",
+    date: "23rd - 29th Oct, 2026",
+    location: "Aba Mega Mall",
+    attendees: "",
+    buttonText: "Get Ticket",
+    color: "#F46F1A",
+  },
+  {
+    id: 5,
+    image: "/hero5.jpg",
+    title: "Techrise Cohort 3 by LearnFactory",
+    date: "20th May - 21st Aug, 2026",
+    location: "Hotel de la Poste, Aba",
+    attendees: "14.7k + Attending",
+    buttonText: "Attend",
+    color: "#F46F1A",
+  },
+  {
+    id: 6,
+    image: "/hero6.jpg",
+    title: "Abia State Tech Conference",
+    date: "2nd May - 4th Dec, 2026",
+    location: "JMAC, Umuahia",
+    attendees: "14.7k + Attending",
+    buttonText: "Get Ticket",
+    color: "#F46F1A",
+  },
+  {
+    id: 7,
+    image: "/hero7.jpg",
+    title: "Techrise Alumni Homecoming",
+    date: "Community Appreciation Walk - Umuahia Edition",
+    location: "Umuahia, Abia State",
+    attendees: "",
+    buttonText: "Get Ticket",
+    color: "#F46F1A",
+  },
+];
+
 
 const Hero = () => {
   const { data: events } = useCollection('/events/', eventCard);
-  const heroData = events.length ? events.slice(0, 7).map(event => ({ ...event, title: event.text, date: new Date(event.start_datetime).toLocaleDateString(), location: event.venue, attendees: '', buttonText: 'Get Ticket', color: '#F46F1A' })) : [{ image: '/hero1.png', title: 'Explore events in Abia', date: '', location: '', attendees: '', buttonText: 'Explore Events', color: '#F46F1A' }];
+  const heroData = events.length ? events.slice(0, 7).map(event => ({ ...event, title: event.text, date: new Date(event.start_datetime).toLocaleDateString(), location: event.venue, attendees: '', buttonText: 'Get Ticket', color: '#F46F1A' })) : [{ image: '/hero1.jpg', title: 'Explore events in Abia', date: '', location: '', attendees: '', buttonText: 'Explore Events', color: '#F46F1A' }];
   const [slideIndex, setSlideIndex] = useState(0);
 
   const currentSlide = heroData[slideIndex % heroData.length];
@@ -27,7 +100,7 @@ const Hero = () => {
   // Automatic slide
   useEffect(() => {
     const interval = setInterval(() => {
-      nextSlide();
+      setSlideIndex(index => (index + 1) % heroData.length);
     }, 2000);
 
     return () => clearInterval(interval);

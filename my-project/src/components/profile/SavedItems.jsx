@@ -9,7 +9,10 @@ import { NavLink } from "react-router-dom";
 import SectionHeader from "./common/SectionHeader";
 
 const SavedItems = () => {
-  const { data: savedEvents, reload } = useCollection("/saved-events/", eventCard);
+  const { data: savedEvents, reload } = useCollection(
+    "/saved-events/",
+    eventCard,
+  );
   const [savedHotels, setSavedHotels] = useState([]);
 
   const loadSavedEvents = () => {};
@@ -41,9 +44,16 @@ const SavedItems = () => {
   }, []);
 
   // Remove an event
-  const handleRemoveEvent = async eventId => {
-    try { await api('/saved-events/', { method: 'DELETE', body: { event: eventId } }); reload(); }
-    catch (error) { toast.error(error.message); }
+  const handleRemoveEvent = async (eventId) => {
+    try {
+      await api("/saved-events/", {
+        method: "DELETE",
+        body: { event: eventId },
+      });
+      reload();
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   // Remove a hotel

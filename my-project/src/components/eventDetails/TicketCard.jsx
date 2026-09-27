@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FiBookmark, FiMinus, FiPlus } from "react-icons/fi";
-import { useSavedEvent } from "../../hooks/useSavedEvent";
+import { useAuth } from "../context/AuthContext";
 
 const TicketCard = ({
   tickets,
@@ -15,9 +15,20 @@ const TicketCard = ({
 }) => {
   const isFree = event?.text3?.toLowerCase() === "free";
 
+  const { user } = useAuth();
+
   const [isSaved, setIsSaved] = useState(false);
-  useEffect(() => { let active = true; allPages('/saved-events/').then(rows => { if (active) setIsSaved(rows.some(row => row.id === event.id)); }).catch(error => toast.error(error.message)); return () => { active = false; }; }, [event.id]);
+  useEffect(() => {
+    setIsSaved(false);
+    if (!user) return;
+    const controller = new AbortController();
+    allPages('/saved-events/', { signal: controller.signal })
+      .then(rows => { if (!controller.signal.aborted) setIsSaved(rows.some(row => row.id === event.id)); })
+      .catch(error => { if (!controller.signal.aborted) toast.error(error.message); });
+    return () => controller.abort();
+  }, [event.id, user]);
   const handleSaveEvent = async () => {
+    if (!user) { toast.error('Please log in to save events.'); return; }
     try { await api('/saved-events/', { method: isSaved ? 'DELETE' : 'POST', body: { event: event.id } }); setIsSaved(value => !value); }
     catch (error) { toast.error(error.message); }
   };
@@ -139,7 +150,7 @@ const TicketCard = ({
         </Link>
 
         <button
-          onClick={toggleSaved}
+          onClick={handleSaveEvent}
           className={`w-full border py-2.5 rounded-xl flex items-center justify-center space-x-2 cursor-pointer ${
             isSaved
               ? "border-orange-500 text-orange-600 bg-orange-50"

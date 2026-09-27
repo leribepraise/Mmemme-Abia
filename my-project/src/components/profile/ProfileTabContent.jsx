@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { todayInLagos } from '@/lib/dateOfBirth';
 import toast from "react-hot-toast";
 import { profileSchema } from "./profileSettingsSchemas/profileSchema";
 import { Calendar, MapPin } from "lucide-react";
@@ -220,6 +221,7 @@ const ProfileTabContent = () => {
           <div className="relative">
             <input
               type="date"
+              max={todayInLagos()}
               value={form.dateOfBirth || ""}
               onChange={handleChange("dateOfBirth")}
               className={`w-full rounded-lg border pl-4 pr-9 py-3 text-sm outline-none focus:border-green-700 ${

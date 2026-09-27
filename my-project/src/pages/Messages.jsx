@@ -1,4 +1,5 @@
 import { useConversations } from '@/hooks/useConversations';
+import Seo from '../components/seo/Seo';
 import toast from 'react-hot-toast';
 import React, { useState } from "react";
 import {
