@@ -7,14 +7,15 @@ from .models import Ticket
 from .services import check_in
 
 class TicketSerializer(serializers.ModelSerializer):
+    event = serializers.UUIDField(source='ticket_type.event_id', read_only=True)
     class Meta:
         model=Ticket
-        fields=["id","booking","booking_item","ticket_type","ticket_number","qr_code","status","checked_in_at"]
+        fields=["id","booking","booking_item","ticket_type","ticket_number","qr_code","status","checked_in_at","event"]
         read_only_fields=fields
 
 class TicketViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class=TicketSerializer
-    def get_queryset(self): return Ticket.objects.filter(owner=self.request.user).order_by("-created_at","id")
+    def get_queryset(self): return Ticket.objects.filter(owner=self.request.user).select_related('ticket_type').order_by("-created_at","id")
     @action(detail=True,methods=["get"])
     def qr(self,request,pk=None):
         import qrcode

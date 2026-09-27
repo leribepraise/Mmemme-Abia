@@ -198,12 +198,7 @@ export default function OrganizerLogin() {
                   Don't have an account?{" "}
                   <button
                     type="button"
-                    onClick={() =>
-                      toast({
-                        title: "Coming soon",
-                        description: "Organizer registration isn't open yet â€” check back shortly.",
-                      })
-                    }
+                    onClick={() => navigate('/organizer/signup')}
                     className="text-[#F36B25] font-semibold hover:underline inline-flex items-center gap-1"
                     data-testid="button-register"
                   >

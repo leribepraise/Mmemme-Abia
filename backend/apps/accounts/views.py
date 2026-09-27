@@ -54,6 +54,7 @@ class LoginView(PublicAuthView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
+        User.objects.filter(pk=user.pk).update(last_login=timezone.now())
         refresh = RefreshToken.for_user(user)
         refresh['session_version'] = user.session_version
         audit(user,"account.login",user.pk)
@@ -171,7 +172,9 @@ class PasswordChangeView(APIView):
 class OrganizerApplicationView(APIView):
     def get(self,request):
         profile = OrganizerProfile.objects.filter(user=request.user).first()
-        return Response(OrganizerSerializer(profile).data if profile else None)
+        if not profile:
+            return Response(status=204)
+        return Response(OrganizerSerializer(profile).data)
     @transaction.atomic
     def post(self,request):
         if not request.user.email_verified:
@@ -180,6 +183,8 @@ class OrganizerApplicationView(APIView):
         profile = OrganizerProfile.objects.filter(user=request.user).first()
         if profile and profile.status == "APPROVED":
             raise serializers.ValidationError("Your organizer account is already approved.")
+        if profile and profile.status == 'PENDING':
+            raise serializers.ValidationError('Your application is already awaiting review.')
         serializer = OrganizerSerializer(profile,data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.validated_data.pop('accept_terms')

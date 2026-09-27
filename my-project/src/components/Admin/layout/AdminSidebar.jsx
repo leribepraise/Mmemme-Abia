@@ -134,7 +134,7 @@ const AdminSidebar = ({ open, onClose }) => {
       >
         <nav aria-label="Admin navigation">
           <ul className="space-y-0.5">
-            {navItems.slice(0, 5).map(({ label, to, icon: Icon, end }) => (
+            {navItems.slice(0, 4).map(({ label, to, icon: Icon, end }) => (
               <li key={to}>
                 <NavLink
                   to={to}
@@ -151,24 +151,9 @@ const AdminSidebar = ({ open, onClose }) => {
               </li>
             ))}
 
-            <HotelsDropdown />
+            <li className="px-3 py-2 text-xs text-white/40">Hotels & Stays · Coming soon</li>
 
-            {navItems.slice(5).map(({ label, to, icon: Icon, end }) => (
-              <li key={to}>
-                <NavLink
-                  to={to}
-                  end={end}
-                  className={({ isActive }) =>
-                    `${NAV_LINK_CLASS} ${
-                      isActive ? NAV_LINK_ACTIVE : NAV_LINK_INACTIVE
-                    }`
-                  }
-                >
-                  <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span className="truncate">{label}</span>
-                </NavLink>
-              </li>
-            ))}
+            {navItems.slice(4).map(({label,icon:Icon})=><li key={label} className="flex items-center gap-3 px-3 py-2 text-[13px] text-white/40" title="Coming soon"><Icon className="h-4 w-4 shrink-0"/><span>{label}</span></li>)}
           </ul>
         </nav>
       </aside>

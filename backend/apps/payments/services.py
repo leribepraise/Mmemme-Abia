@@ -87,7 +87,8 @@ def settle(payment_id,data):
         return payment
     payment.save(update_fields=["provider_reference","paid_at","status","last_checked_at","updated_at"])
     confirm_locked(booking)
-    fee = (payment.amount*Decimal(settings.PLATFORM_COMMISSION_BPS)/10000).quantize(Decimal("0.01"),rounding=ROUND_HALF_UP)
+    commission_bps = settings.EVENT_COMMISSION_BPS if booking.kind == 'EVENT' else settings.PLATFORM_COMMISSION_BPS
+    fee = (payment.amount*Decimal(commission_bps)/10000).quantize(Decimal("0.01"),rounding=ROUND_HALF_UP)
     LedgerEntry.objects.get_or_create(payment=payment,kind="SALE",defaults={"booking":booking,"gross":payment.amount,"platform_fee":fee,"provider_amount":payment.amount-fee})
     audit(None,"payment.verified",payment.pk)
     return payment

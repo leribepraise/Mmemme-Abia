@@ -18,6 +18,12 @@ class UserSerializer(serializers.ModelSerializer):
         from apps.common.api import validate_image
         return validate_image(value) if value else value
 
+    def validate_phone(self, value):
+        import re
+        if value and not re.fullmatch(r'\+?[0-9 ()-]{10,20}', value):
+            raise serializers.ValidationError('Enter a valid phone number.')
+        return value
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True,trim_whitespace=False,max_length=128)
     otp_code = serializers.RegexField(r"^[0-9]{6}$", write_only=True, trim_whitespace=True, max_length=6)

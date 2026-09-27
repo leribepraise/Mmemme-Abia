@@ -86,9 +86,9 @@ const AdminLogin = () => {
             <div className="mt-8 flex items-center gap-2 text-sm">
               <ShieldCheck className="h-5 w-5 text-white" aria-hidden="true" />
               <span className="text-white/70">Secure</span>
-              <span aria-hidden="true">â€¢</span>
+              <span aria-hidden="true">•</span>
               <span>Trusted</span>
-              <span aria-hidden="true">â€¢</span>
+              <span aria-hidden="true">•</span>
               <span>Mmemme Abia</span>
             </div>
           </div>

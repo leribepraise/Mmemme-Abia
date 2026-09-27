@@ -322,7 +322,7 @@ const CreateAccount = ({ onNext }) => {
                 type="submit" disabled={isSubmitting}
                 className="h-11 w-full cursor-pointer rounded-lg bg-[#F36B0A] text-sm font-semibold text-white transition hover:bg-[#df5f06] active:scale-[0.99]"
               >
-                Continue â†’
+                Continue →
               </button>
             </div>
 

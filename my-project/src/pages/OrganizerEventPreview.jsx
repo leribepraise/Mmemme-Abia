@@ -60,6 +60,7 @@ export default function OrganizerEventPreview() {
       subtitle="See how your event will appear to the public."
       actions={
         <button
+          disabled={!['DRAFT', 'REJECTED'].includes(event.rawStatus)}
           onClick={() => navigate(`/organizer/events/${event.id}/edit`)}
           className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-50"
           data-testid="button-preview-edit"
@@ -69,6 +70,7 @@ export default function OrganizerEventPreview() {
       }
     >
       <Stepper />
+      {event.review_note && <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm"><h2 className="font-semibold">Staff feedback</h2><p className="mt-2 whitespace-pre-wrap">{event.review_note}</p></div>}
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="h-56 bg-gray-100">
@@ -123,6 +125,7 @@ export default function OrganizerEventPreview() {
 
       <div className="flex items-center justify-between gap-3">
         <button
+          disabled={!['DRAFT', 'REJECTED'].includes(event.rawStatus)}
           onClick={() => navigate(`/organizer/events/${event.id}/edit`)}
           className="px-5 py-2.5 rounded-lg text-sm font-bold text-gray-600 border border-gray-200 bg-white hover:bg-gray-50"
           data-testid="button-preview-back"
@@ -130,7 +133,7 @@ export default function OrganizerEventPreview() {
           Back
         </button>
         <button
-          onClick={publish}
+          disabled={!['DRAFT', 'REJECTED'].includes(event.rawStatus)} onClick={publish}
           className="flex items-center gap-2 bg-[#F36B25] hover:bg-[#d95d1d] text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-colors"
           data-testid="button-preview-publish"
         >

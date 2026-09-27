@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CheckCircle2, Clock, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -14,6 +14,7 @@ export default function LiveReview({kind}) {
   const [busy,setBusy]=useState(false);
   const [contentChecked,setContentChecked]=useState(false);
   const [policyChecked,setPolicyChecked]=useState(false);
+  useEffect(()=>{setNote('');setContentChecked(false);setPolicyChecked(false);},[id,kind]);
   const row=request.data;
   const act=async decision=>{
     if(busy)return;

@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/components/context/AuthContext';
 import LoginLogo from '@/components/auth/login/LoginLogo';
 import EmailCodeForm from '@/components/auth/EmailCodeForm';
+import VerificationScreen from '@/components/auth/VerificationScreen';
 export default function AccountAction() {
   const [params] = useSearchParams();
   const location = useLocation();
@@ -36,6 +37,7 @@ export default function AccountAction() {
     setMessage(result.detail);
     setVerified(true);
   };
+  if (verify && codeSent && !verified) return <VerificationScreen email={email} onVerify={verifyCode} onResend={requestCode} onBack={()=>setCodeSent(false)}/>;
   return <div className="min-h-screen bg-[#F5F7F3] px-5 py-8 md:px-12"><LoginLogo /><div className="max-w-lg mx-auto bg-white rounded-[28px] p-8 shadow-sm border border-gray-100 space-y-5">
     <h1 className="text-[24px] font-bold text-[#1F2937]">{verify ? 'Verify your email' : 'Reset your password'}</h1>
     {verify && token && !verified && <p>Email verification now uses a code. Request a new code below.</p>}

@@ -20,7 +20,7 @@ const ProgressSteps = ({ currentStep }) => {
                       : "bg-gray-200 text-gray-500"
                   }`}
                 >
-                  {isCompleted ? "âœ“" : step.number}
+                  {isCompleted ? "✓" : step.number}
                 </div>
 
                 <span
