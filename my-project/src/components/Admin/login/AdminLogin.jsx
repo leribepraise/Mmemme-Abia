@@ -9,7 +9,7 @@ import { FcGoogle } from "react-icons/fc";
 
 // Adjust these two paths to wherever your assets live
 import logo from "/logo.png";
-import adminHero from "/admin-login-hero.png";
+import adminHero from "/sadmin-login-hero.png";
 
 const schema = z.object({
   identifier: z.string().trim().min(1, "Enter your email or username"),

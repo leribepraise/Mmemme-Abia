@@ -25,11 +25,24 @@ const SignUpForm = ({ onLogin }) => {
   const onSubmit = async (data) => {
     try {
       const [first_name, ...last] = data.fullName.trim().split(/\s+/);
-      await api('/auth/register/', { method: 'POST', body: { email: data.email, password: data.password, first_name, last_name: last.join(' ') } });
+      await api("/auth/register/", {
+        method: "POST",
+        body: {
+          email: data.email,
+          password: data.password,
+          first_name,
+          last_name: last.join(" "),
+        },
+      });
       await login({ email: data.email, password: data.password });
-      toast.success('Account created. Check your email for your verification link.');
-      navigate('/Signup/onboarding');
-    } catch (error) { toast.error(error.message); }
+      sessionStorage.setItem("pendingSignupEmail", data.email);
+      toast.success(
+        "Account created. Enter the verification code sent to your email.",
+      );
+      navigate("/signup/verify-otp", { state: { email: data.email } });
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const onInvalid = () => {
@@ -176,7 +189,8 @@ const SignUpForm = ({ onLogin }) => {
             )}
             {/* Submit */}
             <button
-              type="submit" disabled={isSubmitting}
+              type="submit"
+              disabled={isSubmitting}
               className="w-full bg-[#F97316] hover:bg-[#df5f18] text-white text-[14px] font-medium py-3 rounded-lg transition cursor-pointer"
             >
               Sign Up

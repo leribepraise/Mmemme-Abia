@@ -3,10 +3,6 @@ import FoodSearchBar from "./FoodSearchBar";
 
 const FoodHero = () => {
   return (
-<<<<<<< HEAD
-=======
-
->>>>>>> eb4fa6af2167688e8c6ab615a9bfd594875cc605
     <section className="relative">
       {/* Hero Container */}
       <div className="relative h-[240px] overflow-hidden rounded-b-[24px] md:h-[350px]">
