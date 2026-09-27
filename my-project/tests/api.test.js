@@ -7,6 +7,18 @@ afterEach(()=>{globalThis.fetch=realFetch;});
 const client=()=>import("../src/lib/api.js?test="+(++moduleID));
 const response=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json"}});
 
+test('unverified login preserves the verification code for UI routing', async () => {
+  globalThis.fetch = async url => url.endsWith('/csrf/') ? response({csrf_token:'csrf-test'}) : response({error:{detail:'Verify your email.',code:'email_not_verified'}},403);
+  const api = await client();
+  await assert.rejects(api.api('/auth/login/',{method:'POST',body:{email:'test@example.test',password:'invalid'}}), error => error.code === 'email_not_verified' && error.message === 'Verify your email.');
+});
+
+test('OTP throttling exposes Retry-After to the resend countdown', async () => {
+  globalThis.fetch = async url => url.endsWith('/csrf/') ? response({csrf_token:'csrf-test'}) : new Response(JSON.stringify({error:{detail:'Please wait.'}}),{status:429,headers:{'Content-Type':'application/json','Retry-After':'120'}});
+  const api = await client();
+  await assert.rejects(api.api('/auth/resend-verification/',{method:'POST',body:{email:'test@example.test'}}), error => error.status === 429 && error.retryAfter === 120);
+});
+
 test("booking requests send cookies, CSRF, bearer and stable idempotency key",async()=>{
   const calls=[];
   globalThis.fetch=async(url,options)=>{calls.push({url,options});return url.endsWith("/csrf/")?response({csrf_token:"csrf-test"}):response({id:"booking-test"},201);};

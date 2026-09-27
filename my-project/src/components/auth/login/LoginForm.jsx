@@ -25,6 +25,7 @@ const LoginForm = ({ onLogin }) => {
       toast.success("Login successful!");
     } catch (error) {
       toast.error(error.message || "Login failed. Please try again.");
+      if (error.code === 'email_not_verified') navigate('/verify-email', { state: { email: data.email } });
     }
   };
 

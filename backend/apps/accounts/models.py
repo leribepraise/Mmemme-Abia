@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import uuid
+from .validators import validate_date_of_birth
 
 
 class User(AbstractUser):
@@ -18,7 +20,7 @@ class User(AbstractUser):
     whatsapp = models.CharField(max_length=20, blank=True)
     lga = models.CharField(max_length=100, blank=True)
     address = models.CharField(max_length=500, blank=True)
-    date_of_birth = models.DateField(null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True, validators=[validate_date_of_birth])
     gender = models.CharField(max_length=30, blank=True)
     bio = models.TextField(max_length=2000, blank=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True)
@@ -36,6 +38,19 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class EmailVerificationCode(models.Model):
+    """A short-lived email challenge; never an account or a stored signup password."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(unique=True)
+    code_hash = models.CharField(max_length=128, blank=True)
+    expires_at = models.DateTimeField()
+    sent_at = models.DateTimeField()
+    window_started_at = models.DateTimeField()
+    send_count = models.PositiveSmallIntegerField(default=0)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    consumed_at = models.DateTimeField(null=True, blank=True)
 
 
 class OrganizerProfile(models.Model):

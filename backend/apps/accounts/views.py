@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
-from django.core import signing
 from django.db import transaction
 from django.middleware.csrf import get_token
 from django.utils.decorators import method_decorator
@@ -17,9 +16,10 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from rest_framework_simplejwt.utils import get_md5_hash_password
 from apps.common.models import audit
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, OrganizerSerializer
+from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, OrganizerSerializer, EmailCodeRequestSerializer, EmailCodeVerifySerializer
+from .email_codes import request_email_code, complete_email_code
 from .models import OrganizerProfile
-from .services import send_verification, send_reset, revoke_tokens
+from .services import send_reset, revoke_tokens
 
 User = get_user_model()
 
@@ -68,6 +68,8 @@ class RefreshView(PublicAuthView):
             parsed=RefreshToken(token)
             # Serialize refreshes with password changes, then with token consumption.
             user=User.objects.select_for_update(no_key=True).get(pk=parsed["user_id"],is_active=True)
+            if not user.email_verified:
+                raise InvalidToken("Verify your email before continuing.")
             outstanding=OutstandingToken.objects.select_for_update().get(jti=parsed["jti"],user=user)
             if BlacklistedToken.objects.filter(token=outstanding).exists() or parsed.get("hash_password")!=get_md5_hash_password(user.password):
                 raise InvalidToken("This refresh session has been revoked.")
@@ -94,22 +96,24 @@ class MeView(generics.RetrieveUpdateAPIView):
     http_method_names = ["get","patch","head","options"]
     def get_object(self): return self.request.user
 
+@method_decorator(csrf_protect,name="dispatch")
 class VerifyEmailView(PublicAuthView):
     def post(self,request):
-        try:
-            data = signing.loads(request.data.get("token",""),salt="verify-email",max_age=86400)
-            user = User.objects.get(pk=data["user"],email=data["email"],is_active=True)
-        except (signing.BadSignature,KeyError,TypeError,ValueError,User.DoesNotExist):
-            raise serializers.ValidationError("This verification link is invalid or expired.")
-        User.objects.filter(pk=user.pk).update(email_verified=True)
-        return Response({"detail":"Email verified."})
+        serializer = EmailCodeVerifySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        complete_email_code(serializer.validated_data["email"], serializer.validated_data["otp_code"])
+        return Response({"detail":"Email verified. You can now log in."})
 
-class ResendVerificationView(APIView):
-    throttle_classes = [ScopedRateThrottle]
-    throttle_scope = "auth"
+@method_decorator(csrf_protect,name="dispatch")
+class ResendVerificationView(PublicAuthView):
     def post(self,request):
-        if not request.user.email_verified: send_verification(request.user)
-        return Response({"detail":"Verification email requested."})
+        serializer = EmailCodeRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["email"]
+        if User.objects.filter(email__iexact=email,email_verified=True).exists():
+            raise serializers.ValidationError("This email is already verified. Please log in.")
+        request_email_code(email)
+        return Response({"detail":"Verification code queued. Check your email.", "expires_in":600, "resend_after":60}, status=202)
 
 class PasswordResetView(PublicAuthView):
     def post(self,request):

@@ -1,4 +1,5 @@
 import io
+import re
 import time
 from contextlib import redirect_stdout
 from unittest.mock import patch
@@ -6,6 +7,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from django.contrib.auth import get_user_model
 from django.core import signing
+from django.core.cache import cache
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
@@ -19,6 +21,8 @@ from apps.notifications.services import deliver_one
 )
 class SecurityEmailTests(TestCase):
     def setUp(self):
+        cache.clear()
+        self.addCleanup(cache.clear)
         self.client = APIClient()
 
     def deliver_link(self):
@@ -37,18 +41,25 @@ class SecurityEmailTests(TestCase):
         self.assertEqual(job.body, "Security email delivered.")
         return {key: values[0] for key, values in parse_qs(urlsplit(urls[0]).query).items()}
 
-    def test_registration_console_link_verifies_the_account(self):
+    def test_registration_console_code_verifies_before_account_creation(self):
+        response = self.client.post('/api/v1/auth/resend-verification/', {'email': 'new-customer@example.test'}, format='json')
+        self.assertEqual(response.status_code, 202)
+        self.assertFalse(get_user_model().objects.filter(email='new-customer@example.test').exists())
+        job = Notification.objects.get()
+        code = re.search(r'^\d{6}$', job.body, re.MULTILINE).group()
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.assertTrue(deliver_one())
+        self.assertIn(code, output.getvalue().splitlines())
+        job.refresh_from_db()
+        self.assertEqual(job.body, 'Security email delivered.')
         response = self.client.post("/api/v1/auth/register/", {
             "email": "new-customer@example.test",
             "password": "UniqueS3curePhrase!894",
+            "otp_code": code,
         }, format="json")
         self.assertEqual(response.status_code, 201, response.data)
         user = get_user_model().objects.get(email="new-customer@example.test")
-        self.assertFalse(user.email_verified)
-
-        response = self.client.post("/api/v1/auth/verify-email/", self.deliver_link(), format="json")
-        self.assertEqual(response.status_code, 200, response.data)
-        user.refresh_from_db()
         self.assertTrue(user.email_verified)
 
     def test_password_reset_console_link_is_usable_and_single_use(self):
@@ -71,7 +82,7 @@ class SecurityEmailTests(TestCase):
         token = signing.dumps(data, salt="verify-email")
         with patch("django.core.signing.time.time", return_value=time.time() - 86401):
             expired = signing.dumps(data, salt="verify-email")
-        for invalid in ("3D" + token, token[:-1], expired):
+        for invalid in (token, "3D" + token, token[:-1], expired):
             with self.subTest(token_type="expired" if invalid == expired else "modified"):
                 response = self.client.post("/api/v1/auth/verify-email/", {"token": invalid}, format="json")
                 self.assertEqual(response.status_code, 400)

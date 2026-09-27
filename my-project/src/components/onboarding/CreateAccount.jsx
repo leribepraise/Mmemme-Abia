@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { dateOfBirthSchema, todayInLagos } from '@/lib/dateOfBirth';
 import toast from "react-hot-toast";
 import {
   Upload,
@@ -21,7 +22,7 @@ const createAccountSchema = z.object({
 
   address: z.string().min(5, "Please enter your home address"),
 
-  dateOfBirth: z.string().min(1, "Please select your date of birth"),
+  dateOfBirth: dateOfBirthSchema,
 
   gender: z.string().min(1, "Please select your gender"),
 
@@ -236,6 +237,7 @@ const CreateAccount = ({ onNext }) => {
                     <input
                       type="date"
                       {...register("dateOfBirth")}
+                      max={todayInLagos()}
                       className={`h-8 w-full rounded-md border bg-white px-3 text-[9px] text-gray-500 outline-none focus:border-[#48782E] ${
                         errors.dateOfBirth
                           ? "border-red-400"

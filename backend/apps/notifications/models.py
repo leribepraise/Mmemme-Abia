@@ -3,7 +3,7 @@ from django.db import models
 from django.utils import timezone
 
 class Notification(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notifications")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notifications", null=True, blank=True)
     key = models.CharField(max_length=200, unique=True)
     subject = models.CharField(max_length=200)
     body = models.TextField()
@@ -11,6 +11,7 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
     available_at = models.DateTimeField(default=timezone.now, db_index=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
     sent_at = models.DateTimeField(null=True, blank=True)
     claimed_at = models.DateTimeField(null=True, blank=True)
     attempts = models.PositiveIntegerField(default=0)

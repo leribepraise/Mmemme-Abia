@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { dateOfBirthSchema } from '@/lib/dateOfBirth';
 
 export const profileSchema = z.object({
   fullName: z.string().trim().min(2, "Full name must be at least 2 characters"),
@@ -11,7 +12,7 @@ export const profileSchema = z.object({
 
   lga: z.string().trim().min(2, "Please enter a valid LGA"),
 
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  dateOfBirth: dateOfBirthSchema,
 
   profilePicture: z.string().optional(),
 });

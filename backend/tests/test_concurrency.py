@@ -47,6 +47,24 @@ class InventoryConcurrencyTests(TransactionTestCase):
         self.assertEqual(Ticket.objects.filter(booking=booking).count(),1)
         self.assertEqual(LedgerEntry.objects.filter(kind="SALE").count(),1)
 
+    def test_email_code_can_only_create_one_account_concurrently(self):
+        from unittest.mock import patch
+        from rest_framework.exceptions import ValidationError
+        from apps.accounts.email_codes import request_email_code, complete_email_code
+        from apps.accounts.models import EmailVerificationCode
+        email = 'otp-race@example.test'
+        with patch('apps.accounts.email_codes.secrets.randbelow', return_value=123456):
+            request_email_code(email)
+        def register():
+            try:
+                complete_email_code(email, '123456', registration={'email': email, 'password': 'UniqueS3curePhrase!894'})
+                return 'created'
+            except ValidationError:
+                return 'rejected'
+        self.assertCountEqual(self.race(register, register), ['created', 'rejected'])
+        self.assertEqual(get_user_model().objects.filter(email=email,email_verified=True).count(), 1)
+        self.assertIsNotNone(EmailVerificationCode.objects.get(email=email).consumed_at)
+
     def test_payment_and_cancellation_race_release_stock_once(self):
         buyer,stock,booking,payment,data=self.make_payment()
         self.race(lambda:settle(payment.pk,data),lambda:cancel(booking.pk,buyer))

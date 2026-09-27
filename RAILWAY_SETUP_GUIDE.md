@@ -161,7 +161,7 @@ Use a new strong password and log in at `/admin/` on the backend domain with tha
 ## 7. Verify email and persistent uploads
 
 1. Register a test customer with an inbox you control on the deployed site.
-2. Check Resend's email activity and worker logs, open the newest verification link, then test a password reset.
+2. Check Resend's email activity and worker logs. Enter the newest six-digit email code on the signup screen; the account is created only after verification. Then test a password reset (which still uses a link).
 3. Make sure links open the deployed site and login remains valid after refreshing.
 4. Create/approve a test provider and upload a listing image. Confirm the image loads through a signed storage URL. Redeploy backend and verify the image remains available.
 
