@@ -2,6 +2,7 @@ import { api } from "@/lib/api";
 import React, { useState } from "react";
 import { Lock, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
+import { PASSWORD_HELP, passwordError } from '@/lib/passwordPolicy';
 
 const ChangePasswordCard = () => {
   const [showCurrent, setShowCurrent] = useState(false);
@@ -29,6 +30,8 @@ const ChangePasswordCard = () => {
       return;
     }
 
+    const validationError = passwordError(form.newPassword);
+    if (validationError) { toast.error(validationError); return; }
     try { await api("/auth/password-change/", { method: "POST", body: { current_password: form.currentPassword, password: form.newPassword } }); }
     catch (error) { toast.error(error.message); return; }
     toast.success("Password changed. Please log in again.");
@@ -48,7 +51,7 @@ const ChangePasswordCard = () => {
             Change Password
           </h3>
           <p className="text-sm text-gray-500">
-            Update your password regularly to keep your account secure.
+            {PASSWORD_HELP}
           </p>
         </div>
       </div>

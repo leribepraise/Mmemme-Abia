@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import EmailCodeForm from '../EmailCodeForm';
 import VerificationScreen from '../VerificationScreen';
+import { PASSWORD_HELP } from '@/lib/passwordPolicy';
 
 const SignUpForm = ({onChallenge = () => {}}) => {
   const navigate = useNavigate();
@@ -128,6 +129,7 @@ const SignUpForm = ({onChallenge = () => {}}) => {
                   />
                 )}
               </div>
+              <p className="mt-1 text-xs text-gray-500">{PASSWORD_HELP}</p>
               {errors.password && (
                 <p className="text-red-500 text-xs mt-1">
                   {errors.password.message}

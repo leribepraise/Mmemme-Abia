@@ -6,6 +6,8 @@ Errors: `{error: <field errors or detail>, request_id: <identifier>}`. HTTP 400 
 
 ## Authentication
 
+New passwords require 8-128 characters, at least one uppercase letter (A-Z), one number (0-9), and one special character (punctuation or a symbol, not whitespace). Passwords are not compared with the username, name or email, and Django's common-password list is not used. The same policy applies to registration, password resets/changes and Django admin password forms. Existing passwords continue to authenticate. Email format validation and email OTP verification remain required; valid non-Gmail addresses are also accepted.
+
 1. `GET /auth/csrf/` returns `csrf_token` and sets its cookie.
 2. `POST /auth/resend-verification/` with `{email}` and `X-CSRFToken` requests a six-digit email code. Returns HTTP 202 with `expires_in: 600` and `resend_after: 60`. This queues an email; it creates no account and returns no authentication token. Keep signup details/password only in component memory.
 3. `POST /auth/register/` with email, password, `otp_code` (six-character string, preserving leading zeros), first_name, last_name and optional phone/date_of_birth. Send `X-CSRFToken`. Only a valid, unexpired code for that email can create a user. The user is created with `email_verified=true`, and the code is consumed atomically. No account exists before this step.

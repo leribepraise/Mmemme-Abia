@@ -5,6 +5,7 @@ import { useAuth } from '@/components/context/AuthContext';
 import LoginLogo from '@/components/auth/login/LoginLogo';
 import EmailCodeForm from '@/components/auth/EmailCodeForm';
 import VerificationScreen from '@/components/auth/VerificationScreen';
+import { PASSWORD_HELP, passwordError } from '@/lib/passwordPolicy';
 export default function AccountAction() {
   const [params] = useSearchParams();
   const location = useLocation();
@@ -27,6 +28,7 @@ export default function AccountAction() {
         setCodeSent(true);
       } else {
         const body = token ? { token, user: params.get('user'), password: fields.get('password') } : { email: fields.get('email') };
+        if (token && passwordError(body.password)) throw new Error(passwordError(body.password));
         const result = await api(token ? '/auth/password-reset/confirm/' : '/auth/password-reset/', { method: 'POST', body });
         setMessage(result.detail);
       }
@@ -43,6 +45,7 @@ export default function AccountAction() {
     {verify && token && !verified && <p>Email verification now uses a code. Request a new code below.</p>}
     {verify && codeSent && !verified ? <EmailCodeForm email={email} onVerify={verifyCode} onResend={requestCode} onBack={() => setCodeSent(false)} /> : !verified && <form onSubmit={submit} className="space-y-5">
       {verify ? <label className="block text-sm">Email address<input required name="email" type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} className="mt-2 w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#48782E]" /></label> : <input required name={token ? 'password' : 'email'} type={token ? 'password' : 'email'} autoComplete={token ? 'new-password' : 'email'} placeholder={token ? 'New password' : 'Your email address'} className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#48782E]" />}
+      {!verify && token && <p className="text-xs text-gray-500">{PASSWORD_HELP}</p>}
       <button disabled={busy} className="w-full bg-[#1B5E20] text-white font-semibold py-3 rounded-[8px]">{busy ? 'Please wait...' : verify ? 'Send verification code' : token ? 'Save new password' : 'Send reset link'}</button>
     </form>}
     <p role="status">{message}</p><Link to="/login" className="text-[#48782E]">Back to login</Link>
