@@ -1,4 +1,5 @@
 import React from "react";
+import ShareApp from '@/components/ShareApp';
 import { NavLink } from "react-router-dom";
 import { Link } from "react-router-dom";
 
@@ -57,6 +58,8 @@ const Footer = () => {
           {/* ACCOUNT */}
           <div>
             <p className="font-bold text-[16px] text-white">Account</p>
+            <Link to="/plans" className="block text-white">Membership plans</Link>
+            <ShareApp className="my-2 text-white"/>
             <NavLink to="/profile?section=My%20Tickets">
               <p className="font-normal text-[#FFFFFF]">My Tickets</p>
             </NavLink>

@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "apps.restaurants",
     "apps.transport",
     "apps.messaging",
+    "apps.memberships",
+    "apps.community",
     "apps.notifications",
     "apps.common",
 ]

@@ -1,4 +1,5 @@
 import toast from 'react-hot-toast';
+import ShareApp from '@/components/ShareApp';
 import { Link } from 'react-router-dom';
 import { useNotifications } from '@/components/context/NotificationsContext';
 import { useCollection } from "@/hooks/useApi";
@@ -140,6 +141,7 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
 
       <div className="mt-5 flex flex-wrap gap-3"><Link to="/events" className="rounded-lg bg-[#f36b0a] px-5 py-3 text-sm font-semibold text-white">Explore Events</Link><Link to={user?.is_verified && user?.role === 'ORGANIZER' ? '/organizer/dashboard' : '/organizer/apply'} className="rounded-lg border border-green-800 px-5 py-3 text-sm font-semibold text-green-800">{user?.is_verified && user?.role === 'ORGANIZER' ? 'Organizer Dashboard' : user?.organizer_status ? 'View Organizer Application' : 'Host an Event'}</Link>{!user?.onboarding_completed_at && <Link to="/Signup/onboarding" className="rounded-lg border border-slate-300 px-5 py-3 text-sm">Complete Your Profile</Link>}{user?.is_staff && <Link to="/admin" className="rounded-lg border border-green-800 px-5 py-3 text-sm">Admin Dashboard</Link>}</div>
       {/* RECENT BOOKINGS */}
+      <div className="mt-5 flex flex-wrap items-center gap-3"><Link to="/plans" className="rounded-lg bg-[#3F783D] px-5 py-3 text-sm font-semibold text-white">Manage {formattedPlan} membership</Link><Link to="/message" className="rounded-lg border px-5 py-3 text-sm">Messages & support</Link><Link to="/community" className="rounded-lg border px-5 py-3 text-sm">Community</Link><ShareApp/></div>
       <section className="mt-5 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-bold text-[#172033]">Recent Bookings</h2>

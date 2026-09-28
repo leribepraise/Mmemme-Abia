@@ -13,11 +13,19 @@ from apps.tickets.api import TicketViewSet
 from apps.notifications.api import NotificationViewSet
 from apps.notifications.push_api import PushConfigView, PushSubscriptionView
 from apps.messaging.api import ConversationViewSet
+from apps.memberships.api import PlanViewSet, MembershipViewSet
+from apps.community.api import PostViewSet, GroupViewSet, PeopleViewSet
 from apps.common.catalog import CONFIG, viewset_for
 from apps.common.views import live, ready
+from apps.common.management_api import ManageResource
 from apps.accounts.admin_api import AdminUserViewSet, AdminOrganizerViewSet, AdminOverview
 
 router=DefaultRouter()
+router.register('plans', PlanViewSet, basename='plan')
+router.register('memberships', MembershipViewSet, basename='membership')
+router.register('community/posts', PostViewSet, basename='community-post')
+router.register('community/groups', GroupViewSet, basename='community-group')
+router.register('community/people', PeopleViewSet, basename='community-person')
 router.register('admin/events', AdminEventViewSet, basename='admin-event')
 router.register('admin/users', AdminUserViewSet, basename='admin-user')
 router.register('admin/organizers', AdminOrganizerViewSet, basename='admin-organizer')
@@ -33,6 +41,8 @@ router.register("conversations",ConversationViewSet,basename="conversation")
 for model,(prefix,*_) in CONFIG.items():
     router.register("hotels" if prefix=="hotel" else prefix,viewset_for(model),basename=model._meta.model_name)
 urlpatterns=[
+    path('api/v1/admin/manage/<slug:resource>/', ManageResource.as_view()),
+    path('api/v1/admin/manage/<slug:resource>/<str:pk>/', ManageResource.as_view()),
     path('api/v1/push/config/', PushConfigView.as_view()),
     path('api/v1/push/subscription/', PushSubscriptionView.as_view()),
     path("admin/",admin.site.urls),

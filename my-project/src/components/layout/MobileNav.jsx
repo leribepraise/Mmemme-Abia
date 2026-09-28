@@ -91,6 +91,8 @@ const MobileNav = () => {
             )}
 
             <nav className="flex flex-col gap-4 text-lg">
+              {user.is_verified && user.role === 'ORGANIZER' && <NavLink to="/organizer/dashboard" onClick={closeMenu} className="rounded-lg bg-[#3F783D] px-4 py-3 font-semibold text-white">Organizer control panel</NavLink>}
+              {user.is_staff && <NavLink to="/admin" onClick={closeMenu} className="font-semibold text-green-800">Admin dashboard</NavLink>}
               {currentNav.map((n) => (
                 <NavLink
                   key={n.title}

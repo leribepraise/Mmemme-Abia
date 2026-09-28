@@ -28,6 +28,8 @@ class Command(BaseCommand):
         except Exception: logger.exception("Background job failed: %s",label)
         finally: cache.set("worker:heartbeat",True,180)
     def tick(self):
+        from apps.memberships.services import reconcile_pending
+        self.run_job('membership reconciliation', reconcile_pending)
         now=timezone.now()
         for event in PaymentEvent.objects.filter(processed_at__isnull=True,available_at__lte=now,attempts__lt=20).order_by("received_at")[:50]:
             self.run_job("payment event",process_event,event.pk)

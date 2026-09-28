@@ -56,6 +56,7 @@ export default function OrganizerEventForm({ editId }) {
     date: existing?.date || "",
     venue: existing?.venue || "",
     price: String(existing?.price || 5000),
+    minimum_plan: 'bronze', membership_discount: false, membership_early_access: false, sales_start: '',
     capacity: String(existing?.ticketCapacity || 500),
     image: existing?.image || "",
   });
@@ -72,7 +73,8 @@ export default function OrganizerEventForm({ editId }) {
   const ticketId = useRef(null);
   useEffect(() => {
     if (!existing) return;
-    setForm({ title: existing.title, category: existing.category, eventType: existing.eventType, description: existing.description, tags: '', date: existing.date, venue: existing.venue, price: String(existing.price), capacity: String(existing.capacity), image: existing.image_url || existing.image || '' });
+    const ticket = existing.ticket_types[0];
+    setForm({ title: existing.title, category: existing.category, eventType: existing.eventType, description: existing.description, tags: '', date: existing.date, venue: existing.venue, price: String(existing.price), capacity: String(existing.capacity), image: existing.image_url || existing.image || '', minimum_plan: ticket?.minimum_plan || 'bronze', membership_discount: ticket?.membership_discount || false, membership_early_access: ticket?.membership_early_access || false, sales_start: ticket?.sales_start ? new Date(new Date(ticket.sales_start).getTime()-new Date(ticket.sales_start).getTimezoneOffset()*60000).toISOString().slice(0,16) : '' });
     ticketId.current = existing.ticket_types[0]?.id || null;
   }, [existing]);
   const submit = async publish => {
@@ -82,7 +84,7 @@ export default function OrganizerEventForm({ editId }) {
       const body = { title: form.title, category: form.category, description: form.description, venue: form.venue, city: existing?.city || form.venue, address: existing?.address || form.venue, capacity: Number(form.capacity), image_url: form.image.trim(), start_datetime: existing?.date === form.date ? existing.start_datetime : `${form.date}T00:00:00+01:00`, end_datetime: existing?.date === form.date ? existing.end_datetime : `${form.date}T23:59:59+01:00` };
       const result = await api(createdId.current ? `/events/${createdId.current}/` : '/events/', { method: createdId.current ? 'PATCH' : 'POST', body });
       createdId.current = result.id;
-      const ticket = await api(`/events/${result.id}/ticket-types/`, { method: ticketId.current ? 'PATCH' : 'POST', body: { ...(ticketId.current ? { id: ticketId.current } : {}), name: existing?.ticket_types[0]?.name || 'Regular', price: Number(form.price), quantity: Number(form.capacity) } });
+      const ticket = await api(`/events/${result.id}/ticket-types/`, { method: ticketId.current ? 'PATCH' : 'POST', body: { ...(ticketId.current ? { id: ticketId.current } : {}), name: existing?.ticket_types[0]?.name || 'Regular', price: Number(form.price), quantity: Number(form.capacity), minimum_plan: form.minimum_plan, membership_discount: form.membership_discount, membership_early_access: form.membership_early_access, sales_start: form.sales_start ? new Date(form.sales_start).toISOString() : null } });
       ticketId.current = ticket.id;
       if (publish) await api(`/events/${result.id}/submit/`, { method: 'POST' });
       toast.success(publish ? 'Event submitted for staff approval.' : 'Draft saved.');
@@ -165,6 +167,7 @@ export default function OrganizerEventForm({ editId }) {
                 <div>
                   <label className={labelClass} htmlFor="event-price">Ticket Price (&#8358;) *</label>
                   <input id="event-price" type="number" min="0" className={inputClass} value={form.price} onChange={e => update("price", e.target.value)} data-testid="input-ticket-price" />
+                  <div className="mt-4 space-y-4"><label className={labelClass}>Ticket access<select value={form.minimum_plan} onChange={e=>update('minimum_plan',e.target.value)} className={inputClass}><option value="bronze">All members</option><option value="silver">Silver and Diamond members</option><option value="diamond">Diamond members only</option></select></label><label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={form.membership_discount} onChange={e=>update('membership_discount',e.target.checked)}/>Offer member discounts: Silver 15%, Diamond 30%. Discounts reduce your ticket revenue before commission.</label><label className={labelClass}>General sales open (optional)<input type="datetime-local" value={form.sales_start} onChange={e=>update('sales_start',e.target.value)} className={inputClass}/></label><label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={form.membership_early_access} onChange={e=>update('membership_early_access',e.target.checked)}/>Allow Silver to book 24 hours early and Diamond 48 hours early.</label></div>
                 </div>
                 <div>
                   <label className={labelClass} htmlFor="event-capacity">Ticket Capacity *</label>

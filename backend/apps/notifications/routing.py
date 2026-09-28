@@ -4,6 +4,13 @@ import uuid
 def notification_destination(notification):
     """Resolve existing notification keys to known internal app routes."""
     prefix, _, identifier = notification.key.partition(':')
+    if prefix == 'membership':
+        return '/plans', 'update'
+    if prefix == 'message':
+        try:
+            return f'/message?conversation={uuid.UUID(identifier.split(":")[0])}', 'update'
+        except ValueError:
+            pass
     if prefix in {'booking', 'reminder'}:
         return '/profile?section=My%20Bookings', 'booking'
     if prefix == 'refund':

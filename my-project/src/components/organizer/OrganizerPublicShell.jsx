@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import OrganizerControlMenu from './OrganizerControlMenu';
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -8,6 +9,7 @@ export default function OrganizerPublicShell({ breadcrumb = [], title, subtitle,
       <Header />
       <main className="flex-1">
         <div className={`max-w-6xl mx-auto px-5 py-8 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 ${contentClassName}`}>
+          <OrganizerControlMenu/>
           {(breadcrumb.length > 0 || title) && (
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div>

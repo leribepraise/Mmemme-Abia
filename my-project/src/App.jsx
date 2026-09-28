@@ -1,3 +1,7 @@
+import Plans from './pages/Plans';
+import LiveCommunity, {CreateLivePost, LiveGroups, LivePeople} from './pages/LiveCommunity';
+import ResourceManagement from './components/Admin/ResourceManagement';
+import ChatPanel from './components/ChatPanel';
 import ShuttlePage from "./pages/ShuttlePage";
 import AccountAction from "./pages/AccountAction";
 import OrganizerGuard from "./components/OrganizerGuard";
@@ -98,6 +102,10 @@ const OrganizerEventEditRoute = () => {
 
 const App = () => {
   const navList = [
+    {path:'/plans',element:<GuestGuard><Plans/></GuestGuard>},
+    {path:'/plans/return',element:<GuestGuard><Plans/></GuestGuard>},
+    {path:'/blog/:id',element:<LiveCommunity blog detail/>},
+    {path:'/community/posts/:id',element:<GuestGuard><LiveCommunity detail/></GuestGuard>},
     { path: "/transport/shuttle", element: <GuestGuard><ShuttlePage /></GuestGuard> },
     {
       path: "/",
@@ -238,7 +246,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <CommunityPage />
+            <LiveCommunity />
           </GuestGuard>
         </div>
       ),
@@ -248,7 +256,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <AllGroupsPage />
+            <LiveGroups />
           </GuestGuard>
         </div>
       ),
@@ -258,7 +266,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <PeoplePage />
+            <LivePeople />
           </GuestGuard>
         </div>
       ),
@@ -268,7 +276,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <GroupDetailPage />
+            <LiveCommunity groupView />
           </GuestGuard>
         </div>
       ),
@@ -279,7 +287,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <CreatePostPage />
+            <CreateLivePost />
           </GuestGuard>
         </div>
       ),
@@ -289,7 +297,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <PersonProfilePage />
+            <LivePeople />
           </GuestGuard>
         </div>
       ),
@@ -359,7 +367,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <Blog />
+            <LiveCommunity blog />
           </GuestGuard>
         </div>
       ),
@@ -473,6 +481,15 @@ const App = () => {
   // Pages shown inside the admin layout (sidebar + header + footer).
   // Paths are relative to /admin, so "users" becomes /admin/users.
   const adminRouter = [
+    ...['community','content','bookings','payments','subscriptions','reports'].map(section=>({path:section,element:<ResourceManagement key={section} section={section}/>})),
+    {path:'hotels/rooms',element:<ResourceManagement key="rooms" section="hotels"/>},
+    {path:'hotels/bookings',element:<ResourceManagement key="hotel-bookings" section="bookings"/>},
+    {path:'hotels/hosts',element:<AdminUsers/>},
+    {path:'hotels/reviews',element:<ResourceManagement key="reviews" section="reports"/>},
+    {path:'analytics',element:<AdminDashboard/>},
+    {path:'support',element:<ChatPanel/>},
+    {path:'notifications',element:<NotificationsPage/>},
+    {path:'settings',element:<SecuritySettingsPage/>},
     { index: true, element: <AdminDashboard /> },
     { path: "users", element: <AdminUsers /> },
     { path: "users/:id", element: <AdminUserDetails /> },
@@ -481,13 +498,13 @@ const App = () => {
     { path: "events", element: <AdminEvents /> },
     { path: "events/:id", element: <AdminEventDetails /> },
     { path: "events/:id/review", element: <AdminEventReview /> },
-    { path: "tourism", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "tourism/:id", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "hotels/properties", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "hotels/properties/:id", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "food", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "food/:id", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "transport", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
+    { path: "tourism", element: <ResourceManagement key="tourism" section="tourism"/> },
+    { path: "tourism/:id", element: <ResourceManagement key="tourism" section="tourism"/> },
+    { path: "hotels/properties", element: <ResourceManagement key="hotels" section="hotels"/> },
+    { path: "hotels/properties/:id", element: <ResourceManagement key="hotels" section="hotels"/> },
+    { path: "food", element: <ResourceManagement key="food" section="food"/> },
+    { path: "food/:id", element: <ResourceManagement key="food" section="food"/> },
+    { path: "transport", element: <ResourceManagement key="transport" section="transport"/> },
     // add each new admin page here as we build it, for example:
     // { path: "events", element: <AdminEvents /> },
     {

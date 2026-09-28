@@ -96,6 +96,9 @@ class Event(models.Model):
 
 
 class TicketType(models.Model):
+    minimum_plan = models.CharField(max_length=10, default='bronze', choices=[(p, p.title()) for p in ['bronze', 'silver', 'diamond']])
+    membership_discount = models.BooleanField(default=False)
+    membership_early_access = models.BooleanField(default=False)
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,

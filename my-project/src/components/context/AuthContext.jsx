@@ -3,7 +3,7 @@ import { api, clearLegacyCredentials, refreshSession, setAccess } from '@/lib/ap
 import { AuthContext } from './AuthState';
 import { currentPushSubscription } from '@/lib/push';
 
-const displayUser = user => user && ({ ...user, fullName: [user.first_name, user.last_name].filter(Boolean).join(' '), dateOfBirth: user.date_of_birth || '', profilePicture: user.avatar || '', plan: 'bronze' });
+const displayUser = user => user && ({ ...user, fullName: [user.first_name, user.last_name].filter(Boolean).join(' '), dateOfBirth: user.date_of_birth || '', profilePicture: user.avatar || '', plan: user.plan || 'bronze' });
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
   };
   const reloadUser = async () => { const result = await api('/auth/me/'); setUser(displayUser(result)); return result; };
   const updateUser = async updates => {
-    if (updates.plan && updates.plan.toLowerCase() !== 'bronze') throw new Error('Paid plans are not available yet. Choose Bronze to continue.');
+    if (updates.plan && updates.plan !== user?.plan) throw new Error('Open Membership plans to change your plan securely with Paystack.');
     const body = {};
     for (const key of ['phone', 'whatsapp', 'lga', 'address', 'gender', 'bio', 'interests', 'email_notifications']) if (key in updates) body[key] = updates[key];
     if ('fullName' in updates) { const [first, ...last] = updates.fullName.trim().split(/\s+/); body.first_name = first; body.last_name = last.join(' '); }

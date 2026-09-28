@@ -8,7 +8,7 @@ class TicketTypeSerializer(serializers.ModelSerializer):
     quantity_available = serializers.ReadOnlyField()
     class Meta:
         model = TicketType
-        fields = ["id","name","description","price","quantity","quantity_sold","quantity_reserved","quantity_available","sales_start","sales_end","is_active"]
+        fields = ["id","name","description","price","quantity","quantity_sold","quantity_reserved","quantity_available","sales_start","sales_end","is_active","minimum_plan","membership_discount","membership_early_access"]
         read_only_fields = ["id","quantity_sold","quantity_reserved","quantity_available"]
     def validate(self,attrs):
         price = attrs.get("price",getattr(self.instance,"price",0))

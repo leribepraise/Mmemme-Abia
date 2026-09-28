@@ -7,11 +7,15 @@ from .models import OrganizerProfile
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    plan = serializers.SerializerMethodField()
+    def get_plan(self, obj):
+        from apps.memberships.services import current_membership
+        return current_membership(obj)['plan']
     organizer_status = serializers.CharField(source='organizer_profile.status', read_only=True, default=None)
     interests = serializers.ListField(child=serializers.CharField(max_length=100),max_length=20,required=False)
     class Meta:
         model = User
-        fields = ["id","email","first_name","last_name","phone","whatsapp","lga","address","date_of_birth","gender","bio","avatar","role","is_verified","email_verified","is_staff","interests","email_notifications","onboarding_completed_at","date_joined","organizer_status"]
+        fields = ["id","email","first_name","last_name","phone","whatsapp","lga","address","date_of_birth","gender","bio","avatar","role","is_verified","email_verified","is_staff","interests","email_notifications","onboarding_completed_at","date_joined","organizer_status","plan"]
         read_only_fields = ["id","email","role","is_verified","email_verified","is_staff","onboarding_completed_at","date_joined","organizer_status"]
 
     def validate_avatar(self, value):

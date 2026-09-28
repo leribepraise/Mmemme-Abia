@@ -170,6 +170,11 @@ def process_event(event_id):
         if event.event_type == "charge.success":
             payment = Payment.objects.filter(reference=event.reference,provider="PAYSTACK").first()
             if payment: verify_payment(payment)
+            else:
+                from apps.memberships.models import PlanPayment
+                from apps.memberships.services import verify
+                plan_payment = PlanPayment.objects.filter(reference=event.reference).first()
+                if plan_payment: verify(plan_payment)
         elif event.event_type.startswith("transfer."):
             from .models import PayoutAttempt
             from .payouts import reconcile
