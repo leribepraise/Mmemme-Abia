@@ -5,18 +5,18 @@ const TravelBenefits = () => {
   const items = [
     {
       icon: BadgeCheck,
-      title: "Verified Drivers",
-      text: "& Partners",
+      title: "Available Routes",
+      text: "and departures",
     },
     {
       icon: ShieldCheck,
-      title: "Safe & Secure",
-      text: "Journeys",
+      title: "Booking Details",
+      text: "in your account",
     },
     {
       icon: Clock3,
-      title: "On-time",
-      text: "Guarantee",
+      title: "Scheduled",
+      text: "departure times",
     },
   ];
 

@@ -80,11 +80,14 @@ class PostViewSet(viewsets.ModelViewSet):
                          liked=Exists(Like.objects.filter(post_id=OuterRef('pk'), user_id=user.pk if user.is_authenticated else None)))
         return qs.order_by('-like_count', '-created_at', '-pk') if self.request.query_params.get('sort') == 'trending' else qs.order_by('-created_at', '-pk')
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        kind = serializer.validated_data.get('kind', 'COMMUNITY')
+        serializer.save(author=self.request.user, status='PUBLISHED' if kind == 'COMMUNITY' else 'PENDING')
     def perform_update(self, serializer):
         if serializer.instance.author_id != self.request.user.pk:
             raise PermissionDenied()
-        serializer.save(status='PENDING')
+        # An author edit must not undo a moderator's removal.
+        status = 'HIDDEN' if serializer.instance.status == 'HIDDEN' else 'PUBLISHED' if serializer.validated_data.get('kind', serializer.instance.kind) == 'COMMUNITY' else 'PENDING'
+        serializer.save(status=status)
     def perform_destroy(self, instance):
         if instance.author_id != self.request.user.pk:
             raise PermissionDenied()
@@ -141,14 +144,14 @@ class GroupViewSet(viewsets.ModelViewSet):
         return qs.order_by('name', 'pk')
     @transaction.atomic
     def perform_create(self, serializer):
-        group = serializer.save(owner=self.request.user)
+        group = serializer.save(owner=self.request.user, is_active=True)
         GroupMember.objects.create(group=group, user=self.request.user)
     @action(detail=True, methods=['post'])
     @transaction.atomic
     def membership(self, request, pk=None):
         group = self.get_object()
         if not group.is_active:
-            raise PermissionDenied('This group is awaiting approval.')
+            raise PermissionDenied('This group is unavailable.')
         joined = serializers.BooleanField().run_validation(request.data.get('joined'))
         if joined:
             GroupMember.objects.get_or_create(group=group, user=request.user)

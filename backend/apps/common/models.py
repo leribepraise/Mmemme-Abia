@@ -34,3 +34,13 @@ class AuditLog(models.Model):
 def audit(actor, action, target, **details):
     return AuditLog.objects.create(actor=actor, action=action, target=str(target), details=details)
 
+
+class ServiceReview(models.Model):
+    booking = models.OneToOneField('bookings.Booking', on_delete=models.PROTECT, related_name='service_review')
+    rating = models.PositiveSmallIntegerField()
+    comment = models.CharField(max_length=3000)
+    is_approved = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        constraints = [models.CheckConstraint(condition=Q(rating__gte=1, rating__lte=5), name='service_review_rating')]
+

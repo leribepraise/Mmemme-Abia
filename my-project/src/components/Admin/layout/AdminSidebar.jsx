@@ -43,8 +43,7 @@ const navItems = [
   { label: "Settings", to: "/admin/settings", icon: Settings },
 ];
 
-// Sub-items under "Hotels & Stays". Route slugs guessed as /admin/hotels/*;
-// only "properties" exists so far.
+// Hotel management uses the same live records as customer bookings.
 const hotelsSubItems = [
   { label: "Properties", to: "/admin/hotels/properties" },
   { label: "Rooms", to: "/admin/hotels/rooms" },
@@ -116,6 +115,8 @@ const HotelsDropdown = () => {
 };
 
 const AdminSidebar = ({ open, onClose }) => {
+  const location = useLocation();
+  useEffect(() => { onClose?.(); }, [location.pathname]);
   return (
     <>
       {/* Dark overlay behind the drawer on mobile/tablet */}
@@ -151,9 +152,9 @@ const AdminSidebar = ({ open, onClose }) => {
               </li>
             ))}
 
-            <li className="px-3 py-2 text-xs text-white/40">Hotels & Stays · Coming soon</li>
+            <HotelsDropdown />
 
-            {navItems.slice(4).map(({label,icon:Icon})=><li key={label} className="flex items-center gap-3 px-3 py-2 text-[13px] text-white/40" title="Coming soon"><Icon className="h-4 w-4 shrink-0"/><span>{label}</span></li>)}
+            {navItems.slice(4).map(({label,to,icon:Icon})=><li key={label}><NavLink to={to} className={({isActive})=>`${NAV_LINK_CLASS} ${isActive?NAV_LINK_ACTIVE:NAV_LINK_INACTIVE}`}><Icon className="h-4 w-4 shrink-0"/><span>{label}</span></NavLink></li>)}
           </ul>
         </nav>
       </aside>

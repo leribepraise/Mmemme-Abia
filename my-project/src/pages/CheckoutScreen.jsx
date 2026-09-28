@@ -8,6 +8,7 @@ import TicketSelectionCard from "../components/checkout/TicketSelectionCard";
 import AttendeeInfoCard from "../components/checkout/AttendeeInfoCard";
 import OrderSummaryCard from "../components/checkout/OrderSummaryCard";
 import TrustBadgesCard from "../components/checkout/TrustBadgesCard";
+import { memberTicketPrice } from '@/lib/membership';
 
 export default function CheckoutScreen() {
   const location = useLocation();
@@ -17,7 +18,7 @@ export default function CheckoutScreen() {
 
 
   const { user } = useAuth();
-  const [tickets, setTickets] = useState(() => (event?.ticket_types || []).map(t => ({ id: t.id, name: t.name, basePrice: Number(t.price), available: t.quantity_available, qty: selectedTickets?.[t.id] || 0 })));
+  const [tickets, setTickets] = useState(() => (event?.ticket_types || []).map(t => ({ id: t.id, name: t.name, basePrice: memberTicketPrice(t, user?.plan), available: t.quantity_available, qty: selectedTickets?.[t.id] || 0 })));
   const isFree = tickets.every(t => t.qty === 0 || t.basePrice === 0);
   const [enabledTiers, setEnabledTiers] = useState(() => Object.fromEntries(tickets.map(t => [t.id, t.qty > 0])));
   const [attendee, setAttendee] = useState({ fullName: user?.fullName || '', email: user?.email || '', buyingForSomeoneElse: false });

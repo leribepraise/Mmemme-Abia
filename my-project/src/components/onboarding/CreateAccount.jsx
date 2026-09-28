@@ -1,16 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from '../context/AuthContext';
 import toast from "react-hot-toast";
 import {
-  Upload,
   MapPin,
-  CalendarDays,
   ChevronDown,
   CheckCircle2,
-  UserRound,
 } from "lucide-react";
 
 const createAccountSchema = z.object({
@@ -26,12 +23,12 @@ const createAccountSchema = z.object({
 
   gender: z.string().min(1, "Please select your gender"),
 
-  bio: z.string().max(120, "Bio must not exceed 120 characters").optional(),
+  interests: z.array(z.string()).max(20).default([]),
 });
 
 const CreateAccount = ({ onNext }) => {
   const {user} = useAuth();
-  const [profilePreview, setProfilePreview] = useState(user?.avatar || null);
+
 
   const {
     register,
@@ -48,30 +45,16 @@ const CreateAccount = ({ onNext }) => {
       address: user?.address || "",
 
       gender: user?.gender || "",
-      bio: user?.bio || "",
+      interests: user?.interests || [],
     },
   });
 
-  const bioValue = watch("bio") || "";
-
-  const handleProfilePicture = (event) => {
-    const file = event.target.files?.[0];
-
-    if (!file) return;
-    if (file.size > 5*1024*1024 || !["image/png","image/jpeg"].includes(file.type)) {toast.error("Use a JPG or PNG image up to 5MB.");return;}
-
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      setProfilePreview(reader.result);
-    };
-
-    reader.readAsDataURL(file);
-  };
+  const selectedInterests = watch("interests") || [];
+  const interests = ["Music", "Culture", "Food", "Travel", "Sports", "Technology", "Business", "Arts", "Community events"];
 
   const onSubmit = async (data) => {
     try {
-      await onNext({ ...data, whatsapp:data.phone, profilePicture: profilePreview });
+      await onNext({ ...data, whatsapp:data.phone });
       toast.success("Your profile is ready.");
     } catch (error) { toast.error(error.message); }
   };
@@ -248,74 +231,15 @@ const CreateAccount = ({ onNext }) => {
                 </div>
               </div>
 
-              {/* PROFILE PICTURE */}
-              <div>
-                <label className="mb-1 block text-sm font-medium text-[#374151]">
-                  Profile Picture
-                </label>
-
-                <label
-                  htmlFor="profile-picture"
-                  className="flex h-[46px] cursor-pointer items-center gap-3 rounded-lg border border-dashed border-gray-300 px-3 transition hover:border-[#3F783D] hover:bg-[#F8FBF8]"
-                >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100">
-                    {profilePreview ? (
-                      <img
-                        src={profilePreview}
-                        alt="Profile preview"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <Upload size={13} className="text-gray-500" />
-                    )}
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-semibold text-gray-700">
-                      Upload a clear profile photo
-                    </p>
-
-                    <p className="text-xs text-gray-400">
-                      JPG, PNG up to 5MB
-                    </p>
-                  </div>
-                </label>
-
-                <input
-                  id="profile-picture"
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={handleProfilePicture}
-                  className="hidden"
-                />
-              </div>
-
-              {/* BIO */}
-              <div>
-                <label className="mb-1 block text-sm font-medium text-[#374151]">
-                  Tell us a bit about yourself (optional)
-                </label>
-
-                <div className="relative">
-                  <textarea
-                    {...register("bio")}
-                    maxLength={120}
-                    rows={2}
-                    placeholder="E.g. I love exploring new places, food and culture..."
-                    className="h-20 w-full resize-none rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none placeholder:text-gray-400 focus:border-[#48782E]"
-                  />
-
-                  <span className="absolute bottom-1 right-2 text-xs text-gray-400">
-                    {bioValue.length}/120
-                  </span>
-                </div>
-
-                {errors.bio && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {errors.bio.message}
-                  </p>
-                )}
-              </div>
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-semibold text-[#374151]">Tell us about yourself — what interests you?</legend>
+                <p className="text-xs text-gray-500">Select any that apply. This is optional.</p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">{interests.map(interest => <label key={interest} className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 p-3 text-sm">
+                  <input type="checkbox" value={interest} {...register("interests")} className="h-4 w-4 accent-[#3F783D]"/>
+                  {interest}
+                </label>)}</div>
+                {errors.interests && <p role="alert" className="text-xs text-red-500">{errors.interests.message}</p>}
+              </fieldset>
 
               {/* CONTINUE BUTTON */}
               <button
@@ -328,29 +252,10 @@ const CreateAccount = ({ onNext }) => {
 
             {/* RIGHT SIDE */}
             <div className="hidden space-y-3 lg:block">
-              {/* PROFILE PREVIEW */}
-              <div className="rounded-xl border border-gray-100 bg-white px-3 py-4 shadow-sm">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-gray-200 bg-gray-100">
-                  {profilePreview ? (
-                    <img
-                      src={profilePreview}
-                      alt="Profile preview"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <UserRound size={25} className="text-gray-400" />
-                  )}
-                </div>
-
-                <h3 className="mt-2 text-center text-sm font-bold text-gray-800">
-                  Profile Preview
-                </h3>
-
-                <p className="mx-auto mt-1 max-w-[130px] text-center text-xs leading-3 text-gray-500">
-                  This is how you'll appear to other Mmemme Abia users.
-                </p>
-              </div>
-
+              <section className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+                <h2 className="text-sm font-bold">Your interests</h2>
+                <p className="mt-2 text-sm text-gray-600">{selectedInterests.length ? selectedInterests.join(', ') : 'Choose the topics you enjoy.'}</p>
+              </section>
               {/* WHY WE COLLECT THIS INFO */}
               <div className="relative overflow-hidden rounded-xl bg-[#EEF6EF] px-3 py-3">
                 <h3 className="text-xs font-bold text-gray-800">
@@ -376,7 +281,7 @@ const CreateAccount = ({ onNext }) => {
                     />
 
                     <span className="text-xs text-gray-600">
-                      Improve event recommendations
+                      Save the topics you enjoy
                     </span>
                   </div>
 
@@ -387,7 +292,7 @@ const CreateAccount = ({ onNext }) => {
                     />
 
                     <span className="text-xs text-gray-600">
-                      Secure your account
+                      Keep your contact details up to date
                     </span>
                   </div>
                 </div>

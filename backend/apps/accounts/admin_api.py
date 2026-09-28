@@ -59,6 +59,9 @@ class AdminUserViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         qs = User.objects.select_related('organizer_profile').order_by('-date_joined', '-pk')
         params = self.request.query_params
+        if params.get('hotel_hosts') == 'true':
+            from apps.hotels.models import Hotel
+            qs = qs.filter(pk__in=Hotel.objects.values('owner_id'))
         if params.get('search'):
             term = params['search']
             qs = qs.filter(Q(email__icontains=term) | Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(phone__icontains=term))

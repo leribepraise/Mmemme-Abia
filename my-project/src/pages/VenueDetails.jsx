@@ -1,4 +1,5 @@
 import React from "react";
+import ServiceReviews from '../components/ServiceReviews';
 import { useParams } from "react-router-dom";
 import { useApi } from "@/hooks/useApi";
 import { hotelCard } from "@/lib/catalog";
@@ -29,6 +30,7 @@ export default function VenueDetails() {
         <div className="grid lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-8">
             <VenueInfo hotel={hotel} />
+            <ServiceReviews kind="HOTEL" listing={hotel.id}/>
           </div>
 
           <div id="hotel-pricing" className="lg:col-span-4 scroll-mt-28">

@@ -18,16 +18,16 @@ export function RequestState({request}) {
 const stat = (id,label,value,icon) => ({id,label,value:value ?? '—',icon});
 const statusOptions = {users:[['active','Active'],['suspended','Suspended']],organizers:[['PENDING','Pending'],['APPROVED','Verified'],['NEEDS_INFO','More information needed'],['REJECTED','Rejected'],['SUSPENDED','Suspended']],events:[['DRAFT','Draft'],['IN_REVIEW','Pending'],['PUBLISHED','Published'],['REJECTED','Rejected'],['SUSPENDED','Suspended'],['CANCELLED','Cancelled'],['COMPLETED','Completed']]};
 const inputClass = 'rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm';
-export default function LiveManagement({kind}) {
+export default function LiveManagement({kind, hotelHosts = false}) {
   const [params,setParams] = useSearchParams();
   const [exporting,setExporting] = useState(false);
   const page = Number(params.get('page')) || 1;
-  const request = useApi(`/admin/${kind}/?${params.toString()}&page_size=10`);
+  const request = useApi(`/admin/${kind}/?${params.toString()}&page_size=10${hotelHosts?'&hotel_hosts=true':''}`);
   const overview = useApi('/admin/overview/');
   const info = overview.data || {};
   const rows = request.data?.results || [];
   const total = request.data?.count || 0;
-  const title = kind[0].toUpperCase()+kind.slice(1);
+  const title = hotelHosts ? 'Hotel hosts' : kind[0].toUpperCase()+kind.slice(1);
   const filter = (name,value) => { const next = new URLSearchParams(params); value ? next.set(name,value) : next.delete(name); next.delete('page'); setParams(next, {replace:true}); };
   const stats = kind === 'users' ? [stat('total','Total Users',info.users,Users),stat('active','Active Users',info.active_users,UserCheck),stat('new','New This Month',info.new_users,UserPlus)] : kind === 'organizers' ? [stat('total','Total Organizers',info.organizers,Users),stat('pending','Pending Verification',info.pending_organizers,Clock),stat('verified','Verified Organizers',info.approved_organizers,ShieldCheck),stat('suspended','Suspended',info.suspended_organizers,XCircle)] : [stat('total','Total Events',info.events,CalendarDays),stat('pending','Pending',info.pending_events,Clock),stat('approved','Published',info.published_events,CheckCircle2),stat('rejected','Rejected / Changes Requested',info.rejected_events,XCircle)];
   const categories = kind === 'events' ? info.event_categories : info.organizer_categories;
@@ -35,6 +35,7 @@ export default function LiveManagement({kind}) {
     setExporting(true);
     try {
       const filters = new URLSearchParams(params); filters.delete('page');
+      if (hotelHosts) filters.set('hotel_hosts', 'true');
       const users = await allPages(`/admin/users/?${filters}`);
       const cell = value => {let text=String(value ?? ''); if (/^[\s]*[=+@-]/.test(text)) text="'"+text; return '"'+text.replaceAll('"','""')+'"';};
       const csv = [['Name','Email','Phone','Role','LGA','Status'],...users.map(u=>[personName(u),u.email,u.phone,u.role,u.lga,statusName(u)])].map(row=>row.map(cell).join(',')).join('\r\n');

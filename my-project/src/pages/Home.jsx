@@ -7,9 +7,7 @@ import SearchBar from "@/components/home/SearchBar";
 import Categories from "@/components/home/Categories";
 import Events from "@/components/home/Events";
 import WhyChose from "@/components/home/WhyChose";
-import PeopleSay from "@/components/home/PeopleSay";
 import Updateed from "@/components/home/Updateed";
-import Patners from "@/components/home/Patners";
 import DisplayImage from "../components/home/DisplayImage";
 
 const Home = () => {
@@ -27,9 +25,7 @@ const Home = () => {
         /></Link>
       </div>
       <WhyChose />
-      <PeopleSay />
       <Updateed />
-      <Patners />
     </div>
   );
 };

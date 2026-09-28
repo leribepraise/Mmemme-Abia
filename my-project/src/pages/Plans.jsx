@@ -27,7 +27,6 @@ export default function Plans() {
     const reference = params.get('reference') || params.get('trxref');
     if (reference) verify(reference);
     // The callback is verified once per reference, not every profile refresh.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
   const checkout = async plan => {
     if (busy) return;
@@ -39,7 +38,7 @@ export default function Plans() {
       const url = new URL(payment.authorization_url);
       if (url.protocol !== 'https:' || url.hostname !== 'checkout.paystack.com') throw new Error('Invalid payment link.');
       window.location.assign(url.href);
-    } catch (error) { setMessage(error.message); history.reload(); } finally { setBusy(false); }
+    } catch (error) { setMessage(error.message); delete checkoutKey.current[plan]; history.reload(); } finally { setBusy(false); }
   };
   const active = membership.data?.plan;
   return <main className="mx-auto max-w-6xl space-y-6 px-4 py-8"><div className="flex flex-wrap justify-between gap-4"><div><h1 className="text-3xl font-bold text-[#1B5E20]">Membership plans</h1><p className="mt-2">Pay securely in naira with Paystack.</p></div><ShareApp/></div>

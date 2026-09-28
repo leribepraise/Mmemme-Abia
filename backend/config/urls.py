@@ -17,10 +17,12 @@ from apps.memberships.api import PlanViewSet, MembershipViewSet
 from apps.community.api import PostViewSet, GroupViewSet, PeopleViewSet
 from apps.common.catalog import CONFIG, viewset_for
 from apps.common.views import live, ready
-from apps.common.management_api import ManageResource
+from apps.common.management_api import ManageResource, ManageAction
+from apps.common.reviews import ServiceReviewViewSet
 from apps.accounts.admin_api import AdminUserViewSet, AdminOrganizerViewSet, AdminOverview
 
 router=DefaultRouter()
+router.register('service-reviews', ServiceReviewViewSet, basename='service-review')
 router.register('plans', PlanViewSet, basename='plan')
 router.register('memberships', MembershipViewSet, basename='membership')
 router.register('community/posts', PostViewSet, basename='community-post')
@@ -41,6 +43,7 @@ router.register("conversations",ConversationViewSet,basename="conversation")
 for model,(prefix,*_) in CONFIG.items():
     router.register("hotels" if prefix=="hotel" else prefix,viewset_for(model),basename=model._meta.model_name)
 urlpatterns=[
+    path('api/v1/admin/manage/<slug:resource>/<str:pk>/action/', ManageAction.as_view()),
     path('api/v1/admin/manage/<slug:resource>/', ManageResource.as_view()),
     path('api/v1/admin/manage/<slug:resource>/<str:pk>/', ManageResource.as_view()),
     path('api/v1/push/config/', PushConfigView.as_view()),

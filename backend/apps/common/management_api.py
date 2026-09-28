@@ -10,7 +10,7 @@ from apps.accounts.administration import require_staff_permission
 from apps.accounts.models import User
 from apps.common.api import Pagination, Conflict
 from apps.common.catalog import CONFIG, serializer_for, root_of, owner_of
-from apps.common.models import audit, AuditLog
+from apps.common.models import audit, AuditLog, ServiceReview
 from apps.bookings.models import Booking
 from apps.payments.models import Payment, Refund, Payout
 from apps.memberships.models import Plan, Membership, PlanPayment
@@ -20,16 +20,17 @@ from apps.events.models import EventReview
 
 CATALOG = {('hotels' if cfg[0] == 'hotel' else cfg[0]): model for model, cfg in CONFIG.items()}
 HISTORY = {
-    'bookings': (Booking, ['id', 'booking_reference', 'user', 'supplier', 'kind', 'status', 'total_amount', 'currency', 'created_at']),
+    'bookings': (Booking, ['id', 'booking_reference', 'user', 'supplier', 'kind', 'status', 'fulfillment_status', 'total_amount', 'currency', 'created_at']),
     'payments': (Payment, ['id', 'user', 'booking', 'reference', 'amount', 'currency', 'status', 'paid_at']),
     'refunds': (Refund, ['id', 'payment', 'amount', 'status', 'reason', 'created_at']),
     'payouts': (Payout, ['id', 'provider', 'amount', 'currency', 'status', 'created_at']),
     'subscriptions': (Membership, ['id', 'user', 'plan', 'expires_at']),
     'plan-payments': (PlanPayment, ['id', 'user', 'plan', 'reference', 'amount', 'status', 'paid_at', 'expires_at']),
     'audit': (AuditLog, ['id', 'action', 'target', 'created_at']),
-    'reviews': (EventReview, ['id', 'event', 'user', 'rating', 'comment', 'created_at']),
 }
 EDITABLE = {
+    'reviews': (EventReview, ['id', 'event', 'user', 'rating', 'comment', 'is_approved', 'created_at']),
+    'service-reviews': (ServiceReview, ['id', 'booking', 'rating', 'comment', 'is_approved', 'created_at']),
     'plans': (Plan, ['code', 'name', 'price', 'features', 'is_active']),
     'posts': (Post, ['id', 'author', 'kind', 'group', 'title', 'body', 'image', 'category', 'status', 'created_at']),
     'groups': (Group, ['id', 'name', 'description', 'owner', 'is_active']),
@@ -48,7 +49,8 @@ def resource_config(resource):
     model, fields = {**HISTORY, **EDITABLE}[resource]
     readonly = fields if resource in HISTORY else ['id', 'created_at']
     readonly += {'plans': ['code'], 'posts': ['author'], 'comments': ['post', 'author', 'body'],
-                 'reports': ['post', 'reporter', 'reason'], 'groups': ['owner']}.get(resource, [])
+                 'reports': ['post', 'reporter', 'reason'], 'groups': ['owner'],
+                 'reviews': ['event', 'user', 'rating', 'comment'], 'service-reviews': ['booking', 'rating', 'comment']}.get(resource, [])
     class ResourceSerializer(serializers.ModelSerializer):
         class Meta:
             pass
@@ -80,6 +82,8 @@ class ManageResource(APIView):
         model, serializer, editable = resource_config(resource)
         self.authorize(request, model, 'view')
         qs = model.objects.all().order_by('-pk')
+        if resource == 'service-reviews' and request.query_params.get('kind'):
+            qs = qs.filter(booking__kind=request.query_params['kind'])
         for name in ['kind', 'status', 'user', 'supplier', 'hotel', 'room_type', 'restaurant', 'route', 'experience', 'package', 'group']:
             if name in [f.name for f in model._meta.fields] and request.query_params.get(name):
                 field = model._meta.get_field(name)
@@ -116,7 +120,8 @@ class ManageResource(APIView):
         if resource in CATALOG and CONFIG[model][2] is None:
             schema.append({'name': 'owner_id', 'label': 'Approved provider', 'required': True, 'type': 'text',
                            'choices': [{'value': u.pk, 'label': u.get_full_name() or u.username} for u in User.objects.filter(is_active=True, is_verified=True).order_by('pk')[:100]]})
-        response.data.update(schema=schema, editable=can_edit, creatable=editable and resource not in {'plans', 'comments', 'reports'} and request.user.has_perm(f'{model._meta.app_label}.add_{model._meta.model_name}'))
+        response.data.update(schema=schema, editable=can_edit, creatable=editable and resource not in {'plans', 'comments', 'reports', 'reviews', 'service-reviews'} and request.user.has_perm(f'{model._meta.app_label}.add_{model._meta.model_name}'),
+                             actionable=resource in {'bookings', 'payments', 'plan-payments', 'refunds'} and request.user.has_perm(f'{model._meta.app_label}.change_{model._meta.model_name}'))
         return response
 
     @transaction.atomic
@@ -126,7 +131,7 @@ class ManageResource(APIView):
         if action_name and pk is None:
             raise serializers.ValidationError('Choose a record first.')
         self.authorize(request, model, 'change' if pk else 'add')
-        if not editable or (not pk and resource in {'plans', 'comments', 'reports'}):
+        if not editable or (not pk and resource in {'plans', 'comments', 'reports', 'reviews', 'service-reviews'}):
             raise PermissionDenied('Transaction history cannot be edited.')
         instance = get_object_or_404(model.objects.all(), pk=pk) if pk else None
         if instance:
@@ -164,3 +169,32 @@ class ManageResource(APIView):
         if pk is None:
             raise serializers.ValidationError('Choose a record to update.')
         return self.post(request, resource, pk)
+
+
+class ManageAction(APIView):
+    def post(self, request, resource, pk):
+        model, serializer, _ = resource_config(resource)
+        require_staff_permission(request.user, f'{model._meta.app_label}.change_{model._meta.model_name}')
+        instance = get_object_or_404(model, pk=pk)
+        action = serializers.CharField(max_length=30).run_validation(request.data.get('action'))
+        if resource == 'bookings' and action in {'cancel', 'fulfill'}:
+            from apps.bookings.services import cancel, fulfill
+            reason = serializers.CharField(min_length=5, max_length=500).run_validation(request.data.get('reason'))
+            if action == 'cancel':
+                instance = cancel(instance.pk, request.user, force=False)
+            else:
+                instance = fulfill(instance.pk, request.user, request.data.get('status'))
+            audit(request.user, 'admin.booking_action', instance.pk, action_taken=action, reason=reason)
+        elif resource == 'payments' and action == 'verify':
+            from apps.payments.services import verify_payment
+            instance = verify_payment(instance)
+        elif resource == 'plan-payments' and action == 'verify':
+            from apps.memberships.services import verify
+            instance = verify(instance)
+        elif resource == 'refunds' and action == 'verify':
+            from apps.payments.services import reconcile_refund
+            reconcile_refund(instance.pk)
+            instance.refresh_from_db()
+        else:
+            raise serializers.ValidationError('This action is not available for this record.')
+        return Response(serializer(instance, context={'request': request}).data)

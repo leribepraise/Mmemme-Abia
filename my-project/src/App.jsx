@@ -1,6 +1,8 @@
 import Plans from './pages/Plans';
 import LiveCommunity, {CreateLivePost, LiveGroups, LivePeople} from './pages/LiveCommunity';
 import ResourceManagement from './components/Admin/ResourceManagement';
+import AdminSettings from './components/Admin/AdminSettings';
+import Inbox from './components/notification/Inbox';
 import ChatPanel from './components/ChatPanel';
 import ShuttlePage from "./pages/ShuttlePage";
 import AccountAction from "./pages/AccountAction";
@@ -366,9 +368,7 @@ const App = () => {
       path: "/blog",
       element: (
         <div className="mx-5 my-5">
-          <GuestGuard>
             <LiveCommunity blog />
-          </GuestGuard>
         </div>
       ),
     },
@@ -482,14 +482,14 @@ const App = () => {
   // Paths are relative to /admin, so "users" becomes /admin/users.
   const adminRouter = [
     ...['community','content','bookings','payments','subscriptions','reports'].map(section=>({path:section,element:<ResourceManagement key={section} section={section}/>})),
-    {path:'hotels/rooms',element:<ResourceManagement key="rooms" section="hotels"/>},
-    {path:'hotels/bookings',element:<ResourceManagement key="hotel-bookings" section="bookings"/>},
-    {path:'hotels/hosts',element:<AdminUsers/>},
-    {path:'hotels/reviews',element:<ResourceManagement key="reviews" section="reports"/>},
+    {path:'hotels/rooms',element:<ResourceManagement key="rooms" section="rooms"/>},
+    {path:'hotels/bookings',element:<ResourceManagement key="hotel-bookings" section="bookings" fixedFilters="&kind=HOTEL"/>},
+    {path:'hotels/hosts',element:<AdminUsers hotelHosts/>},
+    {path:'hotels/reviews',element:<ResourceManagement key="reviews" section="hotel-reviews" fixedFilters="&kind=HOTEL"/>},
     {path:'analytics',element:<AdminDashboard/>},
     {path:'support',element:<ChatPanel/>},
-    {path:'notifications',element:<NotificationsPage/>},
-    {path:'settings',element:<SecuritySettingsPage/>},
+    {path:'notifications',element:<Inbox/>},
+    {path:'settings',element:<AdminSettings/>},
     { index: true, element: <AdminDashboard /> },
     { path: "users", element: <AdminUsers /> },
     { path: "users/:id", element: <AdminUserDetails /> },
@@ -511,7 +511,7 @@ const App = () => {
       path: "*",
       element: (
         <div className="p-6 text-sm text-slate-500">
-          This page isn't built yet.
+          Page not found. <a href="/admin" className="text-green-800 underline">Return to the dashboard</a>
         </div>
       ),
     },

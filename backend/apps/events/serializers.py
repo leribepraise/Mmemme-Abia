@@ -19,6 +19,8 @@ class TicketTypeSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Stock cannot be less than existing sales and reservations.")
             if (self.instance.quantity_sold or self.instance.quantity_reserved) and price != self.instance.price:
                 raise serializers.ValidationError("Create a new ticket type to change a price after reservations begin.")
+            if (self.instance.quantity_sold or self.instance.quantity_reserved) and any(attrs.get(field, getattr(self.instance, field)) != getattr(self.instance, field) for field in ['membership_discount', 'minimum_plan', 'membership_early_access']):
+                raise serializers.ValidationError('Create a new ticket type to change member benefits after reservations begin.')
         start = attrs.get("sales_start",getattr(self.instance,"sales_start",None))
         end = attrs.get("sales_end",getattr(self.instance,"sales_end",None))
         if start and end and end <= start: raise serializers.ValidationError("Sales must end after they start.")

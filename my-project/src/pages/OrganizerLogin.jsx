@@ -14,7 +14,7 @@ const BENEFITS = [
   { icon: CalendarCheck2, text: "Create & manage events easily", tint: "bg-[#EAF5EA] text-[#3F7D3D]" },
   { icon: BarChart3, text: "Track sales and audience insights", tint: "bg-[#EAF5EA] text-[#3F7D3D]" },
   { icon: ShieldCheck, text: "Get paid securely", tint: "bg-[#EAF5EA] text-[#3F7D3D]" },
-  { icon: Users2, text: "Reach thousands across Abia and beyond", tint: "bg-[#FDEEE3] text-[#F36B25]" },
+  { icon: Users2, text: "Share your events across Abia and beyond", tint: "bg-[#FDEEE3] text-[#F36B25]" },
 ];
 
 export default function OrganizerLogin() {

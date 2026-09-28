@@ -14,8 +14,7 @@ const SafetyBanner = () => {
           <h3 className="font-bold text-lg">Your Safety is Our Priority</h3>
 
           <p className="text-gray-600 text-sm max-w-xl">
-            All our drivers and transport partners are verified and trained to
-            ensure you have safe and comfortable journeys.
+            Review your route, departure time and provider details before booking. Contact support with any concerns.
           </p>
         </div>
       </div>

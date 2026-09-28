@@ -8,7 +8,7 @@ from django.db import transaction
 from django.utils import timezone
 from apps.common.api import Conflict, ServiceUnavailable
 from apps.common.models import audit
-from apps.payments.provider import Paystack
+from apps.payments.provider import Paystack, PaystackUnavailable
 from .models import Membership, PlanPayment
 
 
@@ -19,6 +19,8 @@ def current_membership(user):
 
 
 def initialize(user, plan, key):
+    if not settings.PAYSTACK_SECRET_KEY:
+        raise ServiceUnavailable('Payment processing has not been configured.')
     with transaction.atomic():
         get_user_model().objects.select_for_update().get(pk=user.pk)
         payment = PlanPayment.objects.filter(user=user, idempotency_key=key).first()
@@ -36,11 +38,16 @@ def initialize(user, plan, key):
         payment = PlanPayment.objects.create(user=user, plan=plan, amount=plan.price,
                                             reference='PLAN-' + uuid.uuid4().hex, idempotency_key=key)
     # Do not repeat an uncertain provider write; reconciliation checks the same reference.
-    data = Paystack().request('/transaction/initialize', {
-        'email': user.email, 'amount': int(payment.amount * 100), 'currency': 'NGN',
-        'reference': payment.reference, 'callback_url': settings.FRONTEND_URL + '/plans/return',
-        'metadata': {'plan_payment_id': str(payment.pk), 'plan': payment.plan_id},
-    })
+    try:
+        data = Paystack().request('/transaction/initialize', {
+            'email': user.email, 'amount': int(payment.amount * 100), 'currency': 'NGN',
+            'reference': payment.reference, 'callback_url': settings.FRONTEND_URL + '/plans/return',
+            'metadata': {'plan_payment_id': str(payment.pk), 'plan': payment.plan_id},
+        })
+    except PaystackUnavailable as exc:
+        if exc.http_status in {400, 401, 403, 404, 422}:
+            PlanPayment.objects.filter(pk=payment.pk, status='PROCESSING').update(status='FAILED')
+        raise
     url = data.get('authorization_url', '') if isinstance(data, dict) else ''
     parsed = urlsplit(url)
     if not isinstance(data, dict) or data.get('reference') != payment.reference or parsed.scheme != 'https' or parsed.hostname != 'checkout.paystack.com' or parsed.username:
@@ -78,7 +85,7 @@ def settle(payment_id, data):
              and str(metadata.get('plan_payment_id')) == str(payment.pk)
              and str(customer.get('email', '')).casefold() == payment.user.email.casefold()
              and data.get('id'))
-    if not valid:
+    if not valid or PlanPayment.objects.filter(provider_reference=str(data.get('id'))).exclude(pk=payment.pk).exists():
         payment.status = 'REVIEW'
         payment.save(update_fields=['status', 'last_checked_at'])
         audit(None, 'membership.payment_mismatch', payment.pk)

@@ -4,7 +4,7 @@ import { ArrowRight, Compass } from "lucide-react";
 
 const DiscoverCTA = ({
   title = "Ready to Experience the Best of Abia?",
-  subtitle = "Join thousands exploring, connecting, and growing every day.",
+  subtitle = "Explore Abia and connect with its community.",
   primaryBtnText = "Get Started Now",
   primaryBtnLink = "/signup",
   secondaryBtnText = "Explore Events",

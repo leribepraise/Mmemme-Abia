@@ -43,6 +43,14 @@ class PlatformTests(APITestCase):
         self.client.patch('/api/v1/auth/me/', {'plan':'diamond'}, format='json')
         self.assertEqual(self.client.get('/api/v1/auth/me/').data['plan'], 'bronze')
 
+    def test_onboarding_interests_are_saved_without_description_or_photo(self):
+        result = self.client.patch('/api/v1/auth/me/', {'interests':['Music','Food','Travel']}, format='json')
+        self.assertEqual(result.status_code, 200, result.data)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.interests, ['Music','Food','Travel'])
+        self.assertEqual(self.user.bio, '')
+        self.assertFalse(self.user.avatar)
+
     @patch('apps.memberships.services.Paystack.request')
     def test_checkout_uses_server_price_and_retries_same_reference(self, request):
         request.side_effect=lambda path,data: {'reference':data['reference'], 'authorization_url':'https://checkout.paystack.com/example'}
@@ -92,8 +100,8 @@ class PlatformTests(APITestCase):
     def test_community_moderation_likes_and_comments_persist(self):
         result=self.client.post('/api/v1/community/posts/',{'body':'Abia is beautiful','status':'PUBLISHED'},format='json')
         self.assertEqual(result.status_code,201)
-        post=Post.objects.get(pk=result.data['id']);self.assertEqual(post.status,'PENDING')
-        self.assertEqual(self.client.get('/api/v1/community/posts/').data['count'],0)
+        post=Post.objects.get(pk=result.data['id']);self.assertEqual(post.status,'PUBLISHED')
+        self.assertEqual(self.client.get('/api/v1/community/posts/').data['count'],1)
         self.client.force_authenticate(self.staff)
         self.assertEqual(self.client.patch(f'/api/v1/admin/manage/posts/{post.pk}/',{'status':'PUBLISHED'},format='json').status_code,200)
         self.client.force_authenticate(self.user)
@@ -118,6 +126,72 @@ class PlatformTests(APITestCase):
         self.assertEqual(self.client.post('/api/v1/community/posts/',body).status_code,201)
         self.client.post(f'/api/v1/community/groups/{group.pk}/membership/',{'joined':True},format='json')
         self.assertEqual(GroupMember.objects.filter(group=group,user=self.user).count(),1)
+
+    def test_free_member_can_publish_group_and_post_without_review(self):
+        self.assertEqual(current_membership(self.user)['plan'], 'bronze')
+        response = self.client.post('/api/v1/community/groups/', {'name': 'Aba community', 'description': 'Meet neighbours'}, format='json')
+        self.assertEqual(response.status_code, 201, response.data)
+        group = Group.objects.get(pk=response.data['id'])
+        self.assertTrue(group.is_active)
+        self.assertTrue(GroupMember.objects.filter(group=group, user=self.user).exists())
+        response = self.client.post('/api/v1/community/posts/', {'body': 'Hello neighbours', 'group': group.pk}, format='json')
+        self.assertEqual(response.status_code, 201, response.data)
+        self.assertEqual(response.data['status'], 'PUBLISHED')
+        url = f"/api/v1/community/posts/{response.data['id']}/"
+        self.assertEqual(self.client.patch(url, {'body': 'Updated post'}, format='json').data['status'], 'PUBLISHED')
+        self.client.force_authenticate(self.staff)
+        self.client.patch(f"/api/v1/admin/manage/posts/{response.data['id']}/", {'status': 'HIDDEN'}, format='json')
+        self.client.force_authenticate(self.user)
+        result = self.client.patch(url, {'body': 'Try editing', 'status': 'PUBLISHED'}, format='json')
+        self.assertEqual(result.status_code, 200, result.data)
+        self.assertEqual(result.data['status'], 'HIDDEN')
+
+    @patch('apps.memberships.services.Paystack.request')
+    def test_checkout_rejection_is_retryable_but_timeout_is_not(self, request):
+        from apps.payments.provider import PaystackUnavailable
+        request.side_effect = PaystackUnavailable(http_status=403)
+        response = self.client.post('/api/v1/memberships/checkout/', {'plan': 'silver'}, HTTP_IDEMPOTENCY_KEY='reject-payment')
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(PlanPayment.objects.get().status, 'FAILED')
+        request.side_effect = PaystackUnavailable()
+        self.client.post('/api/v1/memberships/checkout/', {'plan': 'silver'}, HTTP_IDEMPOTENCY_KEY='uncertain-payment')
+        self.assertEqual(PlanPayment.objects.filter(status='PROCESSING').count(), 1)
+        response = self.client.post('/api/v1/memberships/checkout/', {'plan': 'silver'}, HTTP_IDEMPOTENCY_KEY='another-payment')
+        self.assertEqual(response.status_code, 409)
+
+    def test_service_review_requires_owned_completed_booking_and_can_be_moderated(self):
+        from apps.bookings.models import Booking
+        from apps.common.models import ServiceReview
+        from apps.hotels.models import Hotel
+        hotel = Hotel.objects.create(owner=self.other, name='Test hotel', city='Aba', address='Test address')
+        booking = Booking.objects.create(user=self.user, supplier=self.other, kind='HOTEL', parent_id=hotel.pk,
+            status='CONFIRMED', total_amount=0, idempotency_key='review-test', customer_name='Member', customer_phone='08000000000',
+            expires_at=timezone.now()+timedelta(minutes=15), details={'check_in':'2020-01-01', 'check_out':'2020-01-02'})
+        body = {'booking': str(booking.pk), 'rating': 5, 'comment': 'Enjoyed the stay'}
+        self.assertEqual(self.client.post('/api/v1/service-reviews/', body).status_code, 409)
+        booking.fulfillment_status='COMPLETED'; booking.save()
+        self.client.force_authenticate(self.other)
+        self.assertEqual(self.client.post('/api/v1/service-reviews/', body).status_code, 400)
+        self.client.force_authenticate(self.user)
+        self.assertEqual(self.client.post('/api/v1/service-reviews/', body).status_code, 201)
+        self.assertIn(self.client.post('/api/v1/service-reviews/', body).status_code, [400,409])
+        review = ServiceReview.objects.get()
+        self.client.force_authenticate(self.staff)
+        self.assertEqual(self.client.get('/api/v1/admin/users/?hotel_hosts=true').data['count'], 1)
+        self.assertEqual(self.client.get('/api/v1/admin/manage/service-reviews/?kind=HOTEL').data['count'], 1)
+        self.assertEqual(self.client.patch(f'/api/v1/admin/manage/service-reviews/{review.pk}/', {'is_approved':False}, format='json').status_code, 200)
+        self.client.force_authenticate(None)
+        self.assertEqual(self.client.get('/api/v1/service-reviews/?kind=HOTEL').data['count'], 0)
+
+    @patch('apps.memberships.services.verify')
+    def test_staff_payment_action_enforces_permissions(self, verify):
+        payment = self.payment(); verify.return_value = payment
+        url = f'/api/v1/admin/manage/plan-payments/{payment.pk}/action/'
+        self.assertEqual(self.client.post(url, {'action':'verify'}).status_code, 403)
+        verify.assert_not_called()
+        self.client.force_authenticate(self.staff)
+        self.assertEqual(self.client.post(url, {'action':'verify'}).status_code, 200)
+        verify.assert_called_once()
 
     def chat(self):
         CommunityProfile.objects.update_or_create(user=self.other, defaults={'listed':True,'allow_messages':True})

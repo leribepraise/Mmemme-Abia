@@ -18,8 +18,7 @@ const TranportHero = () => {
           </h1>
 
           <p className="mt-4 text-sm md:text-base text-gray-200">
-            Book rides, shuttles, rentals or send packages with trusted
-            transport partners.
+            Browse available routes and departure times, then book your seat.
           </p>
         </div>
       </div>
