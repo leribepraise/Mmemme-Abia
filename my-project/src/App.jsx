@@ -1,3 +1,9 @@
+import Plans from './pages/Plans';
+import LiveCommunity, {CreateLivePost, LiveGroups, LivePeople} from './pages/LiveCommunity';
+import ResourceManagement from './components/Admin/ResourceManagement';
+import AdminSettings from './components/Admin/AdminSettings';
+import Inbox from './components/notification/Inbox';
+import ChatPanel from './components/ChatPanel';
 import ShuttlePage from "./pages/ShuttlePage";
 import AccountAction from "./pages/AccountAction";
 import OrganizerGuard from "./components/OrganizerGuard";
@@ -5,6 +11,9 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import Home from "./pages/Home";
+import NotificationsPage from './pages/NotificationsPage';
+import InstallAppPage from './pages/InstallAppPage';
+import AnchorNavigation from './components/AnchorNavigation';
 import Layout from "@/components/layout";
 import EventDetails from "./pages/EventDetails";
 import CheckoutScreen from "./pages/CheckoutScreen";
@@ -97,14 +106,11 @@ const OrganizerEventEditRoute = () => {
 
 const App = () => {
   const navList = [
-    {
-      path: "/transport/shuttle",
-      element: (
-        <GuestGuard>
-          <ShuttlePage />
-        </GuestGuard>
-      ),
-    },
+    {path:'/plans',element:<GuestGuard><Plans/></GuestGuard>},
+    {path:'/plans/return',element:<GuestGuard><Plans/></GuestGuard>},
+    {path:'/blog/:id',element:<LiveCommunity blog detail/>},
+    {path:'/community/posts/:id',element:<GuestGuard><LiveCommunity detail/></GuestGuard>},
+    { path: "/transport/shuttle", element: <GuestGuard><ShuttlePage /></GuestGuard> },
     {
       path: "/",
       element: (
@@ -244,7 +250,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <CommunityPage />
+            <LiveCommunity />
           </GuestGuard>
         </div>
       ),
@@ -254,7 +260,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <AllGroupsPage />
+            <LiveGroups />
           </GuestGuard>
         </div>
       ),
@@ -264,7 +270,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <PeoplePage />
+            <LivePeople />
           </GuestGuard>
         </div>
       ),
@@ -274,7 +280,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <GroupDetailPage />
+            <LiveCommunity groupView />
           </GuestGuard>
         </div>
       ),
@@ -285,7 +291,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <CreatePostPage />
+            <CreateLivePost />
           </GuestGuard>
         </div>
       ),
@@ -295,7 +301,7 @@ const App = () => {
       element: (
         <div className="mx-5 my-5">
           <GuestGuard>
-            <PersonProfilePage />
+            <LivePeople />
           </GuestGuard>
         </div>
       ),
@@ -364,9 +370,7 @@ const App = () => {
       path: "/blog",
       element: (
         <div className="mx-5 my-5">
-          <GuestGuard>
-            <Blog />
-          </GuestGuard>
+            <LiveCommunity blog />
         </div>
       ),
     },
@@ -470,7 +474,13 @@ const App = () => {
     },
   ];
   const authRouter = [
+<<<<<<< HEAD
     { path: "/terms", element: <Terms /> },
+=======
+    {path:'/install',element:<InstallAppPage/>},
+    {path:'/notifications',element:<GuestGuard><NotificationsPage/></GuestGuard>},
+    {path:"/terms",element:<Terms/>},
+>>>>>>> 748bcc0e90ac2a4c15244e6b81d405978680c276
     { path: "/verify-email", element: <AccountAction /> },
     { path: "/reset-password", element: <AccountAction /> },
     {
@@ -498,6 +508,15 @@ const App = () => {
   // Pages shown inside the admin layout (sidebar + header + footer).
   // Paths are relative to /admin, so "users" becomes /admin/users.
   const adminRouter = [
+    ...['community','content','bookings','payments','subscriptions','reports'].map(section=>({path:section,element:<ResourceManagement key={section} section={section}/>})),
+    {path:'hotels/rooms',element:<ResourceManagement key="rooms" section="rooms"/>},
+    {path:'hotels/bookings',element:<ResourceManagement key="hotel-bookings" section="bookings" fixedFilters="&kind=HOTEL"/>},
+    {path:'hotels/hosts',element:<AdminUsers hotelHosts/>},
+    {path:'hotels/reviews',element:<ResourceManagement key="reviews" section="hotel-reviews" fixedFilters="&kind=HOTEL"/>},
+    {path:'analytics',element:<AdminDashboard/>},
+    {path:'support',element:<ChatPanel/>},
+    {path:'notifications',element:<Inbox/>},
+    {path:'settings',element:<AdminSettings/>},
     { index: true, element: <AdminDashboard /> },
     { path: "users", element: <AdminUsers /> },
     { path: "users/:id", element: <AdminUserDetails /> },
@@ -506,6 +525,7 @@ const App = () => {
     { path: "events", element: <AdminEvents /> },
     { path: "events/:id", element: <AdminEventDetails /> },
     { path: "events/:id/review", element: <AdminEventReview /> },
+<<<<<<< HEAD
     {
       path: "tourism",
       element: (
@@ -569,13 +589,22 @@ const App = () => {
         </div>
       ),
     },
+=======
+    { path: "tourism", element: <ResourceManagement key="tourism" section="tourism"/> },
+    { path: "tourism/:id", element: <ResourceManagement key="tourism" section="tourism"/> },
+    { path: "hotels/properties", element: <ResourceManagement key="hotels" section="hotels"/> },
+    { path: "hotels/properties/:id", element: <ResourceManagement key="hotels" section="hotels"/> },
+    { path: "food", element: <ResourceManagement key="food" section="food"/> },
+    { path: "food/:id", element: <ResourceManagement key="food" section="food"/> },
+    { path: "transport", element: <ResourceManagement key="transport" section="transport"/> },
+>>>>>>> 748bcc0e90ac2a4c15244e6b81d405978680c276
     // add each new admin page here as we build it, for example:
     // { path: "events", element: <AdminEvents /> },
     {
       path: "*",
       element: (
         <div className="p-6 text-sm text-slate-500">
-          This page isn't built yet.
+          Page not found. <a href="/admin" className="text-green-800 underline">Return to the dashboard</a>
         </div>
       ),
     },
@@ -611,6 +640,7 @@ const App = () => {
       <div className="min-h-screen bg-[#f5f7f3]">
         <div>
           <UserProvider>
+            <AnchorNavigation/>
             <Routes>
               <Route path="/" element={<Layout />}>
                 {navList.map((item, index) => (

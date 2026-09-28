@@ -1,7 +1,10 @@
-import React from "react";
+import React, {useState} from "react";
+import {useNavigate} from "react-router-dom";
 import { MapPin, Calendar, Users, Search } from "lucide-react";
 
 const HotelHero = () => {
+  const navigate=useNavigate();
+  const [destination,setDestination]=useState("");
   return (
     <div className="px-4 md:px-6">
       <div
@@ -32,7 +35,7 @@ const HotelHero = () => {
               <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
               <div>
                 <p className="text-xs text-gray-500">Where do you want to go?</p>
-                <p className="font-medium text-gray-900">Search destination</p>
+                <input aria-label="Hotel destination" placeholder="Search destination" className="w-full text-gray-900" value={destination} onChange={e=>setDestination(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")navigate(`/search?category=Stay&q=${encodeURIComponent(destination)}`);}}/>
               </div>
             </div>
 
@@ -40,7 +43,7 @@ const HotelHero = () => {
               <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
               <div>
                 <p className="text-xs text-gray-500">Check-in</p>
-                <p className="font-medium text-gray-900">Select date</p>
+                <p className="font-medium text-gray-900">Choose at hotel</p>
               </div>
             </div>
 
@@ -48,7 +51,7 @@ const HotelHero = () => {
               <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
               <div>
                 <p className="text-xs text-gray-500">Check-out</p>
-                <p className="font-medium text-gray-900">Select date</p>
+                <p className="font-medium text-gray-900">Choose at hotel</p>
               </div>
             </div>
 
@@ -56,11 +59,11 @@ const HotelHero = () => {
               <Users className="w-4 h-4 text-gray-400 shrink-0" />
               <div>
                 <p className="text-xs text-gray-500">Guests & Rooms</p>
-                <p className="font-medium text-gray-900">2 Guests, 1 Room</p>
+                <p className="font-medium text-gray-900">Choose your room</p>
               </div>
             </div>
 
-            <button className="bg-[#F97316] hover:bg-[#dc5d19] rounded-[8px] py-3 text-white font-medium text-[14px] flex items-center justify-center gap-2 transition-colors">
+            <button onClick={()=>navigate(`/search?category=Stay&q=${encodeURIComponent(destination)}`)} className="bg-[#F97316] hover:bg-[#dc5d19] rounded-[8px] py-3 text-white font-medium text-[14px] flex items-center justify-center gap-2 transition-colors">
               <Search className="w-4 h-4" />
               Search Hotels
             </button>

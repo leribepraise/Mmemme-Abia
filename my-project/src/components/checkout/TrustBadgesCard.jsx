@@ -5,18 +5,18 @@ const TrustBadgesCard = () => {
   const badges = [
     {
       icon: Lock,
-      title: "Secured Checkout",
-      description: "Your payment is protected by standard end-to-end encryption.",
+      title: "Paystack Checkout",
+      description: "Complete payment on Paystack’s hosted checkout page.",
     },
     {
       icon: CheckCircle,
-      title: "Instant Confirmation",
-      description: "You'll receive your ticket and digital receipt immediately.",
+      title: "Booking Confirmation",
+      description: "Your tickets become available after your booking is confirmed.",
     },
     {
       icon: HeadphonesIcon,
-      title: "24/7 Support",
-      description: "Our customer service team is here to help you anytime.",
+      title: "Contact Support",
+      description: "Send a message to our team if you need help with your booking.",
     },
   ];
 

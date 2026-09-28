@@ -1,14 +1,13 @@
 import Seo from "@/components/seo/Seo";
 import React from "react";
+import { Link } from 'react-router-dom';
 import SEO from "../components/SEO/SEO";
 import Hero from "@/components/home/Hero";
 import SearchBar from "@/components/home/SearchBar";
 import Categories from "@/components/home/Categories";
 import Events from "@/components/home/Events";
 import WhyChose from "@/components/home/WhyChose";
-import PeopleSay from "@/components/home/PeopleSay";
 import Updateed from "@/components/home/Updateed";
-import Patners from "@/components/home/Patners";
 import DisplayImage from "../components/home/DisplayImage";
 
 const Home = () => {
@@ -20,15 +19,13 @@ const Home = () => {
       <Categories />
       <Events />
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <DisplayImage
+        <Link to="/install" aria-label="Install the Mmemme Abia app"><DisplayImage
           src="/home-image.png"
           alt="Take Mmemme Abia Anywhere You Go"
-        />
+        /></Link>
       </div>
       <WhyChose />
-      <PeopleSay />
       <Updateed />
-      <Patners />
     </div>
   );
 };

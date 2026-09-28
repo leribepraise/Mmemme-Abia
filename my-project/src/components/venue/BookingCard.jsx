@@ -73,9 +73,9 @@ const BookingCard = ({ hotel }) => {
           </button>
         </div>
 
-        <button className="w-full border border-green-700 text-green-700 hover:bg-green-50 font-semibold py-3 rounded-lg mt-3">
+        <NavLink to="/contact" className="block text-center w-full border border-green-700 text-green-700 hover:bg-green-50 font-semibold py-3 rounded-lg mt-3">
           Send Enquiry
-        </button>
+        </NavLink>
       </div>
     </div>
   );

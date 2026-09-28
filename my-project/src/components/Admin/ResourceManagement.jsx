@@ -1,0 +1,49 @@
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useParams } from 'react-router-dom';
+import { useApi } from '@/hooks/useApi';
+import { api } from '@/lib/api';
+import toast from 'react-hot-toast';
+import RecordActions from './RecordActions';
+
+const sections = {
+  tourism: [['tourism','Destinations'],['tour-packages','Packages'],['tour-departures','Tour dates']],
+  hotels: [['hotels','Properties'],['room-types','Room types'],['room-nights','Nightly availability']],
+  food: [['restaurants','Restaurants'],['menu-items','Menu & stock']],
+  transport: [['transport-routes','Routes'],['departures','Departures & seats']],
+  community: [['posts','Posts'],['groups','Groups'],['comments','Comments']],
+  content: [['posts','Blog articles']],
+  bookings: [['bookings','Bookings']],
+  payments: [['payments','Booking payments'],['plan-payments','Membership payments'],['refunds','Refunds'],['payouts','Payouts']],
+  subscriptions: [['subscriptions','Memberships'],['plans','Plan pricing & benefits'],['plan-payments','Payments']],
+  reports: [['reports','Community reports'],['reviews','Event reviews'],['service-reviews','Service reviews'],['audit','Activity log']],
+  rooms: [['room-types','Room types'],['room-nights','Nightly availability']],
+  'hotel-reviews': [['service-reviews','Hotel reviews']],
+};
+const localDate=value=>{if(!value)return '';const date=new Date(value);return Number.isNaN(date.getTime())?'':new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);};
+const pretty=value=>value.replaceAll('_',' ').replace(/^./,letter=>letter.toUpperCase());
+const display=value=>value===null||value===undefined?'—':typeof value==='boolean'?(value?'Yes':'No'):Array.isArray(value)?value.join(', '):String(value);
+const control='w-full rounded-lg border bg-white p-2 text-sm';
+
+export default function ResourceManagement({ section, fixedFilters = '' }) {
+  const location=useLocation();const {id}=useParams();
+  const tabs=sections[section]||sections.bookings;
+  const [resource,setResource]=useState(tabs[0][0]);const [page,setPage]=useState(1);const [search,setSearch]=useState('');const [editor,setEditor]=useState(null);const [values,setValues]=useState({});const [busy,setBusy]=useState(false);const [detail,setDetail]=useState(null);
+  useEffect(()=>{setResource(tabs[0][0]);setPage(1);setSearch('');setEditor(null);setDetail(null);},[section,location.pathname]);
+  const filter=section==='content'?'&kind=BLOG':section==='community'&&resource==='posts'?'&kind=COMMUNITY':'';
+  const state=useApi(`/admin/manage/${resource}/?page=${page}&search=${encodeURIComponent(search)}${filter}${fixedFilters}`);
+  const direct=useApi(id?`/admin/manage/${resource}/${id}/`:null);
+  const selected=detail||direct.data;
+  const open=row=>{setEditor(row||{});setValues({...row,...(!row&&section==='content'?{kind:'BLOG'}:{})});};
+  const save=async event=>{event.preventDefault();setBusy(true);try{const body=new FormData();for(const field of state.data.schema){let value=values[field.name];if(value===undefined||value===null){if(editor.id||editor.code)continue;if(field.type==='boolean')value=false;else if(!field.required)continue;else value='';}if(field.type==='list')value=JSON.stringify(Array.isArray(value)?value:String(value).split('\n').map(v=>v.trim()).filter(Boolean));if(field.type==='image'&&!(value instanceof File))continue;if(field.type==='datetime-local'&&value)value=new Date(value).toISOString();body.append(field.name,value);}if(section==='content')body.set('kind','BLOG');const key=editor.id||editor.code;await api(`/admin/manage/${resource}/${key?`${key}/`:''}`,{method:key?'PATCH':'POST',body});setEditor(null);state.reload();direct.reload();toast.success('Saved.');}catch(error){toast.error(error.message);}finally{setBusy(false);}};
+  const moderate=async(row,action)=>{setBusy(true);try{await api(`/admin/manage/${resource}/${row.id}/`,{method:'POST',body:{action}});state.reload();direct.reload();}catch(error){toast.error(error.message);}finally{setBusy(false);}};
+  const columns=state.data?.results?.length?Object.keys(state.data.results[0]).filter(key=>!['body','description','image','features','amenities','delivery_cities','id'].includes(key)).slice(0,7):[];
+  return <div className="space-y-5"><header className="flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-2xl font-bold">{pretty(section)}</h1><p className="mt-1 text-sm text-gray-500">Manage your platform records.</p></div>{state.data?.creatable&&<button onClick={()=>open(null)} className="rounded-lg bg-[#3F783D] px-4 py-2 text-sm font-semibold text-white">Add {tabs.find(t=>t[0]===resource)?.[1]}</button>}</header><nav className="flex flex-wrap gap-4 border-b pb-3">{tabs.map(([key,label])=><button key={key} onClick={()=>{setResource(key);setPage(1);setDetail(null);setEditor(null);}} className={`text-sm ${resource===key?'font-bold text-green-800':''}`}>{label}</button>)}</nav>
+    <input type="search" aria-label="Search records" placeholder="Search records…" value={search} onChange={e=>{setSearch(e.target.value);setPage(1);}} className={control}/>
+    {state.error&&<p role="alert" className="rounded-lg bg-red-50 p-4">{state.error.message} <button onClick={state.reload} className="underline">Retry</button></p>}{state.loading&&<p role="status">Loading…</p>}
+    {selected&&<section className="rounded-xl bg-white p-5"><h2 className="mb-4 font-bold">Record details</h2><dl className="grid gap-3 sm:grid-cols-2">{Object.entries(selected).map(([key,value])=><div key={key}><dt className="text-xs font-semibold text-gray-500">{pretty(key)}</dt><dd className="whitespace-pre-wrap break-words text-sm">{display(value)}</dd></div>)}</dl>{state.data?.editable&&<button onClick={()=>open(selected)} className="mt-4 text-green-800 underline">Edit record</button>}<button onClick={()=>setDetail(null)} className="ml-4 text-sm">Close details</button></section>}
+    <div className="overflow-x-auto rounded-xl border bg-white"><table className="w-full text-left text-sm"><thead className="bg-gray-50"><tr>{columns.map(key=><th key={key} className="p-3 whitespace-nowrap">{pretty(key)}</th>)}<th className="p-3">Actions</th></tr></thead><tbody>{state.data?.results?.map(row=><tr key={row.id||row.code} className="border-t">{columns.map(key=><td key={key} className="max-w-56 truncate p-3" title={display(row[key])}>{display(row[key])}</td>)}<td className="p-3"><div className="flex flex-wrap gap-3"><>{state.data?.actionable&&<RecordActions resource={resource} row={row} onChanged={()=>{state.reload();direct.reload();setDetail(null);}}/>}</><button onClick={()=>setDetail(row)} className="text-green-800 underline">View</button>{state.data?.editable&&<button onClick={()=>open(row)} className="text-green-800 underline">Edit</button>}{['hotels','restaurants','transport-routes','tourism'].includes(resource)&&state.data?.editable&&<button disabled={busy} onClick={()=>moderate(row,row.is_active?'hide':'approve')} className="text-green-800 underline">{row.is_active?'Unpublish':'Approve'}</button>}</div></td></tr>)}</tbody></table>{state.data?.count===0&&<p className="p-8 text-center text-gray-500">No records found.</p>}</div><div className="flex justify-between text-sm"><button disabled={page===1} onClick={()=>setPage(p=>p-1)}>Previous</button><span>{state.data?.count||0} records · Page {page}</span><button disabled={!state.data?.next} onClick={()=>setPage(p=>p+1)}>Next</button></div>
+    {editor&&<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"><form onSubmit={save} role="dialog" aria-modal="true" aria-label="Edit record" className="max-h-[90vh] w-full max-w-2xl space-y-4 overflow-y-auto rounded-2xl bg-white p-6"><h2 className="text-xl font-bold">{editor.id||editor.code?'Edit':'Add'} record</h2>{state.data?.schema?.filter(field=>!(field.name==='owner_id'&&editor.id)&&!(field.name==='kind'&&section==='content')).map(field=><label key={field.name} className="block text-sm font-medium">{field.label}{field.required?' *':''}{field.type==='boolean'?<input type="checkbox" className="ml-3" checked={!!values[field.name]} onChange={e=>setValues(v=>({...v,[field.name]:e.target.checked}))}/>:field.choices?<select required={field.required} value={values[field.name]??''} onChange={e=>setValues(v=>({...v,[field.name]:e.target.value}))} className={control}><option value="">Choose…</option>{field.choices.map(choice=><option key={choice.value} value={choice.value}>{choice.label}</option>)}</select>:field.type==='image'?<input type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>setValues(v=>({...v,[field.name]:e.target.files?.[0]}))} className={control}/>:field.type==='list'||['body','description','reason'].includes(field.name)?<><textarea required={field.required} rows={field.name==='body'?10:4} value={Array.isArray(values[field.name])?values[field.name].join('\n'):values[field.name]??''} onChange={e=>setValues(v=>({...v,[field.name]:e.target.value}))} className={control}/>{field.type==='list'&&<span className="text-xs text-gray-500">One item per line.</span>}</>:<input required={field.required} type={field.type} step={field.type==='number'?'any':undefined} value={field.type==='datetime-local'?localDate(values[field.name]):values[field.name]??''} onChange={e=>setValues(v=>({...v,[field.name]:e.target.value}))} className={control}/>}</label>)}<div className="flex gap-4"><button disabled={busy} className="rounded-lg bg-green-800 px-5 py-2 text-white">{busy?'Saving…':'Save'}</button><button type="button" onClick={()=>setEditor(null)}>Cancel</button></div></form></div>}
+    {section==='payments'&&<p className="text-sm text-gray-500">Payment totals and statuses are confirmed by Paystack. Financial records cannot be manually changed here.</p>}
+    <Link to="/admin" className="text-sm text-green-800 underline">Back to overview</Link>
+  </div>;
+}

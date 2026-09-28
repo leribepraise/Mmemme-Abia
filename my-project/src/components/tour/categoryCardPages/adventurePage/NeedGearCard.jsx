@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from "react-router-dom";
 
 const NeedGearCard = () => {
   return (
@@ -12,9 +13,9 @@ const NeedGearCard = () => {
       </p>
 
       <div className="flex items-center gap-3">
-        <button className="bg-[#3F783D] hover:bg-[#356433] text-white font-semibold text-sm px-4 py-2.5 rounded-lg transition shrink-0">
+        <Link to="/contact" className="bg-[#3F783D] hover:bg-[#356433] text-white font-semibold text-sm px-4 py-2.5 rounded-lg transition shrink-0">
           Find a Guide
-        </button>
+        </Link>
 
         <div className="w-16 h-14 rounded-lg overflow-hidden shrink-0">
           <img

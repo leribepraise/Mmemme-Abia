@@ -8,7 +8,7 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { NavLink } from "react-router-dom";
 import MobileNav from "./MobileNav";
 import { useAuth } from "@/components/context/AuthContext";
-import { useCollection } from "@/hooks/useApi";
+import { useNotifications } from '@/components/context/NotificationsContext';
 
 const Header = () => {
   const { isLoggedIn, user: account } = useAuth();
@@ -17,8 +17,7 @@ const Header = () => {
 
   const currentNav = isLoggedIn ? userNavList : navList;
 
-  const { data: notifications } = useCollection(isLoggedIn ? "/notifications/" : null);
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const { unreadCount } = useNotifications();
 
   return (
     <>
@@ -27,12 +26,12 @@ const Header = () => {
 
       <div className="fixed top-0 left-0 right-0 z-50 mx-5 pt-3">
         <nav className="hidden lg:flex justify-between items-center gap-5 bg-white shadow-md p-5 rounded-lg">
-          <img src="/logo.png" alt="" className="w-auto h-10" />
+          <NavLink to="/" aria-label="Mmemme Abia home"><img src="/logo.png" alt="" className="w-auto h-10" /></NavLink>
 
           {currentNav.map((n) => (
             <NavLink
               key={n.title}
-              to={isLoggedIn ? n.path : n.title === "Home" ? "/" : "/signup"}
+              to={n.path}
               className={({ isActive }) =>
                 `list-none flex gap-5 font-semibold text-[14px] ${
                   isActive
@@ -48,13 +47,13 @@ const Header = () => {
           <div className="flex gap-5 items-center">
             {isLoggedIn && (
               <div className="flex gap-3">
-                <NavLink to="/search">
+                <NavLink to="/search" aria-label="Search">
                   <span className="text-[20px]">
                     <IoSearch />
                   </span>
                 </NavLink>
 
-                <NavLink to="/profile">
+                <NavLink to="/notifications" aria-label={`Notifications, ${unreadCount} unread`}>
                   <span className="relative text-[20px]">
                     <IoMdNotificationsOutline />
                     {unreadCount > 0 && (
@@ -111,7 +110,7 @@ const Header = () => {
 
         <div className="lg:hidden z-1000">
           <div className="flex justify-between bg-white shadow-md p-4 rounded-lg">
-            <img src="/logo.png" alt="" className="w-auto h-10" />
+            <NavLink to="/" aria-label="Mmemme Abia home"><img src="/logo.png" alt="" className="w-auto h-10" /></NavLink>
             <MobileNav />
           </div>
         </div>

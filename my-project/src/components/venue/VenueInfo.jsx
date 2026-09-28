@@ -9,7 +9,7 @@ const VenueInfo = ({ hotel }) => {
 
   return (
     <div className="space-y-8">
-      <div>
+      <div id="hotel-overview" className="scroll-mt-28">
         <h1 className="text-4xl font-bold">{hotel.name}</h1>
 
         <div className="flex flex-wrap items-center gap-4 text-gray-500 mt-3">
@@ -44,9 +44,9 @@ const VenueInfo = ({ hotel }) => {
 
       <VenueStats hotel={hotel} />
 
-      <VenueTabs />
+      <VenueTabs hotel={hotel} />
 
-      <FacilitiesList hotel={hotel} />
+      <div id="hotel-facilities" className="scroll-mt-28"><FacilitiesList hotel={hotel} /></div>
     </div>
   );
 };

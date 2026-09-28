@@ -9,7 +9,7 @@ import ResultCard from "../components/searchBar/ResultCard";
 import { buildSearchIndex } from "../data/searchIndex";
 
 const SearchResultsPage = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams,setSearchParams] = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
 
   const { data: eventss } = useCollection("/events/", eventCard);
@@ -19,8 +19,10 @@ const SearchResultsPage = () => {
   const { data: menu } = useCollection('/menu-items/');
   const allResults = useMemo(() => buildSearchIndex({ eventss, hotels, tours, restaurants, menu }), [eventss, hotels, tours, restaurants, menu]);
 
-  const [searchTerm, setSearchTerm] = useState(initialQuery);
-  const [activeCategory, setActiveCategory] = useState("All Categories");
+  const searchTerm = initialQuery;
+  const setSearchTerm = value => setSearchParams(previous => { const next=new URLSearchParams(previous);next.set("q",value);return next; }, {replace:true});
+  const activeCategory = searchParams.get("category") || "All Categories";
+  const setActiveCategory = value => setSearchParams(previous => {const next=new URLSearchParams(previous);next.set("category",value);return next;},{replace:true});
   const [appliedFilters, setAppliedFilters] = useState({
     location: "Any Location",
     maxPrice: Infinity,
@@ -33,7 +35,7 @@ const SearchResultsPage = () => {
     return Array.from(unique);
   }, [allResults]);
 
-  const hasSearched = searchTerm.trim().length > 0;
+  const hasSearched = true;
 
   const filteredResults = useMemo(() => {
     if (!hasSearched) return [];
@@ -66,8 +68,7 @@ const SearchResultsPage = () => {
   };
 
   const handleClearAll = () => {
-    setSearchTerm("");
-    setActiveCategory("All Categories");
+    setSearchParams({});
     setLocationDraft("Any Location");
     setPriceDraft(Infinity);
     setAppliedFilters({ location: "Any Location", maxPrice: Infinity });
@@ -76,7 +77,7 @@ const SearchResultsPage = () => {
   return (
     <div className="min-h-screen bg-[#F5F7F3] p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
-        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} activeCategory={activeCategory} setActiveCategory={setActiveCategory} locations={locations} location={locationDraft} setLocation={setLocationDraft} onSearch={handleApply} />
 
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="w-full lg:w-72 shrink-0">
@@ -95,11 +96,11 @@ const SearchResultsPage = () => {
             />
           </div>
 
-          <div className="flex-1">
+          <div id="search-results" className="flex-1">
             {hasSearched && (
               <div className="flex items-center justify-between mb-4">
                 <h1 className="font-bold text-xl text-[#172033]">
-                  Search Results for "{searchTerm}"
+                  {searchTerm ? `Search Results for "${searchTerm}"` : activeCategory === "All Categories" ? "Browse all" : activeCategory}
                 </h1>
                 <span className="text-sm text-gray-400">
                   {filteredResults.length} Results Found

@@ -1,10 +1,11 @@
+import { Link } from "react-router-dom";
 import React from "react";
 
 const HelpCard = ({ item }) => {
   const Icon = item.icon;
 
   return (
-    <button className="w-full bg-white border border-gray-200 rounded-xl p-5 flex items-center gap-4 hover:shadow-sm transition text-left cursor-pointer">
+    <Link to={item.to} className="w-full bg-white border border-gray-200 rounded-xl p-5 flex items-center gap-4 hover:shadow-sm transition text-left cursor-pointer">
       <div
         className={`w-12 h-12 rounded-full ${item.bg} flex items-center justify-center`}
       >
@@ -18,7 +19,7 @@ const HelpCard = ({ item }) => {
           {item.subtitle}
         </p>
       </div>
-    </button>
+    </Link>
   );
 };
 

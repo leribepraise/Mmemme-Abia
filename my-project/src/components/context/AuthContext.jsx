@@ -1,20 +1,9 @@
-import { useContext, useEffect, useState } from "react";
-import {
-  api,
-  clearLegacyCredentials,
-  refreshSession,
-  setAccess,
-} from "@/lib/api";
-import { AuthContext } from "./AuthState";
+import { useContext, useEffect, useState } from 'react';
+import { api, clearLegacyCredentials, refreshSession, setAccess } from '@/lib/api';
+import { AuthContext } from './AuthState';
+import { currentPushSubscription } from '@/lib/push';
 
-const displayUser = (user) =>
-  user && {
-    ...user,
-    fullName: [user.first_name, user.last_name].filter(Boolean).join(" "),
-    dateOfBirth: user.date_of_birth || "",
-    profilePicture: user.avatar || "",
-    plan: "bronze",
-  };
+const displayUser = user => user && ({ ...user, fullName: [user.first_name, user.last_name].filter(Boolean).join(' '), dateOfBirth: user.date_of_birth || '', profilePicture: user.avatar || '', plan: user.plan || 'bronze' });
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,21 +35,14 @@ export const AuthProvider = ({ children }) => {
     return result.user;
   };
   const logout = async () => {
-    await api("/auth/logout/", { method: "POST" });
-    setAccess("");
-    setUser(null);
-    clearLegacyCredentials();
+    const subscription = await currentPushSubscription().catch(()=>null);
+    await api('/auth/logout/', { method: 'POST', body:{push_endpoint:subscription?.endpoint} });
+    if(subscription)await subscription.unsubscribe().catch(()=>{});
+    setAccess(''); setUser(null); clearLegacyCredentials();
   };
-  const reloadUser = async () => {
-    const result = await api("/auth/me/");
-    setUser(displayUser(result));
-    return result;
-  };
-  const updateUser = async (updates) => {
-    if (updates.plan && updates.plan.toLowerCase() !== "bronze")
-      throw new Error(
-        "Paid plans are not available yet. Choose Bronze to continue.",
-      );
+  const reloadUser = async () => { const result = await api('/auth/me/'); setUser(displayUser(result)); return result; };
+  const updateUser = async updates => {
+    if (updates.plan && updates.plan !== user?.plan) throw new Error('Open Membership plans to change your plan securely with Paystack.');
     const body = {};
     for (const key of [
       "phone",

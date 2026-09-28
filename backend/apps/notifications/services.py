@@ -10,8 +10,13 @@ from .backends import EmailDeliveryError
 
 logger = logging.getLogger(__name__)
 
+@transaction.atomic
 def notify(user,key,subject,body,private=False):
-    return Notification.objects.get_or_create(key=key,defaults={"user":user,"subject":subject,"body":body,"email":user.email,"is_private":private})
+    notification, created = Notification.objects.get_or_create(key=key,defaults={"user":user,"subject":subject,"body":body,"email":user.email,"is_private":private})
+    if created and not private:
+        from .push import queue_push
+        queue_push(notification)
+    return notification, created
 
 def deliver_one():
     now = timezone.now()

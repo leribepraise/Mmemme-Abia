@@ -19,9 +19,9 @@ const TourLocationCard = ({ tour }) => {
         <span>{tour.location}, Nigeria</span>
       </div>
 
-      <button className="w-full border border-[#3F783D] text-[#3F783D] hover:bg-[#EAF4EB] font-semibold py-2.5 rounded-lg transition">
+      <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tour.address || tour.location || tour.name)}`} target="_blank" rel="noopener noreferrer" className="w-full border border-[#3F783D] text-[#3F783D] hover:bg-[#EAF4EB] font-semibold py-2.5 rounded-lg transition">
         View on Map
-      </button>
+      </a>
     </div>
   );
 };

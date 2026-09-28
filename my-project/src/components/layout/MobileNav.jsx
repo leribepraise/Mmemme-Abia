@@ -14,7 +14,7 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { navList, authLink, userNavList, profileLink } from "./NavList";
 import { useAuth } from "../context/AuthContext"; // adjust path if needed
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { notifications } from "@/data/notifications";
+import { useNotifications } from '@/components/context/NotificationsContext';
 
 const MobileNav = () => {
   const { isLoggedIn, user: account } = useAuth();
@@ -24,7 +24,7 @@ const MobileNav = () => {
 
   const currentNav = isLoggedIn ? userNavList : navList;
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const { unreadCount } = useNotifications();
 
   const closeMenu = () => setOpen(false);
 
@@ -72,11 +72,11 @@ const MobileNav = () => {
                 </NavLink>
 
                 <div className="flex items-center gap-4 ml-auto">
-                  <span className="text-[20px] text-gray-600">
+                  <NavLink to="/search" aria-label="Search" onClick={closeMenu} className="text-[20px] text-gray-600">
                     <IoSearch />
-                  </span>
+                  </NavLink>
 
-                  <NavLink to="/profile" onClick={closeMenu}>
+                  <NavLink to="/notifications" aria-label={`Notifications, ${unreadCount} unread`} onClick={closeMenu}>
                     <span className="relative text-[20px] text-gray-600">
                       <IoMdNotificationsOutline />
                       {unreadCount > 0 && (
@@ -91,12 +91,12 @@ const MobileNav = () => {
             )}
 
             <nav className="flex flex-col gap-4 text-lg">
+              {user.is_verified && user.role === 'ORGANIZER' && <NavLink to="/organizer/dashboard" onClick={closeMenu} className="rounded-lg bg-[#3F783D] px-4 py-3 font-semibold text-white">Organizer control panel</NavLink>}
+              {user.is_staff && <NavLink to="/admin" onClick={closeMenu} className="font-semibold text-green-800">Admin dashboard</NavLink>}
               {currentNav.map((n) => (
                 <NavLink
                   key={n.title}
-                  to={
-                    isLoggedIn ? n.path : n.title === "Home" ? "/" : "/signup"
-                  }
+                  to={n.path}
                   onClick={closeMenu}
                   className={({ isActive }) =>
                     isActive ? "text-green-600 font-bold" : "font-normal"

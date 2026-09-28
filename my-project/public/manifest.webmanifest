@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Mmemme Abia",
+  "short_name": "Mmemme Abia",
+  "description": "Discover events, book tickets and experience Abia.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F5F7F3",
+  "theme_color": "#3F783D",
+  "lang": "en-NG",
+  "icons": [
+    {"src":"/icons/app-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"/icons/app-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ],
+  "shortcuts": [
+    {"name":"Events","url":"/events"},
+    {"name":"My tickets","url":"/profile?section=My%20Tickets"},
+    {"name":"Notifications","url":"/notifications"}
+  ]
+}

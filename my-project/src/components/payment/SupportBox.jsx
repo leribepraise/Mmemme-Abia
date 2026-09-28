@@ -8,10 +8,10 @@ const SupportBox = () => {
       </div>
 
       <div>
-        <h4 className="font-bold text-sm text-gray-900">24/7 Support</h4>
+        <h4 className="font-bold text-sm text-gray-900">Contact Support</h4>
 
         <p className="text-xs text-gray-500 font-medium">
-          We are here to help you anytime.
+          Message our team with payment questions.
         </p>
       </div>
     </div>

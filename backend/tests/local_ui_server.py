@@ -59,6 +59,10 @@ TourDeparture.objects.create(package=package, starts_at=timezone.now()+timedelta
 from apps.bookings.services import reserve
 complimentary = RoomNight.objects.create(room_type=room, date=timezone.localdate()+timedelta(days=10), price=0, quantity=1)
 reserve(buyer, 'ui-complimentary-stay', 'HOTEL', [{'id': complimentary.pk, 'quantity': 1}], {'guests': 1}, 'Test Customer', '08000000000')
+from apps.notifications.services import notify
+notify(buyer, 'account:ui-buyer', 'Account update', 'Your profile is ready to review.')
+notify(owner, f'event-review:{review_event.pk}:fixture', 'Event review update', 'Review your event details.')
+notify(admin, 'account:ui-admin', 'Welcome to notifications', 'Your account notifications appear here.')
 try:
     call_command('runserver', '127.0.0.1:58000', use_reloader=False)
 finally:

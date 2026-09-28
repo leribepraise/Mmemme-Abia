@@ -1,4 +1,5 @@
 import React from "react";
+import ServiceReviews from '../components/ServiceReviews';
 import { useParams } from "react-router-dom";
 import { useApi } from "@/hooks/useApi";
 import { hotelCard } from "@/lib/catalog";
@@ -24,14 +25,15 @@ export default function VenueDetails() {
         {/* Breadcrumb */}
         <div className="text-sm text-gray-500">Hotels &gt; {hotel.name}</div>
 
-        <VenueGallery hotel={hotel} />
+        <div id="hotel-gallery" className="scroll-mt-28"><VenueGallery hotel={hotel} /></div>
 
         <div className="grid lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-8">
             <VenueInfo hotel={hotel} />
+            <ServiceReviews kind="HOTEL" listing={hotel.id}/>
           </div>
 
-          <div className="lg:col-span-4">
+          <div id="hotel-pricing" className="lg:col-span-4 scroll-mt-28">
             <BookingCard hotel={hotel} />
           </div>
         </div>

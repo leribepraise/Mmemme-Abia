@@ -7,11 +7,11 @@ const STATUS_STYLE = {
   Completed: "bg-blue-100 text-blue-700",
 };
 
-const GRID = "grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 items-center";
+const GRID = "grid grid-cols-2 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] gap-3 sm:gap-4 items-center";
 
 export function OrganizerEventTableHeader() {
   return (
-    <div className={`${GRID} text-[10px] font-bold text-gray-400 uppercase pb-3 border-b border-gray-100`}>
+    <div className={`${GRID} hidden sm:grid text-[10px] font-bold text-gray-400 uppercase pb-3 border-b border-gray-100`}>
       <span>Event</span>
       <span className="w-20 text-right">Date</span>
       <span className="w-16 text-right">Tickets</span>
@@ -27,9 +27,10 @@ export default function OrganizerEventRow({ event }) {
     <div
       className={`${GRID} border-b border-gray-50 last:border-0 py-3.5 cursor-pointer hover:bg-gray-50/60 -mx-2 px-2 rounded-lg`}
       onClick={() => navigate(`/organizer/events/${event.id}/preview`)}
+      role="link" tabIndex={0} onKeyDown={eventKey=>{if(eventKey.key==='Enter')navigate(`/organizer/events/${event.id}/preview`);}}
       data-testid={`row-event-${event.id}`}
     >
-      <div className="flex gap-3 items-center min-w-0">
+      <div className="col-span-2 sm:col-span-1 flex gap-3 items-center min-w-0">
         <div className="w-10 h-10 bg-gray-200 rounded-lg overflow-hidden shrink-0">
           <img src={event.image} alt="" className="w-full h-full object-cover" />
         </div>
@@ -38,14 +39,14 @@ export default function OrganizerEventRow({ event }) {
           <p className="text-[10px] text-gray-500 font-medium truncate">{event.venue}</p>
         </div>
       </div>
-      <span className="w-20 text-right text-[11px] text-gray-500 font-medium">{fmtDate(event.date)}</span>
-      <span className="w-16 text-right text-sm font-bold text-black">
+      <span className="sm:w-20 sm:text-right text-[11px] text-gray-500 font-medium">{fmtDate(event.date)}</span>
+      <span className="sm:w-16 text-right text-sm font-bold text-black">
         {event.ticketsSold}/{event.ticketCapacity}
       </span>
-      <span className="w-24 text-right text-sm font-bold text-black">
+      <span className="sm:w-24 sm:text-right text-sm font-bold text-black">
         {event.revenue ? naira(event.revenue) : "—"}
       </span>
-      <div className="w-16 flex items-center justify-end gap-2">
+      <div className="sm:w-16 flex items-center justify-end gap-2">
         <span className={`text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap ${STATUS_STYLE[event.status] || "bg-gray-100 text-gray-600"}`}>
           {event.status}
         </span>

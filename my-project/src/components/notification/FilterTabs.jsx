@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { CheckCheck } from "lucide-react";
 
-const FilterTabs = ({ onFilterChange }) => {
+const FilterTabs = ({ onFilterChange, onMarkAllRead, busy, unreadCount }) => {
   const tabs = ["All", "Updates", "Bookings", "Events", "Offers", "Community"];
   const [active, setActive] = useState("All");
 
@@ -28,7 +28,7 @@ const FilterTabs = ({ onFilterChange }) => {
         ))}
       </div>
 
-      <button className="flex items-center gap-1.5 text-[#3F783D] text-sm font-medium hover:underline">
+      <button onClick={onMarkAllRead} disabled={busy || !unreadCount} className="flex items-center gap-1.5 text-[#3F783D] text-sm font-medium hover:underline disabled:opacity-40">
         <CheckCheck className="w-4 h-4" />
         Mark all as read
       </button>

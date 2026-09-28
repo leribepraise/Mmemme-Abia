@@ -1,6 +1,9 @@
 import { FiHeart, FiMapPin } from "react-icons/fi";
+import {Link} from 'react-router-dom';
+import {useState} from 'react';
 
-const SimilarEventCard = ({ image, alt, date, title, location, price }) => {
+const SimilarEventCard = ({ id, saved, onSave, image, alt, date, title, location, price }) => {
+  const [busy,setBusy]=useState(false);
   return (
     <div className="flex space-x-3 border border-slate-100 rounded-xl p-2 hover:shadow-md transition bg-slate-50/50">
       <div className="relative w-24 h-20 rounded-lg overflow-hidden shrink-0">
@@ -10,15 +13,15 @@ const SimilarEventCard = ({ image, alt, date, title, location, price }) => {
           {date}
         </span>
 
-        <button className="absolute top-1 right-1 p-1 bg-black/40 text-white rounded-full cursor-pointer">
-          <FiHeart className="w-2.5 h-2.5" />
+        <button disabled={busy} aria-label={saved?'Remove saved event':'Save event'} aria-pressed={saved} onClick={async()=>{setBusy(true);try{await onSave();}finally{setBusy(false);}}} className="absolute top-1 right-1 p-1 bg-black/40 text-white rounded-full cursor-pointer">
+          <FiHeart className={`w-2.5 h-2.5 ${saved?'fill-red-500 text-red-500':''}`} />
         </button>
       </div>
 
       <div className="flex flex-col justify-between py-0.5 w-full">
         <div>
           <h4 className="text-[10px] font-semibold text-[#000000] line-clamp-1">
-            {title}
+            <Link to={`/events/${id}`}>{title}</Link>
           </h4>
 
           <p className="text-[12px] font-medium text-slate-500 flex items-center space-x-1 mt-0.5">

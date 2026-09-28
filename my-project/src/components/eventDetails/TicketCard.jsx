@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FiBookmark, FiMinus, FiPlus } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
+import { memberTicketPrice } from '@/lib/membership';
 
 const TicketCard = ({
   tickets,
@@ -32,7 +33,7 @@ const TicketCard = ({
     try { await api('/saved-events/', { method: isSaved ? 'DELETE' : 'POST', body: { event: event.id } }); setIsSaved(value => !value); }
     catch (error) { toast.error(error.message); }
   };
-  const tierData = event.ticket_types.map(t => ({ key: t.id, label: t.name, price: Number(t.price) === 0 ? 'Free' : money(t.price) }));
+  const tierData = event.ticket_types.map(t => ({ key: t.id, label: t.name, price: Number(t.price) === 0 ? 'Free' : money(memberTicketPrice(t, user?.plan)), minimumPlan: t.minimum_plan, earlyAccess: t.membership_early_access }));
   const hasAnyTicket = Object.values(tickets).some((qty) => qty > 0);
 
   return (
@@ -64,6 +65,7 @@ const TicketCard = ({
               >
                 <div className="flex justify-between items-center">
                   <h4 className="font-bold text-[18px]">{tier.label}</h4>
+                  {tier.minimumPlan && tier.minimumPlan !== 'bronze' && <span className="text-xs capitalize">{tier.minimumPlan} plan or above</span>}
 
                   <div className="flex items-center gap-3">
                     <p className="font-bold text-[18px]">
@@ -163,24 +165,6 @@ const TicketCard = ({
         </button>
       </div>
 
-      <div className="flex items-center space-x-2 pt-2">
-        <div className="flex -space-x-2">
-          <img
-            src="/Ellipse1.png"
-            className="h-6 w-6 rounded-full ring-2 ring-white object-cover"
-          />
-          <img
-            src="/Ellipse2.png"
-            className="h-6 w-6 rounded-full ring-2 ring-white object-cover"
-          />
-          <img
-            src="/Ellipse3.png"
-            className="h-6 w-6 rounded-full ring-2 ring-white object-cover"
-          />
-        </div>
-
-        <p className="text-[12px] font-semibold">Book securely with Mmemme Abia</p>
-      </div>
     </div>
   );
 };

@@ -16,12 +16,12 @@ const Events = () => {
             Trending Events 🔥
           </h1>
           <div>
-            <p
+            <button type="button"
               onClick={() => navigate("/events")}
               className="font-semibold text-[12px] text-[#F46F1A] cursor-pointer hover:underline"
             >
               See More
-            </p>
+            </button>
           </div>
         </div>
         <div className="overflow-x-auto scrollbar-hide">

@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from 'react-router-dom';
 
 const AboutCard = () => {
   return (
@@ -12,9 +13,9 @@ const AboutCard = () => {
         people, culture, and colonial past.
       </p>
 
-      <button className="border border-[#3F783D] text-[#3F783D] hover:bg-[#EAF4EB] font-semibold text-sm px-4 py-2 rounded-lg transition">
+      <Link to="/about" className="border border-[#3F783D] text-[#3F783D] hover:bg-[#EAF4EB] font-semibold text-sm px-4 py-2 rounded-lg transition">
         Learn More
-      </button>
+      </Link>
     </div>
   );
 };

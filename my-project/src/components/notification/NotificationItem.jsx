@@ -1,7 +1,7 @@
 import React from "react";
 import { notificationIcons } from "../../data/notificationIcons";
 
-const NotificationItem = ({ notification }) => {
+const NotificationItem = ({ notification, onRead, onOpen, busy }) => {
   const config =
     notificationIcons[notification.type] || notificationIcons.reminder;
   const Icon = config.icon;
@@ -27,6 +27,11 @@ const NotificationItem = ({ notification }) => {
         <p className="text-sm text-gray-500 mt-1 leading-relaxed">
           {notification.message}
         </p>
+        <div className="mt-3 flex flex-wrap gap-4 text-xs font-semibold text-[#3F783D]">
+          <button disabled={busy} onClick={()=>onOpen(notification)} className="hover:underline disabled:opacity-40">View details</button>
+          {!notification.read&&<button disabled={busy} onClick={()=>onRead(notification)} className="hover:underline disabled:opacity-40">Mark as read</button>}
+          {notification.read&&<span className="text-gray-400">Read</span>}
+        </div>
       </div>
 
       {!notification.read && (

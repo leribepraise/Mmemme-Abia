@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React from "react";
 
 const DealCard = () => {
@@ -7,15 +8,15 @@ const DealCard = () => {
         %
       </span>
 
-      <h3 className="font-bold text-lg mb-2">Exclusive Hotel Deals</h3>
+      <h3 className="font-bold text-lg mb-2">Explore Hotels</h3>
 
       <p className="text-sm text-green-100 mb-5">
-        Enjoy up to 30% off on selected hotels in Abia. Limited time offer!
+        Browse hotels in Abia and check available rooms and prices.
       </p>
 
-      <button className="bg-[#F36B25] hover:bg-[#dc5d19] px-5 py-2 rounded-lg font-semibold">
-        View Deals
-      </button>
+      <Link to="/search?category=Stay" className="bg-[#F36B25] hover:bg-[#dc5d19] px-5 py-2 rounded-lg font-semibold">
+        View Hotels
+      </Link>
     </div>
   );
 };

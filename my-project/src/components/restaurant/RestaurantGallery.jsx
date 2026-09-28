@@ -55,12 +55,14 @@
 import React from "react";
 
 const RestaurantGallery = ({ vendor }) => {
+  const gallery=React.useRef(null);
   const images = vendor.gallery?.length
     ? vendor.gallery
     : [vendor.image, vendor.image, vendor.image, vendor.image];
 
   return (
     <div className="px-4 md:px-5">
+      <dialog ref={gallery} className="m-auto max-h-[90vh] max-w-[90vw] rounded-xl p-4 backdrop:bg-black/60"><form method="dialog"><button className="mb-3 underline">Close gallery</button></form>{images.filter(Boolean).map((src,i)=><img key={i} src={src} alt={`${vendor.name} photo ${i+1}`} className="mb-3 max-h-[70vh]"/>)}</dialog>
       <div className="grid grid-cols-1 md:grid-cols-12 gap-2 h-auto md:h-[270px]">
         {/* Main Image */}
         <div className="md:col-span-8 h-[220px] md:h-full rounded-lg overflow-hidden">
@@ -75,7 +77,7 @@ const RestaurantGallery = ({ vendor }) => {
         <div className="md:col-span-4 grid grid-cols-2 gap-2">
           <div className="h-[120px] md:h-full rounded-lg overflow-hidden">
             <img
-              src={images[1]}
+              src={images[1] || images[0]}
               alt={`${vendor.name} food`}
               className="w-full h-full object-cover"
             />
@@ -83,7 +85,7 @@ const RestaurantGallery = ({ vendor }) => {
 
           <div className="h-[120px] md:h-full rounded-lg overflow-hidden">
             <img
-              src={images[2]}
+              src={images[2] || images[0]}
               alt={`${vendor.name} interior`}
               className="w-full h-full object-cover"
             />
@@ -91,13 +93,13 @@ const RestaurantGallery = ({ vendor }) => {
 
           <div className="col-span-2 relative h-[120px] md:h-full rounded-lg overflow-hidden">
             <img
-              src={images[3]}
+              src={images[3] || images[0]}
               alt={vendor.name}
               className="w-full h-full object-cover"
             />
 
             <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
-              <button className="text-white text-xs font-semibold hover:underline">
+              <button onClick={()=>gallery.current?.showModal()} className="text-white text-xs font-semibold hover:underline">
                 View All Photos
               </button>
             </div>

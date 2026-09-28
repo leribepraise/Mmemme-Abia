@@ -1,5 +1,7 @@
 # Production deployment and release gates
 
+For notifications, browser push and installable app setup, follow [PUSH_AND_APP_INSTALL.md](PUSH_AND_APP_INSTALL.md). This release includes a notification database migration and optional VAPID variables on backend and worker.
+
 For the new onboarding and staff review release, follow [ACCOUNT_REVIEW.md](ACCOUNT_REVIEW.md). Ticket sales use `EVENT_COMMISSION_BPS=500` (5%); other service bookings retain `PLATFORM_COMMISSION_BPS`.
 
 Target: a production launch by **30 September 2026**. Implementing the code does not certify an operating deployment. Treat every unchecked launch gate below as required work before taking public payments.

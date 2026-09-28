@@ -36,6 +36,7 @@
 // export default Categories;
 
 import React from "react";
+import {Link} from "react-router-dom";
 
 const Categories = () => {
   const groups = [
@@ -55,7 +56,7 @@ const Categories = () => {
     <section className="my-10 overflow-x-auto scrollbar-hide py-10 px-5 lg:overflow-x-hidden">
       <div className="flex justify-between gap-3 md:gap-0">
         {groups.map((group) => (
-          <div
+          <Link to={`/search?category=Events&q=${encodeURIComponent(group.text === "All Categories" ? "" : group.text)}`}
             key={group.text}
             className="flex flex-col justify-center items-center bg-[#FFFEFE] p-5 h-20 w-auto text-[12px] rounded-[15px] shadow-xl transition duration-300
               hover:bg-[#F1FCEE]
@@ -70,7 +71,7 @@ const Categories = () => {
             />
 
             <p className="text-[12px] [font-normal]">{group.text}</p>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React from "react";
 
 const DiscoverHero = () => {
@@ -19,13 +20,13 @@ const DiscoverHero = () => {
           </p>
 
           <div className="flex flex-wrap gap-3 mt-8">
-            <button className="bg-[#F97316] hover:bg-[#df5f18] text-white px-6 py-3 rounded-lg font-semibold transition">
+            <Link to="/tourism" className="bg-[#F97316] hover:bg-[#df5f18] text-white px-6 py-3 rounded-lg font-semibold transition">
               Explore Abia
-            </button>
+            </Link>
 
-            <button className="border border-[#48782E] text-[#48782E] hover:bg-[#48782E] hover:text-white px-6 py-3 rounded-lg font-semibold transition">
+            <Link to="/events" className="border border-[#48782E] text-[#48782E] hover:bg-[#48782E] hover:text-white px-6 py-3 rounded-lg font-semibold transition">
               Explore Events
-            </button>
+            </Link>
           </div>
         </div>
 

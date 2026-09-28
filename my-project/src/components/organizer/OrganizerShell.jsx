@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import OrganizerControlMenu from './OrganizerControlMenu';
 import OrganizerSidebar from "./OrganizerSidebar";
 import OrganizerTopbar from "./OrganizerTopbar";
 
@@ -6,8 +7,9 @@ export default function OrganizerShell({ breadcrumb = [], title, subtitle, greet
   return (
     <div className="min-h-screen bg-[#F7F8F6] flex font-sans text-gray-800">
       <OrganizerSidebar />
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+      <main className="min-w-0 flex-1 p-4 md:p-8 overflow-y-auto">
         <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <OrganizerControlMenu mobileOnly/>
           {greeting ? (
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -16,7 +18,7 @@ export default function OrganizerShell({ breadcrumb = [], title, subtitle, greet
                 </h1>
                 {subtitle && <p className="text-sm text-gray-500 font-medium mt-1">{subtitle}</p>}
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 {actions}
                 <OrganizerTopbar />
               </div>

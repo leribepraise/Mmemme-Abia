@@ -6,14 +6,14 @@ import { BiSupport } from "react-icons/bi";
 const WhyChose = () => {
   const reasons = [
     {
-      title: "Trusted & Secure",
-      text: "Your security is our priority. Safe payments and data protection guaranteed",
+      title: "Pay with Paystack",
+      text: "Complete your booking payment through Paystack checkout.",
       icon: <MdOutlineSecurity />,
       color: "text-[#267835]",
     },
     {
       title: "Easy Ticketing",
-      text: "Book tickets in seconds and receive them instantly on your device",
+      text: "Book available tickets and access them in your account after confirmation.",
       icon: <IoTicketOutline />,
       color: "text-[#ff720c]",
     },
@@ -24,8 +24,8 @@ const WhyChose = () => {
       color: "text-[#267835]",
     },
     {
-      title: "24/7 Support",
-      text: "We are here to help anytime you need us.",
+      title: "Contact Support",
+      text: "Send our team a message from your account when you need help.",
       icon: <BiSupport />,
       color: "text-[#ff720c]",
     },

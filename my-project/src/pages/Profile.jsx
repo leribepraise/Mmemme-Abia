@@ -19,11 +19,12 @@ import Seo from "../components/seo/Seo";
 const Profile = () => {
   const navigate = useNavigate();
   useEffect(()=>{window.scrollTo(0,0);},[]);
-  const [params] = useSearchParams();
+  const [params,setParams] = useSearchParams();
   const { logout } = useAuth();
   const { user } = useUser();
 
-  const [activeSection, setActiveSection] = useState(["Dashboard", "My Tickets", "My Bookings", "Saved Items", "Payment History", "Notifications", "Settings"].includes(params.get("section")) ? params.get("section") : "Dashboard");
+  const activeSection = ["Dashboard", "My Tickets", "My Bookings", "Saved Items", "Payment History", "Notifications", "Settings"].includes(params.get("section")) ? params.get("section") : "Dashboard";
+  const setActiveSection = section => setParams({section});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Handle sidebar navigation

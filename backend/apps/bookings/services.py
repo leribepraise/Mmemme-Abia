@@ -65,7 +65,7 @@ def _expire_locked(booking):
         return True
     return False
 
-def _validate_resources(kind, parent, resources, entries, details):
+def _validate_resources(kind, parent, resources, entries, details, plan='bronze'):
     now = timezone.now()
     owner = supplier_of(kind, parent)
     if not owner or not owner.is_active or not owner.is_verified:
@@ -78,8 +78,13 @@ def _validate_resources(kind, parent, resources, entries, details):
             raise Conflict("The requested quantity is no longer available.")
         if r.price < 0:
             raise Conflict("This listing has invalid pricing.")
-        if kind == "EVENT" and ((r.sales_start and now < r.sales_start) or (r.sales_end and now >= r.sales_end)):
-            raise Conflict("Ticket sales are closed.")
+        if kind == 'EVENT':
+            ranks = {'bronze': 0, 'silver': 1, 'diamond': 2}
+            if ranks.get(plan, 0) < ranks[r.minimum_plan]:
+                raise Conflict(f'This ticket requires the {r.minimum_plan.title()} plan.')
+            early = timedelta(hours=24*ranks.get(plan, 0)) if r.membership_early_access else timedelta()
+            if (r.sales_start and now < r.sales_start-early) or (r.sales_end and now >= r.sales_end):
+                raise Conflict('Ticket sales are closed.')
         if kind == "TRANSPORT" and r.departs_at <= now:
             raise Conflict("This departure is closed.")
         if kind == "TOURISM" and (r.starts_at <= now or not r.package.is_active):
@@ -158,15 +163,23 @@ def reserve(user, key, kind, entries, details, customer_name="", customer_phone=
     if any(str(parent_of(kind,r).pk) != str(parent.pk) for r in resources.values()):
         raise Conflict("The inventory changed; refresh and try again.")
     details = dict(details)
-    _validate_resources(kind,parent,resources,entries,details)
-    total = sum((resources[str(e["id"])].price * e["quantity"] for e in entries), Decimal("0.00"))
+    from apps.memberships.services import current_membership
+    plan = current_membership(user)['plan']
+    _validate_resources(kind,parent,resources,entries,details,plan)
+    prices = {}
+    for resource_id, resource in resources.items():
+        percent = {'silver': 15, 'diamond': 30}.get(plan, 0) if kind == 'EVENT' and resource.membership_discount else 0
+        prices[resource_id] = (resource.price * Decimal(100-percent) / 100).quantize(Decimal('0.01'))
+    total = sum((prices[str(e['id'])] * e['quantity'] for e in entries), Decimal('0.00'))
+    details['membership_plan'] = plan
     total += Decimal(details.get("delivery_fee", "0.00"))
     if total > Decimal("9999999999.99"):
         raise ValidationError("The booking total is too large.")
     booking = Booking.objects.create(user=user,supplier=supplier_of(kind,parent),kind=kind,parent_id=str(parent.pk),booking_reference="MM-"+uuid.uuid4().hex.upper(),idempotency_key=key,request_hash=fingerprint,total_amount=total,expires_at=timezone.now()+timedelta(minutes=settings.RESERVATION_MINUTES),details=details,customer_name=customer_name,customer_phone=customer_phone,customer_note=customer_note)
     for entry in entries:
         resource = resources[str(entry["id"])]
-        BookingItem.objects.create(booking=booking,**{SOURCES[kind]:resource},quantity=entry["quantity"],unit_price=resource.price,subtotal=resource.price*entry["quantity"],description=str(resource)[:500])
+        price = prices[str(resource.pk)]
+        BookingItem.objects.create(booking=booking,**{SOURCES[kind]:resource},quantity=entry['quantity'],unit_price=price,subtotal=price*entry['quantity'],description=str(resource)[:500])
         resource.quantity_reserved += entry["quantity"]
         resource.save(update_fields=["quantity_reserved"])
     audit(user,"booking.reserved",booking.pk,kind=kind)

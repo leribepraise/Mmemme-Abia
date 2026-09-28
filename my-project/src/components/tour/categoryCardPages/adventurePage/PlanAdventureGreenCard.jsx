@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from "react-router-dom";
 
 const PlanAdventureGreenCard = () => {
   return (
@@ -11,9 +12,9 @@ const PlanAdventureGreenCard = () => {
         From hiking and kayaking to exploring caves and rock formations.
       </p>
 
-      <button className="w-full bg-[#3F783D] hover:bg-[#356433] text-white font-semibold py-2.5 rounded-lg transition mb-4">
+      <Link to="/contact" className="w-full bg-[#3F783D] hover:bg-[#356433] text-white font-semibold py-2.5 rounded-lg transition mb-4">
         Plan Your Trip
-      </button>
+      </Link>
 
       <div className="w-full h-24 rounded-lg overflow-hidden">
         <img

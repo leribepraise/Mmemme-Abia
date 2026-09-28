@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "apps.restaurants",
     "apps.transport",
     "apps.messaging",
+    "apps.memberships",
+    "apps.community",
     "apps.notifications",
     "apps.common",
 ]
@@ -112,6 +114,13 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "apps.accounts.validators.AccountPasswordValidator",
     },
 ]
+
+WEB_PUSH_ENABLED = os.getenv('WEB_PUSH_ENABLED', 'false').lower() == 'true'
+VAPID_PUBLIC_KEY = os.getenv('VAPID_PUBLIC_KEY', '').strip()
+VAPID_PRIVATE_KEY = os.getenv('VAPID_PRIVATE_KEY', '').strip()
+VAPID_SUBJECT = os.getenv('VAPID_SUBJECT', '').strip()
+if WEB_PUSH_ENABLED and (not VAPID_PUBLIC_KEY or not VAPID_PRIVATE_KEY or not VAPID_SUBJECT.startswith(('mailto:', 'https://'))):
+    raise ValueError('Configure VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and VAPID_SUBJECT before enabling Web Push.')
 
 
 # =========================================================

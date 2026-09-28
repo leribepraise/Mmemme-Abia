@@ -5,26 +5,26 @@ const WhyBookCard = () => {
   const items = [
     {
       icon: ShieldCheck,
-      title: "Best Price Guarantee",
-      text: "We offer the best prices on all hotels",
+      title: "Listed Room Prices",
+      text: "See the available room prices before booking",
       color: "text-orange-500",
     },
     {
       icon: Lock,
-      title: "Secure Booking",
-      text: "Your booking is safe and protected",
+      title: "Booking Records",
+      text: "View confirmed reservations in your account",
       color: "text-green-500",
     },
     {
       icon: Headphones,
-      title: "24/7 Customer Support",
-      text: "We're here to help you anytime",
+      title: "Contact Support",
+      text: "Message our team with booking questions",
       color: "text-purple-500",
     },
     {
       icon: BadgeCheck,
-      title: "Verified Properties",
-      text: "Quality stays you can trust",
+      title: "Property Details",
+      text: "Review the listing and amenities before booking",
       color: "text-blue-500",
     },
   ];

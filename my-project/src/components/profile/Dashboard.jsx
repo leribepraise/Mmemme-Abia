@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+=======
+import toast from 'react-hot-toast';
+import ShareApp from '@/components/ShareApp';
+import { Link } from 'react-router-dom';
+import { useNotifications } from '@/components/context/NotificationsContext';
+>>>>>>> 748bcc0e90ac2a4c15244e6b81d405978680c276
 import { useCollection } from "@/hooks/useApi";
 import { bookingCard } from "@/lib/catalog";
 import React, { useEffect, useState } from "react";
@@ -24,6 +31,7 @@ import Info from "./common/Info";
 import Preference from "./common/Preference";
 
 const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
+<<<<<<< HEAD
   const {
     data: bookings,
     loading: bookingsLoading,
@@ -37,6 +45,12 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
   } = useCollection("/tickets/");
   const { data: notifications } = useCollection("/notifications/");
   const { data: savedEvents } = useCollection("/saved-events/");
+=======
+  const { data: bookings, loading: bookingsLoading, error: bookingsError, reload: reloadBookings } = useCollection("/bookings/", bookingCard);
+  const { data: tickets, loading: ticketsLoading, error: ticketsError } = useCollection('/tickets/');
+  const { unreadCount } = useNotifications();
+  const { data: savedEvents } = useCollection('/saved-events/');
+>>>>>>> 748bcc0e90ac2a4c15244e6b81d405978680c276
   const [savedHotelCount, setSavedHotelCount] = useState(0);
   const savedCount = savedEvents.length + savedHotelCount;
   useEffect(() => {
@@ -154,8 +168,9 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
 
         <StatCard
           icon={<Users size={17} />}
-          number={notifications.filter((n) => !n.is_read).length}
+          number={unreadCount}
           label="Unread Notifications"
+          to="/notifications"
         />
       </div>
 
@@ -200,6 +215,7 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
         )}
       </div>
       {/* RECENT BOOKINGS */}
+      <div className="mt-5 flex flex-wrap items-center gap-3"><Link to="/plans" className="rounded-lg bg-[#3F783D] px-5 py-3 text-sm font-semibold text-white">Manage {formattedPlan} membership</Link><Link to="/message" className="rounded-lg border px-5 py-3 text-sm">Messages & support</Link><Link to="/community" className="rounded-lg border px-5 py-3 text-sm">Community</Link><ShareApp/></div>
       <section className="mt-5 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-bold text-[#172033]">Recent Bookings</h2>

@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from "react-router-dom";
 
 const PlanJourneyCard = () => {
   return (
@@ -12,9 +13,9 @@ const PlanJourneyCard = () => {
         Abia State.
       </p>
 
-      <button className="w-full bg-[#3F783D] hover:bg-[#356433] text-white font-semibold py-2.5 rounded-lg transition">
+      <Link to="/contact" className="w-full bg-[#3F783D] hover:bg-[#356433] text-white font-semibold py-2.5 rounded-lg transition">
         Plan Your Visit
-      </button>
+      </Link>
     </div>
   );
 };

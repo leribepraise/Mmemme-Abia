@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import BookingReview from './BookingReview';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useCollection } from "@/hooks/useApi";
@@ -315,6 +316,7 @@ const MyBookings = () => {
 
                 {/* Actions */}
                 <div className="flex shrink-0 items-center gap-2 border-t border-gray-100 pt-3 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
+                  <BookingReview booking={booking} />
                   {detailsLink ? (
                     <NavLink
                       to={detailsLink}
