@@ -40,6 +40,7 @@ FRONTEND_URL=http://localhost:5173
 CORS_ALLOWED_ORIGINS=http://localhost:5173
 PAYSTACK_SECRET_KEY=
 PLATFORM_COMMISSION_BPS=0
+EVENT_COMMISSION_BPS=500
 ```
 
 `SECRET_KEY` must also be set to a random development-only value. Generate a new one locally with the backend Python environment:
@@ -90,7 +91,8 @@ From `my-project`, run `npm ci --ignore-scripts`, then `npm run dev`. Use `http:
 | `EMAIL_HOST_PASSWORD` | SMTP credential, required only for `EMAIL_PROVIDER=smtp` |
 | `DEFAULT_FROM_EMAIL` | A sender address on your verified sending domain |
 | `PAYSTACK_SECRET_KEY` | Your Paystack dashboard's test secret for staging; live secret only after launch checks |
-| `PLATFORM_COMMISSION_BPS` | Your approved commission in basis points: `500` means 5%; current default `0` means no commission |
+| `EVENT_COMMISSION_BPS` | Ticket commission: `500` means the approved 5%. Set on both backend and worker. |
+| `PLATFORM_COMMISSION_BPS` | Commission for other service bookings; default `0`. Keep the existing agreed rate. |
 | `TRUST_PROXY_SSL_HEADER` | `True` only after a trusted HTTPS proxy is configured to overwrite the forwarded protocol header |
 | `PAYOUT_HOLD_DAYS` | Proposed default `7`: wait this many days after service completion; confirm it in your provider terms |
 | `PAYSTACK_TRANSFERS_ENABLED` | Keep `false` until finance permissions, bank reviews, transfer testing and merchant funds are ready; then explicitly enable |

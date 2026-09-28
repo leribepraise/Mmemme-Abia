@@ -5,7 +5,7 @@ import { useAuth } from "@/components/context/AuthContext";
 import toast from "react-hot-toast";
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Filter, MapPin, MoreHorizontal, Search } from "lucide-react";
+import { Filter, MapPin, Send, Search } from "lucide-react";
 import OrganizerShell from "@/components/organizer/OrganizerShell";
 import { seedEvents } from "@/data/organizerData";
 import { load, save } from "@/lib/utils";
@@ -168,11 +168,13 @@ export default function OrganizerEvents() {
                   </button>
                   <button
                     onClick={() => toggleStatus(event.id)}
+                    disabled={!['DRAFT', 'REJECTED'].includes(event.rawStatus)}
                     className="p-2 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 shrink-0 transition-colors"
-                    aria-label="More actions"
+                    aria-label="Submit event for review"
+                    title="Submit event for review"
                     data-testid={`button-more-event-${event.id}`}
                   >
-                    <MoreHorizontal className="w-5 h-5" />
+                    <Send className="w-5 h-5" />
                   </button>
                 </div>
               ))}

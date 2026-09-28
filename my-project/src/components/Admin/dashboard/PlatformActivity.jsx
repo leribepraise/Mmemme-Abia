@@ -47,7 +47,7 @@ const PlatformActivity = ({ labels, series }) => {
   const innerH = H - PAD.top - PAD.bottom;
 
   return (
-    <section className="h-full rounded-xl bg-white p-4 shadow-sm sm:p-5">
+    <section className="h-full min-w-0 rounded-xl bg-white p-4 shadow-sm sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-sm font-semibold text-[#0f172a]">
           Platform Activity
@@ -81,7 +81,7 @@ const PlatformActivity = ({ labels, series }) => {
       <div className="mt-4 overflow-x-auto">
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className="h-auto w-full min-w-[420px]"
+          className="h-auto w-full"
           role="img"
           aria-label={`${label} activity chart`}
         >
@@ -128,13 +128,13 @@ const PlatformActivity = ({ labels, series }) => {
             strokeLinecap="round"
           />
           {points.map((p, i) => (
-            <circle key={labels[i]} cx={p.x} cy={p.y} r="3.5" fill="#15803d" />
+            <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#15803d" />
           ))}
 
           {/* X-axis labels */}
           {points.map((p, i) => (
             <text
-              key={labels[i]}
+              key={i}
               x={p.x}
               y={H - 8}
               textAnchor="middle"

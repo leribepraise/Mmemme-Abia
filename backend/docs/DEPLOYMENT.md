@@ -1,5 +1,7 @@
 # Production deployment and release gates
 
+For the new onboarding and staff review release, follow [ACCOUNT_REVIEW.md](ACCOUNT_REVIEW.md). Ticket sales use `EVENT_COMMISSION_BPS=500` (5%); other service bookings retain `PLATFORM_COMMISSION_BPS`.
+
 Target: a production launch by **30 September 2026**. Implementing the code does not certify an operating deployment. Treat every unchecked launch gate below as required work before taking public payments.
 
 For this project's Railway Hobby deployment, follow [RAILWAY_SETUP_GUIDE.md](../../RAILWAY_SETUP_GUIDE.md), which supplies the service paths, private-network setup, Resend HTTPS email and S3 bucket variables. The Docker Compose instructions below are an alternative hosting layout.
@@ -31,7 +33,7 @@ From `my-project`: `npm ci --ignore-scripts`, then `npm run dev`. Vite proxies `
 
 ## Configuration and first deployment
 
-1. Create a deployment secret store or untracked `backend/.env.production`. Set `SECRET_KEY` to a unique random value of at least 50 characters, `ALLOWED_HOSTS`, PostgreSQL `DATABASE_URL`, `REDIS_URL`, email provider credentials, `DEFAULT_FROM_EMAIL`, HTTPS `FRONTEND_URL`, and `PAYSTACK_SECRET_KEY`. Choose `EMAIL_PROVIDER=resend` with `RESEND_API_KEY`, or `EMAIL_PROVIDER=smtp` with the SMTP variables in the example. Keep keys out of browser code, source control and logs. `PLATFORM_COMMISSION_BPS` is basis points (500 = 5%); default 0 is deliberate until business terms are approved.
+1. Create a deployment secret store or untracked `backend/.env.production`. Set `SECRET_KEY` to a unique random value of at least 50 characters, `ALLOWED_HOSTS`, PostgreSQL `DATABASE_URL`, `REDIS_URL`, email provider credentials, `DEFAULT_FROM_EMAIL`, HTTPS `FRONTEND_URL`, and `PAYSTACK_SECRET_KEY`. Choose `EMAIL_PROVIDER=resend` with `RESEND_API_KEY`, or `EMAIL_PROVIDER=smtp` with the SMTP variables in the example. Keep keys out of browser code, source control and logs. Set `EVENT_COMMISSION_BPS=500` for the approved 5% ticket commission. `PLATFORM_COMMISSION_BPS` applies to other services and defaults to 0.
 2. Set `DJANGO_SETTINGS_MODULE=config.settings.production`. WSGI/ASGI default to production. Production refuses weak/missing settings and requires PostgreSQL/Redis and the selected email provider's credentials. Railway also requires S3 upload storage. Use a same-origin frontend API base `/api/v1`.
 3. `compose.production.yaml` supplies API, worker, PostgreSQL and Redis. Set the compose environment's `POSTGRES_PASSWORD` and use that same password in `DATABASE_URL`. Database hostname is `db`, Redis is `redis`. Database TLS defaults to `require`; use managed TLS PostgreSQL for production. `DB_SSLMODE=disable` is only appropriate if the database is confined to a trusted private container network and your security policy permits it. No database/cache ports are published.
 4. Build with `docker compose -f compose.production.yaml build`. Pin approved base-image digests in the release manifest after scanning images. Do not rely on floating tags for rollback.
