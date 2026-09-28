@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React from "react";
 import { Headphones } from "lucide-react";
 
@@ -11,10 +12,10 @@ const HelpChoosing = () => {
         </p>
       </div>
 
-      <button className="border border-green-600 text-green-700 px-5 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-green-50">
+      <Link to="/contact" className="border border-green-600 text-green-700 px-5 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-green-50">
         <Headphones className="w-4 h-4" />
         Contact Support
-      </button>
+      </Link>
     </div>
   );
 };

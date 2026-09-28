@@ -11,6 +11,7 @@ from apps.payments.api import PaymentViewSet, WebhookView
 from apps.payments.payout_api import PayoutViewSet, PayoutAccountViewSet
 from apps.tickets.api import TicketViewSet
 from apps.notifications.api import NotificationViewSet
+from apps.notifications.push_api import PushConfigView, PushSubscriptionView
 from apps.messaging.api import ConversationViewSet
 from apps.common.catalog import CONFIG, viewset_for
 from apps.common.views import live, ready
@@ -32,6 +33,8 @@ router.register("conversations",ConversationViewSet,basename="conversation")
 for model,(prefix,*_) in CONFIG.items():
     router.register("hotels" if prefix=="hotel" else prefix,viewset_for(model),basename=model._meta.model_name)
 urlpatterns=[
+    path('api/v1/push/config/', PushConfigView.as_view()),
+    path('api/v1/push/subscription/', PushSubscriptionView.as_view()),
     path("admin/",admin.site.urls),
     path("health/live/",live),
     path("health/ready/",ready),

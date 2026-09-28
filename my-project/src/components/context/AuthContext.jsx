@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { api, clearLegacyCredentials, refreshSession, setAccess } from '@/lib/api';
 import { AuthContext } from './AuthState';
+import { currentPushSubscription } from '@/lib/push';
 
 const displayUser = user => user && ({ ...user, fullName: [user.first_name, user.last_name].filter(Boolean).join(' '), dateOfBirth: user.date_of_birth || '', profilePicture: user.avatar || '', plan: 'bronze' });
 export const AuthProvider = ({ children }) => {
@@ -19,7 +20,9 @@ export const AuthProvider = ({ children }) => {
     return result.user;
   };
   const logout = async () => {
-    await api('/auth/logout/', { method: 'POST' });
+    const subscription = await currentPushSubscription().catch(()=>null);
+    await api('/auth/logout/', { method: 'POST', body:{push_endpoint:subscription?.endpoint} });
+    if(subscription)await subscription.unsubscribe().catch(()=>{});
     setAccess(''); setUser(null); clearLegacyCredentials();
   };
   const reloadUser = async () => { const result = await api('/auth/me/'); setUser(displayUser(result)); return result; };

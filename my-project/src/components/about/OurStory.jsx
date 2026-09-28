@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React from "react";
 
 const OurStory = () => {
@@ -14,9 +15,9 @@ const OurStory = () => {
           delicious cuisine, Abia has so much to offer.
         </p>
 
-        <button className="mt-8 border border-[#48782E] text-[#48782E] hover:bg-[#48782E] hover:text-white transition px-5 py-2 rounded-lg font-medium text-sm">
+        <Link to="/tourism" className="mt-8 border border-[#48782E] text-[#48782E] hover:bg-[#48782E] hover:text-white transition px-5 py-2 rounded-lg font-medium text-sm">
           Explore Abia
-        </button>
+        </Link>
       </div>
 
       {/* Right */}

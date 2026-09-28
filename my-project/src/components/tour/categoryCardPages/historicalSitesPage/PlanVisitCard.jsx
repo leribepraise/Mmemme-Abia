@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from "react-router-dom";
 import { Leaf, UserRound, HeartHandshake } from "lucide-react";
 
 const PlanVisitCard = () => {
@@ -38,9 +39,9 @@ const PlanVisitCard = () => {
         ))}
       </div>
 
-      <button className="w-full bg-[#3F783D] hover:bg-[#356433] text-white font-semibold py-2.5 rounded-lg transition">
+      <Link to="/contact" className="w-full bg-[#3F783D] hover:bg-[#356433] text-white font-semibold py-2.5 rounded-lg transition">
         Plan Your Trip
-      </button>
+      </Link>
     </div>
   );
 };

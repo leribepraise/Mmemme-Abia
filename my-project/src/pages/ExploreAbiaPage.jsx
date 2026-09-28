@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React from "react";
 import SEO from "../components/SEO/SEO";
 import {
@@ -32,14 +33,14 @@ export default function ExploreAbiaPage() {
       title: "Nature & Parks",
       count: 234,
       color: "text-gray-700",
-      path: "/explore/nature-and-parks",
+      path: "/search?category=Tourism&q=Nature",
     },
     {
       icon: Waves,
       title: "Waterfalls",
       count: 28,
       color: "text-yellow-500",
-      path: "/explore/waterfalls",
+      path: "/search?category=Tourism&q=Waterfall",
     },
     {
       icon: HomeIcon,
@@ -60,7 +61,7 @@ export default function ExploreAbiaPage() {
       title: "Museums",
       count: 15,
       color: "text-teal-500",
-      path: "/explore/museums",
+      path: "/search?category=Tourism&q=Museum",
     },
     {
       icon: Ship,
@@ -81,7 +82,7 @@ export default function ExploreAbiaPage() {
       title: "Hidden Gems",
       count: 19,
       color: "text-pink-500",
-      path: "/explore/hidden-gems",
+      path: "/search?category=Tourism",
     },
   ];
 
@@ -120,9 +121,9 @@ export default function ExploreAbiaPage() {
                 <h2 className="text-xl font-extrabold text-black">
                   Explore Categories
                 </h2>
-                <button className="text-xs font-bold text-[#48782E] hover:underline">
+                <Link to="/search?category=Tourism" className="text-xs font-bold text-[#48782E] hover:underline">
                   View all
-                </button>
+                </Link>
               </div>
               <div className="overflow-x-auto scrollbar-none">
                 <div className="flex w-max gap-4 pb-2">
@@ -141,9 +142,9 @@ export default function ExploreAbiaPage() {
                 <h2 className="text-xl font-extrabold text-black">
                   Top Destinations in Abia
                 </h2>
-                <button className="text-xs font-bold text-[#48782E] hover:underline">
+                <Link to="/search?category=Tourism" className="text-xs font-bold text-[#48782E] hover:underline">
                   View all destinations
-                </button>
+                </Link>
               </div>
               <div className="scrollbar-hide overflow-x-auto">
                 <div className="flex w-max gap-5 pb-2">
@@ -235,9 +236,9 @@ export default function ExploreAbiaPage() {
                   </p>
                 </div>
               </div>
-              <button className="shrink-0 rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-gray-800 shadow-sm transition-colors hover:border-gray-400">
+              <Link to="/search?category=Tourism" className="shrink-0 rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-gray-800 shadow-sm transition-colors hover:border-gray-400">
                 Explore More
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -255,9 +256,9 @@ export default function ExploreAbiaPage() {
                 </p>
               </div>
               <div className="space-y-4">
-                <button className="w-full rounded-xl bg-[#F36B25] py-3 px-6 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#d95d1d]">
+                <Link to="/contact" className="w-full rounded-xl bg-[#F36B25] py-3 px-6 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#d95d1d]">
                   Plan Your Trip
-                </button>
+                </Link>
                 <div className="h-32 w-full overflow-hidden rounded-2xl border border-white/10 bg-gray-800">
                   <img
                     src="/map.jpg"

@@ -1,4 +1,5 @@
 import hotToast from "react-hot-toast";
+import {safeAppPath} from '@/lib/navigation';
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, BarChart3, CalendarCheck2, Eye, EyeOff, Lock, Mail, ShieldCheck, Users2 } from "lucide-react";
@@ -34,7 +35,7 @@ export default function OrganizerLogin() {
         hotToast.error('Your provider account needs approval before you can manage events.');
         navigate('/organizer/apply'); return;
       }
-      navigate('/organizer/dashboard');
+      navigate(safeAppPath(location.state?.from, '/organizer/dashboard'), {replace:true});
     } catch (error) {
       hotToast.error(error.message);
       if (error.code === 'email_not_verified') navigate('/verify-email', { state: { email } });

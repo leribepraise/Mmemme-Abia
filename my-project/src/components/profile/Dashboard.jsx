@@ -1,5 +1,6 @@
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import { useNotifications } from '@/components/context/NotificationsContext';
 import { useCollection } from "@/hooks/useApi";
 import { bookingCard } from "@/lib/catalog";
 import React, { useEffect, useState } from "react";
@@ -26,7 +27,7 @@ import Preference from "./common/Preference";
 const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
   const { data: bookings, loading: bookingsLoading, error: bookingsError, reload: reloadBookings } = useCollection("/bookings/", bookingCard);
   const { data: tickets, loading: ticketsLoading, error: ticketsError } = useCollection('/tickets/');
-  const { data: notifications } = useCollection('/notifications/');
+  const { unreadCount } = useNotifications();
   const { data: savedEvents } = useCollection('/saved-events/');
   const [savedHotelCount, setSavedHotelCount] = useState(0);
   const savedCount = savedEvents.length + savedHotelCount;
@@ -131,8 +132,9 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
 
         <StatCard
           icon={<Users size={17} />}
-          number={notifications.filter(n=>!n.is_read).length}
+          number={unreadCount}
           label="Unread Notifications"
+          to="/notifications"
         />
       </div>
 

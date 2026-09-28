@@ -19,6 +19,9 @@
         respond "ok" 200
     }
 
+    @appUpdates path /sw.js /manifest.webmanifest
+    header @appUpdates Cache-Control "no-cache"
+
     # /admin belongs to the React staff dashboard. Django admin stays on the backend domain.
     @backend path /api /api/* /static /static/* /media /media/* /health/*
     handle @backend {

@@ -2,6 +2,7 @@ import { useCollection } from "@/hooks/useApi";
 import { eventCard } from "@/lib/catalog";
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import { eventTicketPath } from '@/lib/navigation';
 import { IoArrowBack, IoArrowForward, IoPlay } from "react-icons/io5";
 
 const heroData = [
@@ -165,7 +166,7 @@ const Hero = () => {
             </NavLink>
 
             <NavLink
-              to="/organizer/login"
+              to="/organizer/apply"
               className="
     border-[#3C6E16]
     border-2
@@ -295,8 +296,8 @@ const Hero = () => {
                 {currentSlide.attendees && <p>👥 {currentSlide.attendees}</p>}
               </div>
 
-              <button
-                type="button"
+              <NavLink
+                to={eventTicketPath(currentSlide)}
                 className="
                   mt-3
                   inline-flex
@@ -318,7 +319,7 @@ const Hero = () => {
                 {currentSlide.buttonText}
 
                 <IoArrowForward />
-              </button>
+              </NavLink>
             </div>
           </div>
         </div>

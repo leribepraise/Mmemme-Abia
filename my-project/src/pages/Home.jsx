@@ -1,5 +1,6 @@
 import Seo from "@/components/seo/Seo";
 import React from "react";
+import { Link } from 'react-router-dom';
 import SEO from "../components/SEO/SEO";
 import Hero from "@/components/home/Hero";
 import SearchBar from "@/components/home/SearchBar";
@@ -20,10 +21,10 @@ const Home = () => {
       <Categories />
       <Events />
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <DisplayImage
+        <Link to="/install" aria-label="Install the Mmemme Abia app"><DisplayImage
           src="/home-image.png"
           alt="Take Mmemme Abia Anywhere You Go"
-        />
+        /></Link>
       </div>
       <WhyChose />
       <PeopleSay />

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/components/context/AuthContext";
 import { useCollection } from "@/hooks/useApi";
+import { useNotifications } from '@/components/context/NotificationsContext';
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { Bell, Menu, Search } from "lucide-react";
@@ -12,8 +13,7 @@ const AdminHeader = ({ onMenuClick }) => {
   const {user,logout}=useAuth();
   const navigate=useNavigate();
   const [search,setSearch]=useState('');
-  const {data:notifications}=useCollection('/notifications/');
-  const notificationCount=notifications.filter(n=>!n.is_read).length;
+  const {unreadCount:notificationCount}=useNotifications();
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between gap-3 rounded-b-2xl bg-white px-4 shadow-md sm:px-6">
       {/* Left: menu button (mobile/tablet) + logo */}
@@ -54,7 +54,7 @@ const AdminHeader = ({ onMenuClick }) => {
       <div className="flex items-center gap-2 sm:gap-4">
         <button
           type="button"
-          onClick={()=>navigate("/profile?section=Notifications")}
+          onClick={()=>navigate("/notifications")}
           aria-label={`Notifications, ${notificationCount} unread`}
           className="relative rounded-full p-2 text-slate-600 hover:bg-slate-100"
         >

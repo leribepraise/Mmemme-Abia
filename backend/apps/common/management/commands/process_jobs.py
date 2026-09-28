@@ -10,13 +10,14 @@ from apps.bookings.services import expire
 from apps.payments.models import Payment,PaymentEvent,Refund,Payout,PayoutAttempt
 from apps.payments.services import process_event,verify_payment,submit_refund,reconcile_refund
 from apps.notifications.services import deliver_one,notify
+from apps.notifications.push import deliver_push_one
 from apps.common.api import ServiceUnavailable
 from apps.payments.payouts import submit as submit_payout, reconcile as reconcile_payout
 
 logger=logging.getLogger(__name__)
 
 class Command(BaseCommand):
-    help="Process durable payment events, reservation expiry, refunds, reminders, and email."
+    help="Process durable payment events, reservation expiry, refunds, reminders, email and push notifications."
     def add_arguments(self,parser):
         parser.add_argument("--once",action="store_true")
         parser.add_argument("--interval",type=int,default=10)
@@ -57,6 +58,11 @@ class Command(BaseCommand):
             notify(booking.user,f"reminder:{booking.pk}","Your event is coming up",f"Your event is within the next 24 hours. Booking reference: {booking.booking_reference}.")
         for _ in range(50):
             if not self.run_job("email delivery",deliver_one): break
+        for _ in range(50):
+            if not self.run_job('push delivery',deliver_push_one): break
+        from apps.notifications.models import PushDelivery, PushSubscription
+        PushDelivery.objects.filter(notification__created_at__lt=now-timedelta(days=30)).delete()
+        PushSubscription.objects.filter(is_active=False,updated_at__lt=now-timedelta(days=30)).delete()
         # Security links expire after one day; clear undelivered token bodies too.
         from apps.notifications.models import Notification
         Notification.objects.filter(is_private=True,created_at__lt=now-timedelta(days=1)).update(body="Security notification expired.",failed=True)

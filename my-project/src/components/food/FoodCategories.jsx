@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React from "react";
 import FoodCategoryCard from "./FoodCategoryCard";
 
@@ -22,9 +23,9 @@ const FoodCategories = () => {
           Browse By Category
         </h2>
 
-        <button className="text-base font-bold text-[#265F27] transition hover:underline md:text-lg">
+        <Link to="/search?category=Restaurants" className="text-base font-bold text-[#265F27] transition hover:underline md:text-lg">
           View all
-        </button>
+        </Link>
       </div>
 
       {/* HORIZONTAL CATEGORIES ROW */}

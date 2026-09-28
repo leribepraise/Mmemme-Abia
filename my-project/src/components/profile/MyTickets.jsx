@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useCollection } from "@/hooks/useApi";
 import React, { useState, useEffect } from "react";
 import { CalendarDays, MapPin, Ticket } from "lucide-react";
@@ -130,7 +131,7 @@ const MyTickets = () => {
               {/* View Ticket */}
               {/* View Ticket */}
               <div className="flex shrink-0 items-center justify-center border-t border-gray-100 pt-4 lg:h-[100px] lg:w-[100px] lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
-                <button className="flex flex-col items-center gap-1">
+                <Link to={`/ticket?booking=${encodeURIComponent(ticket.booking)}`} className="flex flex-col items-center gap-1">
                   <div className="flex h-[55px] w-[55px] items-center justify-center rounded bg-white">
                     <TicketQRCode value={ticket.qr_code} />
                   </div>
@@ -138,7 +139,7 @@ const MyTickets = () => {
                   <span className="text-[9px] font-semibold text-[#174A20]">
                     View Ticket
                   </span>
-                </button>
+                </Link>
               </div>
             </div>
           ))

@@ -1,4 +1,5 @@
 import { useCollection } from '@/hooks/useApi';
+import { useNotifications } from '@/components/context/NotificationsContext';
 import toast from 'react-hot-toast';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,9 +14,8 @@ export default function OrganizerTopbar() {
   const [open, setOpen] = useState(false);
   const organizer = { avatar: (user?.fullName || user?.email || "").split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase() };
   const { data: conversations } = useCollection("/conversations/");
-  const { data: notifications } = useCollection("/notifications/");
+  const { unreadCount: unreadNotifications } = useNotifications();
   const unreadMessages = conversations.filter(row => row.unread).length;
-  const unreadNotifications = notifications.filter(row => !row.read_at).length;
 
   return (
     <div className="flex items-center gap-3 shrink-0" data-testid="topbar-organizer-utility">
@@ -34,14 +34,14 @@ export default function OrganizerTopbar() {
       </button>
       <button
         className="relative w-9 h-9 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center text-gray-500 hover:text-[#3F7D3D]"
-        onClick={() => navigate("/profile?section=Notifications")}
+        onClick={() => navigate("/notifications")}
         aria-label="Notifications"
         data-testid="button-topbar-notifications"
       >
         <Bell className="w-4 h-4" />
-        <span className="absolute -top-1 -right-1 bg-[#F36B25] text-white text-[9px] font-black min-w-[16px] h-[16px] flex items-center justify-center rounded-full px-1">
+        {unreadNotifications > 0 && <span className="absolute -top-1 -right-1 bg-[#F36B25] text-white text-[9px] font-black min-w-[16px] h-[16px] flex items-center justify-center rounded-full px-1">
           {unreadNotifications}
-        </span>
+        </span>}
       </button>
       <div className="relative">
         <button

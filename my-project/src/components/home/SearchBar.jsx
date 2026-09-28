@@ -1,11 +1,14 @@
 //
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { IoSearch } from "react-icons/io5";
 
 const SearchBar = () => {
+  const navigate=useNavigate();
+  const [query,setQuery]=useState("");
   return (
     <>
-      <div
+      <form onSubmit={e=>{e.preventDefault();navigate(`/search?q=${encodeURIComponent(query.trim())}`);}}
         className="
           flex flex-col lg:flex-row
           items-stretch lg:items-center
@@ -27,7 +30,7 @@ const SearchBar = () => {
           </span>
 
           <input
-            type="text"
+            type="text" aria-label="Search Mmemme Abia" value={query} onChange={e=>setQuery(e.target.value)}
             className="
               w-full lg:w-150
               bg-[#FFFEFE]
@@ -114,7 +117,7 @@ const SearchBar = () => {
         >
           Search
         </button>
-      </div>
+      </form>
     </>
   );
 };

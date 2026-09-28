@@ -46,10 +46,10 @@ const TourDestinationInfo = ({ tour }) => {
       </div>
 
       <div className="flex gap-3 mt-6">
-        <button className="bg-[#F97316] hover:bg-[#df5f18] text-white font-semibold px-6 py-2.5 rounded-lg transition">
+        <button onClick={()=>document.getElementById("plan-visit")?.scrollIntoView({behavior:"smooth"})} className="bg-[#F97316] hover:bg-[#df5f18] text-white font-semibold px-6 py-2.5 rounded-lg transition">
           Plan Your Visit
         </button>
-        <button className="border border-gray-300 text-[#172033] font-semibold px-6 py-2.5 rounded-lg hover:bg-gray-50 transition">
+        <button onClick={()=>document.getElementById("destination-gallery")?.scrollIntoView({behavior:"smooth"})} className="border border-gray-300 text-[#172033] font-semibold px-6 py-2.5 rounded-lg hover:bg-gray-50 transition">
           View Gallery
         </button>
       </div>

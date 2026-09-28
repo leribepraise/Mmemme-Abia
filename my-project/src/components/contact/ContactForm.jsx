@@ -15,10 +15,8 @@ const ContactForm = () => {
   });
 
   const onSubmit = async (data) => {
-    console.log("Contact form data:", data);
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    reset();
+    const body=`Name: ${data.fullName}\nEmail: ${data.email}\n\n${data.message}`;
+    window.location.href=`mailto:support@mmemme.com.ng?subject=${encodeURIComponent(data.subject)}&body=${encodeURIComponent(body)}`;
   };
 
   return (
@@ -125,7 +123,7 @@ const ContactForm = () => {
             </>
           ) : (
             <>
-              <span>Send Message</span>
+              <span>Open Email App</span>
               <Send className="h-4 w-4" />
             </>
           )}
@@ -135,7 +133,7 @@ const ContactForm = () => {
         {isSubmitSuccessful && (
           <div className="flex items-center justify-center gap-2 rounded-xl bg-green-50 p-4 text-sm font-extrabold text-[#265F27]">
             <CheckCircle2 className="h-5 w-5 shrink-0" />
-            <span>Message sent successfully! We'll get back to you soon.</span>
+            <span>Send the draft in your email app. If it did not open, email support@mmemme.com.ng directly.</span>
           </div>
         )}
       </form>

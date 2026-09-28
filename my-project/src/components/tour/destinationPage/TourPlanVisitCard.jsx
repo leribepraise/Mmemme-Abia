@@ -27,7 +27,7 @@ const TourPlanVisitCard = ({ tour }) => {
   const bookingItems = available.map(d => ({ icon: BookOpen, label: `${new Date(d.starts_at).toLocaleString()} — ${money(d.price)}`, departure: d }));
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
+    <div id="plan-visit" className="bg-white rounded-xl border border-gray-200 p-5">
       <h3 className="font-bold text-base text-[#172033] mb-4">
         Plan Your Visit
       </h3>

@@ -1,7 +1,7 @@
 import React from "react";
 import NotificationItem from "./NotificationItem";
 
-const NotificationGroup = ({ title, notifications }) => {
+const NotificationGroup = ({ title, notifications, onRead, onOpen, busy }) => {
   if (!notifications.length) return null;
 
   return (
@@ -10,7 +10,7 @@ const NotificationGroup = ({ title, notifications }) => {
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         {notifications.map((n) => (
-          <NotificationItem key={n.id} notification={n} />
+          <NotificationItem key={n.id} notification={n} onRead={onRead} onOpen={onOpen} busy={busy}/>
         ))}
       </div>
     </div>

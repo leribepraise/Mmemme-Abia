@@ -90,7 +90,13 @@ class LogoutView(PublicAuthView):
     def post(self,request):
         token = request.COOKIES.get(settings.REFRESH_COOKIE_NAME)
         if token:
-            try: RefreshToken(token).blacklist()
+            try:
+                parsed = RefreshToken(token)
+                from apps.notifications.models import PushSubscription
+                endpoint = request.data.get('push_endpoint')
+                if isinstance(endpoint, str):
+                    PushSubscription.objects.filter(user_id=parsed['user_id'], endpoint=endpoint).update(is_active=False)
+                parsed.blacklist()
             except TokenError: pass
         response = Response({"detail":"Logged out."})
         response.delete_cookie(settings.REFRESH_COOKIE_NAME,path="/api/v1/auth/",samesite=settings.REFRESH_COOKIE_SAMESITE)

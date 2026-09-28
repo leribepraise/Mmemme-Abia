@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Seo from "../components/seo/Seo";
 import React from "react";
 import SEO from "../components/SEO/SEO";
@@ -104,9 +105,9 @@ export default function Hotel() {
               <h2 className="font-bold text-xl text-gray-900">
                 Browse By Category
               </h2>
-              <button className="text-green-700 font-semibold text-sm hover:underline">
+              <Link to="/search?category=Stay" className="text-green-700 font-semibold text-sm hover:underline">
                 View all
-              </button>
+              </Link>
             </div>
 
             <div className="overflow-x-auto pb-2 scrollbar-hide">
@@ -132,9 +133,9 @@ export default function Hotel() {
             <h2 className="font-bold text-xl text-gray-900">
               Top Hotels in Abia
             </h2>
-            <button className="text-green-700 font-semibold text-sm hover:underline">
+            <Link to="/search?category=Stay" className="text-green-700 font-semibold text-sm hover:underline">
               View all hotels
-            </button>
+            </Link>
           </div>
 
           <div className="overflow-x-auto pb-4 scrollbar-hide">

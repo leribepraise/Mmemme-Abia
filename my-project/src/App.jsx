@@ -5,6 +5,9 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import Home from "./pages/Home";
+import NotificationsPage from './pages/NotificationsPage';
+import InstallAppPage from './pages/InstallAppPage';
+import AnchorNavigation from './components/AnchorNavigation';
 import Layout from "@/components/layout";
 import EventDetails from "./pages/EventDetails";
 import CheckoutScreen from "./pages/CheckoutScreen";
@@ -453,6 +456,8 @@ const App = () => {
     },
   ];
   const authRouter = [
+    {path:'/install',element:<InstallAppPage/>},
+    {path:'/notifications',element:<GuestGuard><NotificationsPage/></GuestGuard>},
     {path:"/terms",element:<Terms/>},
     { path: "/verify-email", element: <AccountAction /> },
     { path: "/reset-password", element: <AccountAction /> },
@@ -525,6 +530,7 @@ const App = () => {
       <div className="min-h-screen bg-[#f5f7f3]">
         <div>
           <UserProvider>
+            <AnchorNavigation/>
             <Routes>
               <Route path="/" element={<Layout />}>
                 {navList.map((item, index) => (
