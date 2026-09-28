@@ -174,13 +174,13 @@ const SignUpForm = ({onChallenge = () => {}}) => {
                 className="mt-1 rounded"
               />
               <span>
-                I agree to the
+                 I agree to the
                 <span className="text-[#48782E] font-semibold">
                   Terms & Conditions
                 </span>
-                and
+                 and
                 <span className="text-[#48782E] font-semibold">
-                  Privacy Policy
+                   Privacy Policy
                 </span>
               </span>
             </label>
