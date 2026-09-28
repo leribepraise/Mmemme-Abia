@@ -27,15 +27,16 @@ import GuestGuard from "./components/GuestGuard";
 import ExploreAbiaPage from "./pages/ExploreAbiaPage";
 import Community from "./pages/Community";
 import Food from "./pages/Food";
-import AboutAbia from "./pages/DiscoverAbia";
 import DiscoverAbia from "./pages/DiscoverAbia";
 import Transport from "./pages/Transport";
 import NotFound from "./pages/NotFound";
 import RestaurantDetails from "./pages/RestaurantDetails";
 import Onboarding from "./components/onboarding/Onboarding";
 import Profile from "./pages/Profile";
-import Terms from './pages/Terms';
-import OrganizerApplication, {OrganizerSignup} from './pages/OrganizerApplication';
+import Terms from "./pages/Terms";
+import OrganizerApplication, {
+  OrganizerSignup,
+} from "./pages/OrganizerApplication";
 import OrganizerLogin from "./pages/OrganizerLogin";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import OrganizerEvents from "./pages/OrganizerEvents";
@@ -85,6 +86,7 @@ import PropertyDetail from "./components/Admin/hotels/properties/details/Propert
 import AdminFood from "./components/Admin/food/AdminFood";
 import FoodVendorDetail from "./components/Admin/food/details/FoodVendorDetail";
 import AdminTransportDashboard from "./components/Admin/transport/AdminTransportDashboard";
+import AboutAbia from "./pages/AboutAbia";
 
 // /organizer/events/:id/edit needs the :id param handed to OrganizerEventForm
 // as the `editId` prop.
@@ -95,7 +97,14 @@ const OrganizerEventEditRoute = () => {
 
 const App = () => {
   const navList = [
-    { path: "/transport/shuttle", element: <GuestGuard><ShuttlePage /></GuestGuard> },
+    {
+      path: "/transport/shuttle",
+      element: (
+        <GuestGuard>
+          <ShuttlePage />
+        </GuestGuard>
+      ),
+    },
     {
       path: "/",
       element: (
@@ -451,18 +460,39 @@ const App = () => {
         </div>
       ),
     },
+    {
+      path: "/about-abia",
+      element: (
+        <div className="mx-5 my-5">
+          <AboutAbia />
+        </div>
+      ),
+    },
   ];
   const authRouter = [
-    {path:"/terms",element:<Terms/>},
+    { path: "/terms", element: <Terms /> },
     { path: "/verify-email", element: <AccountAction /> },
     { path: "/reset-password", element: <AccountAction /> },
-    { path: "/payment/return", element: <GuestGuard><PaymentSuccessfulScreen /></GuestGuard> },
+    {
+      path: "/payment/return",
+      element: (
+        <GuestGuard>
+          <PaymentSuccessfulScreen />
+        </GuestGuard>
+      ),
+    },
     { path: "/login", element: <Login /> },
     { path: "/Signup", element: <SignUp /> },
     { path: "/Signup/onboarding", element: <Onboarding /> },
     { path: "/admin/login", element: <AdminLogin /> },
-    { path: "/admin/forgot-password", element: <Navigate to="/reset-password" replace /> },
-    { path: "/admin/verify-otp", element: <Navigate to="/reset-password" replace /> },
+    {
+      path: "/admin/forgot-password",
+      element: <Navigate to="/reset-password" replace />,
+    },
+    {
+      path: "/admin/verify-otp",
+      element: <Navigate to="/reset-password" replace />,
+    },
   ];
 
   // Pages shown inside the admin layout (sidebar + header + footer).
@@ -476,13 +506,69 @@ const App = () => {
     { path: "events", element: <AdminEvents /> },
     { path: "events/:id", element: <AdminEventDetails /> },
     { path: "events/:id/review", element: <AdminEventReview /> },
-    { path: "tourism", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "tourism/:id", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "hotels/properties", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "hotels/properties/:id", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "food", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "food/:id", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
-    { path: "transport", element: <div role="status" className="rounded-xl bg-white p-8">This management section is not available yet. Use Django administration for read-only records.</div> },
+    {
+      path: "tourism",
+      element: (
+        <div role="status" className="rounded-xl bg-white p-8">
+          This management section is not available yet. Use Django
+          administration for read-only records.
+        </div>
+      ),
+    },
+    {
+      path: "tourism/:id",
+      element: (
+        <div role="status" className="rounded-xl bg-white p-8">
+          This management section is not available yet. Use Django
+          administration for read-only records.
+        </div>
+      ),
+    },
+    {
+      path: "hotels/properties",
+      element: (
+        <div role="status" className="rounded-xl bg-white p-8">
+          This management section is not available yet. Use Django
+          administration for read-only records.
+        </div>
+      ),
+    },
+    {
+      path: "hotels/properties/:id",
+      element: (
+        <div role="status" className="rounded-xl bg-white p-8">
+          This management section is not available yet. Use Django
+          administration for read-only records.
+        </div>
+      ),
+    },
+    {
+      path: "food",
+      element: (
+        <div role="status" className="rounded-xl bg-white p-8">
+          This management section is not available yet. Use Django
+          administration for read-only records.
+        </div>
+      ),
+    },
+    {
+      path: "food/:id",
+      element: (
+        <div role="status" className="rounded-xl bg-white p-8">
+          This management section is not available yet. Use Django
+          administration for read-only records.
+        </div>
+      ),
+    },
+    {
+      path: "transport",
+      element: (
+        <div role="status" className="rounded-xl bg-white p-8">
+          This management section is not available yet. Use Django
+          administration for read-only records.
+        </div>
+      ),
+    },
     // add each new admin page here as we build it, for example:
     // { path: "events", element: <AdminEvents /> },
     {
@@ -555,7 +641,18 @@ const App = () => {
                 <Route
                   key={`organizer-${index}`}
                   path={item.path}
-                  element={["/organizer/login", "/organizer", "/organizer/signup", "/organizer/apply"].includes(item.path) ? item.element : <OrganizerGuard>{item.element}</OrganizerGuard>}
+                  element={
+                    [
+                      "/organizer/login",
+                      "/organizer",
+                      "/organizer/signup",
+                      "/organizer/apply",
+                    ].includes(item.path) ? (
+                      item.element
+                    ) : (
+                      <OrganizerGuard>{item.element}</OrganizerGuard>
+                    )
+                  }
                 />
               ))}
             </Routes>
