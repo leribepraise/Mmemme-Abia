@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { passwordError } from '../../../../../lib/passwordPolicy.js';
 
 export const signupSchema = z
   .object({
@@ -6,7 +7,10 @@ export const signupSchema = z
 
     email: z.string().email("Please enter a valid email"),
 
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z.string().superRefine((value, ctx) => {
+      const message = passwordError(value);
+      if (message) ctx.addIssue({ code: 'custom', message });
+    }),
 
     confirmPassword: z.string().min(8, "Please confirm your password"),
     terms: z.boolean().refine((value) => value === true, {

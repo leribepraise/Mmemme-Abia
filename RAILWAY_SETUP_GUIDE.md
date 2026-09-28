@@ -1,5 +1,7 @@
 # MMEMME ABIA: Railway Hobby setup with Resend
 
+**Account and moderation update:** Follow [ACCOUNT_REVIEW.md](backend/docs/ACCOUNT_REVIEW.md) when deploying the new onboarding and admin screens. Add `EVENT_COMMISSION_BPS=500` to both backend and worker for the approved 5% ticket commission, and run migrations before deploying the frontend.
+
 **Frontend migration update (26 September 2026):** If the backend and database
 are already running, follow [RAILWAY_FRONTEND_DEPLOYMENT.md](RAILWAY_FRONTEND_DEPLOYMENT.md).
 Keep the backend public address for Django admin. The current React staff

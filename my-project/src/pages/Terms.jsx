@@ -3,11 +3,11 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Seo from '@/components/seo/Seo';
 
-// Policy copy supplied in the project's Figma terms screen (797:1078).
+// Figma terms screen (797:1078), with refunds aligned to the existing booking policy.
 export const termsSections = [
   ['Acceptance of Terms', 'By using Mmemme Abia, you agree to these terms and conditions. Please read them carefully before using our platform.'],
   ['User Responsibilities', 'Users agree to provide accurate information and use the platform lawfully and in accordance with our guidelines.'],
-  ['Ticketing & Refunds', 'Mmemme Abia gets a 5% commission on every ticket sold. All ticket sales are final unless stated otherwise by the organizer. Refunds may be issued at the organizer’s discretion.'],
+  ['Ticketing & Refunds', 'Mmemme Abia receives a 5% commission on every ticket sold. Event bookings may be cancelled for a full refund before the event starts, in accordance with the cancellation policy shown on your booking.'],
   ['Payments', 'Mmemme Abia processes all fees and payments securely via trusted payment partners.'],
   ['Limitation of Liability', 'Mmemme Abia is not responsible for any loss, damage, or injury resulting from the use of our platform or events.'],
   ['Termination', 'We reserve the right to suspend or terminate accounts that violate our terms or engage in prohibited activities.'],

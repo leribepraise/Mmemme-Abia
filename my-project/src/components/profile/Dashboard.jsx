@@ -272,6 +272,8 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
           <Info label="LGA" value={user?.lga || "Not provided"} />
 
           <Info label="Email" value={user?.email || "Not provided"} />
+          
+          <Info label="LGA" value={user?.lga || "Not provided"} />
 
           <Info label="Phone Number" value={user?.phone || "Not provided"} />
 

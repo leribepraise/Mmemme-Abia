@@ -1,28 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, Navigate, Link } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { Mail, ShieldCheck, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 
 const CODE_LENGTH = 6;
-const RESEND_SECONDS = 45;
+const RESEND_SECONDS = 60;
 
-const SignUpVerifyOtp = () => {
+// A parent must provide the real registration/verification operations. This
+// presentation screen must never claim success based only on six typed digits.
+const SignUpVerifyOtp = ({ email, onVerify, onResend, onBack }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  // location.state only exists right after navigate() from Sign Up; it's lost
-  // on a page refresh. sessionStorage lets a refresh survive, while someone
-  // typing this URL fresh (no signup ever happened) still has nothing to read.
-  const email =
-    location.state?.email || sessionStorage.getItem("pendingSignupEmail");
-
-  // No pending signup for this browser tab/session — don't allow this screen
-  // to be reached directly. Send them back to Sign Up instead.
-  if (!email) {
-    return <Navigate to="/signup" replace />;
-  }
 
   const [digits, setDigits] = useState(Array(CODE_LENGTH).fill(""));
   const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
   const inputRefs = useRef([]);
 
@@ -31,6 +22,11 @@ const SignUpVerifyOtp = () => {
     const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
   }, [secondsLeft]);
+
+  // Hooks must run in the same order even when there is no pending signup.
+  if (!email || !onVerify || !onResend) {
+    return <Navigate to="/signup" replace />;
+  }
 
   const focusBox = (index) => {
     inputRefs.current[index]?.focus();
@@ -68,27 +64,37 @@ const SignUpVerifyOtp = () => {
   const code = digits.join("");
   const isComplete = code.length === CODE_LENGTH;
 
-  // TODO: replace with a real POST /auth/verify-otp/ call once wired to the backend.
   const handleVerify = async () => {
+    if (submitting || resending) return;
     if (!isComplete) {
       toast.error("Enter all 6 digits first");
       return;
     }
     setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 700));
-    setSubmitting(false);
-    sessionStorage.removeItem("pendingSignupEmail");
-    toast.success("Account verified");
-    navigate("/Signup/onboarding");
+    try {
+      await onVerify(code);
+    } catch (error) {
+      toast.error(error.message || 'Verification failed. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  // TODO: replace with a real POST /auth/resend-otp/ call once wired to the backend.
-  const handleResend = () => {
-    if (secondsLeft > 0) return;
-    setDigits(Array(CODE_LENGTH).fill(""));
-    setSecondsLeft(RESEND_SECONDS);
-    focusBox(0);
-    toast.success("A new code has been sent to your email");
+  const handleResend = async () => {
+    if (secondsLeft > 0 || submitting || resending) return;
+    setResending(true);
+    try {
+      await onResend();
+      setDigits(Array(CODE_LENGTH).fill(""));
+      setSecondsLeft(RESEND_SECONDS);
+      focusBox(0);
+      toast.success("A new code has been requested. Check your email.");
+    } catch (error) {
+      if (error.retryAfter) setSecondsLeft(error.retryAfter);
+      toast.error(error.message || 'Unable to resend the code.');
+    } finally {
+      setResending(false);
+    }
   };
 
   const timerLabel = `00:${String(secondsLeft).padStart(2, "0")}`;
@@ -152,11 +158,13 @@ const SignUpVerifyOtp = () => {
                   ref={(el) => (inputRefs.current[i] = el)}
                   type="text"
                   inputMode="numeric"
+                  aria-label={`Verification digit ${i + 1}`}
+                  autoComplete={i === 0 ? 'one-time-code' : 'off'}
                   maxLength={1}
                   value={d}
                   onChange={(e) => handleChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
-                  className="h-12 w-12 rounded-lg border border-gray-200 text-center text-lg font-semibold text-[#1F2937] focus:outline-none focus:border-[#265F27] md:h-14 md:w-14"
+                  className="h-12 min-w-0 flex-1 rounded-lg border border-gray-200 text-center text-lg font-semibold text-[#1F2937] focus:outline-none focus:border-[#265F27] md:h-14"
                 />
               ))}
             </div>
@@ -171,9 +179,10 @@ const SignUpVerifyOtp = () => {
                 <button
                   type="button"
                   onClick={handleResend}
+                  disabled={resending || submitting}
                   className="font-semibold text-[#265F27] hover:underline"
                 >
-                  Resend Code
+                  {resending ? 'Sending…' : 'Resend Code'}
                 </button>
               )}
             </p>
@@ -181,7 +190,7 @@ const SignUpVerifyOtp = () => {
             <button
               type="button"
               onClick={handleVerify}
-              disabled={submitting}
+              disabled={submitting || resending || !isComplete}
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#265F27] py-3 text-sm font-semibold text-white transition hover:bg-[#1f4d20] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting ? "Verifying..." : "Verify"}
@@ -197,8 +206,8 @@ const SignUpVerifyOtp = () => {
             <button
               type="button"
               onClick={() => {
-                sessionStorage.removeItem("pendingSignupEmail");
-                navigate("/login");
+                if (onBack) onBack();
+                else navigate("/login");
               }}
               className="mt-4 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-[#374151] hover:text-[#1F2937]"
             >

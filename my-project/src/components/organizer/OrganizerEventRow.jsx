@@ -26,7 +26,7 @@ export default function OrganizerEventRow({ event }) {
   return (
     <div
       className={`${GRID} border-b border-gray-50 last:border-0 py-3.5 cursor-pointer hover:bg-gray-50/60 -mx-2 px-2 rounded-lg`}
-      onClick={() => navigate(`/organizer/events/${event.id}/edit`)}
+      onClick={() => navigate(`/organizer/events/${event.id}/preview`)}
       data-testid={`row-event-${event.id}`}
     >
       <div className="flex gap-3 items-center min-w-0">

@@ -10,6 +10,7 @@ const STATUS_STYLE = {
 
 export default function OrganizerEventCard({ event, onDelete, onToggle }) {
   const navigate = useNavigate();
+  const editable = ['DRAFT', 'REJECTED'].includes(event.rawStatus);
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden" data-testid={`card-event-${event.id}`}>
       <div className="h-32 bg-gray-100">
@@ -36,6 +37,7 @@ export default function OrganizerEventCard({ event, onDelete, onToggle }) {
           </button>
           <button
             onClick={() => navigate(`/organizer/events/${event.id}/edit`)}
+            disabled={!editable}
             className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-lg py-2"
             data-testid={`button-edit-event-${event.id}`}
           >
@@ -43,13 +45,15 @@ export default function OrganizerEventCard({ event, onDelete, onToggle }) {
           </button>
           <button
             onClick={() => onToggle(event.id)}
+            disabled={!editable}
             className="px-2.5 py-2 rounded-lg text-xs font-bold text-[#48782E] hover:bg-[#EAF5EA]"
             data-testid={`button-status-event-${event.id}`}
           >
-            {event.status === "Published" ? "Unpublish" : "Publish"}
+            {editable ? "Submit for review" : event.status}
           </button>
           <button
             onClick={() => onDelete(event.id)}
+            disabled={!editable}
             className="p-2 rounded-lg text-red-500 hover:bg-red-50"
             aria-label="Delete event"
             data-testid={`button-delete-event-${event.id}`}
