@@ -1,3 +1,4 @@
+import SiteImage from '@/components/SiteImage';
 // import React from "react";
 // import { Heart, Star } from "lucide-react";
 
@@ -6,7 +7,7 @@
 //     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden min-w-[260px] sm:min-w-[290px] lg:min-w-0 lg:flex-1 shadow-sm hover:shadow-md transition group">
 //       {/* Image Container */}
 //       <div className="relative h-36 sm:h-40">
-//         <img
+//         <SiteImage
 //           src={vendor.image}
 //           alt={vendor.name}
 //           className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
@@ -62,7 +63,7 @@ const FoodVendorCard = ({ vendor }) => {
     <NavLink to={`/fooddetail/${vendor.id}`}>
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden min-w-[260px] sm:min-w-[290px] lg:min-w-0 lg:flex-1 shadow-sm hover:shadow-md transition group">
         <div className="relative h-36 sm:h-40">
-          <img
+          <SiteImage
             src={vendor.image}
             alt={vendor.name}
             className="w-full h-full object-cover group-hover:scale-105 transition duration-300"

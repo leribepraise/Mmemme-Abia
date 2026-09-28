@@ -3,8 +3,6 @@ import { downloadJSON } from "@/lib/api";
 import React, { useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { FileText, Image as ImageIcon } from "lucide-react";
-import html2canvas from "html2canvas-pro";
-import jsPDF from "jspdf";
 import EventTicketPreview from "../paymentsuccess/downlaodTicketFolder/EventTicketPreview";
 
 const ActionButtons = ({ event, tickets, attendee, total, orderId, bookingId, booking }) => {
@@ -15,6 +13,7 @@ const ActionButtons = ({ event, tickets, attendee, total, orderId, bookingId, bo
 
   const captureTicket = async () => {
     if (!issued.length) throw new Error("Tickets are not available for this booking yet.");
+    const { default: html2canvas } = await import('html2canvas-pro');
     return await html2canvas(ticketRef.current, {
       scale: 2,
       backgroundColor: "#ffffff",
@@ -38,6 +37,7 @@ const ActionButtons = ({ event, tickets, attendee, total, orderId, bookingId, bo
 
   const downloadAsPDF = async () => {
     try {
+      const { default: jsPDF } = await import('jspdf');
       const canvas = await captureTicket();
       const imgData = canvas.toDataURL("image/png");
 

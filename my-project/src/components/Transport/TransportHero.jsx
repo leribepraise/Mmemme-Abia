@@ -1,11 +1,12 @@
 import React from "react";
+import { imageAsset } from '@/components/SiteImage';
 
 const TranportHero = () => {
   return (
      <div className="w-full overflow-hidden">
     <div
       className="relative rounded-3xl overflow-hidden h-[230px] md:h-[400px] bg-cover bg-center"
-      style={{ backgroundImage: "url('/transport.png')" }}
+      style={{ backgroundImage: `url('${imageAsset('/transport.png')}')` }}
     >
       <div className="absolute inset-0 bg-black/20"></div>
 

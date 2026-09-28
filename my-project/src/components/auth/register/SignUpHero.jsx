@@ -1,9 +1,10 @@
+import SiteImage from '@/components/SiteImage';
 import React from "react";
 
 const SignUpHero = () => {
   return (
     <div className="relative">
-      <img
+      <SiteImage priority
         src="/register1.png"
         alt="Mmemme Abia Community"
         className="w-full h-full object-cover"

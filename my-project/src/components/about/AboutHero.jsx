@@ -1,4 +1,5 @@
 import React from "react";
+import { imageAsset } from '@/components/SiteImage';
 
 const AboutHero = () => {
   return (
@@ -6,7 +7,7 @@ const AboutHero = () => {
     <div className="w-full">
       <div
         className="relative rounded-3xl overflow-hidden h-[220px] md:h-[340px] bg-cover bg-center"
-        style={{ backgroundImage: "url('/about-hero.jpg')" }}
+        style={{ backgroundImage: `url('${imageAsset('/about-hero.jpg')}')` }}
       >
         {/* Dark overlay for contrast */}
         <div className="absolute inset-0 bg-black/45" />

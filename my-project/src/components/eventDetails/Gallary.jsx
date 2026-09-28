@@ -1,3 +1,4 @@
+import SiteImage from '@/components/SiteImage';
 const EventGallery = ({
   selectedImage,
   setSelectedImage,
@@ -7,7 +8,7 @@ const EventGallery = ({
   return (
     <div className="md:col-span-7 space-y-3">
       <div className="relative rounded-2xl overflow-hidden shadow-sm h-64 md:h-80 bg-slate-900">
-        <img
+        <SiteImage
           src={selectedImage}
           alt={event?.text || "Event"}
           className="w-full h-full object-cover"
@@ -29,7 +30,7 @@ const EventGallery = ({
               selectedImage === img ? "border-orange-500" : "border-transparent"
             }`}
           >
-            <img
+            <SiteImage
               src={img}
               alt={`Thumbnail ${index + 1}`}
               className="h-16 w-full object-cover"

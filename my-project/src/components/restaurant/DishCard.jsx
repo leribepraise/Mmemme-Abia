@@ -1,3 +1,4 @@
+import SiteImage from '@/components/SiteImage';
 import { useBooking } from "@/hooks/useBooking";
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +22,7 @@ const DishCard = ({ dish }) => {
       }`}
     >
       <div className="relative">
-        <img
+        <SiteImage
           src={dish.image}
           alt={dish.name}
           className="w-full h-28 object-cover"

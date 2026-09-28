@@ -1,4 +1,5 @@
-import { useCollection } from "@/hooks/useApi";
+import { useApi } from "@/hooks/useApi";
+import PageSkeleton from '@/components/PageSkeleton';
 import { eventCard } from "@/lib/catalog";
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,8 +7,10 @@ import EventCard from "../events/EventCard";
 
 const Events = () => {
   const navigate = useNavigate();
-  const { data: events } = useCollection("/events/", eventCard);
+  const { data, loading } = useApi('/events/');
+  const events = (data?.results || data || []).slice(0, 20).map(eventCard);
   const renderCard = (event, copy) => <EventCard key={`${copy}-${event.id}`} event={event} />;
+  if (loading) return <PageSkeleton/>;
   return (
     <>
       <section className="mt-10 overflow-hidden">

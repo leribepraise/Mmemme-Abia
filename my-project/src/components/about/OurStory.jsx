@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import React from "react";
+import SiteImage from '@/components/SiteImage';
 
 const OurStory = () => {
   return (
@@ -22,7 +23,7 @@ const OurStory = () => {
 
       {/* Right */}
       <div className="rounded-2xl overflow-hidden h-[220px] md:h-[300px] bg-gray-100">
-        <img
+        <SiteImage
           src="/about.jpg"
           alt="Abia Story"
           className="w-full h-full object-cover"

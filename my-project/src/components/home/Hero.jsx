@@ -1,4 +1,6 @@
-import { useCollection } from "@/hooks/useApi";
+import SiteImage from '@/components/SiteImage';
+import { useApi } from "@/hooks/useApi";
+import PageSkeleton from '@/components/PageSkeleton';
 import { eventCard } from "@/lib/catalog";
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
@@ -8,7 +10,8 @@ import { IoArrowBack, IoArrowForward, IoPlay } from "react-icons/io5";
 
 
 const Hero = () => {
-  const { data: events } = useCollection('/events/', eventCard);
+  const { data, loading } = useApi('/events/');
+  const events = (data?.results || data || []).slice(0, 7).map(eventCard);
   const heroData = events.length ? events.slice(0, 7).map(event => ({ ...event, title: event.text, date: new Date(event.start_datetime).toLocaleDateString(), location: event.venue, attendees: '', buttonText: 'Get Ticket', color: '#F46F1A' })) : [{ image: '/hero1.jpg', title: 'Explore events in Abia', date: '', location: '', attendees: '', buttonText: 'Explore Events', color: '#F46F1A' }];
   const [slideIndex, setSlideIndex] = useState(0);
 
@@ -30,7 +33,7 @@ const Hero = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setSlideIndex(index => (index + 1) % heroData.length);
-    }, 2000);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, [heroData.length]);
@@ -40,6 +43,7 @@ const Hero = () => {
 //   img.src = heroData[nextIndex].image;
 // }, [slideIndex]);
 
+  if (loading) return <PageSkeleton cards={1}/>;
   return (
     <>
       <section
@@ -135,7 +139,7 @@ const Hero = () => {
           "
         >
           {/* Current Image */}
-          <img
+          <SiteImage priority
             src={currentSlide.image}
             alt={currentSlide.title}
             className="
@@ -255,27 +259,27 @@ const Hero = () => {
         {/* DECORATIVE ELEMENTS */}
         <div className="hidden lg:block">
           <div className="absolute right-1 top-30 w-fit h-fit rounded-full">
-            <img src="/Ellipse 7.png" alt="" />
+            <SiteImage src="/Ellipse 7.png" alt="" />
           </div>
 
           <div className="absolute right-5 top-80 w-fit h-fit rounded-full">
-            <img src="/Vector 2.png" alt="" className="h-4 w-auto" />
+            <SiteImage src="/Vector 2.png" alt="" className="h-4 w-auto" />
           </div>
 
           <div className="absolute right-210 top-60 w-fit h-fit rounded-full">
-            <img src="/Vector 2.png" alt="" className="h-4 w-auto" />
+            <SiteImage src="/Vector 2.png" alt="" className="h-4 w-auto" />
           </div>
 
           <div className="absolute right-1 top-95 w-fit h-fit rounded-full">
-            <img src="/Ellipse 9.png" alt="" />
+            <SiteImage src="/Ellipse 9.png" alt="" />
           </div>
 
           <div className="absolute right-306 top-50 w-fit h-fit rounded-full">
-            <img src="/Ellipse 7 (1).png" alt="" />
+            <SiteImage src="/Ellipse 7 (1).png" alt="" />
           </div>
 
           <div className="absolute right-306 top-90 w-fit h-fit rounded-full">
-            <img src="/Line 4 (1).png" alt="" />
+            <SiteImage src="/Line 4 (1).png" alt="" />
           </div>
         </div>
       </section>

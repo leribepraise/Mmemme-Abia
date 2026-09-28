@@ -11,6 +11,7 @@ import { FcGoogle } from "react-icons/fc";
 // Adjust these two paths to wherever your assets live
 import logo from "/logo.png";
 import adminHero from "/sadmin-login-hero.png";
+import SiteImage from '@/components/SiteImage';
 
 const schema = z.object({
   identifier: z.string().trim().email("Enter your email address"),
@@ -57,7 +58,7 @@ const AdminLogin = () => {
       <main className="mx-auto flex max-w-5xl items-center justify-center gap-16 px-6 pb-16 pt-4 lg:pt-8">
         {/* Left: image panel (hidden on small screens) */}
         <aside className="relative hidden h-[590px] w-[305px] shrink-0 overflow-hidden lg:block">
-          <img
+          <SiteImage priority
             src={adminHero}
             alt="Abia State welcome monument surrounded by greenery"
             className="h-full w-full object-cover"
