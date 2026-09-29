@@ -67,7 +67,7 @@ const EventTicketPreview = forwardRef(
         <div className="grid grid-cols-2 gap-y-2 text-sm">
           <span className="text-gray-500">Order ID</span>
 
-          <span className="font-semibold text-right">{orderId}</span>
+          <span className="min-w-0 break-all text-right font-semibold">{orderId}</span>
 
           <span className="text-gray-500">Tickets</span>
 

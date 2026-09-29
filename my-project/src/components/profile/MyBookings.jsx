@@ -282,9 +282,9 @@ const MyBookings = () => {
 
                     {/* Booking ID + Quantity */}
                     <div className="flex flex-wrap items-center gap-3 text-[10px] text-gray-500">
-                      <div className="flex items-center gap-1.5">
-                        <Ticket size={11} />
-                        <span>Booking ID: {booking.id}</span>
+                      <div className="flex min-w-0 items-start gap-1.5">
+                        <Ticket size={11} className="mt-0.5 shrink-0" />
+                        <span className="min-w-0 break-all">Booking ID: {booking.id}</span>
                       </div>
 
                       <div className="flex items-center gap-1.5">

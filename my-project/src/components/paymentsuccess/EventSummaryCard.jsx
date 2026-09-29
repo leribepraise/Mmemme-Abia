@@ -45,7 +45,7 @@ const EventSummaryCard = ({ event, total, orderId }) => {
         <div>
           <p className="text-xs text-gray-500 font-semibold mb-1">Order ID</p>
 
-          <p className="font-bold text-black text-sm">
+          <p className="break-all font-bold text-black text-sm">
             {orderId || "Generating..."}
           </p>
         </div>

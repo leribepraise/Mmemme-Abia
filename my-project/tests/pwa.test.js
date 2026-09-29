@@ -53,6 +53,17 @@ test('push clicks preserve notification ID for authenticated server lookup',asyn
   w.handlers.notificationclick({notification:{data:{url:'/notifications?notification=123'},close:()=>{}},waitUntil:p=>pending=p});await pending;
   assert.equal(w.windows[0],'https://mmemme.com.ng/notifications?notification=123');
 });
+test('public event announcements show event title and open its detail page',async()=>{
+  const w=worker();let pending;
+  const path='/events/aaa20cd0-625c-48d6-a200-dc59aeb79772';
+  w.handlers.push({data:{json:()=>({kind:'event',body:'Aba Festival is now live. Tap to view it.',url:path})},waitUntil:p=>pending=p});await pending;
+  assert.equal(w.notices[0][0],'New event in Abia');
+  assert.match(w.notices[0][1].body,/Aba Festival/);
+  w.handlers.notificationclick({notification:{data:{url:path},close:()=>{}},waitUntil:p=>pending=p});await pending;
+  assert.equal(w.windows[0],'https://mmemme.com.ng'+path);
+  w.handlers.push({data:{json:()=>({kind:'event',body:'Secret',url:'https://evil.test'})},waitUntil:p=>pending=p});await pending;
+  assert.doesNotMatch(w.notices[1][1].body,/Secret/);
+});
 test('install manifest has scoped routes and real PNG icons',()=>{
   const manifest=JSON.parse(readFileSync(new URL('../public/manifest.webmanifest',import.meta.url),'utf8'));
   assert.equal(manifest.start_url,'/');assert.equal(manifest.scope,'/');assert.equal(manifest.display,'standalone');

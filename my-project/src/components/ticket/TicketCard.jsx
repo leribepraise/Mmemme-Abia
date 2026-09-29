@@ -18,7 +18,7 @@ const TicketCard = ({ booking, ticket }) => {
       ></div>
 
       {/* Ticket Details */}
-      <div className="relative z-10 text-white flex-1 space-y-8 w-full">
+      <div className="relative z-10 min-w-0 text-white flex-1 space-y-8 w-full">
         <h2 className="text-3xl font-bold leading-tight">
           {booking?.title || "Event"}
         </h2>
@@ -104,7 +104,7 @@ const TicketCard = ({ booking, ticket }) => {
             Order ID
           </p>
 
-          <p className="font-bold text-lg tracking-wide">
+          <p className="max-w-full break-all font-bold text-base tracking-normal sm:text-lg sm:tracking-wide">
             {ticket.ticket_number}
           </p>
         </div>
@@ -115,13 +115,13 @@ const TicketCard = ({ booking, ticket }) => {
         <div className="p-4 flex flex-col items-center justify-center flex-1">
           <TicketQRCode value={ticket.qr_code} size={220} />
 
-          <p className="font-bold text-black text-sm tracking-wide text-center">
+          <p className="max-w-full break-all text-center font-bold text-black text-xs leading-relaxed sm:text-sm">
             {ticket.ticket_number}
           </p>
         </div>
 
         <div className="bg-black text-white p-4 text-center">
-          <p className="font-bold text-sm tracking-wide mb-2">
+          <p className="mb-2 break-all font-bold text-xs leading-relaxed sm:text-sm">
             {ticket.ticket_number}
           </p>
 

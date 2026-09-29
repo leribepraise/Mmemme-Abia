@@ -10,16 +10,18 @@ self.addEventListener('fetch',event=>{
 });
 self.addEventListener('push',event=>{
   let payload={};try{payload=event.data?.json()||{};}catch{/* Use a generic alert for malformed payloads. */}
-  const url=/^\/notifications\?notification=\d+$/.test(payload.url||'')?payload.url:'/notifications';
+  const eventPath=payload.kind==='event'&&/^\/events\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(payload.url||'');
+  const url=eventPath?payload.url:/^\/notifications\?notification=\d+$/.test(payload.url||'')?payload.url:'/notifications';
+  const body=eventPath&&typeof payload.body==='string'?payload.body.slice(0,140):'You have a new notification. Open the app to view it.';
   event.waitUntil(Promise.all([
-    self.registration.showNotification('Mmemme Abia',{body:'You have a new notification. Open the app to view it.',icon:'/icons/app-192.png',tag:payload.tag||'mmemme-update',data:{url}}),
+    self.registration.showNotification(eventPath?'New event in Abia':'Mmemme Abia',{body,icon:'/icons/app-192.png',tag:payload.tag||'mmemme-update',data:{url}}),
     self.clients.matchAll({type:'window',includeUncontrolled:true}).then(clients=>clients.forEach(client=>client.postMessage({type:'notification-received'})))
   ]));
 });
 self.addEventListener('notificationclick',event=>{
   event.notification.close();
   const raw=event.notification.data?.url;
-  const path=/^\/notifications(?:\?notification=\d+)?$/.test(raw||'')?raw:'/notifications';
+  const path=/^\/notifications(?:\?notification=\d+)?$/.test(raw||'')||/^\/events\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(raw||'')?raw:'/notifications';
   const target=new URL(path,self.location.origin).href;
   event.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(async clients=>{
     const client=clients.find(item=>new URL(item.url).origin===self.location.origin);

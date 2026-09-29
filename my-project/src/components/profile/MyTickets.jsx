@@ -94,9 +94,9 @@ const MyTickets = () => {
               </div>
 
               {/* Ticket Information */}
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <h3 className="text-base font-bold text-gray-900 sm:text-lg">
+                  <h3 className="min-w-0 break-all text-base font-bold text-gray-900 sm:text-lg">
                     {ticket.title}
                   </h3>
 
