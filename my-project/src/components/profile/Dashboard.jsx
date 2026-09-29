@@ -1,7 +1,7 @@
-import toast from "react-hot-toast";
-import ShareApp from "@/components/ShareApp";
-import { Link } from "react-router-dom";
-import { useNotifications } from "@/components/context/NotificationsContext";
+import toast from 'react-hot-toast';
+import ShareApp from '@/components/ShareApp';
+import { Link } from 'react-router-dom';
+import { useNotifications } from '@/components/context/NotificationsContext';
 import { useCollection } from "@/hooks/useApi";
 import { bookingCard } from "@/lib/catalog";
 import React, { useEffect, useState } from "react";
@@ -26,19 +26,10 @@ import Info from "./common/Info";
 import Preference from "./common/Preference";
 
 const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
-  const {
-    data: bookings,
-    loading: bookingsLoading,
-    error: bookingsError,
-    reload: reloadBookings,
-  } = useCollection("/bookings/", bookingCard);
-  const {
-    data: tickets,
-    loading: ticketsLoading,
-    error: ticketsError,
-  } = useCollection("/tickets/");
+  const { data: bookings, loading: bookingsLoading, error: bookingsError, reload: reloadBookings } = useCollection("/bookings/", bookingCard);
+  const { data: tickets, loading: ticketsLoading, error: ticketsError } = useCollection('/tickets/');
   const { unreadCount } = useNotifications();
-  const { data: savedEvents } = useCollection("/saved-events/");
+  const { data: savedEvents } = useCollection('/saved-events/');
   const [savedHotelCount, setSavedHotelCount] = useState(0);
   const savedCount = savedEvents.length + savedHotelCount;
   useEffect(() => {
@@ -103,13 +94,7 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
 
               <span className="flex items-center gap-1">
                 <CalendarDays size={11} />
-                Joined{" "}
-                {user?.date_joined
-                  ? new Date(user.date_joined).toLocaleDateString("en-NG", {
-                      month: "short",
-                      year: "numeric",
-                    })
-                  : "Mmemme Abia"}
+                Joined {user?.date_joined ? new Date(user.date_joined).toLocaleDateString("en-NG", {month:"short",year:"numeric"}) : "Mmemme Abia"}
               </span>
             </div>
           </div>
@@ -136,15 +121,7 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
 
         <StatCard
           icon={<Ticket size={17} />}
-          number={
-            ticketsLoading || ticketsError
-              ? "—"
-              : new Set(
-                  tickets
-                    .filter((t) => t.status === "USED")
-                    .map((t) => t.event?.id || t.event),
-                ).size
-          }
+          number={ticketsLoading || ticketsError ? "—" : new Set(tickets.filter(t=>t.status==="USED").map(t=>t.event?.id || t.event)).size}
           label="Events Attended"
         />
 
@@ -162,85 +139,19 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
         />
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-3">
-        <Link
-          to="/events"
-          className="rounded-lg bg-[#f36b0a] px-5 py-3 text-sm font-semibold text-white"
-        >
-          Explore Events
-        </Link>
-        <Link
-          to={
-            user?.is_verified && user?.role === "ORGANIZER"
-              ? "/organizer/dashboard"
-              : "/organizer/apply"
-          }
-          className="rounded-lg border border-green-800 px-5 py-3 text-sm font-semibold text-green-800"
-        >
-          {user?.is_verified && user?.role === "ORGANIZER"
-            ? "Organizer Dashboard"
-            : user?.organizer_status
-              ? "View Organizer Application"
-              : "Host an Event"}
-        </Link>
-        {!user?.onboarding_completed_at && (
-          <Link
-            to="/Signup/onboarding"
-            className="rounded-lg border border-slate-300 px-5 py-3 text-sm"
-          >
-            Complete Your Profile
-          </Link>
-        )}
-        {user?.is_staff && (
-          <Link
-            to="/admin"
-            className="rounded-lg border border-green-800 px-5 py-3 text-sm"
-          >
-            Admin Dashboard
-          </Link>
-        )}
-      </div>
+      <div className="mt-5 flex flex-wrap gap-3"><Link to="/events" className="rounded-lg bg-[#f36b0a] px-5 py-3 text-sm font-semibold text-white">Explore Events</Link><Link to={user?.is_verified && user?.role === 'ORGANIZER' ? '/organizer/dashboard' : '/organizer/apply'} className="rounded-lg border border-green-800 px-5 py-3 text-sm font-semibold text-green-800">{user?.is_verified && user?.role === 'ORGANIZER' ? 'Organizer Dashboard' : user?.organizer_status ? 'View Organizer Application' : 'Host an Event'}</Link>{!user?.onboarding_completed_at && <Link to="/Signup/onboarding" className="rounded-lg border border-slate-300 px-5 py-3 text-sm">Complete Your Profile</Link>}{user?.is_staff && <Link to="/admin" className="rounded-lg border border-green-800 px-5 py-3 text-sm">Admin Dashboard</Link>}</div>
       {/* RECENT BOOKINGS */}
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <Link
-          to="/plans"
-          className="rounded-lg bg-[#3F783D] px-5 py-3 text-sm font-semibold text-white"
-        >
-          Manage {formattedPlan} membership
-        </Link>
-        <Link to="/message" className="rounded-lg border px-5 py-3 text-sm">
-          Messages & support
-        </Link>
-        <Link to="/community" className="rounded-lg border px-5 py-3 text-sm">
-          Community
-        </Link>
-        <ShareApp />
-      </div>
+      <div className="mt-5 flex flex-wrap items-center gap-3"><Link to="/plans" className="rounded-lg bg-[#3F783D] px-5 py-3 text-sm font-semibold text-white">Manage {formattedPlan} membership</Link><Link to="/message" className="rounded-lg border px-5 py-3 text-sm">Messages & support</Link><Link to="/community" className="rounded-lg border px-5 py-3 text-sm">Community</Link><ShareApp/></div>
       <section className="mt-5 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-bold text-[#172033]">Recent Bookings</h2>
 
-          <button
-            onClick={onViewBookings}
-            className="text-xs font-medium text-[#3F783D] hover:underline"
-          >
+          <button onClick={onViewBookings} className="text-xs font-medium text-[#3F783D] hover:underline">
             View All
           </button>
         </div>
 
-        {bookingsLoading ? (
-          <p role="status">Loading bookings…</p>
-        ) : bookingsError ? (
-          <div role="alert">
-            <p>{bookingsError.message}</p>
-            <button
-              onClick={reloadBookings}
-              className="mt-3 text-green-800 underline"
-            >
-              Retry
-            </button>
-          </div>
-        ) : bookings.length === 0 ? (
+        {bookingsLoading ? <p role="status">Loading bookings…</p> : bookingsError ? <div role="alert"><p>{bookingsError.message}</p><button onClick={reloadBookings} className="mt-3 text-green-800 underline">Retry</button></div> : bookings.length === 0 ? (
           <div className="flex min-h-[150px] flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 px-5 text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF4EB]">
               <CalendarCheck size={18} className="text-[#3F783D]" />
@@ -286,7 +197,7 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
           <Info label="Full Name" value={user?.fullName || "Not provided"} />
 
           <Info label="Email" value={user?.email || "Not provided"} />
-
+          
           <Info label="LGA" value={user?.lga || "Not provided"} />
 
           <Info label="Phone Number" value={user?.phone || "Not provided"} />
@@ -314,26 +225,15 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium">
-                    Pay securely with Paystack
-                  </p>
+                  <p className="text-xs font-medium">Pay securely with Paystack</p>
 
-                  <span className="text-[9px] text-green-600">
-                    No saved card
-                  </span>
+                  <span className="text-[9px] text-green-600">No saved card</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <button
-            onClick={() =>
-              toast(
-                "Enter payment details securely on Paystack during checkout.",
-              )
-            }
-            className="mt-3 w-full rounded-lg border border-dashed border-gray-300 py-2 text-xs transition hover:bg-gray-50"
-          >
+          <button onClick={() => toast("Enter payment details securely on Paystack during checkout.")} className="mt-3 w-full rounded-lg border border-dashed border-gray-300 py-2 text-xs transition hover:bg-gray-50">
             + Add New Card
           </button>
         </div>
@@ -366,23 +266,10 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
             value="Disabled"
           />
 
-          <button
-            onClick={onEditProfile}
-            className="mt-5 w-full rounded-lg border border-gray-200 py-2 text-xs transition hover:bg-gray-50"
-          >
+          <button onClick={onEditProfile} className="mt-5 w-full rounded-lg border border-gray-200 py-2 text-xs transition hover:bg-gray-50">
             Edit Preferences
           </button>
         </div>
-      </div>
-      <div className="sidebar-bottom">
-        <button
-          className="nav-link logout"
-          onClick={() => setLocation("/login")}
-          data-testid="button-logout"
-        >
-          <LogOut />
-          <span>Log out</span>
-        </button>
       </div>
     </div>
   );
