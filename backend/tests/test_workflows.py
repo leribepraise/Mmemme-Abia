@@ -109,9 +109,11 @@ class EventTests(Fixture):
         self.event.status="IN_REVIEW";self.event.save()
         self.client.force_authenticate(self.owner)
         self.assertEqual(self.client.post(f"/api/v1/events/{self.event.pk}/approve/",{}).status_code,403)
-    def test_published_events_cannot_be_edited(self):
+    def test_published_event_edits_keep_capacity_above_existing_reservations(self):
+        self.reserve(quantity=2)
         self.client.force_authenticate(self.owner)
         self.assertEqual(self.client.patch(f"/api/v1/events/{self.event.pk}/",{"capacity":1},format="json").status_code,400)
+        self.assertEqual(self.client.patch(f"/api/v1/events/{self.event.pk}/",{"description":"Updated event details"},format="json").status_code,200)
 
 class BookingTests(Fixture):
     def test_reservation_is_not_a_sale_and_has_expiry(self):

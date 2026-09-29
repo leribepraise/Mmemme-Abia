@@ -86,6 +86,7 @@ import AdminLayout from "./components/Admin/layout/AdminLayout";
 import AboutAbia from "./pages/AboutAbia";
 import ScrollToTop from "./components/common/ScrollToTop";
 const AdminDashboard = lazy(() => import('./components/Admin/dashboard/AdminDashboard'));
+const OrganizerInbox = lazy(() => import('./components/Admin/OrganizerInbox'));
 const AdminUsers = lazy(() => import('./components/Admin/users/AdminUsers'));
 const AdminUserDetails = lazy(() => import('./components/Admin/users/AdminUserDetails'));
 const AdminOrganizers = lazy(() => import('./components/Admin/organizers/AdminOrganizers'));
@@ -581,6 +582,7 @@ const App = () => {
     },
     { path: "analytics", element: <AdminDashboard /> },
     { path: "support", element: <ChatPanel /> },
+    { path: "organizer-inbox", element: <OrganizerInbox /> },
     { path: "notifications", element: <Inbox /> },
     { path: "settings", element: <AdminSettings /> },
     { index: true, element: <AdminDashboard /> },

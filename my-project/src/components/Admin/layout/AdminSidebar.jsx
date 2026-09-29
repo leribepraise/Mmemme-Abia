@@ -11,6 +11,7 @@ import {
   UtensilsCrossed,
   Bus,
   MessagesSquare,
+  Mail,
   ClipboardList,
   Wallet,
   BadgeCheck,
@@ -26,6 +27,7 @@ const navItems = [
   { label: "Dashboard", to: "/admin", icon: LayoutDashboard, end: true },
   { label: "Users", to: "/admin/users", icon: Users },
   { label: "Organizers", to: "/admin/organizers", icon: UsersRound },
+  { label: "Organizer inbox", to: "/admin/organizer-inbox", icon: Mail },
   { label: "Events", to: "/admin/events", icon: CalendarDays },
   { label: "Tourism", to: "/admin/tourism", icon: Compass },
   // "Hotels & Stays" is rendered separately below as an expandable item
@@ -135,7 +137,7 @@ const AdminSidebar = ({ open, onClose }) => {
       >
         <nav aria-label="Admin navigation">
           <ul className="space-y-0.5">
-            {navItems.slice(0, 4).map(({ label, to, icon: Icon, end }) => (
+            {navItems.slice(0, 5).map(({ label, to, icon: Icon, end }) => (
               <li key={to}>
                 <NavLink
                   to={to}
@@ -154,7 +156,7 @@ const AdminSidebar = ({ open, onClose }) => {
 
             <HotelsDropdown />
 
-            {navItems.slice(4).map(({label,to,icon:Icon})=><li key={label}><NavLink to={to} className={({isActive})=>`${NAV_LINK_CLASS} ${isActive?NAV_LINK_ACTIVE:NAV_LINK_INACTIVE}`}><Icon className="h-4 w-4 shrink-0"/><span>{label}</span></NavLink></li>)}
+            {navItems.slice(5).map(({label,to,icon:Icon})=><li key={label}><NavLink to={to} className={({isActive})=>`${NAV_LINK_CLASS} ${isActive?NAV_LINK_ACTIVE:NAV_LINK_INACTIVE}`}><Icon className="h-4 w-4 shrink-0"/><span>{label}</span></NavLink></li>)}
           </ul>
         </nav>
       </aside>

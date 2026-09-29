@@ -24,6 +24,7 @@ class ChatThrottle(UserRateThrottle):
 class ConversationSerializer(serializers.ModelSerializer):
     customer_name = serializers.SerializerMethodField()
     provider_name = serializers.SerializerMethodField()
+    customer_role = serializers.CharField(source='customer.role', read_only=True)
     booking_reference = serializers.CharField(source='booking.booking_reference', read_only=True, default='')
     title = serializers.SerializerMethodField()
     unread = serializers.BooleanField(read_only=True)
@@ -46,7 +47,7 @@ class ConversationSerializer(serializers.ModelSerializer):
         return ChatBlock.objects.filter(user=user, blocked_id=other).exists()
     class Meta:
         model = Conversation
-        fields = ['id', 'booking', 'customer', 'provider', 'created_at', 'customer_name', 'provider_name', 'booking_reference', 'title', 'unread', 'unread_count', 'last_message', 'last_message_at', 'archived', 'blocked', 'is_support']
+        fields = ['id', 'booking', 'customer', 'provider', 'created_at', 'customer_name', 'provider_name', 'customer_role', 'booking_reference', 'title', 'unread', 'unread_count', 'last_message', 'last_message_at', 'archived', 'blocked', 'is_support']
         read_only_fields = fields
 
 
@@ -65,7 +66,10 @@ class ConversationViewSet(viewsets.ReadOnlyModelViewSet):
     throttle_classes = [ChatThrottle]
     def get_queryset(self):
         messages = Message.objects.filter(conversation_id=OuterRef('pk'))
-        return Conversation.objects.filter(Q(customer=self.request.user) | Q(provider=self.request.user)).select_related('customer', 'provider', 'booking').annotate(
+        visible = Q(customer=self.request.user) | Q(provider=self.request.user)
+        if self.request.user.is_staff and self.request.user.has_perm('messaging.reply_support'):
+            visible |= Q(is_support=True)
+        return Conversation.objects.filter(visible).select_related('customer', 'provider', 'booking').annotate(
             unread=Exists(messages.exclude(sender=self.request.user).filter(read_at__isnull=True)),
             unread_count=Count('messages', filter=~Q(messages__sender=self.request.user) & Q(messages__read_at__isnull=True)),
             last_message=Subquery(messages.order_by('-created_at', '-id').values('body')[:1]),

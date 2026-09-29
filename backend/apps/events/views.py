@@ -20,7 +20,7 @@ class EventViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = Event.objects.select_related("organizer","organizer__organizer_profile").prefetch_related("ticket_types")
         if self.action in {"list","retrieve"}:
-            qs = qs.filter(status="PUBLISHED",is_suspended=False,is_archived=False,organizer__is_active=True,organizer__is_verified=True)
+            qs = qs.filter(status="PUBLISHED",is_suspended=False,is_archived=False,deletion_requested_at__isnull=True,organizer__is_active=True,organizer__is_verified=True)
             if self.action=="list": qs=qs.filter(end_datetime__gt=timezone.now())
         elif not self.request.user.is_staff:
             qs = qs.filter(organizer=self.request.user,is_archived=False)
@@ -42,7 +42,25 @@ class EventViewSet(viewsets.ModelViewSet):
     def update(self,request,*args,**kwargs):
         instance=self.get_object()
         Event.objects.select_for_update().get(pk=instance.pk)
-        return super().update(request,*args,**kwargs)
+        before = {field: getattr(instance, field) for field in ['title', 'venue', 'address', 'city', 'start_datetime', 'end_datetime']}
+        response = super().update(request,*args,**kwargs)
+        event = Event.objects.get(pk=instance.pk)
+        changed = [field for field, old in before.items() if getattr(event, field) != old]
+        if changed and event.status == Event.Status.PUBLISHED:
+            from apps.bookings.models import Booking
+            from apps.notifications.services import notify
+            bookings = Booking.objects.filter(kind='EVENT', parent_id=str(event.pk), status__in=['PENDING', 'CONFIRMED'])
+            for booking in bookings.iterator():
+                details = dict(booking.details)
+                details.update(title=event.title, start_datetime=event.start_datetime.isoformat(),
+                               end_datetime=event.end_datetime.isoformat(),
+                               location=event.venue + (', ' + event.address if event.address else ''))
+                Booking.objects.filter(pk=booking.pk).update(details=details)
+                notify(booking.user, f'event-updated:{event.pk}:{event.updated_at.isoformat()}:{booking.pk}',
+                       'Your event details changed',
+                       f'{event.title} has updated its event details. Please review the new date, time and venue in your bookings before attending.')
+            audit(request.user, 'event.details_updated', event.pk, fields=changed)
+        return response
     def perform_destroy(self,instance):
         raise Conflict("Request event deletion for staff review instead.")
     @action(detail=False,methods=["get"])
@@ -55,14 +73,15 @@ class EventViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='request-deletion')
     @transaction.atomic
     def request_deletion(self, request, pk=None):
-        from apps.bookings.models import Booking
         event = Event.objects.select_for_update().get(pk=self.get_object().pk)
         if request.user.pk != event.organizer_id:
             raise PermissionDenied('Only the organizer can request deletion.')
         if event.deletion_requested_at:
             raise Conflict('This event already has a deletion request awaiting staff review.')
-        if Booking.objects.filter(kind='EVENT', parent_id=str(event.pk)).exists():
-            raise Conflict('Events with bookings cannot be deleted. Contact support about cancellation and refunds.')
+        if event.status in {Event.Status.CANCELLED, Event.Status.COMPLETED}:
+            raise Conflict('Cancelled or completed events cannot be removed from this page.')
+        if event.start_datetime <= timezone.now():
+            raise Conflict('An event that has started needs support review before removal.')
         event.deletion_requested_at = timezone.now()
         event.save(update_fields=['deletion_requested_at', 'updated_at'])
         audit(request.user, 'event.deletion_requested', event.pk)
@@ -116,7 +135,11 @@ class EventViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def ticket_types(self,request,pk=None):
         event=Event.objects.select_for_update().get(pk=self.get_object().pk)
-        if event.status not in {"DRAFT","REJECTED"}: raise Conflict("Ticket types can only be edited in draft.")
+        if event.status == "PUBLISHED":
+            if event.start_datetime <= timezone.now() or event.deletion_requested_at:
+                raise Conflict("Ticket types cannot change after the event has started or while cancellation is pending.")
+        elif event.status not in {"DRAFT", "REJECTED"}:
+            raise Conflict("Ticket types cannot be edited for this event.")
         instance=None
         if request.method=="PATCH":
             from django.shortcuts import get_object_or_404

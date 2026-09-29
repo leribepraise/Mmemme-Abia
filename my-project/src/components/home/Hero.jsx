@@ -136,6 +136,7 @@ const Hero = () => {
             lg:w-3xl
             z-10
             mt-5
+            bg-slate-900
           "
         >
           {/* Current Image */}
@@ -147,7 +148,7 @@ const Hero = () => {
             className="
               w-full
               h-full
-              object-cover
+              object-contain
               transition-opacity
               duration-500
             "

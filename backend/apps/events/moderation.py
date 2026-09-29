@@ -58,14 +58,29 @@ def moderate_event(actor, event_id, decision, reason=''):
 @transaction.atomic
 def review_event_deletion(actor, event_id, approve, reason=''):
     from apps.bookings.models import Booking
+    from apps.bookings.services import cancel
+    from apps.payments.models import Payment, PayoutItem
     require_staff_permission(actor, 'events.change_event')
     event = Event.objects.select_for_update().get(pk=event_id)
     if actor.pk == event.organizer_id:
         raise PermissionDenied('You cannot review your own event.')
     if not event.deletion_requested_at or event.is_archived:
         raise Conflict('There is no pending deletion request.')
-    if approve and Booking.objects.filter(kind='EVENT', parent_id=str(event.pk)).exists():
-        raise Conflict('This event has bookings. Resolve cancellation and refunds before removing it.')
+    bookings = Booking.objects.filter(kind='EVENT', parent_id=str(event.pk)).order_by('id')
+    if approve:
+        if event.status in {Event.Status.CANCELLED, Event.Status.COMPLETED}:
+            raise Conflict('Completed or already cancelled events need support review.')
+        if event.start_datetime <= timezone.now():
+            raise Conflict('An event that has started needs support review before removal.')
+        if bookings.filter(fulfillment_status__in=['IN_PROGRESS', 'COMPLETED']).exists():
+            raise Conflict('A booking has been fulfilled. Contact support before removing this event.')
+        if bookings.filter(tickets__status='USED').exists():
+            raise Conflict('A ticket has already been used. Contact support before removing this event.')
+        if PayoutItem.objects.filter(sale__booking__in=bookings, active=True).exists():
+            raise Conflict('An organizer payout is allocated to this event. Contact finance before removing it.')
+        for booking in bookings.filter(status='CONFIRMED', total_amount__gt=0):
+            if not Payment.objects.filter(booking=booking, status='SUCCESS', provider='PAYSTACK').exists():
+                raise Conflict('A paid booking needs payment reconciliation before this event can be removed.')
     if not approve and not reason.strip():
         raise ValidationError({'reason': 'Explain why deletion was declined.'})
     event.deletion_requested_at = None
@@ -76,8 +91,11 @@ def review_event_deletion(actor, event_id, approve, reason=''):
         event.status = Event.Status.CANCELLED
         event.is_archived = True
     event.save(update_fields=['deletion_requested_at', 'deletion_reviewed_at', 'deletion_reviewed_by', 'status', 'is_archived', 'updated_at'])
+    if approve:
+        for booking in bookings.filter(status__in=['PENDING', 'CONFIRMED']).order_by('id'):
+            cancel(booking.pk, actor, force=True)
     audit(actor, 'event.deletion_approved' if approve else 'event.deletion_declined', event.pk, reason=reason)
-    message = (f'Your request to remove {event.title} has been approved. The event is no longer visible.' if approve
+    message = (f'Your request to remove {event.title} has been approved. The event is no longer visible. Eligible attendee refunds have been queued.' if approve
                else f'Your request to remove {event.title} was declined. {reason}')
     notify(event.organizer, f'event-deletion:{event.pk}:{event.deletion_reviewed_at.isoformat()}',
            'Event deletion request', message)

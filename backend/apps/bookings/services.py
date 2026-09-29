@@ -70,7 +70,7 @@ def _validate_resources(kind, parent, resources, entries, details, plan='bronze'
     owner = supplier_of(kind, parent)
     if not owner or not owner.is_active or not owner.is_verified:
         raise Conflict("This provider is not available for bookings.")
-    if (kind == "EVENT" and (parent.status != "PUBLISHED" or parent.is_suspended or parent.start_datetime <= now)) or (kind != "EVENT" and not parent.is_active):
+    if (kind == "EVENT" and (parent.status != "PUBLISHED" or parent.is_suspended or parent.deletion_requested_at or parent.start_datetime <= now)) or (kind != "EVENT" and not parent.is_active):
         raise Conflict("This listing is not available for bookings.")
     for entry in entries:
         r = resources[str(entry["id"])]
@@ -207,7 +207,7 @@ def still_deliverable(booking,parent):
     owner=supplier_of(booking.kind,parent)
     if not owner or not owner.is_active or not owner.is_verified: return False
     now=timezone.now()
-    if booking.kind=="EVENT": return parent.status=="PUBLISHED" and not parent.is_suspended and parent.start_datetime>now
+    if booking.kind=="EVENT": return parent.status=="PUBLISHED" and not parent.is_suspended and not parent.deletion_requested_at and parent.start_datetime>now
     if not parent.is_active: return False
     if booking.kind=="HOTEL": return booking.details["check_in"]>=str(timezone.localdate())
     if booking.kind=="TRANSPORT": return booking.items.first().departure.departs_at>now
@@ -253,6 +253,12 @@ def cancel(booking_id, actor, force=False):
         else:
             booking.status = "CANCELLED"
     booking.save(update_fields=["status","updated_at"])
+    if booking.kind == "EVENT":
+        from apps.notifications.services import notify
+        detail = ("A full refund has been requested through Paystack. Track its status in your bookings."
+                  if booking.status == "REFUND_PENDING" else "No payment was captured for this booking.")
+        notify(booking.user, f"booking:{booking.pk}:cancelled", "Event booking cancelled",
+               f"Your booking {booking.booking_reference} for {booking.details.get('title', 'the event')} was cancelled. {detail}")
     audit(actor,"booking.cancelled",booking.pk)
     return booking
 

@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/components/context/AuthContext";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
+import { useSearchParams } from 'react-router-dom';
 import {
   Banknote, Check, ChevronDown, CreditCard, Copy, Pencil, Percent, Plus,
   ReceiptText, Search, Settings2, Tag, Ticket, Trash2, X,
@@ -66,7 +67,7 @@ function TicketTypesPanel({ event, onReady }) {
   const submit = async () => {
     if (!draft.name.trim() || draft.price === '' || !draft.limit) return;
     try {
-      await api(`/events/${event.id}/ticket-types/`, { method: editingId ? 'PATCH' : 'POST', body: { ...(editingId ? { id: editingId } : {}), name: draft.name, description: draft.description, price: Number(draft.price), quantity: Number(draft.limit) } });
+      await api(`/events/${event.id}/ticket-types/`, { method: editingId ? 'PATCH' : 'POST', body: { ...(editingId ? { id: editingId } : { price: Number(draft.price) }), name: draft.name, description: draft.description, quantity: Number(draft.limit) } });
       reload(); cancel();
     } catch (error) { toast.error(error.message); }
   };
@@ -95,7 +96,7 @@ function TicketTypesPanel({ event, onReady }) {
                     <input className={inputClass} value={draft.name} onChange={e => setDraft(d => ({ ...d, name: e.target.value }))} placeholder="Name" />
                     <input className={`${inputClass} mt-1.5`} value={draft.description} onChange={e => setDraft(d => ({ ...d, description: e.target.value }))} placeholder="Description" />
                   </td>
-                  <td className="py-2.5 pr-4"><input type="number" className={inputClass} value={draft.price} onChange={e => setDraft(d => ({ ...d, price: e.target.value }))} /></td>
+                  <td className="py-2.5 pr-4"><input type="number" disabled title="Add a new ticket type to offer another price" className={inputClass} value={draft.price} /></td>
                   <td className="py-2.5 pr-4 text-gray-400">{Math.max(0, (Number(draft.limit) || 0) - item.sold)}</td>
                   <td className="py-2.5 pr-4 text-gray-600">{item.sold}</td>
                   <td className="py-2.5 pr-4"><input type="number" className={inputClass} value={draft.limit} onChange={e => setDraft(d => ({ ...d, limit: e.target.value }))} /></td>
@@ -402,7 +403,8 @@ function SalesReportPanel() {
 
 export default function OrganizerTicketSales() {
   const { data: events } = useCollection("/events/mine/", organizerEvent);
-  const [eventId, setEventId] = useState(events[0]?.id);
+  const [params] = useSearchParams();
+  const [eventId, setEventId] = useState(params.get('event') || events[0]?.id);
   const event = events.find(e => e.id === eventId) || events[0];
   const [tab, setTab] = useState("types");
   const [typesApi, setTypesApi] = useState(null);

@@ -52,7 +52,7 @@ export default function OrganizerEventPreview() {
     catch (error) { toast.error(error.message); }
   };
   if (!event) return <p role="status">{request.error?.message || 'Loading event...'}</p>;
-  const editable = ['DRAFT', 'REJECTED'].includes(event.rawStatus);
+  const editable = !event.deletion_requested_at && (['DRAFT', 'REJECTED'].includes(event.rawStatus) || (event.rawStatus === 'PUBLISHED' && new Date(event.start_datetime).getTime() > Date.now()));
 
   return (
     <OrganizerShell
@@ -73,8 +73,8 @@ export default function OrganizerEventPreview() {
       {event.review_note && <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm"><h2 className="font-semibold">Staff feedback</h2><p className="mt-2 whitespace-pre-wrap">{event.review_note}</p></div>}
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="h-56 bg-gray-100">
-          <img src={event.image_detail || event.image} alt={event.title} className="w-full h-full object-cover" />
+        <div className="flex min-h-56 items-center justify-center bg-gray-100">
+          <img src={event.image_detail || event.image} alt={event.title} className="max-h-[32rem] w-full object-contain" />
         </div>
         <div className="p-6">
           <div className="flex items-center gap-2 mb-3">
@@ -123,7 +123,7 @@ export default function OrganizerEventPreview() {
         </div>
       </div>
 
-      {editable && <div className="flex items-center justify-between gap-3">
+      {['DRAFT', 'REJECTED'].includes(event.rawStatus) && <div className="flex items-center justify-between gap-3">
         <button
           onClick={() => navigate(`/organizer/events/${event.id}/edit`)}
           className="px-5 py-2.5 rounded-lg text-sm font-bold text-gray-600 border border-gray-200 bg-white hover:bg-gray-50"

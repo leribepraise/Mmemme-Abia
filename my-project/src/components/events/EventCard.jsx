@@ -20,12 +20,12 @@ const EventCard = ({ event }) => {
     <div className="block">
       <div className="w-[313px] overflow-hidden rounded-2xl border border-gray-100 bg-[#FEFEFE] shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md">
         {/* Image & Overlays */}
-        <div className="relative h-[150px] w-full">
+        <div className="relative h-[150px] w-full bg-slate-100">
           <NavLink to={`/events/${event.id}`} className="block h-full">
             <SiteImage
               src={event.image}
               alt={event.text}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             />
           </NavLink>
 

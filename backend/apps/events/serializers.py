@@ -17,10 +17,8 @@ class TicketTypeSerializer(serializers.ModelSerializer):
         if self.instance:
             if quantity < self.instance.quantity_sold+self.instance.quantity_reserved:
                 raise serializers.ValidationError("Stock cannot be less than existing sales and reservations.")
-            if (self.instance.quantity_sold or self.instance.quantity_reserved) and price != self.instance.price:
-                raise serializers.ValidationError("Create a new ticket type to change a price after reservations begin.")
-            if (self.instance.quantity_sold or self.instance.quantity_reserved) and any(attrs.get(field, getattr(self.instance, field)) != getattr(self.instance, field) for field in ['membership_discount', 'minimum_plan', 'membership_early_access']):
-                raise serializers.ValidationError('Create a new ticket type to change member benefits after reservations begin.')
+            if price != self.instance.price:
+                raise serializers.ValidationError("The price of an existing ticket type cannot change. Add a new ticket type instead.")
         start = attrs.get("sales_start",getattr(self.instance,"sales_start",None))
         end = attrs.get("sales_end",getattr(self.instance,"sales_end",None))
         if start and end and end <= start: raise serializers.ValidationError("Sales must end after they start.")
@@ -36,6 +34,9 @@ class EventSerializer(serializers.ModelSerializer):
         user = getattr(self.context.get('request'), 'user', None)
         if user and user.is_authenticated and (user.is_staff or user.pk == instance.organizer_id):
             data.update(review_note=instance.review_note, review_decision=instance.review_decision, is_suspended=instance.is_suspended)
+            if getattr(self.context.get('view'), 'action', None) == 'manage':
+                from apps.bookings.models import Booking
+                data['has_bookings'] = Booking.objects.filter(kind='EVENT', parent_id=str(instance.pk)).exists()
         return data
 
     def validate_image_url(self, value):
@@ -80,6 +81,14 @@ class EventSerializer(serializers.ModelSerializer):
         if start and end and end <= start: raise serializers.ValidationError("Event end must follow its start.")
         if not self.instance and start and start <= timezone.now(): raise serializers.ValidationError("New events must start in the future.")
         if attrs.get("capacity",getattr(self.instance,"capacity",1)) < 1: raise serializers.ValidationError("Capacity must be positive.")
-        if self.instance and self.instance.status not in {"DRAFT","REJECTED"}:
-            raise serializers.ValidationError("Only draft or rejected events can be edited. Contact support for changes to a published event.")
+        if self.instance and self.instance.status not in {"DRAFT", "REJECTED", "PUBLISHED"}:
+            raise serializers.ValidationError("This event cannot be edited.")
+        if self.instance and self.instance.status == "PUBLISHED":
+            if self.instance.deletion_requested_at or self.instance.start_datetime <= timezone.now():
+                raise serializers.ValidationError("This event cannot be edited while cancellation is pending or after it starts.")
+            if start and start <= timezone.now():
+                raise serializers.ValidationError("The event must start in the future.")
+            active = self.instance.ticket_types.aggregate(sold=Sum('quantity_sold'), reserved=Sum('quantity_reserved'))
+            if attrs.get('capacity', self.instance.capacity) < (active['sold'] or 0) + (active['reserved'] or 0):
+                raise serializers.ValidationError("Capacity cannot be below tickets already sold or reserved.")
         return attrs

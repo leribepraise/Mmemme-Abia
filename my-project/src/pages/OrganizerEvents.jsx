@@ -66,8 +66,8 @@ export default function OrganizerEvents() {
     catch (error) { toast.error(error.message); }
   };
   const requestDeletion = async event => {
-    if (!window.confirm(`Request admin approval to remove "${event.title}"? Events with bookings cannot be removed.`)) return;
-    try { await api(`/events/${event.id}/request-deletion/`, { method: 'POST' }); reload(); toast.success('Removal request sent to admin.'); }
+    if (!window.confirm(`Request admin approval to cancel and remove "${event.title}"? If approved, attendee tickets will be cancelled and paid bookings will receive full refunds.`)) return;
+    try { await api(`/events/${event.id}/request-deletion/`, { method: 'POST' }); reload(); toast.success('Cancellation and removal request sent to admin.'); }
     catch (error) { toast.error(error.message); }
   };
 
@@ -145,11 +145,11 @@ export default function OrganizerEvents() {
           {paged.length ? (
             <div className="divide-y divide-gray-100">
               {paged.map(event => (
-                <div key={event.id} className="flex items-center gap-5 py-5 hover:bg-gray-50/50 transition-colors px-2 rounded-xl" data-testid={`row-my-event-${event.id}`}>
+                <div key={event.id} className="flex min-w-0 flex-wrap items-center gap-3 py-5 hover:bg-gray-50/50 transition-colors px-2 rounded-xl sm:gap-5" data-testid={`row-my-event-${event.id}`}>
                   <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 shrink-0">
-                    <img src={event.image} alt="" className="w-full h-full object-cover" />
+                    <img src={event.image} alt="" className="w-full h-full bg-slate-100 object-contain" />
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 basis-[calc(100%-5rem)] sm:basis-auto">
                     <h3 className="font-bold text-base text-black truncate">{event.title}</h3>
                     <p className="flex items-center gap-1.5 text-xs text-gray-500 font-medium truncate mt-1">
                       <MapPin className="w-3.5 h-3.5 shrink-0" /> {event.venue}
@@ -164,24 +164,12 @@ export default function OrganizerEvents() {
                   <span className={`text-xs font-bold px-3 py-1.5 rounded-full shrink-0 ${STATUS_STYLE[event.status] || "bg-gray-100 text-gray-600"}`}>
                     {event.status}
                   </span>
-                  <button
-                    onClick={() => navigate(['DRAFT', 'REJECTED'].includes(event.rawStatus) ? `/organizer/events/${event.id}/edit` : `/organizer/events/${event.id}/preview`)}
-                    className="border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 bg-white shrink-0 shadow-sm"
-                    data-testid={`button-view-event-${event.id}`}
-                  >
-                    {['DRAFT', 'REJECTED'].includes(event.rawStatus) ? "Edit" : "View"}
-                  </button>
-                  <button
-                    onClick={() => toggleStatus(event.id)}
-                    disabled={!['DRAFT', 'REJECTED'].includes(event.rawStatus)}
-                    className="p-2 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 shrink-0 transition-colors"
-                    aria-label="Submit event for review"
-                    title="Submit event for review"
-                    data-testid={`button-more-event-${event.id}`}
-                  >
-                    <Send className="w-5 h-5" />
-                  </button>
-                  <button type="button" onClick={() => requestDeletion(event)} disabled={Boolean(event.deletion_requested_at)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-40" aria-label={event.deletion_requested_at ? 'Removal pending admin review' : `Request removal of ${event.title}`} title={event.deletion_requested_at ? 'Removal pending admin review' : 'Request admin-approved removal'}><Trash2 className="w-5 h-5" /></button>
+                  <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
+                    <button onClick={() => navigate(`/organizer/events/${event.id}/preview`)} className="shrink-0 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 bg-white shadow-sm" data-testid={`button-view-event-${event.id}`}>View</button>
+                    {!event.deletion_requested_at && (['DRAFT', 'REJECTED'].includes(event.rawStatus) || (event.rawStatus === 'PUBLISHED' && new Date(event.start_datetime).getTime() > Date.now())) && <button onClick={() => navigate(`/organizer/events/${event.id}/edit`)} className="shrink-0 border border-[#3F7D3D] rounded-xl px-3 py-2 text-xs font-bold text-[#3F7D3D] hover:bg-green-50 bg-white shadow-sm" data-testid={`button-edit-event-${event.id}`}>Edit</button>}
+                    {['DRAFT', 'REJECTED'].includes(event.rawStatus) && <button onClick={() => toggleStatus(event.id)} className="p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 shrink-0 transition-colors" aria-label="Submit event for review" title="Submit event for review" data-testid={`button-more-event-${event.id}`}><Send className="w-5 h-5" /></button>}
+                    {!['CANCELLED', 'COMPLETED'].includes(event.rawStatus) && new Date(event.start_datetime).getTime() > Date.now() && <button type="button" onClick={() => requestDeletion(event)} disabled={Boolean(event.deletion_requested_at)} className="shrink-0 rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40" aria-label={event.deletion_requested_at ? 'Removal pending admin review' : `Request removal of ${event.title}`} title={event.deletion_requested_at ? 'Removal pending admin review' : 'Request admin-approved removal'}><Trash2 className="w-5 h-5" /></button>}
+                  </div>
                 </div>
               ))}
             </div>

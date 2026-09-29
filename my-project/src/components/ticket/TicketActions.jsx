@@ -1,10 +1,10 @@
 import toast from 'react-hot-toast';
 import React from "react";
-import { Download, MessageCircle, Share2 } from "lucide-react";
+import { Download, MessageCircle, Share2, XCircle } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api';
 
-const TicketActions = ({ ticketRef, booking, available }) => {
+const TicketActions = ({ ticketRef, booking, available, canCancel, cancelling, onCancel }) => {
   const navigate = useNavigate();
   const chat = async () => {
     try {
@@ -49,6 +49,7 @@ const TicketActions = ({ ticketRef, booking, available }) => {
         Share Ticket
       </button>
       <button onClick={chat} className="w-full bg-white border border-[#48782E] text-[#48782E] hover:bg-green-50 font-bold py-3.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm"><MessageCircle className="w-5 h-5" /> Chat with organizer</button>
+      {canCancel && <button type="button" disabled={cancelling} onClick={onCancel} className="w-full rounded-lg border border-red-300 bg-white px-4 py-3.5 font-bold text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50 flex items-center justify-center gap-2"><XCircle className="w-5 h-5" />{cancelling ? 'Cancelling…' : 'Cancel booking and all tickets'}</button>}
     </div>
   );
 };

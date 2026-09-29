@@ -13,7 +13,7 @@ const EventGallery = ({
           srcSet={selectedImage === event.image_detail && event.image_card ? `${event.image_card} 640w, ${event.image_detail} 1280w` : undefined}
           sizes="(max-width: 1024px) 100vw, 66vw"
           alt={event?.text || "Event"}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
 
         <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-xl">
@@ -35,7 +35,7 @@ const EventGallery = ({
             <SiteImage
               src={event?.image || img}
               alt={`Thumbnail ${index + 1}`}
-              className="h-16 w-full object-cover"
+              className="h-16 w-full bg-slate-900 object-contain"
             />
           </button>
         ))}

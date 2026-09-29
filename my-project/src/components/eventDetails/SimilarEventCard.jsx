@@ -7,8 +7,8 @@ const SimilarEventCard = ({ id, saved, onSave, image, alt, date, title, location
   const [busy,setBusy]=useState(false);
   return (
     <div className="flex space-x-3 border border-slate-100 rounded-xl p-2 hover:shadow-md transition bg-slate-50/50">
-      <div className="relative w-24 h-20 rounded-lg overflow-hidden shrink-0">
-        <SiteImage src={image} alt={alt} className="w-full h-full object-cover" />
+      <div className="relative w-24 h-20 rounded-lg overflow-hidden shrink-0 bg-slate-100">
+        <SiteImage src={image} alt={alt} className="w-full h-full object-contain" />
 
         <span className="absolute top-1 left-1 bg-white/90 text-[9px] font-bold text-slate-900 px-1.5 py-0.5 rounded">
           {date}

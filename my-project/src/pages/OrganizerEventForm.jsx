@@ -12,6 +12,8 @@ import { naira } from "@/lib/utils";
 const inputClass = "w-full border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-[#3F7D3D] bg-white";
 const labelClass = "block text-xs font-bold text-gray-700 mb-2";
 const STEPS = ["Basic Info", "Date & Venue", "Tickets & Pricing", "Media", "Preview & Publish"];
+const nigeriaDateTime = value => value ? new Date(new Date(value).getTime() + 60 * 60 * 1000).toISOString().slice(0, 16) : '';
+const eventDateTime = (date, time) => `${date}T${time}:00+01:00`;
 
 function Stepper({ current }) {
   return (
@@ -44,6 +46,8 @@ export default function OrganizerEventForm({ editId }) {
   const navigate = useNavigate();
   const eventRequest = useApi(editId ? `/events/${editId}/manage/` : null, { map: organizerEvent });
   const existing = eventRequest.data;
+  const published = existing?.rawStatus === 'PUBLISHED';
+  const booked = published && existing?.has_bookings;
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     title: existing?.title || "",
@@ -51,7 +55,12 @@ export default function OrganizerEventForm({ editId }) {
     eventType: existing?.eventType || "Physical Event",
     description: existing?.description || "",
     date: existing?.date || "",
+    endDate: existing?.end_datetime?.slice(0, 10) || "",
+    startTime: "09:00",
+    endTime: "23:59",
     venue: existing?.venue || "",
+    city: existing?.city || "",
+    address: existing?.address || "",
     price: String(existing?.price ?? 5000),
     minimum_plan: 'bronze', membership_discount: false, membership_early_access: false, sales_start: '',
     capacity: String(existing?.ticketCapacity || 500),
@@ -70,9 +79,10 @@ export default function OrganizerEventForm({ editId }) {
   };
   const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
 
+  const validSchedule = () => Boolean(form.venue.trim() && form.city.trim() && form.date && form.endDate && form.startTime && form.endTime && new Date(eventDateTime(form.endDate, form.endTime)) > new Date(eventDateTime(form.date, form.startTime)));
   const canAdvance = () => {
     if (step === 1) return form.title.trim() && form.description.trim();
-    if (step === 2) return form.venue.trim() && form.date;
+    if (step === 2) return validSchedule();
     return true;
   };
 
@@ -81,29 +91,30 @@ export default function OrganizerEventForm({ editId }) {
   useEffect(() => {
     if (!existing) return;
     const ticket = existing.ticket_types[0];
-    setForm({ title: existing.title, category: existing.category, eventType: existing.eventType, description: existing.description, date: existing.date, venue: existing.venue, price: String(existing.price), capacity: String(existing.capacity), image: existing.image || '', minimum_plan: ticket?.minimum_plan || 'bronze', membership_discount: ticket?.membership_discount || false, membership_early_access: ticket?.membership_early_access || false, sales_start: ticket?.sales_start ? new Date(new Date(ticket.sales_start).getTime()-new Date(ticket.sales_start).getTimezoneOffset()*60000).toISOString().slice(0,16) : '' });
+    setForm({ title: existing.title, category: existing.category, eventType: existing.eventType, description: existing.description, date: nigeriaDateTime(existing.start_datetime).slice(0, 10), endDate: nigeriaDateTime(existing.end_datetime).slice(0, 10), startTime: nigeriaDateTime(existing.start_datetime).slice(11, 16), endTime: nigeriaDateTime(existing.end_datetime).slice(11, 16), venue: existing.venue, city: existing.city, address: existing.address || '', price: String(ticket?.price ?? 0), capacity: String(existing.capacity), image: existing.image || '', minimum_plan: ticket?.minimum_plan || 'bronze', membership_discount: ticket?.membership_discount || false, membership_early_access: ticket?.membership_early_access || false, sales_start: ticket?.sales_start ? nigeriaDateTime(ticket.sales_start) : '' });
     ticketId.current = existing.ticket_types[0]?.id || null;
   }, [existing]);
   const submit = async publish => {
     if (saved) return;
     setSaved(true);
     try {
-      const fields = { title: form.title, category: form.category, description: form.description, venue: form.venue, city: existing?.city || form.venue, address: existing?.address || form.venue, capacity: Number(form.capacity), start_datetime: existing?.date === form.date ? existing.start_datetime : `${form.date}T00:00:00+01:00`, end_datetime: existing?.date === form.date ? existing.end_datetime : `${form.date}T23:59:59+01:00` };
+      if (!validSchedule()) throw new Error('Enter a valid event date and time. The end must follow the start.');
+      const fields = { title: form.title, category: form.category, description: form.description, venue: form.venue, city: form.city, address: form.address, capacity: Number(form.capacity), start_datetime: eventDateTime(form.date, form.startTime), end_datetime: eventDateTime(form.endDate, form.endTime) };
       const body = new FormData();
       Object.entries(fields).forEach(([key, value]) => body.append(key, value));
       if (imageFile) body.append("image", imageFile);
       const result = await api(createdId.current ? `/events/${createdId.current}/` : '/events/', { method: createdId.current ? 'PATCH' : 'POST', body });
       createdId.current = result.id;
-      const ticket = await api(`/events/${result.id}/ticket-types/`, { method: ticketId.current ? 'PATCH' : 'POST', body: { ...(ticketId.current ? { id: ticketId.current } : {}), name: existing?.ticket_types[0]?.name || 'Regular', price: Number(form.price), quantity: Number(form.capacity), minimum_plan: form.minimum_plan, membership_discount: form.membership_discount, membership_early_access: form.membership_early_access, sales_start: form.sales_start ? new Date(form.sales_start).toISOString() : null } });
+      const ticket = await api(`/events/${result.id}/ticket-types/`, { method: ticketId.current ? 'PATCH' : 'POST', body: { ...(ticketId.current ? { id: ticketId.current } : { price: Number(form.price) }), name: existing?.ticket_types[0]?.name || 'Regular', quantity: Number(form.capacity), minimum_plan: form.minimum_plan, membership_discount: form.membership_discount, membership_early_access: form.membership_early_access, sales_start: form.sales_start ? eventDateTime(form.sales_start.slice(0, 10), form.sales_start.slice(11, 16)) : null } });
       ticketId.current = ticket.id;
-      if (publish) await api(`/events/${result.id}/submit/`, { method: 'POST' });
-      toast.success(publish ? 'Event submitted for staff approval.' : 'Draft saved.');
+      if (publish && !published) await api(`/events/${result.id}/submit/`, { method: 'POST' });
+      toast.success(published ? 'Event changes saved.' : publish ? 'Event submitted for staff approval.' : 'Draft saved.');
       navigate(`/organizer/events/${result.id}/preview`);
     } catch (error) { toast.error(error.message); setSaved(false); }
   };
 
   if (editId && (eventRequest.loading || eventRequest.error || !existing)) return <div className="p-6" role="status">{eventRequest.error?.message || 'Loading event details…'}</div>;
-  if (existing && !['DRAFT', 'REJECTED'].includes(existing.rawStatus)) return <div className="p-6" role="status">This event cannot be edited while it is under review or published. Contact support for changes.</div>;
+  if (existing && (!['DRAFT', 'REJECTED', 'PUBLISHED'].includes(existing.rawStatus) || existing.deletion_requested_at || (published && new Date(existing.start_datetime).getTime() <= Date.now()))) return <div className="p-6" role="status">This event cannot be edited while it is under review, being cancelled, or after it starts. Contact support for changes.</div>;
   return (
       <OrganizerShell
         breadcrumb={["Home", "Organizer", existing ? "Edit Event" : "Create Event"]}
@@ -120,6 +131,7 @@ export default function OrganizerEventForm({ editId }) {
         }
       >
         <Stepper current={step} />
+        {booked && <div className="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">Tickets have been booked. Changes to the event date, time, or venue will notify attendees. The price of an existing ticket type is locked; add a new ticket type to offer a different price.</div>}
         {existing?.review_note && <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm"><h2 className="font-semibold">Staff feedback</h2><p className="mt-2 whitespace-pre-wrap">{existing.review_note}</p></div>}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -157,24 +169,31 @@ export default function OrganizerEventForm({ editId }) {
                 </div>
                 <div className="md:col-span-2">
                   <label className={labelClass} htmlFor="event-date">Event Date (all-day) *</label>
-                  <input id="event-date" type="date" className={inputClass} value={form.date} onChange={e => update("date", e.target.value)} data-testid="input-event-date" />
+                  <input id="event-date" type="date" className={inputClass} value={form.date} onChange={e => setForm(prev => ({ ...prev, date: e.target.value, endDate: prev.endDate || e.target.value }))} data-testid="input-event-date" />
                 </div>
+                <div><label className={labelClass} htmlFor="event-start-time">Start time *</label><input id="event-start-time" type="time" className={inputClass} value={form.startTime} onChange={e => update('startTime', e.target.value)} /></div>
+                <div><label className={labelClass} htmlFor="event-end-date">End date *</label><input id="event-end-date" type="date" className={inputClass} value={form.endDate} onChange={e => update('endDate', e.target.value)} /></div>
+                <div><label className={labelClass} htmlFor="event-end-time">End time *</label><input id="event-end-time" type="time" className={inputClass} value={form.endTime} onChange={e => update('endTime', e.target.value)} /></div>
+                <div><label className={labelClass} htmlFor="event-city">City *</label><input id="event-city" className={inputClass} value={form.city} onChange={e => update('city', e.target.value)} placeholder="e.g. Aba" /></div>
+                <div className="md:col-span-2"><label className={labelClass} htmlFor="event-address">Street address</label><input id="event-address" className={inputClass} value={form.address} onChange={e => update('address', e.target.value)} placeholder="Street and nearby landmark" /></div>
               </div>
             )}
 
             {step === 3 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className={labelClass} htmlFor="event-price">Ticket Price (&#8358;) *</label>
-                  <input id="event-price" type="number" min="0" className={inputClass} value={form.price} onChange={e => update("price", e.target.value)} data-testid="input-ticket-price" />
+                  <input id="event-price" disabled={Boolean(ticketId.current)} type="number" min="0" className={inputClass} value={form.price} onChange={e => update("price", e.target.value)} data-testid="input-ticket-price" />
+                  {ticketId.current && <p className="mt-1 text-xs text-slate-600">Existing ticket prices cannot change. Add a new ticket type for another price.</p>}
                   <div className="mt-4 space-y-4"><label className={labelClass}>Ticket access<select value={form.minimum_plan} onChange={e=>update('minimum_plan',e.target.value)} className={inputClass}><option value="bronze">All members</option><option value="silver">Silver and Diamond members</option><option value="diamond">Diamond members only</option></select></label><label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={form.membership_discount} onChange={e=>update('membership_discount',e.target.checked)}/>Offer member discounts: Silver 15%, Diamond 30%. Discounts reduce your ticket revenue before commission.</label><label className={labelClass}>General sales open (optional)<input type="datetime-local" value={form.sales_start} onChange={e=>update('sales_start',e.target.value)} className={inputClass}/></label><label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={form.membership_early_access} onChange={e=>update('membership_early_access',e.target.checked)}/>Allow Silver to book 24 hours early and Diamond 48 hours early.</label></div>
                 </div>
                 <div>
                   <label className={labelClass} htmlFor="event-capacity">Ticket Capacity *</label>
                   <input id="event-capacity" type="number" min="1" className={inputClass} value={form.capacity} onChange={e => update("capacity", e.target.value)} data-testid="input-ticket-capacity" />
                 </div>
-                <p className="md:col-span-2 text-xs text-gray-500 font-medium">You can add more ticket types (VIP, VVIP, Early Bird) from Ticket Management before submitting for approval.</p>
-              </div>
+                <p className="md:col-span-2 text-xs text-gray-500 font-medium">Add more ticket types (VIP, VVIP, Early Bird) in Ticket Management.</p>
+                {existing && <button type="button" onClick={() => navigate(`/organizer/ticket-sales?event=${existing.id}`)} className="md:col-span-2 w-fit rounded-lg border border-[#3F7D3D] px-4 py-2 text-sm font-bold text-[#3F7D3D] hover:bg-green-50">Manage or add ticket types</button>}
+              </fieldset>
             )}
 
             {step === 4 && (
@@ -182,7 +201,7 @@ export default function OrganizerEventForm({ editId }) {
                 <label className={labelClass}>Event Image</label>
                 <div className="border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center bg-gray-50/50">
                   {imagePreview || form.image ? (
-                    <img src={imagePreview || form.image} alt="Event preview" className="h-48 max-w-full mx-auto rounded-xl object-cover mb-4 shadow-sm" />
+                    <img src={imagePreview || form.image} alt="Event preview" className="mx-auto mb-4 max-h-80 max-w-full rounded-xl object-contain shadow-sm" />
                   ) : (
                     <ImagePlus className="w-10 h-10 text-gray-300 mx-auto mb-4" />
                   )}
@@ -196,9 +215,9 @@ export default function OrganizerEventForm({ editId }) {
 
             {step === 5 && (
               <div>
-                <h2 className="font-bold text-xl text-black mb-6">Preview &amp; Publish</h2>
-                <div className="h-56 bg-gray-100 rounded-xl overflow-hidden mb-6 shadow-inner">
-                  {(imagePreview || form.image) && <img src={imagePreview || form.image} alt="Event preview" className="w-full h-full object-cover" />}
+                <h2 className="font-bold text-xl text-black mb-6">Preview &amp; {published ? 'Save changes' : 'Publish'}</h2>
+                <div className="flex min-h-56 items-center justify-center bg-gray-100 rounded-xl overflow-hidden mb-6 shadow-inner">
+                  {(imagePreview || form.image) && <img src={imagePreview || form.image} alt="Event preview" className="max-h-[32rem] w-full object-contain" />}
                 </div>
                 <h3 className="font-extrabold text-black text-xl">{form.title || "Untitled event"}</h3>
                 <p className="text-sm text-gray-600 mt-2 leading-relaxed">{form.description}</p>
@@ -230,21 +249,21 @@ export default function OrganizerEventForm({ editId }) {
                 </button>
               ) : (
                 <div className="flex flex-wrap items-center gap-3">
-                  <button
+                  {!published && <button
                     disabled={saved}
                     onClick={() => submit(false)}
                     className="px-6 py-3 rounded-xl text-sm font-bold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
                     data-testid="button-save-event"
                   >
                     {saved ? "Saved" : "Save as draft"}
-                  </button>
+                  </button>}
                   <button
                     disabled={saved}
-                    onClick={() => submit(true)}
+                    onClick={() => submit(!published)}
                     className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white bg-[#F36B25] hover:bg-[#d95d1d] shadow-sm transition-colors"
                     data-testid="button-publish-event"
                   >
-                    {saved ? "Publishing..." : "Submit for Approval"} <ArrowRight className="w-4 h-4" />
+                    {saved ? "Saving..." : published ? "Save changes" : "Submit for Approval"} <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               )}

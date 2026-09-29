@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 from io import BytesIO
 
 from django.contrib.auth import get_user_model
@@ -12,6 +13,7 @@ from rest_framework.test import APITestCase
 from apps.events.models import Event, TicketType
 from apps.events.images import process_event_image
 from apps.bookings.models import Booking, BookingItem
+from apps.payments.models import Payment, Refund
 
 
 @override_settings(STORAGES={'default': {'BACKEND': 'django.core.files.storage.InMemoryStorage'}})
@@ -67,7 +69,7 @@ class EventImageUploadTests(APITestCase):
         self.assertFalse(event.image_card)
         self.assertTrue(process_event_image(event.pk))
 
-    def test_admin_reviews_removal_and_bookings_block_deletion(self):
+    def test_admin_reviews_removal_and_books_event_cancellation(self):
         owner = get_user_model().objects.create_user(username='owner-removal', email='owner-removal@example.test',
             email_verified=True, is_verified=True, role='ORGANIZER')
         admin = get_user_model().objects.create_superuser(username='reviewer-removal',
@@ -94,7 +96,76 @@ class EventImageUploadTests(APITestCase):
             start_datetime=start, end_datetime=start + timedelta(hours=3))
         Booking.objects.create(user=owner, kind='EVENT', parent_id=str(second.pk),
             booking_reference='MM-REMOVAL-TEST', total_amount=0)
-        self.assertEqual(self.client.post(f'/api/v1/events/{second.pk}/request-deletion/').status_code, 409)
+        self.assertEqual(self.client.post(f'/api/v1/events/{second.pk}/request-deletion/').status_code, 200)
+        self.client.force_authenticate(admin)
+        self.assertEqual(self.client.post(f'/api/v1/admin/events/{second.pk}/approve-deletion/').status_code, 200)
+        self.assertEqual(Booking.objects.get(booking_reference='MM-REMOVAL-TEST').status, 'CANCELLED')
+
+    def test_admin_approval_queues_full_paystack_refund_and_cancels_tickets(self):
+        owner = get_user_model().objects.create_user(username='refund-owner', email='refund-owner@example.test',
+            email_verified=True, is_verified=True, role='ORGANIZER')
+        buyer = get_user_model().objects.create_user(username='refund-buyer', email='refund-buyer@example.test')
+        admin = get_user_model().objects.create_superuser(username='refund-admin',
+            email='refund-admin@example.test', password='Strong-test-42!')
+        start = timezone.now() + timedelta(days=5)
+        event = Event.objects.create(organizer=owner, title='Refund event', slug='refund-event-test',
+            description='An event', category='Music', venue='Aba hall', city='Aba', capacity=40,
+            status='PUBLISHED', start_datetime=start, end_datetime=start + timedelta(hours=3))
+        ticket_type = TicketType.objects.create(event=event, name='Regular', price=Decimal('5000.00'),
+            quantity=40, quantity_sold=1)
+        booking = Booking.objects.create(user=buyer, supplier=owner, kind='EVENT', parent_id=str(event.pk),
+            booking_reference='MM-REFUND-TEST', status='CONFIRMED', total_amount=Decimal('5000.00'),
+            details={'title': event.title, 'start_datetime': start.isoformat()})
+        BookingItem.objects.create(booking=booking, ticket_type=ticket_type, quantity=1,
+            unit_price=Decimal('5000.00'), subtotal=Decimal('5000.00'))
+        payment = Payment.objects.create(booking=booking, user=buyer, reference='PAY-REFUND-TEST',
+            idempotency_key='booking:refund-test', provider='PAYSTACK', provider_reference='12345',
+            amount=Decimal('5000.00'), status='SUCCESS')
+        self.client.force_authenticate(owner)
+        self.assertEqual(self.client.post(f'/api/v1/events/{event.pk}/request-deletion/').status_code, 200)
+        self.client.force_authenticate(admin)
+        self.assertEqual(self.client.post(f'/api/v1/admin/events/{event.pk}/approve-deletion/').status_code, 200)
+        booking.refresh_from_db()
+        payment.refresh_from_db()
+        event.refresh_from_db()
+        ticket_type.refresh_from_db()
+        self.assertEqual(booking.status, 'REFUND_PENDING')
+        self.assertEqual(payment.status, 'REFUND_PENDING')
+        self.assertEqual(Refund.objects.get(payment=payment).amount, Decimal('5000.00'))
+        self.assertEqual(ticket_type.quantity_sold, 0)
+        self.assertTrue(event.is_archived)
+        self.assertEqual(self.client.post(f'/api/v1/admin/events/{event.pk}/approve-deletion/').status_code, 409)
+        self.assertEqual(Refund.objects.filter(payment=payment).count(), 1)
+
+    def test_published_event_edit_updates_attendees_but_locks_existing_ticket_price(self):
+        owner = get_user_model().objects.create_user(username='edit-owner', email='edit-owner@example.test',
+            email_verified=True, is_verified=True, role='ORGANIZER')
+        start = timezone.now() + timedelta(days=5)
+        event = Event.objects.create(organizer=owner, title='Original title', slug='edit-published-test',
+            description='Original description', category='Music', venue='Aba hall', city='Aba', capacity=40,
+            status='PUBLISHED', start_datetime=start, end_datetime=start + timedelta(hours=3))
+        ticket_type = TicketType.objects.create(event=event, name='Regular', price=Decimal('5000.00'), quantity=40)
+        self.client.force_authenticate(owner)
+        path = f'/api/v1/events/{event.pk}/'
+        self.assertEqual(self.client.patch(path, {'title': 'New title'}, format='json').status_code, 200)
+        booking = Booking.objects.create(user=owner, kind='EVENT', parent_id=str(event.pk),
+            booking_reference='MM-EDIT-TEST', total_amount=0, details={'title': event.title})
+        self.assertTrue(self.client.get(path + 'manage/').data['has_bookings'])
+        self.assertEqual(self.client.patch(path, {'venue': 'Different hall'}, format='json').status_code, 200)
+        booking.refresh_from_db()
+        self.assertIn('Different hall', booking.details['location'])
+        self.assertEqual(self.client.patch(path, {'description': 'Updated details'}, format='json').status_code, 200)
+        self.assertEqual(self.client.patch(path + 'ticket-types/', {'id': str(ticket_type.pk), 'price': '6000.00'}, format='json').status_code, 400)
+        self.assertEqual(self.client.post(path + 'ticket-types/', {'name': 'VIP', 'price': '10000.00', 'quantity': 10}, format='json').status_code, 201)
+        draft = Event.objects.create(organizer=owner, title='Draft', slug='edit-price-draft-test',
+            description='Draft description', category='Music', venue='Aba hall', city='Aba', capacity=40,
+            status='DRAFT', start_datetime=start, end_datetime=start + timedelta(hours=3))
+        draft_ticket = TicketType.objects.create(event=draft, name='Regular', price=Decimal('5000.00'), quantity=40)
+        self.assertEqual(self.client.patch(f'/api/v1/events/{draft.pk}/ticket-types/',
+            {'id': str(draft_ticket.pk), 'price': '6000.00'}, format='json').status_code, 400)
+        event.status = 'COMPLETED'
+        event.save(update_fields=['status'])
+        self.assertEqual(self.client.post(path + 'request-deletion/').status_code, 409)
 
     def test_booking_uses_its_event_photo(self):
         owner = get_user_model().objects.create_user(username='photo-owner', email='photo-owner@example.test',

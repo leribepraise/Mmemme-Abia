@@ -88,7 +88,7 @@ const MyTickets = () => {
                 {ticket.image ? <img
                   src={ticket.image}
                   alt={ticket.title}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full bg-slate-100 object-contain"
                   loading="lazy"
                 /> : <div className="flex h-full items-center justify-center bg-slate-100 text-slate-400"><Ticket size={28}/></div>}
               </div>

@@ -14,6 +14,7 @@ import {
   Ticket,
   Users,
   MessageCircle,
+  XCircle,
   Hotel,
   Check,
 } from "lucide-react";
@@ -23,6 +24,7 @@ import SectionHeader from "./common/SectionHeader";
 const MyBookings = () => {
   const navigate = useNavigate();
   const [contacting, setContacting] = useState(false);
+  const [cancelling, setCancelling] = useState(null);
   const contactProvider = async booking => {
     if (contacting) return;
     setContacting(true);
@@ -30,7 +32,17 @@ const MyBookings = () => {
     catch (error) { toast.error(error.message); }
     finally { setContacting(false); }
   };
-  const { data: bookings } = useCollection("/bookings/", bookingCard);
+  const { data: bookings, reload } = useCollection("/bookings/", bookingCard);
+  const cancelEventBooking = async booking => {
+    if (cancelling || !window.confirm(`Cancel ${booking.title} and all tickets in this booking? Paid tickets will receive a full refund through Paystack.`)) return;
+    setCancelling(booking.id);
+    try {
+      await api(`/bookings/${booking.id}/cancel/`, { method: 'POST' });
+      reload();
+      toast.success(booking.totalAmount > 0 ? 'Booking cancelled. Your refund has been requested.' : 'Booking cancelled.');
+    } catch (error) { toast.error(error.message); }
+    finally { setCancelling(null); }
+  };
   const [activeType, setActiveType] = useState("All");
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,7 +69,7 @@ const MyBookings = () => {
       return "Upcoming";
     }
 
-    if (booking.status === "Cancelled") {
+    if (["Cancelled", "Refund pending", "Refunded"].includes(booking.status)) {
       return "Cancelled";
     }
 
@@ -220,7 +232,7 @@ const MyBookings = () => {
               >
                 {/* Image */}
                 <div className="relative h-[85px] w-full shrink-0 overflow-hidden rounded-md sm:h-[78px] sm:w-[118px]">
-                  {booking.image ? <img src={booking.image} alt={booking.title} loading="lazy" className="h-full w-full object-cover" /> : <div className="h-full w-full bg-slate-100" />}
+                  {booking.image ? <img src={booking.image} alt={booking.title} loading="lazy" className="h-full w-full bg-slate-100 object-contain" /> : <div className="h-full w-full bg-slate-100" />}
 
                   {/* Event Date */}
                   {type === "event" && (
@@ -341,6 +353,7 @@ const MyBookings = () => {
                   >
                     <MessageCircle size={17} />
                   </button>
+                  {booking.kind === 'EVENT' && ['Confirmed', 'Pending'].includes(booking.status) && booking.fulfillment_status === 'NEW' && new Date(booking.details?.start_datetime).getTime() > Date.now() && <button type="button" disabled={Boolean(cancelling)} onClick={() => cancelEventBooking(booking)} title="Cancel this booking and all its tickets" aria-label={`Cancel tickets for ${booking.title}`} className="flex h-8 items-center gap-1 rounded border border-red-300 px-2 text-[10px] font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"><XCircle size={14} />{cancelling === booking.id ? 'Cancelling…' : 'Cancel tickets'}</button>}
                 </div>
               </div>
             );
