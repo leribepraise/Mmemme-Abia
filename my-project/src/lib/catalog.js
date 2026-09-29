@@ -1,4 +1,5 @@
 import { money } from './api.js';
+import { eventCategory } from './eventCategories.js';
 export function organizerEvent(event) {
   const types = event.ticket_types || [];
   return { ...eventCard(event), rawStatus: event.status, status: event.is_suspended ? 'Suspended' : event.review_decision === 'request-changes' && event.status === 'REJECTED' ? 'Changes requested' : ({ DRAFT: 'Draft', PUBLISHED: 'Published', IN_REVIEW: 'In review', REJECTED: 'Rejected', CANCELLED: 'Cancelled' })[event.status] || event.status, ticketCapacity: event.capacity, ticketsSold: types.reduce((sum, t) => sum + t.quantity_sold, 0), revenue: types.reduce((sum, t) => sum + t.quantity_sold * Number(t.price), 0), price: Number(types[0]?.price || 0), tags: [], eventType: 'Physical Event' };
@@ -6,7 +7,7 @@ export function organizerEvent(event) {
 export function eventCard(event) {
   const types = (event.ticket_types || []).filter(t => t.is_active);
   const price = types.length ? Math.min(...types.map(t => Number(t.price))) : null;
-  return { ...event, ticket_types: types, dateDay: new Date(event.start_datetime).getDate(), dateMonth: new Date(event.start_datetime).toLocaleDateString("en-GB", { month: "short" }).toUpperCase(), time: new Date(event.start_datetime).toLocaleTimeString("en-NG", {hour:"2-digit",minute:"2-digit"}), text: event.title, text2: [event.city, event.state].filter(Boolean).join(', '), text3: price === null ? 'Unavailable' : price === 0 ? 'Free' : money(price), image: event.image_card || event.image || '/event.jpg', image_detail: event.image_detail || event.image || '/event.jpg', date: event.start_datetime?.slice(0, 10), location: event.venue, title: event.title };
+  return { ...event, category: eventCategory(event.category), ticket_types: types, dateDay: new Date(event.start_datetime).getDate(), dateMonth: new Date(event.start_datetime).toLocaleDateString("en-GB", { month: "short" }).toUpperCase(), time: new Date(event.start_datetime).toLocaleTimeString("en-NG", {hour:"2-digit",minute:"2-digit"}), text: event.title, text2: [event.city, event.state].filter(Boolean).join(', '), text3: price === null ? 'Unavailable' : price === 0 ? 'Free' : money(price), image: event.image_card || event.image || '/event.jpg', image_detail: event.image_detail || event.image || '/event.jpg', date: event.start_datetime?.slice(0, 10), location: event.venue, title: event.title };
 }
 export function hotelCard(hotel) {
   return { ...hotel, image: hotel.image || '/hotel.png', location: hotel.city, tag: hotel.is_active ? 'Available' : 'Unavailable', text: 'text-[#374151]', bg: 'bg-[#FFFFFFE5]', rating: hotel.rating || 0, reviews: hotel.review_count || 0, price: hotel.minimum_price == null ? null : Number(hotel.minimum_price) };

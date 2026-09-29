@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, ImagePlus, ShieldCheck } from "lucide-react";
 import OrganizerShell from "@/components/organizer/OrganizerPublicShell";
 import { naira } from "@/lib/utils";
+import { EVENT_CATEGORIES, eventCategory } from "@/lib/eventCategories";
 
 const inputClass = "w-full border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-[#3F7D3D] bg-white";
 const labelClass = "block text-xs font-bold text-gray-700 mb-2";
@@ -51,7 +52,7 @@ export default function OrganizerEventForm({ editId }) {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     title: existing?.title || "",
-    category: existing?.category || "Music",
+    category: eventCategory(existing?.category) || "Entertainment",
     eventType: existing?.eventType || "Physical Event",
     description: existing?.description || "",
     date: existing?.date || "",
@@ -91,7 +92,7 @@ export default function OrganizerEventForm({ editId }) {
   useEffect(() => {
     if (!existing) return;
     const ticket = existing.ticket_types[0];
-    setForm({ title: existing.title, category: existing.category, eventType: existing.eventType, description: existing.description, date: nigeriaDateTime(existing.start_datetime).slice(0, 10), endDate: nigeriaDateTime(existing.end_datetime).slice(0, 10), startTime: nigeriaDateTime(existing.start_datetime).slice(11, 16), endTime: nigeriaDateTime(existing.end_datetime).slice(11, 16), venue: existing.venue, city: existing.city, address: existing.address || '', price: String(ticket?.price ?? 0), capacity: String(existing.capacity), image: existing.image || '', minimum_plan: ticket?.minimum_plan || 'bronze', membership_discount: ticket?.membership_discount || false, membership_early_access: ticket?.membership_early_access || false, sales_start: ticket?.sales_start ? nigeriaDateTime(ticket.sales_start) : '' });
+    setForm({ title: existing.title, category: eventCategory(existing.category), eventType: existing.eventType, description: existing.description, date: nigeriaDateTime(existing.start_datetime).slice(0, 10), endDate: nigeriaDateTime(existing.end_datetime).slice(0, 10), startTime: nigeriaDateTime(existing.start_datetime).slice(11, 16), endTime: nigeriaDateTime(existing.end_datetime).slice(11, 16), venue: existing.venue, city: existing.city, address: existing.address || '', price: String(ticket?.price ?? 0), capacity: String(existing.capacity), image: existing.image || '', minimum_plan: ticket?.minimum_plan || 'bronze', membership_discount: ticket?.membership_discount || false, membership_early_access: ticket?.membership_early_access || false, sales_start: ticket?.sales_start ? nigeriaDateTime(ticket.sales_start) : '' });
     ticketId.current = existing.ticket_types[0]?.id || null;
   }, [existing]);
   const submit = async publish => {
@@ -146,7 +147,7 @@ export default function OrganizerEventForm({ editId }) {
                 <div>
                   <label className={labelClass} htmlFor="event-category">Category *</label>
                   <select id="event-category" className={inputClass} value={form.category} onChange={e => update("category", e.target.value)} data-testid="select-form-category">
-                    <option>Music</option><option>Business</option><option>Food</option><option>Technology</option><option>Faith</option><option>Sports</option>
+                    {[...EVENT_CATEGORIES, ...(form.category && !EVENT_CATEGORIES.includes(form.category) ? [form.category] : [])].map(category => <option key={category} value={category}>{category}</option>)}
                   </select>
                 </div>
                 <div>

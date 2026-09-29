@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Search, ChevronDown, CalendarDays } from "lucide-react";
+import { EVENT_CATEGORIES } from "@/lib/eventCategories";
 
 const FilterSidebar = ({
   slider,
@@ -14,17 +15,19 @@ const FilterSidebar = ({
 
   const [locationDraft, setLocationDraft] = useState("All locations");
   const [dateDraft, setDateDraft] = useState("");
+  const [categoryDraft, setCategoryDraft] = useState("All categories");
 
   const handleApply = () => {
-    onApply({ location: locationDraft, date: dateDraft });
+    onApply({ location: locationDraft, date: dateDraft, category: categoryDraft });
   };
 
   const handleClearAll = () => {
     setSearchTerm("");
     setLocationDraft("All locations");
     setDateDraft("");
+    setCategoryDraft("All categories");
     setSlider(maxPrice);
-    onApply({ location: "All locations", date: "" });
+    onApply({ location: "All locations", date: "", category: "All categories" });
   };
 
   return (
@@ -77,6 +80,14 @@ const FilterSidebar = ({
             size={13}
             className="absolute right-2 top-8 text-gray-500 cursor-pointer"
           />
+        </div>
+
+        <div>
+          <label className="font-medium text-[16px] mb-1 block" htmlFor="event-category-filter">Category</label>
+          <select id="event-category-filter" value={categoryDraft} onChange={e => setCategoryDraft(e.target.value)} className="h-9 w-full rounded-md border px-2 text-xs">
+            <option>All categories</option>
+            {EVENT_CATEGORIES.map(category => <option key={category} value={category}>{category}</option>)}
+          </select>
         </div>
 
         <div className="relative">
