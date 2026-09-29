@@ -40,6 +40,7 @@ const Events = () => {
   const [appliedFilters, setAppliedFilters] = useState({
     location: "All locations",
     date: "",
+    category: "All categories",
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,7 +71,8 @@ const Events = () => {
       result = result.filter(
         (event) =>
           event.text?.toLowerCase().includes(query) ||
-          event.text2?.toLowerCase().includes(query)
+          event.text2?.toLowerCase().includes(query) ||
+          event.category?.toLowerCase().includes(query)
       );
     }
 
@@ -78,6 +80,10 @@ const Events = () => {
       result = result.filter(
         (event) => event.text2 === appliedFilters.location
       );
+    }
+
+    if (appliedFilters.category !== "All categories") {
+      result = result.filter(event => event.category === appliedFilters.category);
     }
 
     if (appliedFilters.date) {

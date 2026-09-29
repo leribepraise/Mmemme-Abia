@@ -38,6 +38,7 @@ class EventImageUploadTests(APITestCase):
         event = Event.objects.get(pk=result.data['id'])
         self.assertTrue(event.image.name.startswith('events/'))
         self.assertEqual(event.status, 'DRAFT')
+        self.assertEqual(event.category, 'Entertainment')
 
     def test_uploaded_event_gets_small_webp_versions_and_edit_invalidates_them(self):
         owner = get_user_model().objects.create_user(username='artist', email='artist@example.test',

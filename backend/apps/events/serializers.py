@@ -49,6 +49,8 @@ class EventSerializer(serializers.ModelSerializer):
         if parsed.scheme == 'https' and parsed.hostname and not parsed.username and not parsed.password:
             return value
         raise serializers.ValidationError('Use a site-relative image path or an HTTPS image URL.')
+    def validate_category(self, value):
+        return 'Entertainment' if value.strip().casefold() == 'music' else value
     organizer = serializers.SerializerMethodField()
     ticket_types = serializers.SerializerMethodField()
     slug = serializers.SlugField(required=False)
