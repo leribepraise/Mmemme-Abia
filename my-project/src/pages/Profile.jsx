@@ -1,8 +1,8 @@
 import toast from "react-hot-toast";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "../components/context/AuthContext";
-import { useUser } from "../components/context/UserContext";
+// import { useAuth } from "../components/context/AuthContext";
+// import { useUser } from "../components/context/UserContext";
 
 import ProfileSidebar from "../components/profile/ProfileSidebar";
 import ProfileMobileHeader from "../components/profile/ProfileMobileHeader";

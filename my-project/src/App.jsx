@@ -40,7 +40,6 @@ import GuestGuard from "./components/GuestGuard";
 const ExploreAbiaPage = lazy(() => import('./pages/ExploreAbiaPage'));
 const Community = lazy(() => import('./pages/Community'));
 const Food = lazy(() => import('./pages/Food'));
-const AboutAbia = lazy(() => import('./pages/DiscoverAbia'));
 const DiscoverAbia = lazy(() => import('./pages/DiscoverAbia'));
 const Transport = lazy(() => import('./pages/Transport'));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -84,6 +83,8 @@ const AdminLogin = lazy(() => import('../src/components/Admin/login/AdminLogin')
 const AdminForgotPassword = lazy(() => import('./components/Admin/login/AdminForgotPassword'));
 const AdminVerifyOtp = lazy(() => import('./components/Admin/login/AdminVerifyOtp'));
 import AdminLayout from "./components/Admin/layout/AdminLayout";
+import AboutAbia from "./pages/AboutAbia";
+import ScrollToTop from "./components/common/ScrollToTop";
 const AdminDashboard = lazy(() => import('./components/Admin/dashboard/AdminDashboard'));
 const AdminUsers = lazy(() => import('./components/Admin/users/AdminUsers'));
 const AdminUserDetails = lazy(() => import('./components/Admin/users/AdminUserDetails'));
@@ -109,11 +110,39 @@ const OrganizerEventEditRoute = () => {
 
 const App = () => {
   const navList = [
-    {path:'/plans',element:<GuestGuard><Plans/></GuestGuard>},
-    {path:'/plans/return',element:<GuestGuard><Plans/></GuestGuard>},
-    {path:'/blog/:id',element:<LiveCommunity blog detail/>},
-    {path:'/community/posts/:id',element:<GuestGuard><LiveCommunity detail/></GuestGuard>},
-    { path: "/transport/shuttle", element: <GuestGuard><ShuttlePage /></GuestGuard> },
+    {
+      path: "/plans",
+      element: (
+        <GuestGuard>
+          <Plans />
+        </GuestGuard>
+      ),
+    },
+    {
+      path: "/plans/return",
+      element: (
+        <GuestGuard>
+          <Plans />
+        </GuestGuard>
+      ),
+    },
+    { path: "/blog/:id", element: <LiveCommunity blog detail /> },
+    {
+      path: "/community/posts/:id",
+      element: (
+        <GuestGuard>
+          <LiveCommunity detail />
+        </GuestGuard>
+      ),
+    },
+    {
+      path: "/transport/shuttle",
+      element: (
+        <GuestGuard>
+          <ShuttlePage />
+        </GuestGuard>
+      ),
+    },
     {
       path: "/",
       element: (
@@ -373,7 +402,7 @@ const App = () => {
       path: "/blog",
       element: (
         <div className="mx-5 my-5">
-            <LiveCommunity blog />
+          <LiveCommunity blog />
         </div>
       ),
     },
@@ -381,9 +410,9 @@ const App = () => {
       path: "/about",
       element: (
         <div className="mx-5 my-5">
-          <GuestGuard>
-            <DiscoverAbia />
-          </GuestGuard>
+          {/* <GuestGuard> */}
+          <DiscoverAbia />
+          {/* </GuestGuard> */}
         </div>
       ),
     },
@@ -467,34 +496,93 @@ const App = () => {
         </div>
       ),
     },
+    {
+      path: "/about-abia",
+      element: (
+        <div className="mx-5 my-5">
+          <AboutAbia />
+        </div>
+      ),
+    },
   ];
   const authRouter = [
-    {path:'/install',element:<InstallAppPage/>},
-    {path:'/notifications',element:<GuestGuard><NotificationsPage/></GuestGuard>},
-    {path:"/terms",element:<Terms/>},
+    { path: "/install", element: <InstallAppPage /> },
+    {
+      path: "/notifications",
+      element: (
+        <GuestGuard>
+          <NotificationsPage />
+        </GuestGuard>
+      ),
+    },
+    { path: "/terms", element: <Terms /> },
     { path: "/verify-email", element: <AccountAction /> },
     { path: "/reset-password", element: <AccountAction /> },
-    { path: "/payment/return", element: <GuestGuard><PaymentSuccessfulScreen /></GuestGuard> },
+    {
+      path: "/payment/return",
+      element: (
+        <GuestGuard>
+          <PaymentSuccessfulScreen />
+        </GuestGuard>
+      ),
+    },
     { path: "/login", element: <Login /> },
     { path: "/Signup", element: <SignUp /> },
     { path: "/Signup/onboarding", element: <Onboarding /> },
     { path: "/admin/login", element: <AdminLogin /> },
-    { path: "/admin/forgot-password", element: <Navigate to="/reset-password" replace /> },
-    { path: "/admin/verify-otp", element: <Navigate to="/reset-password" replace /> },
+    {
+      path: "/admin/forgot-password",
+      element: <Navigate to="/reset-password" replace />,
+    },
+    {
+      path: "/admin/verify-otp",
+      element: <Navigate to="/reset-password" replace />,
+    },
   ];
 
   // Pages shown inside the admin layout (sidebar + header + footer).
   // Paths are relative to /admin, so "users" becomes /admin/users.
   const adminRouter = [
-    ...['community','content','bookings','payments','subscriptions','reports'].map(section=>({path:section,element:<ResourceManagement key={section} section={section}/>})),
-    {path:'hotels/rooms',element:<ResourceManagement key="rooms" section="rooms"/>},
-    {path:'hotels/bookings',element:<ResourceManagement key="hotel-bookings" section="bookings" fixedFilters="&kind=HOTEL"/>},
-    {path:'hotels/hosts',element:<AdminUsers hotelHosts/>},
-    {path:'hotels/reviews',element:<ResourceManagement key="reviews" section="hotel-reviews" fixedFilters="&kind=HOTEL"/>},
-    {path:'analytics',element:<AdminDashboard/>},
-    {path:'support',element:<ChatPanel/>},
-    {path:'notifications',element:<Inbox/>},
-    {path:'settings',element:<AdminSettings/>},
+    ...[
+      "community",
+      "content",
+      "bookings",
+      "payments",
+      "subscriptions",
+      "reports",
+    ].map((section) => ({
+      path: section,
+      element: <ResourceManagement key={section} section={section} />,
+    })),
+    {
+      path: "hotels/rooms",
+      element: <ResourceManagement key="rooms" section="rooms" />,
+    },
+    {
+      path: "hotels/bookings",
+      element: (
+        <ResourceManagement
+          key="hotel-bookings"
+          section="bookings"
+          fixedFilters="&kind=HOTEL"
+        />
+      ),
+    },
+    { path: "hotels/hosts", element: <AdminUsers hotelHosts /> },
+    {
+      path: "hotels/reviews",
+      element: (
+        <ResourceManagement
+          key="reviews"
+          section="hotel-reviews"
+          fixedFilters="&kind=HOTEL"
+        />
+      ),
+    },
+    { path: "analytics", element: <AdminDashboard /> },
+    { path: "support", element: <ChatPanel /> },
+    { path: "notifications", element: <Inbox /> },
+    { path: "settings", element: <AdminSettings /> },
     { index: true, element: <AdminDashboard /> },
     { path: "users", element: <AdminUsers /> },
     { path: "users/:id", element: <AdminUserDetails /> },
@@ -503,20 +591,41 @@ const App = () => {
     { path: "events", element: <AdminEvents /> },
     { path: "events/:id", element: <AdminEventDetails /> },
     { path: "events/:id/review", element: <AdminEventReview /> },
-    { path: "tourism", element: <ResourceManagement key="tourism" section="tourism"/> },
-    { path: "tourism/:id", element: <ResourceManagement key="tourism" section="tourism"/> },
-    { path: "hotels/properties", element: <ResourceManagement key="hotels" section="hotels"/> },
-    { path: "hotels/properties/:id", element: <ResourceManagement key="hotels" section="hotels"/> },
-    { path: "food", element: <ResourceManagement key="food" section="food"/> },
-    { path: "food/:id", element: <ResourceManagement key="food" section="food"/> },
-    { path: "transport", element: <ResourceManagement key="transport" section="transport"/> },
+    {
+      path: "tourism",
+      element: <ResourceManagement key="tourism" section="tourism" />,
+    },
+    {
+      path: "tourism/:id",
+      element: <ResourceManagement key="tourism" section="tourism" />,
+    },
+    {
+      path: "hotels/properties",
+      element: <ResourceManagement key="hotels" section="hotels" />,
+    },
+    {
+      path: "hotels/properties/:id",
+      element: <ResourceManagement key="hotels" section="hotels" />,
+    },
+    { path: "food", element: <ResourceManagement key="food" section="food" /> },
+    {
+      path: "food/:id",
+      element: <ResourceManagement key="food" section="food" />,
+    },
+    {
+      path: "transport",
+      element: <ResourceManagement key="transport" section="transport" />,
+    },
     // add each new admin page here as we build it, for example:
     // { path: "events", element: <AdminEvents /> },
     {
       path: "*",
       element: (
         <div className="p-6 text-sm text-slate-500">
-          Page not found. <a href="/admin" className="text-green-800 underline">Return to the dashboard</a>
+          Page not found.{" "}
+          <a href="/admin" className="text-green-800 underline">
+            Return to the dashboard
+          </a>
         </div>
       ),
     },
@@ -552,6 +661,7 @@ const App = () => {
       <div className="min-h-screen bg-[#f5f7f3]">
         <div>
           <UserProvider>
+            <ScrollToTop />
             <AnchorNavigation/>
             <Suspense fallback={<PageSkeleton/>}><Routes>
               <Route path="/" element={<Layout />}>
@@ -583,7 +693,18 @@ const App = () => {
                 <Route
                   key={`organizer-${index}`}
                   path={item.path}
-                  element={["/organizer/login", "/organizer", "/organizer/signup", "/organizer/apply"].includes(item.path) ? item.element : <OrganizerGuard>{item.element}</OrganizerGuard>}
+                  element={
+                    [
+                      "/organizer/login",
+                      "/organizer",
+                      "/organizer/signup",
+                      "/organizer/apply",
+                    ].includes(item.path) ? (
+                      item.element
+                    ) : (
+                      <OrganizerGuard>{item.element}</OrganizerGuard>
+                    )
+                  }
                 />
               ))}
             </Routes></Suspense>

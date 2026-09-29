@@ -20,7 +20,7 @@ const DiscoverHero = () => {
           </p>
 
           <div className="flex flex-wrap gap-3 mt-8">
-            <Link to="/tourism" className="bg-[#F97316] hover:bg-[#df5f18] text-white px-6 py-3 rounded-lg font-semibold transition">
+            <Link to="/about-abia" className="bg-[#F97316] hover:bg-[#df5f18] text-white px-6 py-3 rounded-lg font-semibold transition">
               Explore Abia
             </Link>
 

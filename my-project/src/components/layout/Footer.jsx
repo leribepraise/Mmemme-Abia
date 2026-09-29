@@ -1,5 +1,5 @@
 import React from "react";
-import ShareApp from '@/components/ShareApp';
+import ShareApp from "@/components/ShareApp";
 import { NavLink } from "react-router-dom";
 import { Link } from "react-router-dom";
 
@@ -44,9 +44,21 @@ const Footer = () => {
             <NavLink to="/events">
               <p className="font-normal text-[#FFFFFF]">Explore Events</p>
             </NavLink>
-            <Link to="/search?category=Events" className="block font-normal text-white">Categories</Link>
-            <Link to="/search?category=Events" className="block font-normal text-white">Venues</Link>
-            <Link to="/events" className="block font-normal text-white">Calendar</Link>
+            <Link
+              to="/search?category=Events"
+              className="block font-normal text-white"
+            >
+              Categories
+            </Link>
+            <Link
+              to="/search?category=Events"
+              className="block font-normal text-white"
+            >
+              Venues
+            </Link>
+            <Link to="/events" className="block font-normal text-white">
+              Calendar
+            </Link>
             <NavLink to="/blog">
               <p className="font-normal text-[#FFFFFF]">Blog</p>
             </NavLink>
@@ -58,8 +70,10 @@ const Footer = () => {
           {/* ACCOUNT */}
           <div>
             <p className="font-bold text-[16px] text-white">Account</p>
-            <Link to="/plans" className="block text-white">Membership plans</Link>
-            <ShareApp className="my-2 text-white"/>
+            <Link to="/plans" className="block text-white">
+              Membership plans
+            </Link>
+            <ShareApp className="my-2 text-white cursor-pointer" />
             <NavLink to="/profile?section=My%20Tickets">
               <p className="font-normal text-[#FFFFFF]">My Tickets</p>
             </NavLink>
@@ -101,16 +115,26 @@ const Footer = () => {
             >
               Create Event
             </Link>
-            <Link to="/terms#terms-2" className="block font-normal text-white">Pricing</Link>
-            <Link to="/help" className="block font-normal text-white">Resources</Link>
+            <Link to="/terms#terms-2" className="block font-normal text-white">
+              Pricing
+            </Link>
+            <Link to="/help" className="block font-normal text-white">
+              Resources
+            </Link>
           </div>
 
           {/* SUPPORT */}
           <div>
             <p className="font-bold text-[16px] text-white">Support</p>
-            <NavLink to="/help" className="block font-normal text-[#FFFFFF]">FAQs</NavLink>
-            <NavLink to="/contact" className="block font-normal text-[#FFFFFF]">Contact Support</NavLink>
-            <NavLink to="/terms" className="font-normal text-[#FFFFFF]">Terms & Conditions</NavLink>
+            <NavLink to="/help" className="block font-normal text-[#FFFFFF]">
+              FAQs
+            </NavLink>
+            <NavLink to="/contact" className="block font-normal text-[#FFFFFF]">
+              Contact Support
+            </NavLink>
+            <NavLink to="/terms" className="font-normal text-[#FFFFFF]">
+              Terms & Conditions
+            </NavLink>
             <p className="font-normal text-[#FFFFFF]">Privacy Policy</p>
           </div>
 
@@ -123,7 +147,12 @@ const Footer = () => {
             </p>
 
             <div className="flex flex-col gap-y-3 pb-5">
-              <Link to="/install" className="rounded-lg border border-white/70 px-4 py-3 text-center font-semibold text-white">Install Mmemme Abia</Link>
+              <Link
+                to="/install"
+                className="rounded-lg border border-white/70 px-4 py-3 text-center font-semibold text-white"
+              >
+                Install Mmemme Abia
+              </Link>
             </div>
           </div>
         </div>
