@@ -5,6 +5,7 @@
 - A single inbox is available at `/notifications` and Profile → Notifications. Read state is stored on the backend, including “Mark all as read”. Badges refresh across the site, on focus, and between tabs.
 - Booking, refund, organizer review, event review and payout notifications open their relevant pages. Private OTP and password-reset emails never appear in the inbox or push messages.
 - Browser push is opt-in per device. The existing worker delivers queued pushes, retries temporary failures and disables expired subscriptions. Signing out disables that browser subscription. Nothing is sent to newly subscribed devices from the old notification history.
+- Newly approved events create an in-app announcement for active, email-verified users and a browser push for each device that enabled push. The worker fans out announcements in batches; drafts, rejected events and repeated approvals do not broadcast. Event announcements do not send mass email.
 - `/install` provides the supported browser installation flow and Apple Home Screen instructions. The footer and home app banner open it. This is an installable web app, not an App Store or Play Store package.
 - The service worker caches only the public offline screen and app icons. Bookings, payments and account pages need a connection; personal API responses are never cached by it.
 - Home ticket links use actual event IDs and preserve the destination through login. Search, category, hotel/food/tourism, profile settings, ticket, support, map and sharing links were connected to existing pages/actions.
@@ -19,7 +20,7 @@ From PowerShell in `C:\myprojects\Mmemme-Abia\backend`:
 .\venv\Scripts\python.exe manage.py migrate --settings=config.settings.development
 ```
 
-The new migration is `notifications.0003_pushsubscription_pushdelivery`. Railway needs this migration too. Existing notifications are retained.
+Push subscriptions use `notifications.0003_pushsubscription_pushdelivery`; event announcements also require `events.0008_eventannouncement`. Railway needs both migrations. Existing notifications are retained.
 
 ## 2. Generate the push keys once
 
@@ -59,6 +60,7 @@ Push defaults to off, so the code can be deployed before the keys are available.
 3. On Android or desktop, use **Install Mmemme Abia** in the footer. If the install button isn't offered, use the browser's install menu. On iPhone/iPad, use Safari → Share → Add to Home Screen, then open the installed app and enable notifications there.
 4. Trigger a new notification using a test account, such as an organizer review or a genuinely free test event booking. Avoid a real paid booking for this check.
 5. With the worker running, check that the device receives an alert. Tap it: the app should mark it read and open the correct page. Repeat with the app closed.
+   For a new-event check, approve a real future event after enabling push on a test user account. Its alert should show the event title and open the event page. Creating a draft alone must not send an alert.
 6. Confirm “Mark all as read” stays applied after refresh and the bell badge changes. Sign out and confirm the device no longer receives new pushes for that account.
 
 Apple web push requires a supported Home Screen web app (iOS/iPadOS 16.4 or later). Actual delivery also depends on permission, browser support, connectivity and device notification settings. See [Apple's web push guidance](https://developer.apple.com/documentation/usernotifications/sending-web-push-notifications-in-web-apps-and-browsers) and [browser installation guidance](https://web.dev/learn/pwa/installation).
@@ -76,4 +78,4 @@ Apple web push requires a supported Home Screen web app (iOS/iPadOS 16.4 or late
 
 Automated checks cover ownership, persistent read state, private/expired notification exclusion, push endpoint validation, subscription ownership, delivery retries, revoked subscriptions, real payload encryption/VAPID signing with transport mocked, safe push links and public-only offline caching. Browser checks use a disposable local database. Real device push and installation must also be checked on the HTTPS deployment with its own keys.
 
-Local verification: 141 backend tests passed, 11 PostgreSQL-only concurrency tests skipped under SQLite; 25 frontend tests passed. The locked-dependency production build and runtime lint check passed. Runtime lint still reports one pre-existing unused-disable warning, and the build reports the existing large-bundle warnings. A clean install also reports existing npm dependency-audit findings; those require a separate dependency review before the production launch.
+For the event-announcement change, the focused backend notification suite and frontend tests pass, and the frontend production build succeeds. Final push delivery still needs a real-device check on the deployed HTTPS domain with the worker and VAPID keys enabled.

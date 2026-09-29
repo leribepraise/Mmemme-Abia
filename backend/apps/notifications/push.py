@@ -1,5 +1,6 @@
 import json
 import logging
+import uuid
 from datetime import timedelta
 from urllib.parse import urlsplit
 from django.conf import settings
@@ -60,12 +61,29 @@ def deliver_push_one():
         PushDelivery.objects.filter(pk=job.pk, claimed_at=now).update(failed=True, claimed_at=None)
         return True
     # Keep account details and OTPs off the lock screen.
-    payload = json.dumps({'title':'Mmemme Abia', 'body':'You have a new notification. Open the app to view it.', 'url':f'/notifications?notification={notification.pk}', 'tag':f'notification-{notification.pk}'})
+    payload_data = {'title':'Mmemme Abia', 'body':'You have a new notification. Open the app to view it.',
+                    'url':f'/notifications?notification={notification.pk}', 'tag':f'notification-{notification.pk}'}
+    if notification.key.startswith('event-new:'):
+        from apps.events.models import Event
+        try:
+            event_id = uuid.UUID(notification.key.split(':')[1])
+        except (ValueError, IndexError):
+            event_id = None
+        event = Event.objects.filter(pk=event_id, status=Event.Status.PUBLISHED,
+                is_suspended=False, is_archived=False, deletion_requested_at__isnull=True,
+                end_datetime__gt=now).first() if event_id else None
+        if not event:
+            PushDelivery.objects.filter(pk=job.pk, claimed_at=now).update(failed=True, claimed_at=None)
+            return True
+        payload_data.update(kind='event', body=f'{event.title[:90]} is now live. Tap to view it.',
+                            url=f'/events/{event.pk}', tag=f'event-{event.pk}')
+    payload = json.dumps(payload_data)
     try:
         with NoRedirectSession() as session:
             response = webpush(subscription_info={'endpoint':sub.endpoint,'keys':{'p256dh':sub.p256dh,'auth':sub.auth}}, data=payload,
                                vapid_private_key=settings.VAPID_PRIVATE_KEY, vapid_claims={'sub':settings.VAPID_SUBJECT},
-                               ttl=3600, timeout=10, requests_session=session)
+                               ttl=86400 if payload_data.get('kind') == 'event' else 3600,
+                               timeout=10, requests_session=session)
         if not 200 <= response.status_code < 300:
             raise WebPushException('Push service rejected delivery.', response=response)
     except Exception as error:

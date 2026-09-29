@@ -19,6 +19,19 @@ def notify(user,key,subject,body,private=False):
         queue_push(notification)
     return notification, created
 
+@transaction.atomic
+def notify_in_app(user, key, subject, body):
+    """Create an inbox and push alert without adding a broadcast email job."""
+    notification, created = Notification.objects.get_or_create(
+        key=key,
+        defaults={"user": user, "subject": subject, "body": body,
+                  "email": user.email, "sent_at": timezone.now()},
+    )
+    if created:
+        from .push import queue_push
+        queue_push(notification)
+    return notification, created
+
 def deliver_one():
     now = timezone.now()
     with transaction.atomic():

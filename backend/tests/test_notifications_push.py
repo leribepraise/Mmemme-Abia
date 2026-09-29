@@ -81,6 +81,8 @@ class NotificationTests(APITestCase):
     def test_known_destinations_and_untrusted_keys(self):
         cases = {'organizer:1':'/organizer/apply', 'payout:1':'/organizer/payouts', 'refund:1':'/profile?section=Payment%20History',
                  'event-review:aaa20cd0-625c-48d6-a200-dc59aeb79772:date':'/organizer/events/aaa20cd0-625c-48d6-a200-dc59aeb79772/preview',
+                 'event-new:aaa20cd0-625c-48d6-a200-dc59aeb79772:123':'/events/aaa20cd0-625c-48d6-a200-dc59aeb79772',
+                 'event-new:https://evil.test':'/profile?section=Notifications',
                  'event-review:https://evil.test':'/profile?section=Notifications'}
         for key, url in cases.items():
             self.assertEqual(notification_destination(SimpleNamespace(key=key))[0], url)

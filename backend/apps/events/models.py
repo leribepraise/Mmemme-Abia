@@ -193,3 +193,11 @@ class EventReview(models.Model):
             models.UniqueConstraint(fields=["user","event"], name="unique_event_review"),
             models.CheckConstraint(condition=models.Q(rating__gte=1,rating__lte=5), name="event_review_rating"),
         ]
+
+
+class EventAnnouncement(models.Model):
+    """Durable cursor for announcing a newly published event in small worker batches."""
+    event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='announcement')
+    last_user_id = models.PositiveBigIntegerField(default=0)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -58,6 +58,8 @@ class Command(BaseCommand):
         bookings=Booking.objects.filter(status="CONFIRMED",kind="EVENT",items__ticket_type__event__start_datetime__gt=now,items__ticket_type__event__start_datetime__lte=tomorrow,user__email_notifications=True).select_related("user").distinct()[:1000]
         for booking in bookings:
             notify(booking.user,f"reminder:{booking.pk}","Your event is coming up",f"Your event is within the next 24 hours. Booking reference: {booking.booking_reference}.")
+        from apps.events.announcements import announce_new_event_batch
+        self.run_job('new event announcement', announce_new_event_batch)
         for _ in range(50):
             if not self.run_job("email delivery",deliver_one): break
         for _ in range(50):

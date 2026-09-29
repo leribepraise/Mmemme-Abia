@@ -22,6 +22,11 @@ def notification_destination(notification):
             return f'/organizer/events/{uuid.UUID(identifier.split(":")[0])}/preview', 'event'
         except ValueError:
             pass
+    if prefix == 'event-new':
+        try:
+            return f'/events/{uuid.UUID(identifier.split(":")[0])}', 'event'
+        except ValueError:
+            pass
     if prefix in {'payout', 'payout-account', 'bank-review'}:
         return '/organizer/payouts', 'update'
     if prefix == 'account':

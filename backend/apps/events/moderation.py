@@ -7,7 +7,7 @@ from apps.accounts.models import User
 from apps.common.api import Conflict
 from apps.common.models import audit
 from apps.notifications.services import notify
-from .models import Event
+from .models import Event, EventAnnouncement
 
 
 @transaction.atomic
@@ -52,6 +52,8 @@ def moderate_event(actor, event_id, decision, reason=''):
                if decision == 'approve' else f'{event.title}: {decision.replace("-", " ")}.')
     notify(organizer, f'event-review:{event.pk}:{event.reviewed_at.isoformat()}', 'Event review update',
            message + (f'\n\n{reason}' if reason else ''))
+    if decision == 'approve':
+        EventAnnouncement.objects.get_or_create(event=event)
     return event
 
 
