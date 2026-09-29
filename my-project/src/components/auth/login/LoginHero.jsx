@@ -3,14 +3,14 @@ import React from "react";
 
 const LoginHero = () => {
   return (
-    <div className="relative h-[320px] md:h-full">
+    <div className="relative h-48 sm:h-[320px] md:h-full">
       <SiteImage priority
         src="/Mask group.png"
         alt="Mmemme Tower"
         className="w-full h-full object-cover"
       />
 
-      <div className="absolute inset-0 flex flex-col justify-between px-6 py-8 md:p-8">
+      <div className="absolute inset-0 flex flex-col justify-between px-5 py-5 sm:px-6 sm:py-8 md:p-8">
         <div>
           <p className="text-[#2C931C] text-[12px] font-semibold uppercase tracking-wide mb-3">
             Welcome Back

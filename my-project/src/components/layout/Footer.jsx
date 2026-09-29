@@ -135,7 +135,6 @@ const Footer = () => {
             <NavLink to="/terms" className="font-normal text-[#FFFFFF]">
               Terms & Conditions
             </NavLink>
-            <p className="font-normal text-[#FFFFFF]">Privacy Policy</p>
           </div>
 
           {/* DOWNLOAD APP */}

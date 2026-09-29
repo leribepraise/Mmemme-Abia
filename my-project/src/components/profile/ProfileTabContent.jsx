@@ -153,7 +153,7 @@ const ProfileTabContent = () => {
         {/* Phone */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-2">
-            Phone Number
+            Phone Number (optional)
           </label>
 
           <input
@@ -168,12 +168,13 @@ const ProfileTabContent = () => {
           {errors.phone && (
             <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
           )}
+          <p className="mt-1 text-xs text-gray-500">Your personal number is not shown on your public profile. You can clear it at any time.</p>
         </div>
 
         {/* Address */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-2">
-            Address
+            Address (optional)
           </label>
 
           <div className="relative">
@@ -196,7 +197,7 @@ const ProfileTabContent = () => {
         {/* LGA */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-2">
-            Local Government Area
+            Local Government Area (optional)
           </label>
 
           <input
@@ -215,7 +216,7 @@ const ProfileTabContent = () => {
         {/* Date of Birth */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-2">
-            Date of Birth
+            Date of Birth (optional)
           </label>
 
           <div className="relative">

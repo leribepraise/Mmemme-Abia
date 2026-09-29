@@ -208,7 +208,7 @@ class OrganizerProfileView(APIView):
     def response(self, user, profile, request):
         from .serializers import OrganizerDetailsSerializer
         return Response({'user': UserSerializer(user, context={'request':request}).data,
-                         'organizer': OrganizerDetailsSerializer(profile).data})
+                         'organizer': OrganizerDetailsSerializer(profile, context={'request': request}).data})
 
     def get(self, request):
         return self.response(request.user, self.profile(request.user), request)
@@ -222,7 +222,8 @@ class OrganizerProfileView(APIView):
         profile = self.profile(user)
         profile = OrganizerProfile.objects.select_for_update().get(pk=profile.pk)
         contact = OrganizerContactSerializer(user, data=request.data.get('user', {}), partial=True)
-        details = OrganizerDetailsSerializer(profile, data=request.data.get('organizer', {}), partial=True)
+        details_data = {'logo': request.FILES['logo']} if 'logo' in request.FILES else request.data.get('organizer', {})
+        details = OrganizerDetailsSerializer(profile, data=details_data, partial=True)
         contact.is_valid(raise_exception=True)
         details.is_valid(raise_exception=True)
         contact.save()

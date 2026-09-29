@@ -14,14 +14,11 @@ const interestsList = [
   "Others",
 ];
 
-const travelStyles = ["Solo", "Couple", "Family", "Group"];
 
 const TravelPreferencesCard = () => {
   const { user, updateUser } = useAuth();
   const selectedInterests = user?.interests || [];
   const [busy, setBusy] = useState(false);
-  const [travelStyle, setTravelStyle] = useState("Couple");
-  const [budget, setBudget] = useState("₦50,000 - ₦100,000");
 
   const toggleInterest = async interest => {
     if (busy) return;
@@ -68,44 +65,6 @@ const TravelPreferencesCard = () => {
         </div>
       </div>
 
-      <div className="mb-5">
-        <p className="text-sm font-medium text-gray-700 mb-3">
-          Preferred Travel Style
-        </p>
-
-        <div className="flex flex-wrap gap-2">
-          {travelStyles.map((style) => (
-            <button
-              key={style}
-              onClick={() => toast("Travel style preferences are not available yet.")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-                travelStyle === style
-                  ? "bg-[#3F783D] text-white"
-                  : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              {style}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <p className="text-sm font-medium text-gray-700 mb-2">
-          Preferred Budget Range
-        </p>
-
-        <select
-          value={budget}
-          onChange={() => toast("Budget preferences are not available yet.")}
-          className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-green-700"
-        >
-          <option>₦0 - ₦50,000</option>
-          <option>₦50,000 - ₦100,000</option>
-          <option>₦100,000 - ₦200,000</option>
-          <option>₦200,000+</option>
-        </select>
-      </div>
     </div>
   );
 };

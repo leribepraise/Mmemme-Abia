@@ -17,11 +17,11 @@ const Login = () => {
     navigate(location.state?.from ? safeAppPath(location.state.from,'/dashboard') : user.onboarding_completed_at ? "/dashboard" : "/Signup/onboarding", {replace:true});
   };
   return (
-    <div className="min-h-screen bg-[#F5F7F3] px-5 py-8 md:px-12">
+    <div className="min-h-dvh min-w-0 bg-[#F5F7F3] px-3 py-5 sm:px-5 sm:py-8 md:px-12">
       <Seo title="Log In" noIndex path="/login" />
       <LoginLogo />
 
-      <div className="max-w-6xl mx-auto bg-white rounded-[28px] overflow-hidden shadow-sm border border-gray-100">
+      <div className="max-w-6xl mx-auto min-w-0 bg-white rounded-2xl sm:rounded-[28px] overflow-hidden shadow-sm border border-gray-100">
         <div className="grid md:grid-cols-2">
           <LoginHero />
           <LoginForm onLogin={handleLogin} />

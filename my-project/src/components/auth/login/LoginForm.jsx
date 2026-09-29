@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
-import SocialButtons from "./SocialButtons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "./validation/schemas/loginSchemas";
@@ -36,7 +35,7 @@ const LoginForm = ({ onLogin }) => {
   };
 
   return (
-    <div className="p-8 md:p-12 flex items-center">
+    <div className="min-w-0 p-5 sm:p-8 md:p-12 flex items-center">
       <div className="w-full">
         <div className="space-y-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -49,7 +48,7 @@ const LoginForm = ({ onLogin }) => {
                 type="email"
                 placeholder="Enter your email"
                 {...register("email")}
-                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#48782E]"
+                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-base focus:outline-none focus:border-[#48782E]"
               />
 
               {errors.email && (
@@ -69,7 +68,7 @@ const LoginForm = ({ onLogin }) => {
                   type={inputType}
                   {...register("password")}
                   placeholder="Enter your password"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:border-[#48782E]"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-10 text-base focus:outline-none focus:border-[#48782E]"
                 />
 
                 {inputType === "password" ? (
@@ -93,11 +92,6 @@ const LoginForm = ({ onLogin }) => {
             </div>
 
             <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-[#666666] cursor-pointer">
-                <input type="checkbox" className="rounded" />
-                Remember me
-              </label>
-
               <button
                 type="button"
                 onClick={() => navigate("/reset-password")}
@@ -115,14 +109,6 @@ const LoginForm = ({ onLogin }) => {
               {isSubmitting ? "Logging in..." : "Log In"}
             </button>
           </form>
-
-          <div className="flex items-center gap-3 text-gray-400 text-xs">
-            <div className="flex-1 h-px bg-gray-200"></div>
-            <span>or continue with</span>
-            <div className="flex-1 h-px bg-gray-200"></div>
-          </div>
-
-          <SocialButtons />
 
           <p className="text-center text-sm text-[#666666]">
             Don't have an account?{" "}

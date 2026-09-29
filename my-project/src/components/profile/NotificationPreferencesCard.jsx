@@ -4,52 +4,24 @@ import React, { useState } from "react";
 import {
   Bell,
   CalendarCheck,
-  Ticket,
-  Gift,
-  MessageCircle,
-  Mail,
 } from "lucide-react";
 
 const NotificationPreferencesCard = () => {
   const { user, updateUser } = useAuth();
   const [busy, setBusy] = useState(false);
-  const prefs = { eventUpdates: user?.email_notifications, bookingConfirmations: user?.email_notifications, promotions: false, community: false, newsletter: false };
+  const prefs = { emailUpdates: user?.email_notifications };
 
   const items = [
     {
-      key: "eventUpdates",
+      key: "emailUpdates",
       icon: CalendarCheck,
-      title: "Event Updates",
-      subtitle: "New events, reminders and changes",
-    },
-    {
-      key: "bookingConfirmations",
-      icon: Ticket,
-      title: "Booking Confirmations",
-      subtitle: "Updates on your bookings and tickets",
-    },
-    {
-      key: "promotions",
-      icon: Gift,
-      title: "Promotions & Offers",
-      subtitle: "Exclusive deals and discounts",
-    },
-    {
-      key: "community",
-      icon: MessageCircle,
-      title: "Community Activities",
-      subtitle: "Messages, discussions and new posts",
-    },
-    {
-      key: "newsletter",
-      icon: Mail,
-      title: "Newsletter",
-      subtitle: "Monthly updates and travel tips",
+      title: "Email updates",
+      subtitle: "Booking updates and event reminders. Essential account emails always arrive.",
     },
   ];
 
   const toggle = async key => {
-    if (!['eventUpdates', 'bookingConfirmations'].includes(key)) return toast('These notifications are not available yet.');
+    if (key !== 'emailUpdates') return;
     if (busy) return;
     setBusy(true);
     try { await updateUser({ email_notifications: !user.email_notifications }); toast.success('Email preference saved for booking updates and reminders.'); }

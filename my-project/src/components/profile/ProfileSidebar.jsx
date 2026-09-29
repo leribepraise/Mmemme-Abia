@@ -53,7 +53,7 @@ const ProfileSidebar = ({
   return (
     <aside
       className={`
-        fixed left-0 top-[88px] bottom-[calc(76px+env(safe-area-inset-bottom))] z-40 overflow-y-auto overscroll-contain
+        fixed left-0 top-[88px] bottom-0 z-40 overflow-y-auto overscroll-contain
         w-[260px]
         border-r border-gray-200
         bg-white

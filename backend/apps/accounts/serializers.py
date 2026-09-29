@@ -8,6 +8,14 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     plan = serializers.SerializerMethodField()
+    organizer_logo = serializers.SerializerMethodField()
+    def get_organizer_logo(self, obj):
+        profile = getattr(obj, 'organizer_profile', None)
+        if not profile or not profile.logo:
+            return None
+        url = profile.logo.url
+        request = self.context.get('request')
+        return request.build_absolute_uri(url) if request and url.startswith('/') else url
     def get_plan(self, obj):
         from apps.memberships.services import current_membership
         return current_membership(obj)['plan']
@@ -15,8 +23,8 @@ class UserSerializer(serializers.ModelSerializer):
     interests = serializers.ListField(child=serializers.CharField(max_length=100),max_length=20,required=False)
     class Meta:
         model = User
-        fields = ["id","email","first_name","last_name","phone","whatsapp","lga","address","date_of_birth","gender","bio","avatar","role","is_verified","email_verified","is_staff","interests","email_notifications","onboarding_completed_at","date_joined","organizer_status","plan"]
-        read_only_fields = ["id","email","role","is_verified","email_verified","is_staff","onboarding_completed_at","date_joined","organizer_status"]
+        fields = ["id","email","first_name","last_name","phone","whatsapp","lga","address","date_of_birth","gender","bio","avatar","role","is_verified","email_verified","is_staff","interests","email_notifications","onboarding_completed_at","date_joined","organizer_status","organizer_logo","plan"]
+        read_only_fields = ["id","email","role","is_verified","email_verified","is_staff","onboarding_completed_at","date_joined","organizer_status","organizer_logo"]
 
     def validate_avatar(self, value):
         from apps.common.api import validate_image
@@ -60,9 +68,12 @@ class OrganizerDetailsSerializer(serializers.ModelSerializer):
     event_type = serializers.CharField(max_length=100)
     coverage_region = serializers.CharField(max_length=200)
     description = serializers.CharField(max_length=2000, allow_blank=True, required=False)
+    def validate_logo(self, value):
+        from apps.common.api import validate_image
+        return validate_image(value) if value else value
     class Meta:
         model = OrganizerProfile
-        fields = ['business_name', 'description', 'contact_phone', 'event_type', 'coverage_region', 'status']
+        fields = ['business_name', 'logo', 'description', 'contact_phone', 'event_type', 'coverage_region', 'status']
         read_only_fields = ['status']
 
 class LoginSerializer(serializers.Serializer):

@@ -69,10 +69,10 @@ def register_account(user, number, bank_code):
     PayoutAccount.objects.filter(provider=user, is_current=True).update(is_current=False)
     account = PayoutAccount.objects.create(provider=user, recipient_code=recipient["recipient_code"],
         recipient_id=str(recipient["id"]), bank_code=bank_code, bank_name=bank["name"],
-        account_name=name, account_last4=number[-4:])
-    audit(user, "payout_account.submitted", account.pk)
-    notify(user, f"payout-account:{account.pk}", "Bank details submitted",
-           f"Your payout account ending {account.account_last4} is awaiting staff review.")
+        account_name=name, account_last4=number[-4:], status="APPROVED", reviewed_at=timezone.now())
+    audit(user, "payout_account.paystack_verified", account.pk)
+    notify(user, f"payout-account:{account.pk}", "Your payout account is ready",
+           f"Great news! Paystack verified your bank details. Your payout account ending {account.account_last4} is ready for eligible payouts.")
     return account
 
 

@@ -29,7 +29,7 @@ const EventHighlights = ({ event }) => {
       {/* organizer */}
 
       <div className="border-t pt-3 flex items-center gap-3">
-        <img src="/asia.jpg" alt="Organizer" className="w-10 h-10" />
+        {event.organizer?.logo ? <img src={event.organizer.logo} alt={`${event.organizer.name} logo`} className="h-10 w-10 rounded-lg object-contain" /> : <span aria-hidden="true" className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EAF5EA] font-bold text-[#3F7D3D]">{event.organizer?.name?.charAt(0) || 'M'}</span>}
 
         <div>
           <p className="text-xs">Organized By</p>

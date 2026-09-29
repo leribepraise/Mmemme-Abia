@@ -111,7 +111,7 @@ const Profile = () => {
         {mobileMenuOpen && (
           <div
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-x-0 top-[88px] bottom-[calc(76px+env(safe-area-inset-bottom))] z-30 bg-black/20 lg:hidden"
+            className="fixed inset-x-0 top-[88px] bottom-0 z-30 bg-black/20 lg:hidden"
           />
         )}
 

@@ -76,19 +76,21 @@ class PayoutTests(Fixture):
         self.account.status="PENDING";self.account.save()
         with self.assertRaises(Conflict):self.requested()
 
-    def test_verified_bank_details_are_masked_and_replacement_needs_review(self):
+    def test_verified_bank_details_are_masked_and_approved_without_manual_review(self):
         recipient={"id":456,"recipient_code":"RCP_new","active":True,"currency":"NGN","details":{"account_number":"0123456789","bank_code":"058"}}
         self.client.force_authenticate(self.owner)
         with patch("apps.payments.payouts.bank_list",return_value=[{"code":"058","name":"Test Bank"}]), patch("apps.payments.payouts.Paystack.resolve_account",return_value={"account_number":"0123456789","account_name":"VERIFIED NAME"}),patch("apps.payments.payouts.Paystack.create_recipient",return_value=recipient):
             response=self.client.post("/api/v1/payout-accounts/",{"bank_code":"058","account_number":"0123456789"},format="json")
         self.assertEqual(response.status_code,201,response.data)
-        self.assertEqual(response.data["status"],"PENDING")
+        self.assertEqual(response.data["status"],"APPROVED")
+        self.assertIsNotNone(response.data["reviewed_at"])
         self.assertEqual(response.data["account_name"],"VERIFIED NAME")
         self.assertEqual(response.data["account_last4"],"6789")
         self.assertNotIn("0123456789",json.dumps(response.data))
         self.assertNotIn("recipient_code",response.data)
         self.account.refresh_from_db();self.assertFalse(self.account.is_current)
         self.assertFalse(any(f.name=="account_number" for f in PayoutAccount._meta.fields))
+        self.assertEqual(str(self.requested().account_id), response.data['id'])
 
     def test_bank_mismatch_never_replaces_existing_account(self):
         with patch("apps.payments.payouts.bank_list",return_value=[{"code":"058","name":"Test Bank"}]),patch("apps.payments.payouts.Paystack.resolve_account",return_value={"account_number":"9999999999","account_name":"WRONG"}):

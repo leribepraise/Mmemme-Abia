@@ -10,10 +10,17 @@ from django.utils import timezone
 
 from apps.notifications.backends import EmailDeliveryError, ResendEmailBackend
 from apps.notifications.services import deliver_one, notify
+from apps.notifications.templates import notification_html
 
 
 @override_settings(RESEND_API_KEY="re_unit_test_only")
 class ResendBackendTests(SimpleTestCase):
+    def test_branded_html_escapes_untrusted_notification_content(self):
+        html = notification_html('<Welcome>', 'Hello <script>alert(1)</script>')
+        self.assertIn('Mmemme', html)
+        self.assertIn('&lt;Welcome&gt;', html)
+        self.assertNotIn('<script>', html)
+
     def test_https_payload_supports_text_html_and_private_recipient_lists(self):
         message = EmailMultiAlternatives("Test subject", "Plain body", "Mmemme <noreply@example.test>", ["customer@example.test"], cc=["copy@example.test"], bcc=["hidden@example.test"], reply_to=["support@example.test"], headers={"X-Mmemme-Notification-Key":"test-job"})
         message.attach_alternative("<p>HTML body</p>", "text/html")
@@ -71,6 +78,7 @@ class ResendQueueTests(TestCase):
             self.assertTrue(deliver_one())
         first, second = [call.args[0] for call in send.call_args_list]
         self.assertEqual(first.data, second.data)
+        self.assertIn('Mmemme', json.loads(first.data)['html'])
         self.assertEqual(first.get_header("Idempotency-key"), second.get_header("Idempotency-key"))
         job.refresh_from_db()
         self.assertEqual(job.attempts, 2)

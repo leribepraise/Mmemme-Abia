@@ -3,7 +3,7 @@ import React from "react";
 
 const SignUpHero = () => {
   return (
-    <div className="relative">
+    <div className="relative h-44 overflow-hidden sm:h-64 md:h-full">
       <SiteImage priority
         src="/register1.png"
         alt="Mmemme Abia Community"
@@ -12,12 +12,12 @@ const SignUpHero = () => {
 
       <div className="absolute inset-0 bg-black/35"></div>
 
-      <div className="absolute inset-0 flex flex-col justify-end p-8 text-white">
-        <h2 className="text-[30px] font-bold leading-tight mb-8">
+      <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-8 text-white">
+        <h2 className="text-xl sm:text-[30px] font-bold leading-tight mb-3 sm:mb-8">
           Discover and celebrate events in Abia.
         </h2>
 
-        <div className="space-y-4 text-sm">
+        <div className="hidden sm:block space-y-4 text-sm">
           <div className="flex items-center gap-3">
             <div className="w-5 h-5 rounded-full bg-[#48782E] flex items-center justify-center text-[16px]">
               ✓

@@ -47,6 +47,9 @@ def moderate_event(actor, event_id, decision, reason=''):
     event.reviewed_at = timezone.now()
     event.save(update_fields=['status', 'is_suspended', 'review_note', 'review_decision', 'reviewed_by', 'reviewed_at', 'updated_at'])
     audit(actor, 'event.' + decision, event.pk, reason=reason)
+    message = (f'It is happening! Your event, {event.title}, is approved and live on Mmemme Abia. '
+               'Share it with your community and get ready to welcome your guests.'
+               if decision == 'approve' else f'{event.title}: {decision.replace("-", " ")}.')
     notify(organizer, f'event-review:{event.pk}:{event.reviewed_at.isoformat()}', 'Event review update',
-           f'{event.title}: {decision.replace("-", " ")}.\n\n{reason}')
+           message + (f'\n\n{reason}' if reason else ''))
     return event

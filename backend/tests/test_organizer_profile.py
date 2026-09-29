@@ -1,8 +1,13 @@
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from rest_framework.test import APITestCase
 from apps.accounts.models import OrganizerProfile
+from io import BytesIO
+from PIL import Image
 
 
+@override_settings(STORAGES={'default': {'BACKEND': 'django.core.files.storage.InMemoryStorage'}})
 class OrganizerProfileTests(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(username='profile-owner', email='owner@example.test',
@@ -53,3 +58,16 @@ class OrganizerProfileTests(APITestCase):
         result = self.client.patch(self.url, {'user':['wrong'],'organizer':{}},format='json')
         self.assertEqual(result.status_code,400)
         self.assertEqual(self.client.patch(self.url, [], format='json').status_code,400)
+
+    def test_owner_can_upload_organization_logo_and_clear_personal_phone(self):
+        image = BytesIO()
+        Image.new('RGB', (40, 40), '#3F783D').save(image, format='PNG')
+        upload = SimpleUploadedFile('logo.png', image.getvalue(), content_type='image/png')
+        result = self.client.patch(self.url, {'logo': upload}, format='multipart')
+        self.assertEqual(result.status_code, 200, result.data)
+        self.assertIn('organizer-logos/', result.data['organizer']['logo'])
+        self.assertIn('organizer-logos/', result.data['user']['organizer_logo'])
+        result = self.client.patch(self.url, {'user': {'phone': ''}}, format='json')
+        self.assertEqual(result.status_code, 200, result.data)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.phone, '')

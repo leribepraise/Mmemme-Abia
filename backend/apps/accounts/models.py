@@ -58,6 +58,7 @@ class EmailVerificationCode(models.Model):
 class OrganizerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="organizer_profile")
     business_name = models.CharField(max_length=200)
+    logo = models.ImageField(upload_to='organizer-logos/', blank=True)
     description = models.TextField(blank=True)
     contact_phone = models.CharField(max_length=20)
     verification_reference = models.CharField(max_length=200, blank=True)

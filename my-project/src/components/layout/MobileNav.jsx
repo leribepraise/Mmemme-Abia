@@ -35,7 +35,7 @@ const MobileNav = () => {
           <Menu />
         </SheetTrigger>
 
-        <SheetContent>
+        <SheetContent className="overflow-y-auto">
           <SheetHeader>
             <VisuallyHidden>
               <SheetTitle>Navigation Menu</SheetTitle>

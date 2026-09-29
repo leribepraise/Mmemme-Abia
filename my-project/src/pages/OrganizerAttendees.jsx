@@ -1,12 +1,10 @@
 import { downloadJSON } from "@/lib/api";
-import toast from "react-hot-toast";
 import { useCollection } from "@/hooks/useApi";
 import { organizerEvent } from "@/lib/catalog";
-import { useMemo, useState } from "react";
-import { Filter, MoreHorizontal, Search } from "lucide-react";
+import { useState } from "react";
+import { Search } from "lucide-react";
 import OrganizerShell from "@/components/organizer/OrganizerPublicShell";
-import { seedEvents } from "@/data/organizerData";
-import { fmtDate, load } from "@/lib/utils";
+import { fmtDate } from "@/lib/utils";
 
 
 const CHECKIN_STYLE = { "Checked In": "text-green-600", "Not Checked In": "text-amber-600" };
@@ -109,9 +107,6 @@ export default function OrganizerAttendees() {
               <option>All Ticket Types</option>
               {[...new Set(attendees.map(row => row.ticket))].map(t => <option key={t}>{t}</option>)}
             </select>
-            <button className="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-3 text-sm font-bold text-gray-600 hover:bg-gray-50 bg-white" data-testid="button-attendee-filter">
-              <Filter className="w-4 h-4" /> Filter
-            </button>
           </div>
 
           <div className="overflow-x-auto">
@@ -123,7 +118,6 @@ export default function OrganizerAttendees() {
                   <th className="pb-4 pr-6">Order ID</th>
                   <th className="pb-4 pr-6">Purchase Date</th>
                   <th className="pb-4 pr-6">Check-in Status</th>
-                  <th className="pb-4">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -140,11 +134,6 @@ export default function OrganizerAttendees() {
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${a.checkedIn ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
                         {a.checkedIn ? "Checked In" : "Not Checked In"}
                       </span>
-                    </td>
-                    <td className="py-4">
-                      <button onClick={() => toast({ title: a.name, description: "Ticket details opened." })} className="p-2 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors" data-testid={`button-view-attendee-${i}`}>
-                        <MoreHorizontal className="w-5 h-5" />
-                      </button>
                     </td>
                   </tr>
                 ))}

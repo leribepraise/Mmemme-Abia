@@ -6,13 +6,13 @@ export const profileSchema = z.object({
 
   email: z.string().trim().email("Please enter a valid email address"),
 
-  phone: z.string().trim().min(10, "Please enter a valid phone number"),
+  phone: z.string().trim().refine(value => !value || /^\+?[0-9 ()-]{10,20}$/.test(value), "Please enter a valid phone number"),
 
-  address: z.string().trim().min(3, "Please enter a valid address"),
+  address: z.string().trim().refine(value => !value || value.length >= 3, "Please enter a valid address"),
 
-  lga: z.string().trim().min(2, "Please enter a valid LGA"),
+  lga: z.string().trim().refine(value => !value || value.length >= 2, "Please enter a valid LGA"),
 
-  dateOfBirth: dateOfBirthSchema,
+  dateOfBirth: z.union([z.literal(""), dateOfBirthSchema]),
 
   profilePicture: z.string().optional(),
 });

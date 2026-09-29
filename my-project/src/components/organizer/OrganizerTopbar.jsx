@@ -52,7 +52,7 @@ export default function OrganizerTopbar() {
           data-testid="button-topbar-avatar"
         >
           <div className="w-9 h-9 rounded-full bg-[#3F7D3D] text-white flex items-center justify-center font-black text-xs overflow-hidden shrink-0">
-            {organizer.avatar}
+            {user?.organizer_logo ? <img src={user.organizer_logo} alt="Organization logo" className="h-full w-full object-contain" /> : organizer.avatar}
           </div>
           <ChevronDown className="w-4 h-4 text-gray-400" />
         </button>

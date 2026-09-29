@@ -67,6 +67,9 @@ def review_organizer(actor, profile_id, decision, reason=''):
         user.role = User.Role.ORGANIZER
     user.save(update_fields=['role', 'is_verified', 'updated_at'])
     audit(actor, 'organizer.' + decision.lower(), user.pk, application_id=profile.pk, reason=reason)
+    message = (f'Wonderful news! {profile.business_name} is now an approved Mmemme Abia organizer. '
+               'Your community is ready to discover what you create. Open your organizer dashboard to publish your first event, connect with guests, and bring Abia together.'
+               if decision == 'APPROVED' else f'Your organizer application is {decision.lower()}.')
     notify(user, f'organizer:{profile.pk}:{profile.reviewed_at.isoformat()}', 'Organizer application update',
-           f'Your organizer application is {decision.lower()}.' + (f'\n\n{reason}' if reason else ''))
+           message + (f'\n\n{reason}' if reason else ''))
     return profile

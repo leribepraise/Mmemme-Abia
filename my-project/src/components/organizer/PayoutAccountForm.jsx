@@ -42,7 +42,7 @@ export default function PayoutAccountForm({ onSaved }) {
       setOpen(false);
       reload();
       onSaved?.();
-      toast.success("Bank account verified and submitted for staff approval.");
+      toast.success("Bank account verified by Paystack and ready for eligible payouts.");
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -123,7 +123,7 @@ export default function PayoutAccountForm({ onSaved }) {
         <form onSubmit={submit} className="mt-5 space-y-4">
           {account && (
             <p className="text-sm text-muted-foreground">
-              Changing accounts requires fresh approval. Existing payouts must
+              Paystack will verify the replacement account. Existing payouts must
               be resolved first.
             </p>
           )}

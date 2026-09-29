@@ -9,7 +9,6 @@ const Events = () => {
   const navigate = useNavigate();
   const { data, loading } = useApi('/events/');
   const events = (data?.results || data || []).slice(0, 20).map(eventCard);
-  const renderCard = (event, copy) => <EventCard key={`${copy}-${event.id}`} event={event} />;
   if (loading) return <PageSkeleton/>;
   return (
     <>
@@ -28,18 +27,8 @@ const Events = () => {
           </div>
         </div>
         <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex justify-between items-center w-max animate-marquees">
-            <div className="flex w-max gap-10 md:gap-5">
-              {events.map((event) => renderCard(event, "first"))}
-            </div>
-
-            {/* Duplicate set: keeps the marquee looping seamlessly. Real
-                content now comes from the same source as the main Events
-                page, so this list grows automatically as organizers
-                publish new events. */}
-            <div className="flex gap-5">
-              {events.map((event) => renderCard(event, "dup"))}
-            </div>
+          <div className="flex w-max gap-5 pb-3">
+            {events.map((event) => <EventCard key={event.id} event={event} />)}
           </div>
         </div>
       </section>

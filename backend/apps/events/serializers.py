@@ -55,7 +55,11 @@ class EventSerializer(serializers.ModelSerializer):
         read_only_fields = ["id","organizer","status","created_at","updated_at"]
     def get_organizer(self,obj):
         profile = getattr(obj.organizer,"organizer_profile",None)
-        return {"id":obj.organizer_id,"name":profile.business_name if profile else obj.organizer.get_full_name(),"verified":obj.organizer.is_verified}
+        logo = profile.logo.url if profile and profile.logo else None
+        request = self.context.get('request')
+        if logo and request and logo.startswith('/'):
+            logo = request.build_absolute_uri(logo)
+        return {"id":obj.organizer_id,"name":profile.business_name if profile else obj.organizer.get_full_name(),"verified":obj.organizer.is_verified,"logo":logo}
     def get_ticket_types(self,obj):
         rows=list(obj.ticket_types.all())
         view=self.context.get("view")

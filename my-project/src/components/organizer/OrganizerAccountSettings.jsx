@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Bell, Landmark, Moon, Shield, User } from "lucide-react";
@@ -20,7 +20,7 @@ const tabs = [
   ["security", "Password & Security", Shield],
 ];
 const input =
-  "mt-2 w-full rounded-lg border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-600";
+  "mt-2 w-full rounded-lg border border-input bg-background px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-green-600";
 const contactFields = [
   ["first_name", "First name", 150],
   ["last_name", "Last name", 150],
@@ -41,10 +41,21 @@ export default function OrganizerAccountSettings() {
   const [contact, setContact] = useState({});
   const [details, setDetails] = useState({});
   const [busy, setBusy] = useState(false);
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState("");
+  const logoObjectUrl = useRef(null);
+  useEffect(() => () => { if (logoObjectUrl.current) URL.revokeObjectURL(logoObjectUrl.current); }, []);
+  const selectLogo = file => {
+    if (logoObjectUrl.current) URL.revokeObjectURL(logoObjectUrl.current);
+    logoObjectUrl.current = file ? URL.createObjectURL(file) : null;
+    setLogoFile(file);
+    setLogoPreview(logoObjectUrl.current || "");
+  };
   const reset = () => {
     if (data) {
       setContact(data.user);
       setDetails(data.organizer);
+      selectLogo(null);
     }
   };
   useEffect(() => {
@@ -72,6 +83,12 @@ export default function OrganizerAccountSettings() {
       );
     try {
       await api("/auth/organizer-profile/", { method: "PATCH", body });
+      if (tab === "profile" && logoFile) {
+        const upload = new FormData();
+        upload.append("logo", logoFile);
+        await api("/auth/organizer-profile/", { method: "PATCH", body: upload });
+        selectLogo(null);
+      }
       reload();
       await reloadUser();
       toast.success("Your settings have been saved.");
@@ -195,6 +212,12 @@ export default function OrganizerAccountSettings() {
                   <h3 className="border-t border-border pt-5 font-semibold">
                     Organization
                   </h3>
+                  <div className="flex flex-wrap items-center gap-4">
+                    {(logoPreview || details.logo) && <img src={logoPreview || details.logo} alt="Organization logo" className="h-16 w-16 rounded-lg border border-border object-contain" />}
+                    <label className="text-sm font-medium">Organization logo (optional)
+                      <input type="file" accept="image/jpeg,image/png,image/webp" className={`${input} max-w-full`} onChange={event => { const file=event.target.files?.[0]; if (file && file.size>5*1024*1024) { toast.error("Images must be 5 MB or smaller."); event.target.value=""; return; } selectLogo(file || null); }} />
+                    </label>
+                  </div>
                   <div className="grid gap-5 sm:grid-cols-2">
                     {fields(organizationFields, details, setDetails, true)}
                     <label className="text-sm font-medium sm:col-span-2">

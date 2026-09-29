@@ -1,7 +1,6 @@
-import toast from 'react-hot-toast';
 import TicketQRCode from "../profile/common/qrCodeFolder/TicketQRCode";
 import React from "react";
-import { Calendar, Clock, MapPin, CalendarPlus } from "lucide-react";
+import { Calendar, Clock, MapPin } from "lucide-react";
 
 const TicketCard = ({ booking, ticket }) => {
   const totalTickets = 1;
@@ -126,10 +125,6 @@ const TicketCard = ({ booking, ticket }) => {
             {ticket.ticket_number}
           </p>
 
-          <button onClick={() => toast("Wallet passes are not available yet.")} className="flex items-center justify-center gap-1.5 text-[#48782E] text-xs font-bold w-full mx-auto hover:text-green-400 transition-colors">
-            <CalendarPlus className="w-3.5 h-3.5" />
-            Add to Wallet
-          </button>
         </div>
       </div>
     </div>

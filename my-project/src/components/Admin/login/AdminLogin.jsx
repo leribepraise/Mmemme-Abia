@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import toast from "react-hot-toast";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
 
 // Adjust these two paths to wherever your assets live
 import logo from "/logo.png";
@@ -205,25 +204,6 @@ const AdminLogin = () => {
               )}
             </button>
           </form>
-
-          <div className="relative my-6 text-center">
-            <div
-              className="absolute inset-x-0 top-1/2 h-px bg-slate-200"
-              aria-hidden="true"
-            />
-            <span className="relative bg-[#f3f6f1] px-3 text-[11px] text-slate-400">
-              or continue with
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => toast("Google sign-in isn't connected yet")}
-            className="flex h-[50px] w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
-          >
-            <FcGoogle className="h-5 w-5" aria-hidden="true" />
-            Continue with Google
-          </button>
 
           <p className="mt-6 text-center text-xs text-slate-500">
             Need help?{" "}

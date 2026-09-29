@@ -3,7 +3,6 @@ import { useAuth } from "@/components/context/AuthContext";
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
-import SignUpSocialButtons from "./SignUpSocialButtons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema } from "./validation/schemas/signupSchema";
@@ -93,7 +92,7 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
       />
     );
   return (
-    <div className="p-8 md:p-10 flex items-center">
+    <div className="min-w-0 p-5 sm:p-8 md:p-10 flex items-center">
       <div className="w-full">
         <h1 className="text-[24px] font-bold text-[#1F2937] mb-2">
           Create Your Account
@@ -124,7 +123,7 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
                   type="text"
                   {...register("fullName")}
                   placeholder="Enter your full name"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#48782E]"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-base focus:outline-none focus:border-[#48782E]"
                 />
                 {errors.fullName && (
                   <p className="text-red-500 text-xs mt-1">
@@ -141,7 +140,7 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
                   type="email"
                   {...register("email")}
                   placeholder="Enter your email"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#48782E]"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-base focus:outline-none focus:border-[#48782E]"
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">
@@ -159,7 +158,7 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
                     type={inputType}
                     {...register("password")}
                     placeholder="Create a password"
-                    className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:border-[#48782E]"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-10 text-base focus:outline-none focus:border-[#48782E]"
                   />
                   {inputType === "password" ? (
                     <Eye
@@ -190,7 +189,7 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
                     type={comfireInputType}
                     {...register("confirmPassword")}
                     placeholder="Confirm your password"
-                    className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:border-[#48782E]"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-10 text-base focus:outline-none focus:border-[#48782E]"
                   />
                   {comfireInputType === "password" ? (
                     <Eye
@@ -210,40 +209,13 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
                   </p>
                 )}
               </div>
-              {/* Terms */}
-              {/* <label className="block text-[14px] font-medium text-[#374151] mb-2">
-              <input
-                type="checkbox"
-                {...register("terms")}
-                className="mt-1 rounded"
-              />
-              <span>
-                 I agree to the
-                <span className="text-[#48782E] font-semibold">
-                  Terms & Conditions
-                </span>
-                 and
-                <span className="text-[#48782E] font-semibold">
-                   Privacy Policy
-                </span>
-              </span>
-            </label> */}
               <label className="flex items-start gap-2">
                 <input
                   type="checkbox"
                   {...register("terms")}
                   className="mt-1 rounded"
                 />
-                <span>
-                  I agree to the{" "}
-                  <span className="text-[#48782E] font-semibold">
-                    Terms &amp; Conditions
-                  </span>{" "}
-                  and{" "}
-                  <span className="text-[#48782E] font-semibold">
-                    Privacy Policy
-                  </span>
-                </span>
+                <span>I agree to the <NavLink to="/terms" className="text-[#48782E] font-semibold underline">Terms &amp; Conditions</NavLink>.</span>
               </label>
               {errors.terms && (
                 <p className="text-red-500 text-xs mt-1">
@@ -259,19 +231,9 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
                 {isSubmitting ? "Sending code..." : "Send verification code"}
               </button>
             </form>
-            <div className="flex items-center gap-3 text-gray-400 text-xs">
-              <div className="flex-1 h-px bg-gray-200"></div>
-              <span>or continue with</span>
-              <div className="flex-1 h-px bg-gray-200"></div>
-            </div>
-            <SignUpSocialButtons />
             <p className="text-center text-sm text-[#666666]">
               Already have an account?
-              <NavLink to="/login">
-                <button className="text-[#48782E] font-semibold hover:underline">
-                  Log In
-                </button>
-              </NavLink>
+              <NavLink to="/login" className="ml-1 text-[#48782E] font-semibold hover:underline">Log In</NavLink>
             </p>
           </div>
         )}

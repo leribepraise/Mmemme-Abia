@@ -1,8 +1,7 @@
 import { useOrganizerStats } from '@/hooks/useOrganizerStats';
 import { downloadJSON } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { ArrowRight, Banknote, ChevronDown, Eye, Percent, Ticket } from "lucide-react";
+import { ArrowRight, Banknote, Eye, Percent, Ticket } from "lucide-react";
 import OrganizerShell from "@/components/organizer/OrganizerShell";
 import OrganizerStatCard from "@/components/organizer/OrganizerStatCard";
 import { naira } from "@/lib/utils";
@@ -28,9 +27,7 @@ export default function OrganizerAnalytics() {
       subtitle="Track your event performance and growth."
       actions={
         <>
-          <button className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-50" data-testid="select-analytics-period">
-            All Time <ChevronDown className="w-4 h-4 text-gray-400" />
-          </button>
+          <span className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold shadow-sm">All Time</span>
           <button
             onClick={() => downloadJSON("event-report", { events: stats.events, ticket_sales_last_30_days: stats.days })}
             className="bg-[#3F7D3D] text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-[#336633] transition-colors"
@@ -157,15 +154,6 @@ export default function OrganizerAnalytics() {
         </div>
       </div>
 
-      <div className="bg-[#EAF5EA] rounded-2xl p-6 border border-[#c4e5c4] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h3 className="font-bold text-lg text-black mb-1">Grow Your Events</h3>
-          <p className="text-sm font-medium text-gray-600 mb-4">Promote your events to a wider audience and increase ticket sales.</p>
-          <button onClick={() => toast("Event promotion is not available yet.")} className="bg-[#F36B25] hover:bg-[#d95d1d] text-white text-sm font-bold py-2.5 px-6 rounded-lg transition-colors shadow-sm" data-testid="button-boost-event">
-            Boost Event
-          </button>
-        </div>
-      </div>
     </OrganizerShell>
   );
 }

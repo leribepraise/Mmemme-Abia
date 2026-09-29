@@ -1,8 +1,7 @@
 import SiteImage from '@/components/SiteImage';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import React from "react";
-import { Heart, Plus, Star } from "lucide-react";
+import { Plus, Star } from "lucide-react";
 
 const DishCard = ({ dish }) => {
   const navigate = useNavigate();
@@ -16,9 +15,6 @@ const DishCard = ({ dish }) => {
           className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
         />
 
-        <button aria-label="Save dish" onClick={() => toast("Saving dishes is not available yet.")} className="absolute top-2.5 right-2.5 bg-white/90 hover:bg-white rounded-full p-2 cursor-pointer shadow-sm transition">
-          <Heart className="w-4 h-4 text-gray-600 hover:text-red-500 transition" />
-        </button>
       </div>
 
       {/* Details */}

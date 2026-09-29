@@ -12,23 +12,68 @@ const input = 'w-full rounded-lg border border-gray-200 bg-white p-3 text-sm';
 function ErrorState({ state }) { return state.error ? <p role="alert" className="rounded-lg bg-red-50 p-3">{state.error.message} <button onClick={state.reload} className="underline">Retry</button></p> : state.loading ? <p role="status">Loading…</p> : null; }
 function Pages({ page, setPage, data }) { return <div className="flex justify-between gap-4 py-4"><button disabled={page===1} onClick={()=>setPage(page-1)} className="disabled:opacity-40">Previous</button><span>Page {page}</span><button disabled={!data?.next} onClick={()=>setPage(page+1)} className="disabled:opacity-40">Next</button></div>; }
 
-function Comments({ post }) {
+function Comments({ post, onAdded }) {
   const [page, setPage] = useState(1);
   const state = useApi(`/community/posts/${post}/comments/?page=${page}`);
   const [body, setBody] = useState('');
   const [busy, setBusy] = useState(false);
-  const send = async event => { event.preventDefault(); setBusy(true); try { await api(`/community/posts/${post}/comments/`, {method:'POST',body:{body}}); setBody(''); setPage(1); state.reload(); } catch(error){toast.error(error.message);}finally{setBusy(false);} };
-  return <div className="mt-4 space-y-3 border-t pt-4"><ErrorState state={state}/>{state.data?.results?.map(comment=><div key={comment.id} className="rounded-lg bg-gray-50 p-3 text-sm"><strong>{comment.author.name}</strong><p className="whitespace-pre-wrap break-words">{comment.body}</p></div>)}<Pages page={page} setPage={setPage} data={state.data}/><form onSubmit={send} className="flex gap-2"><input required maxLength={2000} aria-label="Comment" placeholder="Write a comment…" value={body} onChange={e=>setBody(e.target.value)} className={input}/><button disabled={busy} className={button}>Send</button></form></div>;
+  const [newComments, setNewComments] = useState([]);
+  const send = async event => {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    try {
+      const created = await api(`/community/posts/${post}/comments/`, {method:'POST',body:{body}});
+      setNewComments(rows => [created, ...rows]);
+      setBody('');
+      setPage(1);
+      onAdded();
+    } catch(error) { toast.error(error.message); }
+    finally { setBusy(false); }
+  };
+  const rows = page === 1 ? [...newComments, ...(state.data?.results || [])] : state.data?.results || [];
+  return <div className="mt-4 space-y-3 border-t pt-4"><ErrorState state={state}/>{rows.map(comment=><div key={comment.id} className="rounded-lg bg-gray-50 p-3 text-sm"><strong>{comment.author.name}</strong><p className="whitespace-pre-wrap break-words">{comment.body}</p></div>)}<Pages page={page} setPage={setPage} data={state.data}/><form onSubmit={send} className="flex gap-2"><input required maxLength={2000} aria-label="Comment" placeholder="Write a comment…" value={body} onChange={e=>setBody(e.target.value)} className={input}/><button disabled={busy} className={button}>Send</button></form></div>;
 }
 
-function PostCard({ post, reload, blog=false }) {
+function PostCard({ post, onRemove, blog=false }) {
   const { user } = useAuth();
   const [comments, setComments] = useState(false);
   const [report, setReport] = useState(false);
   const [reason, setReason] = useState('');
   const [busy,setBusy]=useState(false);
-  const act = async (path, body) => { setBusy(true);try { await api(`/community/posts/${post.id}/${path}/`,{method:'POST',body}); reload(); }catch(error){toast.error(error.message);}finally{setBusy(false);} };
-  return <article className="overflow-hidden rounded-2xl border bg-white shadow-sm">{post.image&&<SiteImage src={post.image} alt="" className="max-h-96 w-full object-cover"/>}<div className="space-y-4 p-5"><div className="flex items-center gap-3">{post.author.avatar&&<SiteImage src={post.author.avatar} alt="" className="h-10 w-10 rounded-full object-cover"/>}<div><p className="font-bold">{post.author.name}</p><time className="text-xs text-gray-500">{new Date(post.created_at).toLocaleString()}</time></div>{post.status!=='PUBLISHED'&&<span className="ml-auto rounded-full bg-orange-50 px-3 py-1 text-xs">{post.status}</span>}</div>{post.title&&<h2 className="text-2xl font-bold text-[#172033]"><Link to={blog?`/blog/${post.id}`:`/community/posts/${post.id}`}>{post.title}</Link></h2>}<p className="whitespace-pre-wrap break-words leading-7">{post.body}</p><div className="flex flex-wrap gap-4 text-sm">{user&&post.status==='PUBLISHED'&&<><button disabled={busy} aria-pressed={post.liked} onClick={()=>act('like',{liked:!post.liked})} className={post.liked?'font-bold text-red-600':''}>♥ {post.like_count||0}</button><button onClick={()=>setComments(!comments)}>Comments ({post.comment_count||0})</button><button onClick={()=>setReport(!report)}>Report</button></>}<ShareApp path={blog?`/blog/${post.id}`:`/community/posts/${post.id}`} title={post.title||'Mmemme Abia community'} label="Share"/>{user?.id===post.author.id&&<button disabled={busy} onClick={async()=>{if(!window.confirm('Remove this post from the feed?'))return;try{await api(`/community/posts/${post.id}/`,{method:'DELETE'});reload();}catch(error){toast.error(error.message);}}}>Remove</button>}</div>{report&&<form onSubmit={async e=>{e.preventDefault();await act('report',{reason});setReport(false);}} className="flex gap-2"><input required maxLength={1000} value={reason} onChange={e=>setReason(e.target.value)} placeholder="Tell moderators what is wrong" aria-label="Report reason" className={input}/><button disabled={busy} className={button}>Report</button></form>}{comments&&<Comments post={post.id}/>}</div></article>;
+  const [reaction, setReaction] = useState({ liked: !!post.liked, count: post.like_count || 0 });
+  const [commentCount, setCommentCount] = useState(post.comment_count || 0);
+  const like = async () => {
+    if (busy) return;
+    const previous = reaction;
+    const wanted = !previous.liked;
+    setReaction({ liked: wanted, count: Math.max(0, previous.count + (wanted ? 1 : -1)) });
+    setBusy(true);
+    try {
+      const confirmed = await api(`/community/posts/${post.id}/like/`, { method: 'POST', body: { liked: wanted } });
+      setReaction({ liked: confirmed.liked, count: confirmed.like_count });
+    } catch (error) { setReaction(previous); toast.error(error.message); }
+    finally { setBusy(false); }
+  };
+  const submitReport = async event => {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    try {
+      await api(`/community/posts/${post.id}/report/`, {method:'POST', body:{reason}});
+      setReport(false);
+      setReason('');
+      toast.success('Report sent to moderators.');
+    } catch(error) { toast.error(error.message); }
+    finally { setBusy(false); }
+  };
+  const remove = async () => {
+    if (busy || !window.confirm('Remove this post from the feed?')) return;
+    setBusy(true);
+    try { await api(`/community/posts/${post.id}/`, {method:'DELETE'}); onRemove(post.id); }
+    catch(error) { toast.error(error.message); setBusy(false); }
+  };
+  return <article className="overflow-hidden rounded-2xl border bg-white shadow-sm">{post.image&&<SiteImage src={post.image} alt="" className="max-h-96 w-full object-cover"/>}<div className="space-y-4 p-5"><div className="flex items-center gap-3">{post.author.avatar&&<SiteImage src={post.author.avatar} alt="" className="h-10 w-10 rounded-full object-cover"/>}<div><p className="font-bold">{post.author.name}</p><time className="text-xs text-gray-500">{new Date(post.created_at).toLocaleString()}</time></div>{post.status!=='PUBLISHED'&&<span className="ml-auto rounded-full bg-orange-50 px-3 py-1 text-xs">{post.status}</span>}</div>{post.title&&<h2 className="text-2xl font-bold text-[#172033]"><Link to={blog?`/blog/${post.id}`:`/community/posts/${post.id}`}>{post.title}</Link></h2>}<p className="whitespace-pre-wrap break-words leading-7">{post.body}</p><div className="flex flex-wrap gap-4 text-sm">{user&&post.status==='PUBLISHED'&&<><button type="button" disabled={busy} aria-label={reaction.liked?'Unlike post':'Like post'} aria-pressed={reaction.liked} onClick={like} className={reaction.liked?'font-bold text-red-600':''}>♥ {reaction.count}</button><button type="button" onClick={()=>setComments(!comments)}>Comments ({commentCount})</button><button type="button" onClick={()=>setReport(!report)}>Report</button></>}<ShareApp path={blog?`/blog/${post.id}`:`/community/posts/${post.id}`} title={post.title||'Mmemme Abia community'} label="Share"/>{user?.id===post.author.id&&<button type="button" disabled={busy} onClick={remove}>Remove</button>}</div>{report&&<form onSubmit={submitReport} className="flex gap-2"><input required maxLength={1000} value={reason} onChange={e=>setReason(e.target.value)} placeholder="Tell moderators what is wrong" aria-label="Report reason" className={input}/><button disabled={busy} className={button}>Report</button></form>}{comments&&<Comments post={post.id} onAdded={()=>setCommentCount(value=>value+1)}/>}</div></article>;
 }
 
 export function CreateLivePost() {
@@ -55,7 +100,7 @@ export function LivePeople() {
 }
 
 export default function LiveCommunity({blog=false,detail=false,groupView=false}) {
-  const {id}=useParams();const [params,setParams]=useSearchParams();const tab=params.get('tab')||'feed';const [search,setSearch]=useState('');const [page,setPage]=useState(1);
+  const {id}=useParams();const navigate=useNavigate();const [params,setParams]=useSearchParams();const tab=params.get('tab')||'feed';const [search,setSearch]=useState('');const [page,setPage]=useState(1);const [removed,setRemoved]=useState([]);
   const group=useApi(groupView?`/community/groups/${id}/`:null);
   const path=detail?`/community/posts/${id}/`:`/community/posts/${tab==='mine'?'mine/':''}?kind=${blog?'BLOG':'COMMUNITY'}&page=${page}&search=${encodeURIComponent(search)}${tab==='trending'?'&sort=trending':''}${groupView?`&group=${id}`:''}`;
   const state=useApi(path);const rows=detail?(state.data?[state.data]:[]):state.data?.results||[];const [busy,setBusy]=useState(false);
@@ -64,6 +109,6 @@ export default function LiveCommunity({blog=false,detail=false,groupView=false})
     {!blog&&<nav className="flex flex-wrap gap-4 border-b pb-3 text-sm"><Link to="/community">Feed</Link><button onClick={()=>{setPage(1);setParams({tab:'trending'});}}>Trending</button><button onClick={()=>{setPage(1);setParams({tab:'mine'});}}>My posts</button><Link to="/community/groups">Groups</Link><Link to="/community/people">People</Link><Link to="/message">Chats</Link></nav>}
     {groupView&&group.data&&<button disabled={busy||!group.data.is_active} className={button} onClick={join}>{group.data.joined?'Leave group':'Join group'} · {group.data.member_count} members</button>}
     {!detail&&<input type="search" value={search} onChange={e=>{setPage(1);setSearch(e.target.value);}} aria-label="Search posts" placeholder={blog?'Search articles…':'Search posts…'} className={input}/>}
-    <ErrorState state={state}/>{!state.loading&&!state.error&&!rows.length&&<div className="rounded-xl bg-white p-8 text-center">{blog?'No published articles yet. Check back soon.':tab==='mine'?'Your submitted posts will appear here.':'No published posts yet. Share your first experience.'}</div>}{rows.map(post=><PostCard key={post.id} post={post} reload={state.reload} blog={blog}/>)}{!detail&&<Pages page={page} setPage={setPage} data={state.data}/>}<ShareApp/>
+    <ErrorState state={state}/>{!state.loading&&!state.error&&!rows.length&&<div className="rounded-xl bg-white p-8 text-center">{blog?'No published articles yet. Check back soon.':tab==='mine'?'Your submitted posts will appear here.':'No published posts yet. Share your first experience.'}</div>}{rows.filter(post=>!removed.includes(post.id)).map(post=><PostCard key={post.id} post={post} onRemove={postId=>{setRemoved(ids=>[...ids,postId]);if(detail)navigate('/community');}} blog={blog}/>)}{!detail&&<Pages page={page} setPage={setPage} data={state.data}/>}<ShareApp/>
   </main>;
 }

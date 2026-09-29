@@ -8,7 +8,7 @@ export default function OrganizerPublicShell({ breadcrumb = [], title, subtitle,
     <div className="min-h-screen bg-[#F7F8F6] flex flex-col font-sans text-gray-800">
       <Header />
       <main className="flex-1">
-        <div className={`max-w-6xl mx-auto px-5 py-8 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 ${contentClassName}`}>
+        <div className={`max-w-6xl mx-auto min-w-0 px-3 py-6 sm:px-5 sm:py-8 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 ${contentClassName}`}>
           <OrganizerControlMenu/>
           {(breadcrumb.length > 0 || title) && (
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">

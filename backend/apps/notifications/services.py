@@ -1,12 +1,13 @@
 import logging
 import hashlib
 from datetime import timedelta
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from .models import Notification
 from .backends import EmailDeliveryError
+from .templates import notification_html
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,8 @@ def deliver_one():
         job.save(update_fields=["claimed_at","attempts"])
     try:
         # Confirmation and security emails are transactional; preferences affect reminders.
-        message=EmailMessage(job.subject,job.body,to=[job.email],headers={"X-Mmemme-Notification-Key":hashlib.sha256(job.key.encode()).hexdigest()})
+        message=EmailMultiAlternatives(job.subject,job.body,to=[job.email],headers={"X-Mmemme-Notification-Key":hashlib.sha256(job.key.encode()).hexdigest()})
+        message.attach_alternative(notification_html(job.subject, job.body), "text/html")
         if message.send(fail_silently=False) != 1:
             raise RuntimeError("Email was not accepted for delivery.")
     except Exception as exc:
