@@ -40,7 +40,6 @@ import GuestGuard from "./components/GuestGuard";
 const ExploreAbiaPage = lazy(() => import('./pages/ExploreAbiaPage'));
 const Community = lazy(() => import('./pages/Community'));
 const Food = lazy(() => import('./pages/Food'));
-const AboutAbia = lazy(() => import('./pages/DiscoverAbia'));
 const DiscoverAbia = lazy(() => import('./pages/DiscoverAbia'));
 const Transport = lazy(() => import('./pages/Transport'));
 const NotFound = lazy(() => import('./pages/NotFound'));
