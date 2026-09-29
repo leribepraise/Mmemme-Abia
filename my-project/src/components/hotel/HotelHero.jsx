@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import { imageAsset } from '@/components/SiteImage';
 import {useNavigate} from "react-router-dom";
 import { MapPin, Calendar, Users, Search } from "lucide-react";
 
@@ -9,7 +10,7 @@ const HotelHero = () => {
     <div className="px-4 md:px-6">
       <div
         className="rounded-3xl overflow-hidden p-6 md:p-12 text-white relative bg-cover bg-center"
-        style={{ backgroundImage: "url('/hotel.png')" }}
+        style={{ backgroundImage: `url('${imageAsset('/hotel.png')}')` }}
       >
         <div className="absolute inset-0 bg-[#07152A]/40"></div>
 

@@ -73,6 +73,11 @@ def settle(payment_id, data):
     payment.last_checked_at = timezone.now()
     if payment.status == 'SUCCESS':
         return payment
+    if settings.PAYSTACK_SECRET_KEY.startswith('sk_live_') and data.get('domain') != 'live':
+        payment.status = 'REVIEW'
+        payment.save(update_fields=['status', 'last_checked_at'])
+        audit(None, 'membership.payment_mode_mismatch', payment.pk)
+        return payment
     if data.get('status') != 'success':
         if data.get('status') in {'failed', 'abandoned', 'reversed'}:
             payment.status = 'FAILED'

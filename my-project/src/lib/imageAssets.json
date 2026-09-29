@@ -1,0 +1,457 @@
+{
+  "/404-girl.png": {
+    "src": "/optimized/0157967290fdd17eae0e.webp",
+    "width": 1204,
+    "height": 1306
+  },
+  "/about.jpg": {
+    "src": "/optimized/ea0ddc95f86303bccfa0.webp",
+    "width": 1200,
+    "height": 675
+  },
+  "/aboutus.png": {
+    "src": "/optimized/e3a9a14aab9118e41c0c.webp",
+    "width": 1400,
+    "height": 1123
+  },
+  "/adventure-hero.jpg": {
+    "src": "/optimized/8f6ea99810831a1546b2.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/adventure1.png": {
+    "src": "/optimized/fd54bf5f3c4732df1a77.webp",
+    "width": 204,
+    "height": 192
+  },
+  "/adventure2.png": {
+    "src": "/optimized/483c151ea25d70625fe1.webp",
+    "width": 204,
+    "height": 192
+  },
+  "/adventure3.png": {
+    "src": "/optimized/f9ce9a861fca47f06d25.webp",
+    "width": 204,
+    "height": 192
+  },
+  "/adventure4.png": {
+    "src": "/optimized/79851ec03e1486931d65.webp",
+    "width": 204,
+    "height": 192
+  },
+  "/adventure5.png": {
+    "src": "/optimized/3939757c5316cb7e39e6.webp",
+    "width": 204,
+    "height": 192
+  },
+  "/adventure6.png": {
+    "src": "/optimized/f75b328b026102986c09.webp",
+    "width": 204,
+    "height": 192
+  },
+  "/adventure7.png": {
+    "src": "/optimized/a468b184115ddf91f15f.webp",
+    "width": 204,
+    "height": 192
+  },
+  "/adventure8.png": {
+    "src": "/optimized/2f1c74a0104478e0cf9f.webp",
+    "width": 204,
+    "height": 192
+  },
+  "/cave1.jpg": {
+    "src": "/optimized/992b323f3d3b7f9af603.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/cave2.jpg": {
+    "src": "/optimized/5e1f475d3dab00ea283f.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/cave3.jpg": {
+    "src": "/optimized/806fc0aeb90ddd01ee36.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/checkout.jpg": {
+    "src": "/optimized/95c4556b1f2abaf68e4a.webp",
+    "width": 736,
+    "height": 920
+  },
+  "/davido.png": {
+    "src": "/optimized/1479e3a7849dd9e63a22.webp",
+    "width": 1537,
+    "height": 1023
+  },
+  "/design/organizer-signup.png": {
+    "src": "/optimized/e28d859337dd6796142b.webp",
+    "width": 612,
+    "height": 408
+  },
+  "/design/welcome.png": {
+    "src": "/optimized/063595b7ef2f528df29a.webp",
+    "width": 1398,
+    "height": 1125
+  },
+  "/event.jpg": {
+    "src": "/optimized/95c4556b1f2abaf68e4a.webp",
+    "width": 736,
+    "height": 920
+  },
+  "/event3.jpg": {
+    "src": "/optimized/8a878eb781a25cc0cba1.webp",
+    "width": 736,
+    "height": 552
+  },
+  "/event4.jpg": {
+    "src": "/optimized/c2f184213856d4b12592.webp",
+    "width": 735,
+    "height": 422
+  },
+  "/event5.jpg": {
+    "src": "/optimized/09e894340d9f263ff428.webp",
+    "width": 735,
+    "height": 490
+  },
+  "/event6.jpg": {
+    "src": "/optimized/5b32685425196c65b2fb.webp",
+    "width": 736,
+    "height": 736
+  },
+  "/food-hero.jpg": {
+    "src": "/optimized/fe2bffb6de0530d3813a.webp",
+    "width": 735,
+    "height": 490
+  },
+  "/football.png": {
+    "src": "/optimized/f4298a7a75cd29b63597.webp",
+    "width": 301,
+    "height": 150
+  },
+  "/football2.png": {
+    "src": "/optimized/953c7ca39c63c4ba13d8.webp",
+    "width": 301,
+    "height": 150
+  },
+  "/Frame1.png": {
+    "src": "/optimized/0babd020e2aa7d5c9506.webp",
+    "width": 313,
+    "height": 150
+  },
+  "/Frame2.png": {
+    "src": "/optimized/0321bfa7ff62969c3acb.webp",
+    "width": 313,
+    "height": 150
+  },
+  "/Frame3.png": {
+    "src": "/optimized/0b464d168ed4bc754227.webp",
+    "width": 313,
+    "height": 150
+  },
+  "/Frame4.png": {
+    "src": "/optimized/43f3875e9b07bc8a49c2.webp",
+    "width": 313,
+    "height": 150
+  },
+  "/guide-thumb.jpg": {
+    "src": "/optimized/deb3fd7b124e2bdefbb8.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/hero1.jpg": {
+    "src": "/optimized/86306e8ef32ef9ccb7a3.webp",
+    "width": 1537,
+    "height": 1023
+  },
+  "/hero2.jpg": {
+    "src": "/optimized/acb1287003ee3da79146.webp",
+    "width": 1600,
+    "height": 865
+  },
+  "/hero3.jpg": {
+    "src": "/optimized/86635049e48732e12821.webp",
+    "width": 1600,
+    "height": 874
+  },
+  "/hero4.jpg": {
+    "src": "/optimized/59349d4ebd37ef2c37e6.webp",
+    "width": 1600,
+    "height": 887
+  },
+  "/hero5.jpg": {
+    "src": "/optimized/ca28f33d8913e18abf49.webp",
+    "width": 1600,
+    "height": 878
+  },
+  "/hero6.jpg": {
+    "src": "/optimized/de70b3f0fd11ef4250bc.webp",
+    "width": 1600,
+    "height": 878
+  },
+  "/hero7.jpg": {
+    "src": "/optimized/9b63bc2910fa3997e9ab.webp",
+    "width": 1600,
+    "height": 877
+  },
+  "/hill1.jpg": {
+    "src": "/optimized/57f9f5ddc622927bc933.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/hill2.jpg": {
+    "src": "/optimized/1a25aa52a724573feec0.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/hill3.jpg": {
+    "src": "/optimized/a43bfba5ecdacacff0a6.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/home-image.png": {
+    "src": "/optimized/1816b813dbfc4abf5275.webp",
+    "width": 1600,
+    "height": 757
+  },
+  "/hotel.png": {
+    "src": "/optimized/ace0de67714b3d1bceee.webp",
+    "width": 278,
+    "height": 192
+  },
+  "/hotel2.png": {
+    "src": "/optimized/82597dce5718d70a5bfc.webp",
+    "width": 278,
+    "height": 192
+  },
+  "/hotel3.png": {
+    "src": "/optimized/93f192f1f2a9da0a8cad.webp",
+    "width": 278,
+    "height": 192
+  },
+  "/image1.jpg": {
+    "src": "/optimized/75e7277e5cf7ea360b5c.webp",
+    "width": 1168,
+    "height": 784
+  },
+  "/image2.jpg": {
+    "src": "/optimized/827a099e0c4be822174d.webp",
+    "width": 1023,
+    "height": 1280
+  },
+  "/image5.jpg": {
+    "src": "/optimized/23d3d29be93a3a35b48c.webp",
+    "width": 833,
+    "height": 1080
+  },
+  "/login-reference-photo.png": {
+    "src": "/optimized/d1eee388205ea41bdd0f.webp",
+    "width": 234,
+    "height": 404
+  },
+  "/logo.png": {
+    "src": "/optimized/17e54062510f77809140.webp",
+    "width": 829,
+    "height": 186
+  },
+  "/Mask group.png": {
+    "src": "/optimized/49a5f8fc41b98c1648e8.webp",
+    "width": 507,
+    "height": 714
+  },
+  "/organizer-login-photo.png": {
+    "src": "/optimized/e8543d59455a2bb3b27e.webp",
+    "width": 960,
+    "height": 1600
+  },
+  "/patners.png": {
+    "src": "/optimized/3b6afe56fedd6d0f56a1.webp",
+    "width": 1326,
+    "height": 122
+  },
+  "/people.png": {
+    "src": "/optimized/e6937bd479e0c4f75cb1.webp",
+    "width": 1536,
+    "height": 1024
+  },
+  "/register1.png": {
+    "src": "/optimized/692a4fde06c20776a20a.webp",
+    "width": 512,
+    "height": 772
+  },
+  "/religious1.png": {
+    "src": "/optimized/a9cc32ebca6d3d144afa.webp",
+    "width": 202,
+    "height": 192
+  },
+  "/religious2.png": {
+    "src": "/optimized/d3cd3b9011118dfddb12.webp",
+    "width": 202,
+    "height": 192
+  },
+  "/religious3.png": {
+    "src": "/optimized/bb43e66933dd7f569c63.webp",
+    "width": 202,
+    "height": 192
+  },
+  "/religious4.png": {
+    "src": "/optimized/1eed5a5606bff3c8a593.webp",
+    "width": 202,
+    "height": 192
+  },
+  "/religious5.png": {
+    "src": "/optimized/512c47dc1cf70b19999b.webp",
+    "width": 202,
+    "height": 192
+  },
+  "/religious6.png": {
+    "src": "/optimized/dfd6941ccb1256e90701.webp",
+    "width": 202,
+    "height": 192
+  },
+  "/religious7.png": {
+    "src": "/optimized/bd322b5c13b27a0f2fea.webp",
+    "width": 202,
+    "height": 192
+  },
+  "/religious8.png": {
+    "src": "/optimized/6d8c6ce36ac5726a3254.webp",
+    "width": 202,
+    "height": 192
+  },
+  "/restaurant-map.png": {
+    "src": "/optimized/7708728cbfb04f091784.webp",
+    "width": 512,
+    "height": 512
+  },
+  "/sadmin-login-hero.png": {
+    "src": "/optimized/4ca8d98a4a8f80cce1de.webp",
+    "width": 771,
+    "height": 1600
+  },
+  "/site1.jpg": {
+    "src": "/optimized/0d2a971a5ee05e29a1d5.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/site2.jpg": {
+    "src": "/optimized/1657c65323cbe7b14b49.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/site3.jpg": {
+    "src": "/optimized/cafe25f341893cb5895d.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/site4.jpg": {
+    "src": "/optimized/29ea92fd0749a6295dbd.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/site5.jpg": {
+    "src": "/optimized/778f43468e6334a62005.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/site6.jpg": {
+    "src": "/optimized/ea0700aef10705e70223.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/slide1.png": {
+    "src": "/optimized/d8d8358ce5945a946ba3.webp",
+    "width": 566,
+    "height": 303
+  },
+  "/slide2.png": {
+    "src": "/optimized/40cdf7e4bac909928bbd.webp",
+    "width": 566,
+    "height": 303
+  },
+  "/slide3.png": {
+    "src": "/optimized/cdb8d778a3aa739a9a52.webp",
+    "width": 566,
+    "height": 303
+  },
+  "/slide4.png": {
+    "src": "/optimized/789c84c3c75f635db1d9.webp",
+    "width": 566,
+    "height": 303
+  },
+  "/slide5.png": {
+    "src": "/optimized/89496a4f84f25c23af1b.webp",
+    "width": 566,
+    "height": 303
+  },
+  "/slide6.png": {
+    "src": "/optimized/652fa99084f0aec10dac.webp",
+    "width": 566,
+    "height": 303
+  },
+  "/slide7.png": {
+    "src": "/optimized/c15f62043585056d2c74.webp",
+    "width": 566,
+    "height": 303
+  },
+  "/tour1.jpg": {
+    "src": "/optimized/931306cb4d32cc8884d2.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/tour2.jpg": {
+    "src": "/optimized/a96a5e8ca9a455229011.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/tour3.jpg": {
+    "src": "/optimized/dab28637871e6939173c.webp",
+    "width": 1080,
+    "height": 1077
+  },
+  "/tour4.jpg": {
+    "src": "/optimized/f0f9f44f0ed3ac2e46c9.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/tourism.jpg": {
+    "src": "/optimized/9335747c9b940ef072f0.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/transport.png": {
+    "src": "/optimized/05fccfc71bb8e53e77ad.webp",
+    "width": 1536,
+    "height": 1024
+  },
+  "/transport6.jpg": {
+    "src": "/optimized/9e6b42259fd99793ff90.webp",
+    "width": 736,
+    "height": 736
+  },
+  "/water1.jpg": {
+    "src": "/optimized/8326c49aabe8ca87b985.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/water2.jpg": {
+    "src": "/optimized/c1a985aded30f83a3158.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/water3.jpg": {
+    "src": "/optimized/d4647e7dcb7b75b82fa7.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/water4.jpg": {
+    "src": "/optimized/70d0c8c6c2dfa0f20a5a.webp",
+    "width": 512,
+    "height": 279
+  },
+  "/waterfall-tour.jpg": {
+    "src": "/optimized/70d0c8c6c2dfa0f20a5a.webp",
+    "width": 512,
+    "height": 279
+  }
+}

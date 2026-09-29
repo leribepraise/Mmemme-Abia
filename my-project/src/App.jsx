@@ -1,106 +1,106 @@
-import Plans from "./pages/Plans";
-import LiveCommunity, {
-  CreateLivePost,
-  LiveGroups,
-  LivePeople,
-} from "./pages/LiveCommunity";
-import ResourceManagement from "./components/Admin/ResourceManagement";
-import AdminSettings from "./components/Admin/AdminSettings";
-import Inbox from "./components/notification/Inbox";
-import ChatPanel from "./components/ChatPanel";
-import ShuttlePage from "./pages/ShuttlePage";
-import AccountAction from "./pages/AccountAction";
+const Plans = lazy(() => import('./pages/Plans'));
+const LiveCommunity = lazy(() => import('./pages/LiveCommunity'));
+const CreateLivePost = lazy(() => import('./pages/LiveCommunity').then(module => ({default: module.CreateLivePost})));
+const LiveGroups = lazy(() => import('./pages/LiveCommunity').then(module => ({default: module.LiveGroups})));
+const LivePeople = lazy(() => import('./pages/LiveCommunity').then(module => ({default: module.LivePeople})));
+const ResourceManagement = lazy(() => import('./components/Admin/ResourceManagement'));
+const AdminSettings = lazy(() => import('./components/Admin/AdminSettings'));
+import Inbox from './components/notification/Inbox';
+import ChatPanel from './components/ChatPanel';
+const ShuttlePage = lazy(() => import('./pages/ShuttlePage'));
+const AccountAction = lazy(() => import('./pages/AccountAction'));
 import OrganizerGuard from "./components/OrganizerGuard";
-import React from "react";
+import React, { lazy, Suspense } from "react";
+import PageSkeleton from './components/PageSkeleton';
 import { Route, Routes } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import Home from "./pages/Home";
-import NotificationsPage from "./pages/NotificationsPage";
-import InstallAppPage from "./pages/InstallAppPage";
-import AnchorNavigation from "./components/AnchorNavigation";
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const InstallAppPage = lazy(() => import('./pages/InstallAppPage'));
+import AnchorNavigation from './components/AnchorNavigation';
 import Layout from "@/components/layout";
-import EventDetails from "./pages/EventDetails";
-import CheckoutScreen from "./pages/CheckoutScreen";
-import PaymentScreen from "./pages/PaymentScreen";
-import PaymentSuccessfulScreen from "./pages/PaymentSuccessfulScreen";
-import TicketScreen from "./pages/TicketScreen";
-import AnalyticsDashboard from "./pages/AnalyticsDashboard";
-import Messages from "./pages/Messages";
-import Tourism from "./pages/Tourism";
-import HelpSupport from "./pages/HelpSupport";
-import Events from "./pages/Event";
-import Blog from "./pages/Blog";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
-import HelpCenter from "./pages/HelpCenter";
-import Hotel from "./pages/Hotel";
-import VenueDetails from "./pages/VenueDetails";
-import BookingComfirmationPage from "./pages/BookingComfirmationPage";
+const EventDetails = lazy(() => import('./pages/EventDetails'));
+const CheckoutScreen = lazy(() => import('./pages/CheckoutScreen'));
+const PaymentScreen = lazy(() => import('./pages/PaymentScreen'));
+const PaymentSuccessfulScreen = lazy(() => import('./pages/PaymentSuccessfulScreen'));
+const TicketScreen = lazy(() => import('./pages/TicketScreen'));
+const AnalyticsDashboard = lazy(() => import('./pages/AnalyticsDashboard'));
+const Messages = lazy(() => import('./pages/Messages'));
+const Tourism = lazy(() => import('./pages/Tourism'));
+const HelpSupport = lazy(() => import('./pages/HelpSupport'));
+const Events = lazy(() => import('./pages/Event'));
+const Blog = lazy(() => import('./pages/Blog'));
+const Login = lazy(() => import('./pages/Login'));
+const SignUp = lazy(() => import('./pages/SignUp'));
+const HelpCenter = lazy(() => import('./pages/HelpCenter'));
+const Hotel = lazy(() => import('./pages/Hotel'));
+const VenueDetails = lazy(() => import('./pages/VenueDetails'));
+const BookingComfirmationPage = lazy(() => import('./pages/BookingComfirmationPage'));
 import GuestGuard from "./components/GuestGuard";
-import ExploreAbiaPage from "./pages/ExploreAbiaPage";
-import Community from "./pages/Community";
-import Food from "./pages/Food";
-import DiscoverAbia from "./pages/DiscoverAbia";
-import Transport from "./pages/Transport";
-import NotFound from "./pages/NotFound";
-import RestaurantDetails from "./pages/RestaurantDetails";
+const ExploreAbiaPage = lazy(() => import('./pages/ExploreAbiaPage'));
+const Community = lazy(() => import('./pages/Community'));
+const Food = lazy(() => import('./pages/Food'));
+const AboutAbia = lazy(() => import('./pages/DiscoverAbia'));
+const DiscoverAbia = lazy(() => import('./pages/DiscoverAbia'));
+const Transport = lazy(() => import('./pages/Transport'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const RestaurantDetails = lazy(() => import('./pages/RestaurantDetails'));
 import Onboarding from "./components/onboarding/Onboarding";
-import Profile from "./pages/Profile";
-import Terms from "./pages/Terms";
-import OrganizerApplication, {
-  OrganizerSignup,
-} from "./pages/OrganizerApplication";
-import OrganizerLogin from "./pages/OrganizerLogin";
-import OrganizerDashboard from "./pages/OrganizerDashboard";
-import OrganizerEvents from "./pages/OrganizerEvents";
-import OrganizerEventForm from "./pages/OrganizerEventForm";
-import OrganizerEventPreview from "./pages/OrganizerEventPreview";
-import OrganizerAnalytics from "./pages/OrganizerAnalytics";
-import OrganizerMessages from "./pages/OrganizerMessages";
-import OrganizerTicketSales from "./pages/OrganizerTicketSales";
-import OrganizerAttendees from "./pages/OrganizerAttendees";
-import OrganizerPayouts from "./pages/OrganizerPayouts";
-import OrganizerSettings from "./pages/OrganizerSettings";
-import OrganizerNotFound from "./pages/OrganizerNotFound";
+const Profile = lazy(() => import('./pages/Profile'));
+const Terms = lazy(() => import('./pages/Terms'));
+const OrganizerApplication = lazy(() => import('./pages/OrganizerApplication'));
+const OrganizerSignup = lazy(() => import('./pages/OrganizerApplication').then(module => ({default: module.OrganizerSignup})));
+const OrganizerLogin = lazy(() => import('./pages/OrganizerLogin'));
+const OrganizerDashboard = lazy(() => import('./pages/OrganizerDashboard'));
+const OrganizerEvents = lazy(() => import('./pages/OrganizerEvents'));
+const OrganizerEventForm = lazy(() => import('./pages/OrganizerEventForm'));
+const OrganizerEventPreview = lazy(() => import('./pages/OrganizerEventPreview'));
+const OrganizerAnalytics = lazy(() => import('./pages/OrganizerAnalytics'));
+const OrganizerMessages = lazy(() => import('./pages/OrganizerMessages'));
+const OrganizerTicketSales = lazy(() => import('./pages/OrganizerTicketSales'));
+const OrganizerAttendees = lazy(() => import('./pages/OrganizerAttendees'));
+const OrganizerPayouts = lazy(() => import('./pages/OrganizerPayouts'));
+const OrganizerSettings = lazy(() => import('./pages/OrganizerSettings'));
+const OrganizerNotFound = lazy(() => import('./pages/OrganizerNotFound'));
 import { useParams, Navigate } from "react-router-dom";
 
 import { UserProvider } from "./components/context/UserContext";
 import { Toaster } from "@/components/ui/toaster";
-import ContactPage from "./pages/ContactPage";
-import SearchResultsPage from "./pages/SearchResultsPage";
-import HistoricalSitesPage from "./pages/HistoricalSitesPage";
-import CavesAndHillsPage from "./pages/CavesAndHillsPage";
-import ReligiousSitesPage from "./pages/ReligiousSitesPage";
-import AdventurePage from "./pages/AdventurePage";
-import TourDestinationDetails from "./pages/TourDestinationDetails";
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+const SearchResultsPage = lazy(() => import('./pages/SearchResultsPage'));
+const HistoricalSitesPage = lazy(() => import('./pages/HistoricalSitesPage'));
+const CavesAndHillsPage = lazy(() => import('./pages/CavesAndHillsPage'));
+const ReligiousSitesPage = lazy(() => import('./pages/ReligiousSitesPage'));
+const AdventurePage = lazy(() => import('./pages/AdventurePage'));
+const TourDestinationDetails = lazy(() => import('./pages/TourDestinationDetails'));
 import SecuritySettingsPage from "./components/profile/SecuritySettingsPage";
 import AllGroupsPage from "./components/community/screenFour/AllGroupsPage";
 import PeoplePage from "./components/community/screenFive.jsx/PeoplePage";
-import CommunityPage from "./pages/CommunityPage";
-import GroupDetailPage from "./pages/GroupDetailPage";
-import CreatePostPage from "./pages/CreatePostPage";
-import PersonProfilePage from "./pages/PersonProfilePage";
-import AdminLogin from "../src/components/Admin/login/AdminLogin";
-import AdminForgotPassword from "./components/Admin/login/AdminForgotPassword";
-import AdminVerifyOtp from "./components/Admin/login/AdminVerifyOtp";
+const CommunityPage = lazy(() => import('./pages/CommunityPage'));
+const GroupDetailPage = lazy(() => import('./pages/GroupDetailPage'));
+const CreatePostPage = lazy(() => import('./pages/CreatePostPage'));
+const PersonProfilePage = lazy(() => import('./pages/PersonProfilePage'));
+const AdminLogin = lazy(() => import('../src/components/Admin/login/AdminLogin'));
+const AdminForgotPassword = lazy(() => import('./components/Admin/login/AdminForgotPassword'));
+const AdminVerifyOtp = lazy(() => import('./components/Admin/login/AdminVerifyOtp'));
 import AdminLayout from "./components/Admin/layout/AdminLayout";
-import AdminDashboard from "./components/Admin/dashboard/AdminDashboard";
-import AdminUsers from "./components/Admin/users/AdminUsers";
-import AdminUserDetails from "./components/Admin/users/AdminUserDetails";
-import AdminOrganizers from "./components/Admin/organizers/AdminOrganizers";
-import AdminOrganizerDetails from "./components/Admin/organizers/details/AdminOrganizerDetails";
-import AdminEvents from "./components/Admin/events/AdminEvents";
-import AdminEventDetails from "./components/Admin/events/details/AdminEventDetails";
-import AdminEventReview from "./components/Admin/events/details/eventReviewPage/AdminEventReview";
-import AdminTourism from "./components/Admin/tourism/AdminTourism";
-import DestinationDetail from "./components/Admin/tourism/details/DestinationDetail";
-import AdminProperties from "./components/Admin/hotels/properties/AdminProperties";
-import PropertyDetail from "./components/Admin/hotels/properties/details/PropertyDetail";
-import AdminFood from "./components/Admin/food/AdminFood";
-import FoodVendorDetail from "./components/Admin/food/details/FoodVendorDetail";
-import AdminTransportDashboard from "./components/Admin/transport/AdminTransportDashboard";
 import AboutAbia from "./pages/AboutAbia";
 import ScrollToTop from "./components/common/ScrollToTop";
+const AdminDashboard = lazy(() => import('./components/Admin/dashboard/AdminDashboard'));
+const AdminUsers = lazy(() => import('./components/Admin/users/AdminUsers'));
+const AdminUserDetails = lazy(() => import('./components/Admin/users/AdminUserDetails'));
+const AdminOrganizers = lazy(() => import('./components/Admin/organizers/AdminOrganizers'));
+const AdminOrganizerDetails = lazy(() => import('./components/Admin/organizers/details/AdminOrganizerDetails'));
+const AdminEvents = lazy(() => import('./components/Admin/events/AdminEvents'));
+const AdminEventDetails = lazy(() => import('./components/Admin/events/details/AdminEventDetails'));
+const AdminEventReview = lazy(() => import('./components/Admin/events/details/eventReviewPage/AdminEventReview'));
+const AdminTourism = lazy(() => import('./components/Admin/tourism/AdminTourism'));
+const DestinationDetail = lazy(() => import('./components/Admin/tourism/details/DestinationDetail'));
+const AdminProperties = lazy(() => import('./components/Admin/hotels/properties/AdminProperties'));
+const PropertyDetail = lazy(() => import('./components/Admin/hotels/properties/details/PropertyDetail'));
+const AdminFood = lazy(() => import('./components/Admin/food/AdminFood'));
+const FoodVendorDetail = lazy(() => import('./components/Admin/food/details/FoodVendorDetail'));
+const AdminTransportDashboard = lazy(() => import('./components/Admin/transport/AdminTransportDashboard'));
 
 // /organizer/events/:id/edit needs the :id param handed to OrganizerEventForm
 // as the `editId` prop.
@@ -662,9 +662,9 @@ const App = () => {
       <div className="min-h-screen bg-[#f5f7f3]">
         <div>
           <UserProvider>
-            <AnchorNavigation />
             <ScrollToTop />
-            <Routes>
+            <AnchorNavigation/>
+            <Suspense fallback={<PageSkeleton/>}><Routes>
               <Route path="/" element={<Layout />}>
                 {navList.map((item, index) => (
                   <Route key={index} path={item.path} element={item.element} />
@@ -708,7 +708,7 @@ const App = () => {
                   }
                 />
               ))}
-            </Routes>
+            </Routes></Suspense>
           </UserProvider>
         </div>
       </div>

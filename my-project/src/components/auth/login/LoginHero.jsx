@@ -1,9 +1,10 @@
+import SiteImage from '@/components/SiteImage';
 import React from "react";
 
 const LoginHero = () => {
   return (
     <div className="relative h-[320px] md:h-full">
-      <img
+      <SiteImage priority
         src="/Mask group.png"
         alt="Mmemme Tower"
         className="w-full h-full object-cover"

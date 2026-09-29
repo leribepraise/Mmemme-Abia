@@ -1,4 +1,5 @@
 import React from "react";
+import { imageAsset } from '@/components/SiteImage';
 import { NavLink } from "react-router-dom";
 import {
   MapPin,
@@ -12,7 +13,7 @@ export default function HeroSection() {
   return (
     <div
       className="rounded-3xl overflow-hidden p-6 md:p-12 text-white relative bg-cover bg-center"
-      style={{ backgroundImage: "url('/tourism.jpg')" }}
+      style={{ backgroundImage: `url('${imageAsset('/tourism.jpg')}')` }}
     >
       <div className="absolute inset-0 bg-[#07152A]/50"></div>
 

@@ -35,6 +35,13 @@
     handle {
         root * /app/dist
         route {
+            @versioned path /assets/* /optimized/*
+            header @versioned Cache-Control "public, max-age=31536000, immutable"
+            @images {
+                path *.png *.jpg *.jpeg *.webp *.svg *.avif *.woff2
+                not path /assets/* /optimized/*
+            }
+            header @images Cache-Control "public, max-age=86400"
             try_files {path} /index.html
             @index path /index.html
             header @index Cache-Control "no-cache"

@@ -1,16 +1,17 @@
 import React from "react";
+import SiteImage from '@/components/SiteImage';
 
 const NotFoundIllustration = () => {
   return (
     <div className="relative w-full max-w-3xl h-[280px] md:h-[330px] flex items-center justify-center">
       {/* Left Background Illustration */}
       <div className="absolute left-0 md:left-8 top-30 opacity-70">
-        <img src="/404-location.png" alt="" className="w-28 md:w-36" />
+        <SiteImage src="/404-location.png" alt="" className="w-28 md:w-36" />
       </div>
 
       {/* Right Background Illustration */}
       <div className="absolute right-0 md:right-8 top-16 opacity-70">
-        <img src="/404-landmark.png" alt="" className="w-28 md:w-36" />
+        <SiteImage src="/404-landmark.png" alt="" className="w-28 md:w-36" />
       </div>
 
       {/* 404 */}
@@ -26,7 +27,7 @@ const NotFoundIllustration = () => {
           </h1>
 
           {/* Girl */}
-          <img
+          <SiteImage priority
             src="/404-girl.png"
             alt="Lost traveler"
             className="absolute left-1/2 -translate-x-1/2 bottom-[-5px] w-36 md:w-48"

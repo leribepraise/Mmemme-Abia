@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from '@/components/context/AuthContext';
 import AdminHeader from "./AdminHeader";
 import AdminSidebar from "./AdminSidebar";
 import AdminFooter from "./AdminFooter";
+import PageSkeleton from '../../PageSkeleton';
 
 const AdminLayout = () => {
   const {user, loading} = useAuth();
@@ -15,7 +16,7 @@ const AdminLayout = () => {
     setSidebarOpen(false);
   }, [pathname]);
 
-  if (loading) return <p role="status" className="p-8">Loading your account…</p>;
+  if (loading) return <PageSkeleton/>;
   if (!user) return <Navigate to="/admin/login" replace/>;
   if (!user.is_staff) return <div role="alert" className="p-8">Administrator access is required.</div>;
   return (
@@ -26,7 +27,7 @@ const AdminLayout = () => {
       {/* pt-16 clears the fixed header, lg:pl-52 clears the fixed sidebar */}
       <div className="flex min-h-screen flex-col pt-16 lg:pl-52">
         <main className="flex-1 px-4 py-5 sm:px-6">
-          <Outlet />
+          <Suspense fallback={<PageSkeleton/>}><Outlet /></Suspense>
         </main>
         <AdminFooter />
       </div>

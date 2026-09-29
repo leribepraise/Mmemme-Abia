@@ -1,3 +1,4 @@
+import SiteImage from '@/components/SiteImage';
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { MapPin, Star, Calendar } from "lucide-react";
@@ -8,7 +9,7 @@ const ResultCard = ({ result }) => {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 flex flex-col sm:flex-row gap-4">
       <div className="relative w-full sm:w-40 h-32 shrink-0 rounded-lg overflow-hidden">
-        <img
+        <SiteImage
           src={result.image}
           alt={result.name}
           className="w-full h-full object-cover"

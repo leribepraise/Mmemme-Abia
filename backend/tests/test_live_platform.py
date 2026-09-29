@@ -78,14 +78,100 @@ class PlatformTests(APITestCase):
             self.assertEqual(settle(payment.pk,data).status,'REVIEW')
         self.assertFalse(Membership.objects.exists())
 
+    @override_settings(PAYSTACK_SECRET_KEY='sk_live_fixture_only')
+    def test_live_membership_requires_verified_live_transaction(self):
+        for domain in ['test', None]:
+            payment = self.payment(); data = self.verification(payment)
+            data['domain'] = domain
+            self.assertEqual(settle(payment.pk, data).status, 'REVIEW')
+        self.assertFalse(Membership.objects.exists())
+        payment = self.payment(); data = self.verification(payment); data['domain'] = 'live'
+        self.assertEqual(settle(payment.pk, data).status, 'SUCCESS')
+
     def test_verification_owner_boundary(self):
         payment=self.payment();self.client.force_authenticate(self.other)
         self.assertEqual(self.client.post('/api/v1/memberships/verify-reference/',{'reference':payment.reference}).status_code,404)
+
+    @override_settings(PAYSTACK_SECRET_KEY='sk_live_fixture_only')
+    def test_live_booking_rejects_test_mode_without_issuing_tickets_or_sale(self):
+        from apps.payments.models import Payment, LedgerEntry
+        from apps.payments.services import settle as settle_booking
+        self.other.is_verified = True
+        self.other.save()
+        event = Event.objects.create(organizer=self.other, title='Live mode', slug='live-mode', category='Culture',
+            venue='Aba', city='Aba', status='PUBLISHED', capacity=5,
+            start_datetime=timezone.now()+timedelta(days=3), end_datetime=timezone.now()+timedelta(days=3,hours=2))
+        ticket = TicketType.objects.create(event=event, name='General', price=1000, quantity=5)
+        booking, _ = reserve(self.user, 'mode-guard-reserve', 'EVENT', [{'id':str(ticket.pk),'quantity':1}], {}, 'Member', '08000000000')
+        payment = Payment.objects.create(user=self.user, booking=booking, reference='PAY-mode-guard',
+            idempotency_key='mode-guard-payment', provider='PAYSTACK', amount=booking.total_amount, status='PROCESSING')
+        data = {'status':'success','reference':payment.reference,'amount':int(payment.amount*100),'currency':'NGN',
+            'id':'live-mode-fixture','metadata':{'booking_id':str(booking.pk)},'customer':{'email':self.user.email}}
+        for domain in ['test', None]:
+            self.assertEqual(settle_booking(payment.pk, {**data, 'domain':domain}).status, 'REVIEW')
+            booking.refresh_from_db()
+            ticket.refresh_from_db()
+            self.assertEqual(booking.status, 'PENDING')
+            self.assertEqual(ticket.quantity_reserved, 1)
+            self.assertEqual(ticket.quantity_sold, 0)
+            self.assertFalse(booking.tickets.exists())
+            self.assertFalse(LedgerEntry.objects.exists())
+        self.assertEqual(settle_booking(payment.pk, {**data, 'domain':'live'}).status, 'SUCCESS')
+        self.assertEqual(booking.tickets.count(), 1)
+        self.assertEqual(LedgerEntry.objects.count(), 1)
 
     def test_paid_plan_switch_does_not_discard_existing_time(self):
         Membership.objects.create(user=self.user,plan_id='diamond',expires_at=timezone.now()+timedelta(days=20))
         result=self.client.post('/api/v1/memberships/checkout/',{'plan':'silver'},HTTP_IDEMPOTENCY_KEY='different-plan')
         self.assertEqual(result.status_code,409)
+
+    def test_launch_cleanup_removes_test_payments_resets_plan_and_preserves_live(self):
+        import tempfile
+        from pathlib import Path
+        from apps.payments.launch_cleanup import apply_launch
+        from apps.payments.models import Payment
+        from apps.bookings.models import Booking
+        from apps.hotels.models import Hotel, RoomType, RoomNight
+        from apps.bookings.services import confirm_locked
+        hotel = Hotel.objects.create(owner=self.other, name='Cleanup test', city='Aba', address='Fixture')
+        room = RoomType.objects.create(hotel=hotel, name='Room')
+        night = RoomNight.objects.create(room_type=room, date=timezone.localdate()+timedelta(days=2), price=5000, quantity=3, quantity_reserved=1)
+        booking = Booking.objects.create(user=self.user,supplier=self.other,kind='HOTEL',parent_id=hotel.pk,total_amount=5000,
+            booking_reference='cleanup-test',details={'check_in':'2099-01-01','check_out':'2099-01-02'})
+        booking.items.create(room_night=night,quantity=1,unit_price=5000,subtotal=5000)
+        confirm_locked(booking)
+        payment = Payment.objects.create(user=self.user,booking=booking,reference='PAY-test',idempotency_key='cleanup-test',provider='PAYSTACK',amount=5000,status='SUCCESS')
+        other_booking = Booking.objects.create(user=self.user,supplier=self.other,kind='HOTEL',parent_id=hotel.pk,total_amount=5000,booking_reference='live-booking')
+        live = Payment.objects.create(user=self.user,booking=other_booking,reference='PAY-live',idempotency_key='live-key',provider='PAYSTACK',amount=5000,status='PROCESSING')
+        plan_payment = self.payment(status='SUCCESS')
+        Membership.objects.create(user=self.user,plan_id='silver',expires_at=timezone.now()+timedelta(days=20))
+        def row(obj): return {'model':obj._meta.label_lower,'id':str(obj.pk),'reference':obj.reference,'status':obj.status,'amount':str(obj.amount),'user_id':obj.user_id}
+        payment.refresh_from_db(); plan_payment.refresh_from_db()
+        report = {'test':[row(payment),row(plan_payment)],'live':[row(live)],'unknown':[],
+                  'memberships':list(Membership.objects.values('pk','user_id','plan_id','expires_at'))}
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp)/'backup.json'
+            result=apply_launch(report,path)
+            self.assertTrue(path.exists())
+            self.assertEqual(result['reset_memberships'],1)
+        self.assertFalse(Payment.objects.filter(pk=payment.pk).exists())
+        self.assertTrue(Payment.objects.filter(pk=live.pk).exists())
+        self.assertFalse(PlanPayment.objects.filter(pk=plan_payment.pk).exists())
+        self.assertEqual(current_membership(self.user)['plan'],'bronze')
+        booking.refresh_from_db(); night.refresh_from_db()
+        self.assertEqual(booking.status,'CANCELLED')
+        self.assertEqual(night.quantity_sold,0)
+        self.assertEqual(night.quantity_available,3)
+
+    def test_launch_cleanup_refuses_unknown_or_live_membership_without_writing(self):
+        from apps.payments.launch_cleanup import apply_launch
+        from django.core.management.base import CommandError
+        report={'test':[],'unknown':[{'id':'unknown'}],'live':[],'memberships':[]}
+        with self.assertRaises(CommandError): apply_launch(report,'must-not-be-created.json')
+        report['unknown']=[]
+        report['memberships']=[{'pk':1,'user_id':self.user.pk,'plan_id':'silver','expires_at':timezone.now()}]
+        report['live']=[{'model':'memberships.planpayment','user_id':self.user.pk,'status':'SUCCESS'}]
+        with self.assertRaises(CommandError): apply_launch(report,'must-not-be-created.json')
 
     def test_blog_requires_editor_and_publication(self):
         denied=self.client.post('/api/v1/community/posts/',{'kind':'BLOG','title':'Story','body':'Text'},format='json')

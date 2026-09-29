@@ -80,7 +80,22 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div role="status" aria-label="Loading page" aria-busy="true" class="boot-skeleton">
+        <div class="boot-heading"></div><div class="boot-line"></div>
+        <div class="boot-grid"><div></div><div></div><div></div></div>
+      </div>
+    </div>
+    <style>
+      .boot-skeleton{max-width:1152px;margin:0 auto;padding:48px 20px}
+      .boot-heading,.boot-line,.boot-grid>div{background:#e8ece7;border-radius:12px}
+      .boot-heading{height:32px;width:192px;margin-bottom:20px}
+      .boot-line{height:16px;width:60%;max-width:400px;margin-bottom:32px}
+      .boot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+      .boot-grid>div{height:300px}
+      @media(prefers-reduced-motion:no-preference){.boot-skeleton{animation:boot-pulse 1.5s ease-in-out infinite}@keyframes boot-pulse{50%{opacity:.5}}}
+    </style>
+    <noscript>Please enable JavaScript to use Mmemme Abia.</noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

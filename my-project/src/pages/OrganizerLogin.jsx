@@ -1,3 +1,4 @@
+import SiteImage from '@/components/SiteImage';
 import hotToast from "react-hot-toast";
 import {safeAppPath} from '@/lib/navigation';
 import { useState } from "react";
@@ -47,7 +48,7 @@ export default function OrganizerLogin() {
 
       {/* Background Photo starting from top-0 and stretching down to touch the footer */}
       <div className="hidden lg:block absolute top-0 left-0 w-1/2 bottom-[320px] z-0">
-        <img
+        <SiteImage priority
           src="/organizer-login-photo.png"
           alt="Organizer background"
           className="w-full h-full object-cover object-center"

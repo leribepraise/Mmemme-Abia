@@ -2,8 +2,6 @@ import React, { useState, useRef } from "react";
 import { Download, FileText, Image as ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
 
-import html2canvas from "html2canvas-pro";
-import jsPDF from "jspdf";
 import TicketPreview from "./TicketPreview";
 
 const DownloadTicketButton = ({ hotel, bookingRef, booking }) => {
@@ -11,6 +9,7 @@ const DownloadTicketButton = ({ hotel, bookingRef, booking }) => {
   const ticketRef = useRef(null);
 
   const captureTicket = async () => {
+    const { default: html2canvas } = await import('html2canvas-pro');
     const canvas = await html2canvas(ticketRef.current, {
       scale: 2,
       backgroundColor: "#ffffff",
@@ -36,6 +35,7 @@ const DownloadTicketButton = ({ hotel, bookingRef, booking }) => {
 
   const downloadAsPDF = async () => {
     try {
+      const { default: jsPDF } = await import('jspdf');
       const canvas = await captureTicket();
       const imgData = canvas.toDataURL("image/png");
 

@@ -56,6 +56,11 @@ def settle(payment_id,data):
     if payment.status in {"SUCCESS","REFUND_PENDING","REFUNDED"}:
         payment.save(update_fields=["last_checked_at"])
         return payment
+    if settings.PAYSTACK_SECRET_KEY.startswith('sk_live_') and data.get('domain') != 'live':
+        payment.status = 'REVIEW'
+        payment.save(update_fields=['status', 'last_checked_at'])
+        audit(None, 'payment.mode_mismatch', payment.pk)
+        return payment
     if data.get("status") != "success":
         payment.save(update_fields=["last_checked_at"])
         return payment

@@ -1,3 +1,4 @@
+import SiteImage from '@/components/SiteImage';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import React from "react";
@@ -9,7 +10,7 @@ const DishCard = ({ dish }) => {
     <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden min-w-[220px] sm:min-w-[250px] lg:flex-1 shadow-sm hover:shadow-md transition group">
       {/* Image */}
       <div className="relative h-36">
-        <img
+        <SiteImage
           src={dish.image}
           alt={dish.name}
           className="w-full h-full object-cover group-hover:scale-105 transition duration-300"

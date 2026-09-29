@@ -1,3 +1,4 @@
+import SiteImage from '@/components/SiteImage';
 import { api } from "@/lib/api";
 import { useCollection } from "@/hooks/useApi";
 import toast from "react-hot-toast";
@@ -21,7 +22,7 @@ const EventCard = ({ event }) => {
         {/* Image & Overlays */}
         <div className="relative h-[150px] w-full">
           <NavLink to={`/events/${event.id}`} className="block h-full">
-            <img
+            <SiteImage
               src={event.image}
               alt={event.text}
               className="h-full w-full object-cover"
