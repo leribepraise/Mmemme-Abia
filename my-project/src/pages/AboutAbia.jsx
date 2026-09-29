@@ -34,19 +34,6 @@ const AboutAbia = () => {
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      {/* Breadcrumb */}
-      <div className="mx-auto max-w-[1400px] px-4 pt-3 sm:px-6 lg:px-12">
-        <div className="flex items-center gap-2 text-[11px] text-gray-400">
-          <Link to="/" className="hover:text-[#3F783D]">
-            Home
-          </Link>
-
-          <ChevronRight size={12} />
-
-          <span className="font-medium text-gray-600">About Abia</span>
-        </div>
-      </div>
-
       {/* Hero */}
       <section className="mx-auto mt-4 max-w-[1400px] px-4 sm:px-6 lg:px-12">
         <div className="relative h-[230px] overflow-hidden rounded-2xl sm:h-[300px]">
@@ -91,7 +78,7 @@ const AboutAbia = () => {
             </p>
 
             <Link
-              to="/events"
+              to="/tourism"
               className="mt-5 inline-flex items-center rounded-md border border-[#3F783D] px-4 py-2 text-[11px] font-medium text-[#3F783D] transition hover:bg-[#3F783D] hover:text-white"
             >
               Explore Abia
@@ -139,10 +126,9 @@ const AboutAbia = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#fafafa]">
+      {/* <footer className="bg-[#fafafa]">
         <div className="mx-auto grid max-w-[1400px] gap-8 px-8 py-8 sm:grid-cols-3 sm:px-12">
-          {/* Account */}
+          
           <div>
             <h3 className="text-[11px] font-semibold text-gray-900">Account</h3>
 
@@ -161,7 +147,7 @@ const AboutAbia = () => {
             </div>
           </div>
 
-          {/* Organizer */}
+         
           <div>
             <h3 className="text-[11px] font-semibold text-gray-900">
               Organizer
@@ -184,7 +170,7 @@ const AboutAbia = () => {
             </div>
           </div>
 
-          {/* Support */}
+           
           <div>
             <h3 className="text-[11px] font-semibold text-gray-900">Support</h3>
 
@@ -199,7 +185,7 @@ const AboutAbia = () => {
             </div>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 };

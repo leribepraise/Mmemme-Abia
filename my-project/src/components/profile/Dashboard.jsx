@@ -1,12 +1,7 @@
-<<<<<<< HEAD
 import toast from "react-hot-toast";
+import ShareApp from "@/components/ShareApp";
 import { Link } from "react-router-dom";
-=======
-import toast from 'react-hot-toast';
-import ShareApp from '@/components/ShareApp';
-import { Link } from 'react-router-dom';
-import { useNotifications } from '@/components/context/NotificationsContext';
->>>>>>> 748bcc0e90ac2a4c15244e6b81d405978680c276
+import { useNotifications } from "@/components/context/NotificationsContext";
 import { useCollection } from "@/hooks/useApi";
 import { bookingCard } from "@/lib/catalog";
 import React, { useEffect, useState } from "react";
@@ -31,7 +26,6 @@ import Info from "./common/Info";
 import Preference from "./common/Preference";
 
 const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
-<<<<<<< HEAD
   const {
     data: bookings,
     loading: bookingsLoading,
@@ -43,14 +37,8 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
     loading: ticketsLoading,
     error: ticketsError,
   } = useCollection("/tickets/");
-  const { data: notifications } = useCollection("/notifications/");
-  const { data: savedEvents } = useCollection("/saved-events/");
-=======
-  const { data: bookings, loading: bookingsLoading, error: bookingsError, reload: reloadBookings } = useCollection("/bookings/", bookingCard);
-  const { data: tickets, loading: ticketsLoading, error: ticketsError } = useCollection('/tickets/');
   const { unreadCount } = useNotifications();
-  const { data: savedEvents } = useCollection('/saved-events/');
->>>>>>> 748bcc0e90ac2a4c15244e6b81d405978680c276
+  const { data: savedEvents } = useCollection("/saved-events/");
   const [savedHotelCount, setSavedHotelCount] = useState(0);
   const savedCount = savedEvents.length + savedHotelCount;
   useEffect(() => {
@@ -175,10 +163,10 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3">
-        <div className="flex justify-center">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 px-4">
           <Link
             to="/events"
-            className="rounded-lg bg-[#f36b0a] px-5 py-3 text-sm font-semibold text-white"
+            className="w-full sm:w-auto text-center rounded-lg bg-[#f36b0a] px-5 py-3 text-sm font-semibold text-white"
           >
             Explore Events
           </Link>
@@ -188,7 +176,7 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
                 ? "/organizer/dashboard"
                 : "/organizer/apply"
             }
-            className="rounded-lg border border-green-800 px-5 py-3 text-sm font-semibold text-green-800"
+            className="w-full sm:w-auto text-center rounded-lg border border-green-800 px-5 py-3 text-sm font-semibold text-green-800"
           >
             {user?.is_verified && user?.role === "ORGANIZER"
               ? "Organizer Dashboard"
@@ -215,7 +203,27 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
         )}
       </div>
       {/* RECENT BOOKINGS */}
-      <div className="mt-5 flex flex-wrap items-center gap-3"><Link to="/plans" className="rounded-lg bg-[#3F783D] px-5 py-3 text-sm font-semibold text-white">Manage {formattedPlan} membership</Link><Link to="/message" className="rounded-lg border px-5 py-3 text-sm">Messages & support</Link><Link to="/community" className="rounded-lg border px-5 py-3 text-sm">Community</Link><ShareApp/></div>
+      <div className="mt-5 flex flex-col sm:flex-wrap sm:flex-row items-stretch sm:items-center gap-3">
+        <Link
+          to="/plans"
+          className="w-full sm:w-auto text-center rounded-lg bg-[#3F783D] px-5 py-3 text-sm font-semibold text-white"
+        >
+          Manage {formattedPlan} membership
+        </Link>
+        <Link
+          to="/message"
+          className="w-full sm:w-auto text-center rounded-lg border px-5 py-3 text-sm"
+        >
+          Messages & support
+        </Link>
+        <Link
+          to="/community"
+          className="w-full sm:w-auto text-center rounded-lg border px-5 py-3 text-sm"
+        >
+          Community
+        </Link>
+        <ShareApp />
+      </div>
       <section className="mt-5 rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-bold text-[#172033]">Recent Bookings</h2>
@@ -288,7 +296,7 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
           <Info label="LGA" value={user?.lga || "Not provided"} />
 
           <Info label="Email" value={user?.email || "Not provided"} />
-          
+
           <Info label="LGA" value={user?.lga || "Not provided"} />
 
           <Info label="Phone Number" value={user?.phone || "Not provided"} />
