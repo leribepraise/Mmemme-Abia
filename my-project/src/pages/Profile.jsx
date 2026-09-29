@@ -1,8 +1,8 @@
 import toast from "react-hot-toast";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-// import { useAuth } from "../components/context/AuthContext";
-// import { useUser } from "../components/context/UserContext";
+import { useAuth } from "../components/context/AuthContext";
+import { useUser } from "../components/context/UserContext";
 
 import ProfileSidebar from "../components/profile/ProfileSidebar";
 import ProfileMobileHeader from "../components/profile/ProfileMobileHeader";
@@ -18,15 +18,35 @@ import Seo from "../components/seo/Seo";
 
 const Profile = () => {
   const navigate = useNavigate();
-  useEffect(()=>{window.scrollTo(0,0);},[]);
-  const [params,setParams] = useSearchParams();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const [params, setParams] = useSearchParams();
+
   const { logout } = useAuth();
   const { user } = useUser();
 
-  const activeSection = ["Dashboard", "My Tickets", "My Bookings", "Saved Items", "Payment History", "Notifications", "Settings"].includes(params.get("section")) ? params.get("section") : "Dashboard";
-  const setActiveSection = section => setParams({section});
+  const activeSection = [
+    "Dashboard",
+    "My Tickets",
+    "My Bookings",
+    "Saved Items",
+    "Payment History",
+    "Notifications",
+    "Settings",
+  ].includes(params.get("section"))
+    ? params.get("section")
+    : "Dashboard";
+
+  const setActiveSection = (section) => setParams({ section });
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  useEffect(() => setMobileMenuOpen(false), [activeSection]);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [activeSection]);
 
   // Handle sidebar navigation
   const handleMenuClick = (section) => {
@@ -36,7 +56,12 @@ const Profile = () => {
 
   // Handle logout
   const handleLogout = async () => {
-    try { await logout(); navigate("/"); } catch (error) { toast.error(error.message); }
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   // All profile sections
@@ -65,6 +90,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-[#F7F9F7]">
       <Seo title="My Profile" noIndex path="/profile" />
+
       {/* MOBILE HEADER */}
       <ProfileMobileHeader
         mobileMenuOpen={mobileMenuOpen}

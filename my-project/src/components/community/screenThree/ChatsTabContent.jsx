@@ -18,7 +18,7 @@ const ChatsTabContent = () => {
       const conversationId = findOrCreateDirectConversation(targetUserId);
       setActiveConversationId(conversationId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [location.state]);
 
   const activeConversation = conversations.find(
