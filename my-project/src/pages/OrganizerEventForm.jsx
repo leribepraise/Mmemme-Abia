@@ -1,4 +1,4 @@
-import { useCollection } from "@/hooks/useApi";
+import { useApi } from "@/hooks/useApi";
 import { organizerEvent } from "@/lib/catalog";
 import { api } from "@/lib/api";
 import toast from "react-hot-toast";
@@ -42,8 +42,8 @@ function Stepper({ current }) {
 
 export default function OrganizerEventForm({ editId }) {
   const navigate = useNavigate();
-  const { data: events } = useCollection("/events/mine/", organizerEvent);
-  const existing = editId ? events.find(e => e.id === editId) : undefined;
+  const eventRequest = useApi(editId ? `/events/${editId}/manage/` : null, { map: organizerEvent });
+  const existing = eventRequest.data;
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     title: existing?.title || "",
@@ -52,7 +52,7 @@ export default function OrganizerEventForm({ editId }) {
     description: existing?.description || "",
     date: existing?.date || "",
     venue: existing?.venue || "",
-    price: String(existing?.price || 5000),
+    price: String(existing?.price ?? 5000),
     minimum_plan: 'bronze', membership_discount: false, membership_early_access: false, sales_start: '',
     capacity: String(existing?.ticketCapacity || 500),
     image: existing?.image || "",
@@ -102,6 +102,8 @@ export default function OrganizerEventForm({ editId }) {
     } catch (error) { toast.error(error.message); setSaved(false); }
   };
 
+  if (editId && (eventRequest.loading || eventRequest.error || !existing)) return <div className="p-6" role="status">{eventRequest.error?.message || 'Loading event details…'}</div>;
+  if (existing && !['DRAFT', 'REJECTED'].includes(existing.rawStatus)) return <div className="p-6" role="status">This event cannot be edited while it is under review or published. Contact support for changes.</div>;
   return (
       <OrganizerShell
         breadcrumb={["Home", "Organizer", existing ? "Edit Event" : "Create Event"]}

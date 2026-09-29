@@ -20,10 +20,10 @@ class EventViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = Event.objects.select_related("organizer","organizer__organizer_profile").prefetch_related("ticket_types")
         if self.action in {"list","retrieve"}:
-            qs = qs.filter(status="PUBLISHED",is_suspended=False,organizer__is_active=True,organizer__is_verified=True)
+            qs = qs.filter(status="PUBLISHED",is_suspended=False,is_archived=False,organizer__is_active=True,organizer__is_verified=True)
             if self.action=="list": qs=qs.filter(end_datetime__gt=timezone.now())
         elif not self.request.user.is_staff:
-            qs = qs.filter(organizer=self.request.user)
+            qs = qs.filter(organizer=self.request.user,is_archived=False)
         for field in ["category","city"]:
             if self.request.query_params.get(field): qs=qs.filter(**{field+"__iexact":self.request.query_params[field]})
         search = self.request.query_params.get("search")
@@ -44,13 +44,29 @@ class EventViewSet(viewsets.ModelViewSet):
         Event.objects.select_for_update().get(pk=instance.pk)
         return super().update(request,*args,**kwargs)
     def perform_destroy(self,instance):
-        if instance.status not in {"DRAFT","REJECTED"} or instance.ticket_types.filter(booking_items__isnull=False).exists():
-            raise Conflict("Events with transaction history must be cancelled, not deleted.")
-        instance.delete()
+        raise Conflict("Request event deletion for staff review instead.")
     @action(detail=False,methods=["get"])
     def mine(self,request):
         page=self.paginate_queryset(self.get_queryset())
         return self.get_paginated_response(self.get_serializer(page,many=True).data)
+    @action(detail=True, methods=['get'])
+    def manage(self, request, pk=None):
+        return Response(self.get_serializer(self.get_object()).data)
+    @action(detail=True, methods=['post'], url_path='request-deletion')
+    @transaction.atomic
+    def request_deletion(self, request, pk=None):
+        from apps.bookings.models import Booking
+        event = Event.objects.select_for_update().get(pk=self.get_object().pk)
+        if request.user.pk != event.organizer_id:
+            raise PermissionDenied('Only the organizer can request deletion.')
+        if event.deletion_requested_at:
+            raise Conflict('This event already has a deletion request awaiting staff review.')
+        if Booking.objects.filter(kind='EVENT', parent_id=str(event.pk)).exists():
+            raise Conflict('Events with bookings cannot be deleted. Contact support about cancellation and refunds.')
+        event.deletion_requested_at = timezone.now()
+        event.save(update_fields=['deletion_requested_at', 'updated_at'])
+        audit(request.user, 'event.deletion_requested', event.pk)
+        return Response(self.get_serializer(event).data)
     @action(detail=True, methods=['get'])
     def attendees(self, request, pk=None):
         from apps.tickets.models import Ticket

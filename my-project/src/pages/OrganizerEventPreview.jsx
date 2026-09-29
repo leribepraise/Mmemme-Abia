@@ -1,4 +1,4 @@
-import { useCollection } from "@/hooks/useApi";
+import { useApi } from "@/hooks/useApi";
 import { organizerEvent } from "@/lib/catalog";
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/context/AuthContext";
@@ -42,8 +42,8 @@ function Stepper() {
 export default function OrganizerEventPreview() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: events } = useCollection("/events/mine/", organizerEvent);
-  const event = events.find(e => e.id === id);
+  const request = useApi(`/events/${id}/manage/`, { map: organizerEvent });
+  const event = request.data;
   const { user } = useAuth();
   const organizer = { name: user.fullName, organization: event?.organizer_name || user.fullName || user.email };
 
@@ -51,16 +51,16 @@ export default function OrganizerEventPreview() {
     try { await api(`/events/${event.id}/submit/`, { method: 'POST' }); toast.success('Submitted for staff approval.'); navigate('/organizer/events'); }
     catch (error) { toast.error(error.message); }
   };
-  if (!event) return <p role="status">Loading event...</p>;
+  if (!event) return <p role="status">{request.error?.message || 'Loading event...'}</p>;
+  const editable = ['DRAFT', 'REJECTED'].includes(event.rawStatus);
 
   return (
     <OrganizerShell
       breadcrumb={["Home", "Organizer", "My Events", "Preview"]}
       title="Preview Your Event"
       subtitle="See how your event will appear to the public."
-      actions={
+      actions={editable &&
         <button
-          disabled={!['DRAFT', 'REJECTED'].includes(event.rawStatus)}
           onClick={() => navigate(`/organizer/events/${event.id}/edit`)}
           className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-50"
           data-testid="button-preview-edit"
@@ -74,7 +74,7 @@ export default function OrganizerEventPreview() {
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="h-56 bg-gray-100">
-          <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+          <img src={event.image_detail || event.image} alt={event.title} className="w-full h-full object-cover" />
         </div>
         <div className="p-6">
           <div className="flex items-center gap-2 mb-3">
@@ -123,9 +123,8 @@ export default function OrganizerEventPreview() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3">
+      {editable && <div className="flex items-center justify-between gap-3">
         <button
-          disabled={!['DRAFT', 'REJECTED'].includes(event.rawStatus)}
           onClick={() => navigate(`/organizer/events/${event.id}/edit`)}
           className="px-5 py-2.5 rounded-lg text-sm font-bold text-gray-600 border border-gray-200 bg-white hover:bg-gray-50"
           data-testid="button-preview-back"
@@ -133,13 +132,13 @@ export default function OrganizerEventPreview() {
           Back
         </button>
         <button
-          disabled={!['DRAFT', 'REJECTED'].includes(event.rawStatus)} onClick={publish}
+          onClick={publish}
           className="flex items-center gap-2 bg-[#F36B25] hover:bg-[#d95d1d] text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-colors"
           data-testid="button-preview-publish"
         >
           Submit for Approval <ArrowRight className="w-4 h-4" />
         </button>
-      </div>
+      </div>}
     </OrganizerShell>
   );
 }

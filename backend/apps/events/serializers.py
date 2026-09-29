@@ -27,6 +27,8 @@ class TicketTypeSerializer(serializers.ModelSerializer):
         return attrs
 
 class EventSerializer(serializers.ModelSerializer):
+    image_card = serializers.ImageField(read_only=True)
+    image_detail = serializers.ImageField(read_only=True)
     def to_representation(self, instance):
         data = super().to_representation(instance)
         if not data.get('image') and instance.image_url:
@@ -51,8 +53,8 @@ class EventSerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(required=False)
     class Meta:
         model = Event
-        fields = ["id","organizer","title","slug","description","category","venue","address","city","state","start_datetime","end_datetime","capacity","status","image","image_url","ticket_types","created_at","updated_at"]
-        read_only_fields = ["id","organizer","status","created_at","updated_at"]
+        fields = ["id","organizer","title","slug","description","category","venue","address","city","state","start_datetime","end_datetime","capacity","status","image","image_card","image_detail","image_url","ticket_types","deletion_requested_at","created_at","updated_at"]
+        read_only_fields = ["id","organizer","status","deletion_requested_at","created_at","updated_at"]
     def get_organizer(self,obj):
         profile = getattr(obj.organizer,"organizer_profile",None)
         logo = profile.logo.url if profile and profile.logo else None
@@ -66,6 +68,12 @@ class EventSerializer(serializers.ModelSerializer):
         if view and view.action in {"list","retrieve"}: rows=[row for row in rows if row.is_active]
         return TicketTypeSerializer(rows,many=True).data
     def validate_image(self,value): return validate_image(value) if value else value
+    def update(self, instance, validated_data):
+        if 'image' in validated_data:
+            instance.image_card = None
+            instance.image_detail = None
+            instance.image_processing_last_attempt_at = None
+        return super().update(instance, validated_data)
     def validate(self,attrs):
         start = attrs.get("start_datetime",getattr(self.instance,"start_datetime",None))
         end = attrs.get("end_datetime",getattr(self.instance,"end_datetime",None))

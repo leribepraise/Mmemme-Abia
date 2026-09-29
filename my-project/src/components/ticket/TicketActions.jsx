@@ -1,8 +1,17 @@
 import toast from 'react-hot-toast';
 import React from "react";
-import { Download, Share2 } from "lucide-react";
+import { Download, MessageCircle, Share2 } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { api } from '@/lib/api';
 
 const TicketActions = ({ ticketRef, booking, available }) => {
+  const navigate = useNavigate();
+  const chat = async () => {
+    try {
+      const conversation = await api('/conversations/', { method: 'POST', body: { booking: booking.id } });
+      navigate(`/message?conversation=${conversation.id}`);
+    } catch (error) { toast.error(error.message); }
+  };
   const makePdf = async () => {
       const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([import('html2canvas-pro'), import('jspdf')]);
       const canvas = await html2canvas(ticketRef.current, { scale: 2, backgroundColor: '#ffffff' });
@@ -39,6 +48,7 @@ const TicketActions = ({ ticketRef, booking, available }) => {
         <Share2 className="w-5 h-5" />
         Share Ticket
       </button>
+      <button onClick={chat} className="w-full bg-white border border-[#48782E] text-[#48782E] hover:bg-green-50 font-bold py-3.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm"><MessageCircle className="w-5 h-5" /> Chat with organizer</button>
     </div>
   );
 };

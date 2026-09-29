@@ -64,6 +64,13 @@ class Event(models.Model):
         blank=True,
         null=True,
     )
+    image_card = models.ImageField(upload_to="events/variants/", blank=True, null=True)
+    image_detail = models.ImageField(upload_to="events/variants/", blank=True, null=True)
+    image_processing_last_attempt_at = models.DateTimeField(null=True, blank=True)
+    deletion_requested_at = models.DateTimeField(null=True, blank=True)
+    deletion_reviewed_at = models.DateTimeField(null=True, blank=True)
+    deletion_reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="event_deletion_reviews")
+    is_archived = models.BooleanField(default=False, db_index=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -11,7 +11,7 @@ const TicketCard = ({ booking, ticket }) => {
       <div
         className="absolute inset-0 opacity-20 pointer-events-none"
         style={{
-          backgroundImage: `url('${booking?.image || "/checkout.jpg"}')`,
+          backgroundImage: booking?.image ? `url('${booking.image}')` : 'none',
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

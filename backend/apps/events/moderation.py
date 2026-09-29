@@ -53,3 +53,32 @@ def moderate_event(actor, event_id, decision, reason=''):
     notify(organizer, f'event-review:{event.pk}:{event.reviewed_at.isoformat()}', 'Event review update',
            message + (f'\n\n{reason}' if reason else ''))
     return event
+
+
+@transaction.atomic
+def review_event_deletion(actor, event_id, approve, reason=''):
+    from apps.bookings.models import Booking
+    require_staff_permission(actor, 'events.change_event')
+    event = Event.objects.select_for_update().get(pk=event_id)
+    if actor.pk == event.organizer_id:
+        raise PermissionDenied('You cannot review your own event.')
+    if not event.deletion_requested_at or event.is_archived:
+        raise Conflict('There is no pending deletion request.')
+    if approve and Booking.objects.filter(kind='EVENT', parent_id=str(event.pk)).exists():
+        raise Conflict('This event has bookings. Resolve cancellation and refunds before removing it.')
+    if not approve and not reason.strip():
+        raise ValidationError({'reason': 'Explain why deletion was declined.'})
+    event.deletion_requested_at = None
+    event.deletion_reviewed_at = timezone.now()
+    event.deletion_reviewed_by = actor
+    if approve:
+        # Keep the row and artwork for audit/history, but remove it from all public and organizer lists.
+        event.status = Event.Status.CANCELLED
+        event.is_archived = True
+    event.save(update_fields=['deletion_requested_at', 'deletion_reviewed_at', 'deletion_reviewed_by', 'status', 'is_archived', 'updated_at'])
+    audit(actor, 'event.deletion_approved' if approve else 'event.deletion_declined', event.pk, reason=reason)
+    message = (f'Your request to remove {event.title} has been approved. The event is no longer visible.' if approve
+               else f'Your request to remove {event.title} was declined. {reason}')
+    notify(event.organizer, f'event-deletion:{event.pk}:{event.deletion_reviewed_at.isoformat()}',
+           'Event deletion request', message)
+    return event

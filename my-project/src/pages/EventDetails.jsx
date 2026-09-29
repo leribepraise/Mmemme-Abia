@@ -23,11 +23,11 @@ export default function EventDetails() {
   const [selectedImage, setSelectedImage] = useState('/event.jpg');
   useEffect(() => {
     if (!event) return;
-    setSelectedImage(event.image);
+    setSelectedImage(event.image_detail);
     setTickets(Object.fromEntries(event.ticket_types.map(t => [t.id, Number(t.price) === 0 && t.quantity_available > 0 ? 1 : 0])));
     setEnabledTiers(Object.fromEntries(event.ticket_types.map(t => [t.id, Number(t.price) === 0])));
   }, [event]);
-  const galleryImages = [event?.image || "/event.jpg"];
+  const galleryImages = [event?.image_detail || "/event.jpg"];
 
   const updateQuantity = (type, action) => {
     setTickets((prev) => ({

@@ -8,14 +8,21 @@ from .services import check_in
 
 class TicketSerializer(serializers.ModelSerializer):
     event = serializers.UUIDField(source='ticket_type.event_id', read_only=True)
+    event_image = serializers.SerializerMethodField()
+    def get_event_image(self, obj):
+        event = obj.ticket_type.event
+        picture = event.image_card or event.image
+        url = picture.url if picture else event.image_url or None
+        request = self.context.get('request')
+        return request.build_absolute_uri(url) if request and url and url.startswith('/') else url
     class Meta:
         model=Ticket
-        fields=["id","booking","booking_item","ticket_type","ticket_number","qr_code","status","checked_in_at","event"]
+        fields=["id","booking","booking_item","ticket_type","ticket_number","qr_code","status","checked_in_at","event","event_image"]
         read_only_fields=fields
 
 class TicketViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class=TicketSerializer
-    def get_queryset(self): return Ticket.objects.filter(owner=self.request.user).select_related('ticket_type').order_by("-created_at","id")
+    def get_queryset(self): return Ticket.objects.filter(owner=self.request.user).select_related('ticket_type__event').order_by("-created_at","id")
     @action(detail=True,methods=["get"])
     def qr(self,request,pk=None):
         import qrcode

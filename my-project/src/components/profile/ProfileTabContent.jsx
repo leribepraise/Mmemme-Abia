@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { todayInLagos } from '@/lib/dateOfBirth';
 import toast from "react-hot-toast";
 import { profileSchema } from "./profileSettingsSchemas/profileSchema";
@@ -7,6 +7,7 @@ import { useUser } from "../context/UserContext";
 
 const ProfileTabContent = () => {
   const [errors, setErrors] = useState({});
+  const dateInput = useRef(null);
 
   const { user, updateUser } = useUser();
   const [form, setForm] = useState(user);
@@ -221,16 +222,17 @@ const ProfileTabContent = () => {
 
           <div className="relative">
             <input
+              ref={dateInput}
               type="date"
               max={todayInLagos()}
               value={form.dateOfBirth || ""}
               onChange={handleChange("dateOfBirth")}
-              className={`w-full rounded-lg border pl-4 pr-9 py-3 text-sm outline-none focus:border-green-700 ${
+              className={`profile-date-input w-full rounded-lg border pl-4 pr-11 py-3 text-sm outline-none focus:border-green-700 ${
                 errors.dateOfBirth ? "border-red-500" : "border-gray-200"
               }`}
             />
 
-            <Calendar className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <button type="button" aria-label="Choose date of birth" onClick={() => { if (dateInput.current?.showPicker) dateInput.current.showPicker(); else dateInput.current?.focus(); }} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-gray-400 hover:bg-gray-100"><Calendar className="h-4 w-4" /></button>
           </div>
 
           {errors.dateOfBirth && (

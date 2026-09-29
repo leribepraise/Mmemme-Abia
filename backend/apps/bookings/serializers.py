@@ -9,9 +9,21 @@ class BookingItemSerializer(serializers.ModelSerializer):
 
 class BookingSerializer(serializers.ModelSerializer):
     items = BookingItemSerializer(many=True,read_only=True)
+    image = serializers.SerializerMethodField()
+    def get_image(self, obj):
+        if obj.kind != 'EVENT':
+            return None
+        item = next((item for item in obj.items.all() if item.ticket_type_id), None)
+        if not item:
+            return None
+        event = item.ticket_type.event
+        picture = event.image_card or event.image
+        url = picture.url if picture else event.image_url or None
+        request = self.context.get('request')
+        return request.build_absolute_uri(url) if request and url and url.startswith('/') else url
     class Meta:
         model = Booking
-        fields = ["id","booking_reference","kind","status","fulfillment_status","total_amount","currency","expires_at","details","customer_name","customer_phone","customer_note","items","created_at"]
+        fields = ["id","booking_reference","kind","status","fulfillment_status","total_amount","currency","expires_at","details","image","customer_name","customer_phone","customer_note","items","created_at"]
         read_only_fields = fields
 
 class EntrySerializer(serializers.Serializer):

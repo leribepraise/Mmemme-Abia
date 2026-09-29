@@ -10,6 +10,8 @@ const EventGallery = ({
       <div className="relative rounded-2xl overflow-hidden shadow-sm h-64 md:h-80 bg-slate-900">
         <SiteImage
           src={selectedImage}
+          srcSet={selectedImage === event.image_detail && event.image_card ? `${event.image_card} 640w, ${event.image_detail} 1280w` : undefined}
+          sizes="(max-width: 1024px) 100vw, 66vw"
           alt={event?.text || "Event"}
           className="w-full h-full object-cover"
         />
@@ -31,7 +33,7 @@ const EventGallery = ({
             }`}
           >
             <SiteImage
-              src={img}
+              src={event?.image || img}
               alt={`Thumbnail ${index + 1}`}
               className="h-16 w-full object-cover"
             />

@@ -78,3 +78,4 @@
 .dark .boot-heading,.dark .boot-line,.dark .boot-grid>div { background: #30343a; }
 .dark img[src="/logo.png"] { background: transparent; padding: 0; filter: brightness(1.4); }
 .dark [data-testid="sidebar-organizer"] { background-color: #202328; }
+.profile-date-input::-webkit-calendar-picker-indicator { display: none; }

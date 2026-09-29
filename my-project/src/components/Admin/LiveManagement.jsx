@@ -6,7 +6,7 @@ import { allPages } from '@/lib/api';
 import toast from 'react-hot-toast';
 import StatsGrid from './dashboard/StatsGrid';
 
-export const statusName = row => row.is_suspended || row.is_active === false || row.user?.is_active === false ? 'Suspended' : ({APPROVED:'Verified', IN_REVIEW:'Pending', PUBLISHED:'Published', NEEDS_INFO:'More information needed'})[row.status] || (row.status ? row.status.replaceAll('_', ' ').toLowerCase() : 'Active');
+export const statusName = row => row.deletion_requested_at ? 'Removal requested' : row.is_archived ? 'Removed' : row.is_suspended || row.is_active === false || row.user?.is_active === false ? 'Suspended' : ({APPROVED:'Verified', IN_REVIEW:'Pending', PUBLISHED:'Published', NEEDS_INFO:'More information needed'})[row.status] || (row.status ? row.status.replaceAll('_', ' ').toLowerCase() : 'Active');
 export const personName = user => [user.first_name, user.last_name].filter(Boolean).join(' ') || user.email;
 export const dateLabel = value => value ? new Date(value).toLocaleDateString('en-NG', {day:'numeric', month:'short', year:'numeric'}) : 'Not provided';
 export const Field = ({label, children}) => <div className="min-w-0"><dt className="text-xs text-slate-500">{label}</dt><dd className="mt-1 break-words text-sm text-slate-800">{children === 0 ? 0 : children || 'Not provided'}</dd></div>;
@@ -16,7 +16,7 @@ export function RequestState({request}) {
   return null;
 }
 const stat = (id,label,value,icon) => ({id,label,value:value ?? '—',icon});
-const statusOptions = {users:[['active','Active'],['suspended','Suspended']],organizers:[['PENDING','Pending'],['APPROVED','Verified'],['NEEDS_INFO','More information needed'],['REJECTED','Rejected'],['SUSPENDED','Suspended']],events:[['DRAFT','Draft'],['IN_REVIEW','Pending'],['PUBLISHED','Published'],['REJECTED','Rejected'],['SUSPENDED','Suspended'],['CANCELLED','Cancelled'],['COMPLETED','Completed']]};
+const statusOptions = {users:[['active','Active'],['suspended','Suspended']],organizers:[['PENDING','Pending'],['APPROVED','Verified'],['NEEDS_INFO','More information needed'],['REJECTED','Rejected'],['SUSPENDED','Suspended']],events:[['DELETE_REQUESTED','Removal requests'],['DRAFT','Draft'],['IN_REVIEW','Pending'],['PUBLISHED','Published'],['REJECTED','Rejected'],['SUSPENDED','Suspended'],['CANCELLED','Cancelled'],['COMPLETED','Completed']]};
 const inputClass = 'rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm';
 export default function LiveManagement({kind, hotelHosts = false}) {
   const [params,setParams] = useSearchParams();

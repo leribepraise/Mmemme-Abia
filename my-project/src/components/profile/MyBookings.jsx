@@ -13,7 +13,7 @@ import {
   CalendarDays,
   Ticket,
   Users,
-  MoreHorizontal,
+  MessageCircle,
   Hotel,
   Check,
 } from "lucide-react";
@@ -220,11 +220,7 @@ const MyBookings = () => {
               >
                 {/* Image */}
                 <div className="relative h-[85px] w-full shrink-0 overflow-hidden rounded-md sm:h-[78px] sm:w-[118px]">
-                  <img
-                    src={booking.image || "/placeholder.png"}
-                    alt={booking.title}
-                    className="h-full w-full object-cover"
-                  />
+                  {booking.image ? <img src={booking.image} alt={booking.title} loading="lazy" className="h-full w-full object-cover" /> : <div className="h-full w-full bg-slate-100" />}
 
                   {/* Event Date */}
                   {type === "event" && (
@@ -340,10 +336,10 @@ const MyBookings = () => {
 
                   <button
                     type="button"
-                    title="Contact provider" aria-label="Contact provider" disabled={contacting} onClick={() => contactProvider(booking)}
+                    title={booking.kind === 'EVENT' ? 'Chat with organizer' : 'Chat with provider'} aria-label={booking.kind === 'EVENT' ? 'Chat with organizer' : 'Chat with provider'} disabled={contacting} onClick={() => contactProvider(booking)}
                     className="flex h-8 w-8 items-center justify-center rounded border border-gray-200 text-gray-400 hover:bg-gray-50"
                   >
-                    <MoreHorizontal size={15} />
+                    <MessageCircle size={17} />
                   </button>
                 </div>
               </div>

@@ -140,7 +140,9 @@ const Hero = () => {
         >
           {/* Current Image */}
           <SiteImage priority
-            src={currentSlide.image}
+            src={currentSlide.image_detail || currentSlide.image}
+            srcSet={currentSlide.image_card && currentSlide.image_detail ? `${currentSlide.image_card} 640w, ${currentSlide.image_detail} 1280w` : undefined}
+            sizes="(max-width: 1024px) 100vw, 50vw"
             alt={currentSlide.title}
             className="
               w-full

@@ -41,7 +41,7 @@ const getTicketSummary = (ticketArray) => {
 const MyTickets = () => {
   const [activeTab, setActiveTab] = useState("Upcoming");
   const { data: issuedTickets } = useCollection('/tickets/');
-  const tickets = issuedTickets.map(ticket => ({ ...ticket, title: ticket.ticket_number, image: '/event.jpg', date: '', venue: '', location: '', ticketType: 'Admission', quantity: 1, status: ticket.status === 'ACTIVE' ? 'Upcoming' : ticket.status === 'USED' ? 'Past' : 'Cancelled' }));
+  const tickets = issuedTickets.map(ticket => ({ ...ticket, title: ticket.ticket_number, image: ticket.event_image, date: '', venue: '', location: '', ticketType: 'Admission', quantity: 1, status: ticket.status === 'ACTIVE' ? 'Upcoming' : ticket.status === 'USED' ? 'Past' : 'Cancelled' }));
   const tabs = ["Upcoming", "Past", "Cancelled"];
 
   const filteredTickets = tickets.filter(
@@ -85,11 +85,12 @@ const MyTickets = () => {
             >
               {/* Event Image */}
               <div className="h-[120px] w-full shrink-0 overflow-hidden rounded-lg sm:h-[140px] sm:w-[190px]">
-                <img
+                {ticket.image ? <img
                   src={ticket.image}
                   alt={ticket.title}
                   className="h-full w-full object-cover"
-                />
+                  loading="lazy"
+                /> : <div className="flex h-full items-center justify-center bg-slate-100 text-slate-400"><Ticket size={28}/></div>}
               </div>
 
               {/* Ticket Information */}

@@ -62,6 +62,13 @@ class Command(BaseCommand):
             if not self.run_job("email delivery",deliver_one): break
         for _ in range(50):
             if not self.run_job('push delivery',deliver_push_one): break
+        from apps.events.models import Event
+        from apps.events.images import process_event_image
+        for event_id in Event.objects.exclude(image='').filter(
+            Q(image_card__isnull=True) | Q(image_card='') | Q(image_detail__isnull=True) | Q(image_detail='')
+        ).filter(Q(image_processing_last_attempt_at__isnull=True) | Q(image_processing_last_attempt_at__lt=now-timedelta(minutes=30))).order_by('image_processing_last_attempt_at', 'pk').values_list('pk', flat=True)[:4]:
+            Event.objects.filter(pk=event_id).update(image_processing_last_attempt_at=now)
+            self.run_job('event image optimization', process_event_image, event_id)
         from apps.notifications.models import PushDelivery, PushSubscription
         PushDelivery.objects.filter(notification__created_at__lt=now-timedelta(days=30)).delete()
         PushSubscription.objects.filter(is_active=False,updated_at__lt=now-timedelta(days=30)).delete()

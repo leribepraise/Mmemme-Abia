@@ -15,7 +15,7 @@ class BookingViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin,viewsets.Ge
         qs = Booking.objects.filter(user=user)
         if self.action in {"received","fulfill","analytics","decline"}:
             qs = Booking.objects.filter(supplier=user)
-        return qs.prefetch_related("items")
+        return qs.prefetch_related("items__ticket_type__event")
     def create(self,request):
         data = CreateBookingSerializer(data=request.data)
         data.is_valid(raise_exception=True)

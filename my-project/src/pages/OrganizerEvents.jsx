@@ -5,7 +5,7 @@ import { useAuth } from "@/components/context/AuthContext";
 import toast from "react-hot-toast";
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Filter, MapPin, Send, Search } from "lucide-react";
+import { Filter, MapPin, Send, Search, Trash2 } from "lucide-react";
 import OrganizerShell from "@/components/organizer/OrganizerShell";
 import { seedEvents } from "@/data/organizerData";
 import { load, save } from "@/lib/utils";
@@ -63,6 +63,11 @@ export default function OrganizerEvents() {
     const event = events.find(e => e.id === id);
     if (!['DRAFT', 'REJECTED'].includes(event.rawStatus)) { toast.error('Only drafts can be submitted. Contact support for published event changes.'); return; }
     try { await api(`/events/${id}/submit/`, { method: 'POST' }); reload(); toast.success('Event submitted for review.'); }
+    catch (error) { toast.error(error.message); }
+  };
+  const requestDeletion = async event => {
+    if (!window.confirm(`Request admin approval to remove "${event.title}"? Events with bookings cannot be removed.`)) return;
+    try { await api(`/events/${event.id}/request-deletion/`, { method: 'POST' }); reload(); toast.success('Removal request sent to admin.'); }
     catch (error) { toast.error(error.message); }
   };
 
@@ -160,11 +165,11 @@ export default function OrganizerEvents() {
                     {event.status}
                   </span>
                   <button
-                    onClick={() => navigate(event.status === "Draft" ? `/organizer/events/${event.id}/edit` : `/organizer/events/${event.id}/preview`)}
+                    onClick={() => navigate(['DRAFT', 'REJECTED'].includes(event.rawStatus) ? `/organizer/events/${event.id}/edit` : `/organizer/events/${event.id}/preview`)}
                     className="border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 bg-white shrink-0 shadow-sm"
                     data-testid={`button-view-event-${event.id}`}
                   >
-                    {event.status === "Draft" ? "Edit" : "View"}
+                    {['DRAFT', 'REJECTED'].includes(event.rawStatus) ? "Edit" : "View"}
                   </button>
                   <button
                     onClick={() => toggleStatus(event.id)}
@@ -176,6 +181,7 @@ export default function OrganizerEvents() {
                   >
                     <Send className="w-5 h-5" />
                   </button>
+                  <button type="button" onClick={() => requestDeletion(event)} disabled={Boolean(event.deletion_requested_at)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-40" aria-label={event.deletion_requested_at ? 'Removal pending admin review' : `Request removal of ${event.title}`} title={event.deletion_requested_at ? 'Removal pending admin review' : 'Request admin-approved removal'}><Trash2 className="w-5 h-5" /></button>
                 </div>
               ))}
             </div>

@@ -16,7 +16,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from rest_framework_simplejwt.utils import get_md5_hash_password
-from apps.common.models import audit
+from apps.common.models import audit, AuditLog
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer, OrganizerSerializer, EmailCodeRequestSerializer, EmailCodeVerifySerializer
 from .email_codes import request_email_code, complete_email_code
 from .models import OrganizerProfile
@@ -57,8 +57,14 @@ class LoginView(PublicAuthView):
         User.objects.filter(pk=user.pk).update(last_login=timezone.now())
         refresh = RefreshToken.for_user(user)
         refresh['session_version'] = user.session_version
-        audit(user,"account.login",user.pk)
+        audit(user,"account.login",user.pk, device=request.META.get('HTTP_USER_AGENT', '')[:160])
         return set_refresh(Response({"access":str(refresh.access_token),"user":UserSerializer(user).data,"csrf_token":get_token(request)}),refresh)
+
+
+class LoginActivityView(APIView):
+    def get(self, request):
+        rows = AuditLog.objects.filter(actor=request.user, action='account.login').order_by('-created_at')[:20]
+        return Response([{'at': row.created_at, 'device': row.details.get('device') or 'Unknown device'} for row in rows])
 
 @method_decorator(csrf_protect,name="dispatch")
 class RefreshView(PublicAuthView):

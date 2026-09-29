@@ -58,17 +58,18 @@ const Categories = () => {
         {groups.map((group) => (
           <Link to={`/search?category=Events&q=${encodeURIComponent(group.text === "All Categories" ? "" : group.text)}`}
             key={group.text}
-            className="flex flex-col justify-center items-center bg-[#FFFEFE] p-5 h-20 w-auto text-[12px] rounded-[15px] shadow-xl transition duration-300
+            className="flex flex-col justify-center items-center gap-1 bg-[#FFFEFE] p-3 min-h-24 min-w-[104px] text-[12px] rounded-[15px] shadow-xl transition duration-300
               hover:bg-[#F1FCEE]
               hover:text-black
               hover:-translate-y-1
               cursor-pointer shrink-0"
           >
-            <img
+            <span className="rounded-xl bg-[#e7f6e8] p-1.5"><img
               src={group.image}
-              alt={`${group.text} category`}
-              className="h-10 w-10"
-            />
+              alt=""
+              loading="lazy"
+              className="h-10 w-10 rounded-lg"
+            /></span>
 
             <p className="text-[12px] [font-normal]">{group.text}</p>
           </Link>

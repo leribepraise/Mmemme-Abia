@@ -16,7 +16,7 @@ export default function PaymentScreen() {
   const [params] = useSearchParams();
   const bookingId = params.get('booking') || location.state?.booking?.id;
   const { data: booking, loading, error } = useApi(bookingId ? `/bookings/${bookingId}/` : null);
-  const event = location.state?.event || { text: booking?.details?.title || booking?.items?.[0]?.description || 'Booking', text2: booking?.details?.location || '', date: booking?.details?.check_in || '', image: booking?.kind === 'HOTEL' ? '/hotel.png' : booking?.kind === 'FOOD' ? '/food1.jpg' : '/event.jpg' };
+  const event = location.state?.event || { text: booking?.details?.title || booking?.items?.[0]?.description || 'Booking', text2: booking?.details?.location || '', date: booking?.details?.check_in || '', image: booking?.image || (booking?.kind === 'HOTEL' ? '/hotel.png' : booking?.kind === 'FOOD' ? '/food1.jpg' : null) };
   const tickets = booking?.items.map(item => ({ id: item.id, name: item.description, qty: item.quantity, basePrice: Number(item.unit_price) })) || [];
   const attendee = { fullName: booking?.customer_name };
   const total = Number(booking?.total_amount || 0);

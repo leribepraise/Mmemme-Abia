@@ -5,12 +5,12 @@ from rest_framework.response import Response
 from apps.accounts.admin_api import StaffModelPermission, reason_from
 from .models import Event
 from .serializers import EventSerializer
-from .moderation import moderate_event
+from .moderation import moderate_event, review_event_deletion
 
 
 class AdminEventSerializer(EventSerializer):
     class Meta(EventSerializer.Meta):
-        fields = EventSerializer.Meta.fields + ['review_note', 'review_decision', 'reviewed_at', 'reviewed_by', 'is_suspended']
+        fields = EventSerializer.Meta.fields + ['review_note', 'review_decision', 'reviewed_at', 'reviewed_by', 'is_suspended', 'is_archived', 'deletion_reviewed_at']
         read_only_fields = fields
 
 
@@ -25,7 +25,9 @@ class AdminEventViewSet(viewsets.ReadOnlyModelViewSet):
         if params.get('search'):
             term = params['search']
             qs = qs.filter(Q(title__icontains=term) | Q(organizer__organizer_profile__business_name__icontains=term) | Q(city__icontains=term))
-        if params.get('status') == 'SUSPENDED':
+        if params.get('status') == 'DELETE_REQUESTED':
+            qs = qs.filter(deletion_requested_at__isnull=False, is_archived=False)
+        elif params.get('status') == 'SUSPENDED':
             qs = qs.filter(is_suspended=True)
         elif params.get('status'):
             qs = qs.filter(status=params['status'], is_suspended=False)
@@ -50,3 +52,11 @@ class AdminEventViewSet(viewsets.ReadOnlyModelViewSet):
     def suspend(self, request, pk=None): return self.review(request, 'suspend')
     @action(detail=True, methods=['post'])
     def activate(self, request, pk=None): return self.review(request, 'activate')
+    @action(detail=True, methods=['post'], url_path='approve-deletion')
+    def approve_deletion(self, request, pk=None):
+        event = review_event_deletion(request.user, self.get_object().pk, True, reason_from(request))
+        return Response(self.get_serializer(event).data)
+    @action(detail=True, methods=['post'], url_path='decline-deletion')
+    def decline_deletion(self, request, pk=None):
+        event = review_event_deletion(request.user, self.get_object().pk, False, reason_from(request))
+        return Response(self.get_serializer(event).data)
