@@ -9,11 +9,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema } from "./validation/schemas/signupSchema";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
-import EmailCodeForm from '../EmailCodeForm';
-import VerificationScreen from '../VerificationScreen';
-import { PASSWORD_HELP } from '@/lib/passwordPolicy';
+import EmailCodeForm from "../EmailCodeForm";
+import VerificationScreen from "../VerificationScreen";
+import { PASSWORD_HELP } from "@/lib/passwordPolicy";
 
-const SignUpForm = ({onChallenge = () => {}}) => {
+const SignUpForm = ({ onChallenge = () => {} }) => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [pending, setPending] = useState(null);
@@ -28,28 +28,41 @@ const SignUpForm = ({onChallenge = () => {}}) => {
   const onSubmit = async (data) => {
     try {
       const [first_name, ...last] = data.fullName.trim().split(/\s+/);
-      const details = { email: data.email.trim().toLowerCase(), password: data.password, first_name, last_name: last.join(' ') };
-      await api('/auth/resend-verification/', { method: 'POST', body: { email: details.email } });
+      const details = {
+        email: data.email.trim().toLowerCase(),
+        password: data.password,
+        first_name,
+        last_name: last.join(" "),
+      };
+      await api("/auth/resend-verification/", {
+        method: "POST",
+        body: { email: details.email },
+      });
       setPending(details);
       onChallenge(true);
-    } catch (error) { toast.error(error.message); }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const onInvalid = () => {
-    toast.error('Some fields need your attention before you can continue.');
+    toast.error("Some fields need your attention before you can continue.");
   };
-  const finishSignup = async otp_code => {
-    await api('/auth/register/', { method: 'POST', body: { ...pending, otp_code } });
+  const finishSignup = async (otp_code) => {
+    await api("/auth/register/", {
+      method: "POST",
+      body: { ...pending, otp_code },
+    });
     const credentials = { email: pending.email, password: pending.password };
     setPending(null);
     onChallenge(false);
-    toast.success('Email verified and account created.');
+    toast.success("Email verified and account created.");
     try {
       await login(credentials);
-      navigate('/Signup/onboarding');
+      navigate("/Signup/onboarding");
     } catch {
-      toast('Your account is ready. Please log in to continue.');
-      navigate('/login');
+      toast("Your account is ready. Please log in to continue.");
+      navigate("/login");
     }
   };
   const toggleVisibility = () => {
@@ -61,7 +74,24 @@ const SignUpForm = ({onChallenge = () => {}}) => {
     );
   };
 
-  if (pending) return <VerificationScreen email={pending.email} onVerify={finishSignup} onResend={() => api('/auth/resend-verification/', {method:'POST',body:{email:pending.email}})} onBack={() => {setPending(null);onChallenge(false);}} submitLabel="Verify and create account"/>;
+  if (pending)
+    return (
+      <VerificationScreen
+        email={pending.email}
+        onVerify={finishSignup}
+        onResend={() =>
+          api("/auth/resend-verification/", {
+            method: "POST",
+            body: { email: pending.email },
+          })
+        }
+        onBack={() => {
+          setPending(null);
+          onChallenge(false);
+        }}
+        submitLabel="Verify and create account"
+      />
+    );
   return (
     <div className="p-8 md:p-10 flex items-center">
       <div className="w-full">
@@ -69,105 +99,119 @@ const SignUpForm = ({onChallenge = () => {}}) => {
           Create Your Account
         </h1>
         <p className="text-[14px] text-[#6B7280] mb-8">Let's get you started</p>
-        {pending ? <EmailCodeForm email={pending.email} onVerify={finishSignup} onResend={() => api('/auth/resend-verification/', { method: 'POST', body: { email: pending.email } })} onBack={() => setPending(null)} submitLabel="Verify and create account" /> : <div className="space-y-5">
-          <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
-            {/* Full Name */}
-            <div>
-              <label className="block text-[14px] font-medium text-[#374151] mb-2">
-                Full Name
-              </label>
-              <input
-                type="text"
-                {...register("fullName")}
-                placeholder="Enter your full name"
-                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#48782E]"
-              />
-              {errors.fullName && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.fullName.message}
-                </p>
-              )}
-            </div>
-            {/* Email */}
-            <div>
-              <label className="block text-[14px] font-medium text-[#374151] mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                {...register("email")}
-                placeholder="Enter your email"
-                className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#48782E]"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-            {/* Password */}
-            <div>
-              <label className="block text-[14px] font-medium text-[#374151] mb-2">
-                Password
-              </label>
-              <div className="relative">
+        {pending ? (
+          <EmailCodeForm
+            email={pending.email}
+            onVerify={finishSignup}
+            onResend={() =>
+              api("/auth/resend-verification/", {
+                method: "POST",
+                body: { email: pending.email },
+              })
+            }
+            onBack={() => setPending(null)}
+            submitLabel="Verify and create account"
+          />
+        ) : (
+          <div className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
+              {/* Full Name */}
+              <div>
+                <label className="block text-[14px] font-medium text-[#374151] mb-2">
+                  Full Name
+                </label>
                 <input
-                  type={inputType}
-                  {...register("password")}
-                  placeholder="Create a password"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:border-[#48782E]"
+                  type="text"
+                  {...register("fullName")}
+                  placeholder="Enter your full name"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#48782E]"
                 />
-                {inputType === "password" ? (
-                  <Eye
-                    className="absolute right-3 top-3.5 w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600"
-                    onClick={toggleVisibility}
-                  />
-                ) : (
-                  <EyeOff
-                    className="absolute right-3 top-3.5 w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600"
-                    onClick={toggleVisibility}
-                  />
+                {errors.fullName && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.fullName.message}
+                  </p>
                 )}
               </div>
-              <p className="mt-1 text-xs text-gray-500">{PASSWORD_HELP}</p>
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-            {/* Confirm Password */}
-            <div>
-              <label className="block text-[14px] font-medium text-[#374151] mb-2">
-                Confirm Password
-              </label>
-              <div className="relative">
+              {/* Email */}
+              <div>
+                <label className="block text-[14px] font-medium text-[#374151] mb-2">
+                  Email Address
+                </label>
                 <input
-                  type={comfireInputType}
-                  {...register("confirmPassword")}
-                  placeholder="Confirm your password"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:border-[#48782E]"
+                  type="email"
+                  {...register("email")}
+                  placeholder="Enter your email"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#48782E]"
                 />
-                {comfireInputType === "password" ? (
-                  <Eye
-                    className="absolute right-3 top-3.5 w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600"
-                    onClick={comfireToggleVisibility}
-                  />
-                ) : (
-                  <EyeOff
-                    className="absolute right-3 top-3.5 w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600"
-                    onClick={comfireToggleVisibility}
-                  />
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.confirmPassword.message}
-                </p>
-              )}
-            </div>
-            {/* Terms */}
-            <label className="block text-[14px] font-medium text-[#374151] mb-2">
+              {/* Password */}
+              <div>
+                <label className="block text-[14px] font-medium text-[#374151] mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={inputType}
+                    {...register("password")}
+                    placeholder="Create a password"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:border-[#48782E]"
+                  />
+                  {inputType === "password" ? (
+                    <Eye
+                      className="absolute right-3 top-3.5 w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600"
+                      onClick={toggleVisibility}
+                    />
+                  ) : (
+                    <EyeOff
+                      className="absolute right-3 top-3.5 w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600"
+                      onClick={toggleVisibility}
+                    />
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-gray-500">{PASSWORD_HELP}</p>
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-[14px] font-medium text-[#374151] mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={comfireInputType}
+                    {...register("confirmPassword")}
+                    placeholder="Confirm your password"
+                    className="w-full border border-gray-200 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:border-[#48782E]"
+                  />
+                  {comfireInputType === "password" ? (
+                    <Eye
+                      className="absolute right-3 top-3.5 w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600"
+                      onClick={comfireToggleVisibility}
+                    />
+                  ) : (
+                    <EyeOff
+                      className="absolute right-3 top-3.5 w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600"
+                      onClick={comfireToggleVisibility}
+                    />
+                  )}
+                </div>
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
+              {/* Terms */}
+              {/* <label className="block text-[14px] font-medium text-[#374151] mb-2">
               <input
                 type="checkbox"
                 {...register("terms")}
@@ -183,36 +227,54 @@ const SignUpForm = ({onChallenge = () => {}}) => {
                    Privacy Policy
                 </span>
               </span>
-            </label>
-            {errors.terms && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.terms.message}
-              </p>
-            )}
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-[#F97316] hover:bg-[#df5f18] text-white text-[14px] font-medium py-3 rounded-lg transition cursor-pointer"
-            >
-              {isSubmitting ? 'Sending code...' : 'Send verification code'}
-            </button>
-          </form>
-          <div className="flex items-center gap-3 text-gray-400 text-xs">
-            <div className="flex-1 h-px bg-gray-200"></div>
-            <span>or continue with</span>
-            <div className="flex-1 h-px bg-gray-200"></div>
-          </div>
-          <SignUpSocialButtons />
-          <p className="text-center text-sm text-[#666666]">
-            Already have an account?
-            <NavLink to="/login">
-              <button className="text-[#48782E] font-semibold hover:underline">
-                Log In
+            </label> */}
+              <label className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  {...register("terms")}
+                  className="mt-1 rounded"
+                />
+                <span>
+                  I agree to the{" "}
+                  <span className="text-[#48782E] font-semibold">
+                    Terms &amp; Conditions
+                  </span>{" "}
+                  and{" "}
+                  <span className="text-[#48782E] font-semibold">
+                    Privacy Policy
+                  </span>
+                </span>
+              </label>
+              {errors.terms && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.terms.message}
+                </p>
+              )}
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#F97316] hover:bg-[#df5f18] text-white text-[14px] font-medium py-3 rounded-lg transition cursor-pointer"
+              >
+                {isSubmitting ? "Sending code..." : "Send verification code"}
               </button>
-            </NavLink>
-          </p>
-        </div>}
+            </form>
+            <div className="flex items-center gap-3 text-gray-400 text-xs">
+              <div className="flex-1 h-px bg-gray-200"></div>
+              <span>or continue with</span>
+              <div className="flex-1 h-px bg-gray-200"></div>
+            </div>
+            <SignUpSocialButtons />
+            <p className="text-center text-sm text-[#666666]">
+              Already have an account?
+              <NavLink to="/login">
+                <button className="text-[#48782E] font-semibold hover:underline">
+                  Log In
+                </button>
+              </NavLink>
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
