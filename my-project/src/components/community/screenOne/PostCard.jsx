@@ -45,7 +45,7 @@ const PostCard = ({ post }) => {
         <img
           src={post.image}
           alt=""
-          className="w-full max-h-[420px] object-contain"
+          className="w-full h-auto object-contain"
         />
       )}
 
