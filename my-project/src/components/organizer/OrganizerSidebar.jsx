@@ -65,7 +65,7 @@ export default function OrganizerSidebar() {
   };
   return (
     <aside
-      className="w-64 bg-[#3F7D3D] hidden lg:flex flex-col h-screen sticky top-0 shrink-0"
+      className="w-64 bg-[#3F7D3D] hidden lg:flex flex-col h-dvh overflow-y-auto overscroll-contain sticky top-0 shrink-0"
       data-testid="sidebar-organizer"
     >
       <div className="p-5">

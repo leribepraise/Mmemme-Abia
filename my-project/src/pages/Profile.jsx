@@ -26,6 +26,7 @@ const Profile = () => {
   const activeSection = ["Dashboard", "My Tickets", "My Bookings", "Saved Items", "Payment History", "Notifications", "Settings"].includes(params.get("section")) ? params.get("section") : "Dashboard";
   const setActiveSection = section => setParams({section});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  useEffect(() => setMobileMenuOpen(false), [activeSection]);
 
   // Handle sidebar navigation
   const handleMenuClick = (section) => {
@@ -84,7 +85,7 @@ const Profile = () => {
         {mobileMenuOpen && (
           <div
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 top-[65px] z-30 bg-black/20 lg:hidden"
+            className="fixed inset-x-0 top-[88px] bottom-[calc(76px+env(safe-area-inset-bottom))] z-30 bg-black/20 lg:hidden"
           />
         )}
 

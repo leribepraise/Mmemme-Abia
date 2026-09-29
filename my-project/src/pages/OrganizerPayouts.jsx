@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Banknote, Clock, CreditCard, ShieldCheck, Wallet } from "lucide-react";
 import OrganizerShell from "@/components/organizer/OrganizerShell";
 import OrganizerStatCard from "@/components/organizer/OrganizerStatCard";
+import PayoutAccountForm from '@/components/organizer/PayoutAccountForm';
 import { seedPayouts } from "@/data/organizerData";
 import { naira, load, save } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -15,7 +16,8 @@ const STATUS_STYLE = { Paid: "bg-green-100 text-green-700", Pending: "bg-amber-1
 export default function OrganizerPayouts() {
   const { data: rows, reload } = useCollection('/payouts/');
   const { data: summary, reload: reloadSummary } = useApi('/payouts/summary/');
-  const { data: accounts } = useCollection('/payout-accounts/');
+  const { data: accounts, reload: reloadAccounts } = useCollection('/payout-accounts/');
+  const account = accounts.find(row => row.is_current);
   const [busy, setBusy] = useState(false);
   const key = useRef(crypto.randomUUID());
   const payouts = rows.map(p => ({ ...p, amount: Number(p.amount), date: new Date(p.created_at).toLocaleDateString(), reference: p.latest_reference || p.id }));
@@ -33,7 +35,7 @@ export default function OrganizerPayouts() {
       subtitle="Know what has landed, what is moving and what is next."
       actions={
         <button
-          onClick={requestPayout} disabled={busy}
+          onClick={requestPayout} disabled={busy || account?.status !== 'APPROVED' || Number(summary?.available_for_payout || 0) <= 0}
           className="flex items-center gap-2 bg-[#3F7D3D] text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-[#336633] transition-colors"
           data-testid="button-request-payout"
         >
@@ -45,8 +47,10 @@ export default function OrganizerPayouts() {
         <OrganizerStatCard title="Available Balance" value={naira(Number(summary?.available_for_payout || 0))} trend="Ready to withdraw" icon={Wallet} plain />
         <OrganizerStatCard title="Total Paid Out" value={naira(Number(summary?.paid_out || 0))} trend="Completed payouts" icon={Banknote} plain />
         <OrganizerStatCard title="Pending" value={naira(Number(summary?.payouts_reserved || 0))} trend="Awaiting completion" icon={Clock} plain />
-        <OrganizerStatCard title="Payout Account" value={accounts[0] ? `•• ${accounts[0].account_last4}` : "Not set"} trend={accounts[0]?.status || "Set up in Django admin"} icon={CreditCard} plain />
+        <OrganizerStatCard title="Payout Account" value={account ? `•• ${account.account_last4}` : "Not set"} trend={account?.status || "Add your account below"} icon={CreditCard} plain />
       </div>
+      <PayoutAccountForm onSaved={reloadAccounts}/>
+      {account?.status === 'APPROVED' && Number(summary?.available_for_payout || 0) <= 0 && <p className="text-sm text-gray-500">There are no settled earnings available for payout yet.</p>}
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <div className="flex items-center justify-between mb-6">

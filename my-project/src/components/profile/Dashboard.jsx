@@ -1,5 +1,6 @@
 import toast from 'react-hot-toast';
 import ShareApp from '@/components/ShareApp';
+import ThemeToggle from '@/components/ThemeToggle';
 import { Link } from 'react-router-dom';
 import { useNotifications } from '@/components/context/NotificationsContext';
 import { useCollection } from "@/hooks/useApi";
@@ -260,11 +261,7 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
             value={user?.email_notifications ? "Enabled" : "Disabled"}
           />
 
-          <Preference
-            icon={<Moon size={14} />}
-            label="Dark Mode"
-            value="Disabled"
-          />
+          <ThemeToggle/>
 
           <button onClick={onEditProfile} className="mt-5 w-full rounded-lg border border-gray-200 py-2 text-xs transition hover:bg-gray-50">
             Edit Preferences

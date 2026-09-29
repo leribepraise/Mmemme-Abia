@@ -3,6 +3,7 @@ import NotificationPreferencesCard from "./NotificationPreferencesCard";
 import TravelPreferencesCard from "./TravelPreferencesCard";
 import LanguageCard from "./LanguageCard";
 import PushPreferences from '../pwa/PushPreferences';
+import ThemeToggle from '../ThemeToggle';
 
 const PreferencesTabContent = () => {
   return (
@@ -15,6 +16,7 @@ const PreferencesTabContent = () => {
       </div>
 
       <div className="space-y-4">
+        <ThemeToggle/>
         <PushPreferences/>
         <NotificationPreferencesCard />
         <TravelPreferencesCard />

@@ -7,6 +7,7 @@ import { Bell, ChevronDown, MessageSquare } from "lucide-react";
 import { seedMessages, seedOrganizer } from "@/data/organizerData";
 import { load } from "@/lib/utils";
 import { useAuth } from "@/components/context/AuthContext";
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function OrganizerTopbar() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function OrganizerTopbar() {
 
   return (
     <div className="flex items-center gap-3 shrink-0" data-testid="topbar-organizer-utility">
+      <ThemeToggle compact/>
       <button
         onClick={() => navigate("/organizer/messages")}
         className="relative w-9 h-9 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center text-gray-500 hover:text-[#3F7D3D]"

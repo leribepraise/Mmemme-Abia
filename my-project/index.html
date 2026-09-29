@@ -3,6 +3,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (() => { let theme; try { theme = localStorage.getItem('mmemme-theme'); } catch {}
+        const dark = theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+      })();
+    </script>
 
     <!-- ============ CORE SEO ============ -->
     <!-- This is the SITE-WIDE fallback for "/" and any route that hasn't

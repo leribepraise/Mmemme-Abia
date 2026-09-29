@@ -1,4 +1,5 @@
 import React from "react";
+import ThemeToggle from '../ThemeToggle';
 
 import {
   LayoutDashboard,
@@ -52,22 +53,22 @@ const ProfileSidebar = ({
   return (
     <aside
       className={`
-        fixed left-0 top-[65px] z-40
-        h-[calc(100vh-65px)]
+        fixed left-0 top-[88px] bottom-[calc(76px+env(safe-area-inset-bottom))] z-40 overflow-y-auto overscroll-contain
         w-[260px]
         border-r border-gray-200
         bg-white
         transition-transform duration-300
 
         lg:sticky
-        lg:top-0
-        lg:h-screen
+        lg:top-[96px] lg:bottom-auto
+        lg:h-[calc(100dvh-96px)]
         lg:translate-x-0
+        lg:visible
 
-        ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+        ${mobileMenuOpen ? "visible translate-x-0" : "invisible -translate-x-full"}
       `}
     >
-      <div className="flex h-full flex-col">
+      <div className="flex min-h-full flex-col">
         {/* PROFILE MINI CARD */}
         <div className="border-b border-gray-200 px-5 py-5 text-center">
           {/* PROFILE IMAGE */}
@@ -100,7 +101,7 @@ const ProfileSidebar = ({
         </div>
 
         {/* NAVIGATION */}
-        <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-5">
+        <nav aria-label="Account navigation" className="flex-1 space-y-1 px-4 py-5">
           {menuItems.map((item) => {
             const Icon = item.icon;
 
@@ -133,6 +134,7 @@ const ProfileSidebar = ({
 
         {/* LOGOUT */}
         <div className="border-t border-gray-200 px-4 py-4">
+          <ThemeToggle/>
           <button
             onClick={onLogout}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-red-500 transition hover:bg-red-50"

@@ -50,6 +50,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         code = validated_data.pop("otp_code")
         return complete_email_code(validated_data["email"], code, registration=validated_data)
 
+class OrganizerContactSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
+        fields = ['first_name', 'last_name', 'phone', 'address', 'bio', 'email_notifications']
+        read_only_fields = []
+
+class OrganizerDetailsSerializer(serializers.ModelSerializer):
+    contact_phone = serializers.RegexField(r'\A\+?[0-9 ()-]{10,20}\Z')
+    event_type = serializers.CharField(max_length=100)
+    coverage_region = serializers.CharField(max_length=200)
+    description = serializers.CharField(max_length=2000, allow_blank=True, required=False)
+    class Meta:
+        model = OrganizerProfile
+        fields = ['business_name', 'description', 'contact_phone', 'event_type', 'coverage_region', 'status']
+        read_only_fields = ['status']
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True,trim_whitespace=False,max_length=128)

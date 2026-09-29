@@ -7,6 +7,7 @@ import { IoSearch } from "react-icons/io5";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { NavLink } from "react-router-dom";
 import MobileNav from "./MobileNav";
+import ThemeToggle from '../ThemeToggle';
 import { useAuth } from "@/components/context/AuthContext";
 import { useNotifications } from '@/components/context/NotificationsContext';
 
@@ -45,6 +46,7 @@ const Header = () => {
           ))}
 
           <div className="flex gap-5 items-center">
+            <ThemeToggle compact/>
             {isLoggedIn && (
               <div className="flex gap-3">
                 <NavLink to="/search" aria-label="Search">
@@ -111,7 +113,7 @@ const Header = () => {
         <div className="lg:hidden z-1000">
           <div className="flex justify-between bg-white shadow-md p-4 rounded-lg">
             <NavLink to="/" aria-label="Mmemme Abia home"><img src="/logo.png" alt="" className="w-auto h-10" /></NavLink>
-            <MobileNav />
+            <div className="flex items-center gap-2"><ThemeToggle compact/><MobileNav /></div>
           </div>
         </div>
       </div>

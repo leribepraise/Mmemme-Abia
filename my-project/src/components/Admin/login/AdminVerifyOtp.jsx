@@ -145,7 +145,7 @@ const AdminVerifyOtp = () => {
 
           {/* OTP boxes */}
           <div
-            className="mt-5 grid grid-cols-6 gap-2 sm:gap-3"
+            className="mt-5 min-w-0 grid grid-cols-6 gap-1.5 sm:gap-3"
             onPaste={handlePaste}
           >
             {digits.map((digit, i) => (
@@ -161,7 +161,7 @@ const AdminVerifyOtp = () => {
                 onKeyDown={(e) => handleKeyDown(i, e)}
                 onFocus={(e) => e.target.select()}
                 aria-label={`Digit ${i + 1} of ${OTP_LENGTH}`}
-                className="h-11 w-full rounded-xl border border-slate-200 bg-white text-center text-lg font-medium text-slate-800 shadow-sm outline-none transition focus:border-[#14481f] focus:ring-2 focus:ring-[#14481f]/30 sm:h-[46px]"
+                className="h-11 min-w-0 w-full rounded-xl border border-slate-200 bg-white text-center text-lg font-medium text-slate-800 shadow-sm outline-none transition focus:border-[#14481f] focus:ring-2 focus:ring-[#14481f]/30 sm:h-[46px]"
               />
             ))}
           </div>

@@ -198,3 +198,34 @@ class OrganizerApplicationView(APIView):
                         terms_accepted_at=timezone.now(), terms_version='2026-09')
         audit(request.user,"organizer.applied",request.user.pk)
         return Response(serializer.data,status=201)
+
+class OrganizerProfileView(APIView):
+    """Edit the signed-in organizer's public/contact details, never approval fields."""
+    def profile(self, user):
+        from django.shortcuts import get_object_or_404
+        return get_object_or_404(OrganizerProfile, user=user)
+
+    def response(self, user, profile, request):
+        from .serializers import OrganizerDetailsSerializer
+        return Response({'user': UserSerializer(user, context={'request':request}).data,
+                         'organizer': OrganizerDetailsSerializer(profile).data})
+
+    def get(self, request):
+        return self.response(request.user, self.profile(request.user), request)
+
+    @transaction.atomic
+    def patch(self, request):
+        from .serializers import OrganizerContactSerializer, OrganizerDetailsSerializer
+        if not isinstance(request.data, dict):
+            raise serializers.ValidationError('Send a profile object.')
+        user = User.objects.select_for_update().get(pk=request.user.pk)
+        profile = self.profile(user)
+        profile = OrganizerProfile.objects.select_for_update().get(pk=profile.pk)
+        contact = OrganizerContactSerializer(user, data=request.data.get('user', {}), partial=True)
+        details = OrganizerDetailsSerializer(profile, data=request.data.get('organizer', {}), partial=True)
+        contact.is_valid(raise_exception=True)
+        details.is_valid(raise_exception=True)
+        contact.save()
+        details.save()
+        audit(user, 'organizer.profile_updated', profile.pk)
+        return self.response(user, profile, request)

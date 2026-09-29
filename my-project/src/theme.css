@@ -1,0 +1,79 @@
+/* Compatibility tokens for existing screens with fixed light-theme colors.
+   Brand fills and photographs retain their original colors. */
+.dark {
+  --background: #111b16; --foreground: #edf4ef;
+  --card: #1b2921; --card-foreground: #edf4ef;
+  --popover: #1b2921; --popover-foreground: #edf4ef;
+  --muted: #26382d; --muted-foreground: #b6c4ba;
+  --accent: #2c4234; --accent-foreground: #edf4ef;
+  --border: #3a4c40; --input: #4a6050;
+}
+@layer utilities {
+  .dark :is([class~="bg-[#DBEAFE]"],
+    [class~="bg-[#DCFCE7]"],
+    [class~="bg-[#DFF2E2]"],
+    [class~="bg-[#E4FCE4]"],
+    [class~="bg-[#E7E8E9]"],
+    [class~="bg-[#E7F1FB]"],
+    [class~="bg-[#EAF3FF]"],
+    [class~="bg-[#EAF4EB]"],
+    [class~="bg-[#EAF5EA]"],
+    [class~="bg-[#EAF6EA]"],
+    [class~="bg-[#EEF6EF]"],
+    [class~="bg-[#EFF6FF]"],
+    [class~="bg-[#F0FDF4]"],
+    [class~="bg-[#F1F8F2]"],
+    [class~="bg-[#F1FAF1]"],
+    [class~="bg-[#F1FCEE]"],
+    [class~="bg-[#F3E8FF]"],
+    [class~="bg-[#F3F4F5]"],
+    [class~="bg-[#F4ECFB]"],
+    [class~="bg-[#F5F7F3]"],
+    [class~="bg-[#F6F7F3]"],
+    [class~="bg-[#F7F8F6]"],
+    [class~="bg-[#F7F8F7]"],
+    [class~="bg-[#F7F9F7]"],
+    [class~="bg-[#F7FBF7]"],
+    [class~="bg-[#F8F9FA]"],
+    [class~="bg-[#F9FAF8]"],
+    [class~="bg-[#FAF5FF]"],
+    [class~="bg-[#FCEDE5]"],
+    [class~="bg-[#FDEEE3]"],
+    [class~="bg-[#FDFCFD]"],
+    [class~="bg-[#FEFEFE]"],
+    [class~="bg-[#FFEDD5]"],
+    [class~="bg-[#FFF0E6]"],
+    [class~="bg-[#FFF0E8]"],
+    [class~="bg-[#FFF7ED]"],
+    [class~="bg-[#FFF8F6]"],
+    [class~="bg-[#FFFEFE]"],
+    [class~="bg-[#dcefdc]"],
+    [class~="bg-[#dcf0d9]"],
+    [class~="bg-[#e3f3e7]"],
+    [class~="bg-[#e6f3ea]"],
+    [class~="bg-[#e8f3ea]"],
+    [class~="bg-[#eaf4f0]"],
+    [class~="bg-[#f0f9f6]"],
+    [class~="bg-[#f3f6f1]"],
+    [class~="bg-[#f5f7f3]"],
+    [class~="bg-[#f7f8f8]"],
+    [class~="bg-[#f7f9f6]"],
+    [class~="bg-[#f7f9f7]"],
+    [class~="bg-[#f8f9fa]"],
+    [class~="bg-[#f8faf7]"],
+    [class~="bg-[#fafcf9]"]) { background-color: var(--card); }
+  .dark :is(.bg-white, .bg-white\/95, .bg-white\/90) { background-color: var(--card); }
+  .dark :is(.bg-gray-50,.bg-gray-100,.bg-slate-50,.bg-slate-100,.bg-green-50,.bg-green-100,.bg-emerald-50,.bg-emerald-100) { background-color: var(--muted); }
+  .dark :is(.bg-gray-200,.bg-gray-300,.bg-slate-200,.bg-slate-200\/60,.bg-slate-200\/80) { background-color: #344a3b; }
+  .dark :is(.text-black,.text-gray-800,.text-gray-900,.text-slate-800,.text-slate-900) { color: var(--foreground); }
+  .dark :is(.text-gray-400,.text-gray-500,.text-gray-600,.text-gray-700,.text-slate-400,.text-slate-500,.text-slate-600,.text-slate-700) { color: var(--muted-foreground); }
+  .dark :is(.text-green-600,.text-green-700,.text-green-800,.text-green-900,.text-emerald-700,.text-emerald-800) { color: #a4e4b0; }
+  .dark :is(.border-gray-50,.border-gray-100,.border-gray-200,.border-gray-300,.border-slate-100,.border-slate-200) { border-color: var(--border); }
+  .dark :is(.hover\:bg-gray-50,.hover\:bg-gray-100,.hover\:bg-green-50):hover { background-color: var(--accent); }
+  .dark :is([class~="text-[#172033]"],[class~="text-[#374151]"],[class~="text-[#1F2937]"],[class~="text-[#0f172a]"],[class~="text-[#000000]"],[class~="text-[#3D3E3E]"],[class~="text-[#111827]"]) { color: var(--foreground); }
+  .dark :is([class~="text-[#6B7280]"],[class~="text-[#666666]"],[class~="text-[#4B5563]"],[class~="text-[#98A2B3]"]) { color: var(--muted-foreground); }
+  .dark :is([class~="text-[#3F783D]"],[class~="text-[#3f783d]"],[class~="text-[#3F7D3D]"],[class~="text-[#1a6a2a]"],[class~="text-[#265F27]"],[class~="text-[#48782E]"],[class~="text-[#14481f]"],[class~="text-[#3C6E16]"],[class~="text-[#0f431f]"],[class~="text-[#336633]"],[class~="text-[#1B5E20]"],[class~="text-[#3E753B]"]) { color: #a4e4b0; }
+  .dark input::placeholder,.dark textarea::placeholder { color: #98ad9f; }
+}
+.dark .boot-heading,.dark .boot-line,.dark .boot-grid>div { background: #26382d; }
+.dark img[src="/logo.png"] { background: #f7fbf7; border-radius: 8px; padding: 4px; }
