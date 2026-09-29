@@ -42,11 +42,13 @@ const PostCard = ({ post }) => {
       )}
 
       {post.image && (
-        <img
-          src={post.image}
-          alt=""
-          className="w-full h-auto object-contain"
-        />
+        <div className="w-full overflow-visible">
+          <img
+            src={post.image}
+            alt=""
+            className="w-full h-auto max-h-none object-contain block"
+          />
+        </div>
       )}
 
       <div className="px-4 py-3 flex items-center justify-between">
