@@ -2,7 +2,11 @@ const Plans = lazy(() => import('./pages/Plans'));
 const LiveCommunity = lazy(() => import('./pages/LiveCommunity'));
 const CreateLivePost = lazy(() => import('./pages/LiveCommunity').then(module => ({default: module.CreateLivePost})));
 const LiveGroups = lazy(() => import('./pages/LiveCommunity').then(module => ({default: module.LiveGroups})));
-const LivePeople = lazy(() => import('./pages/LiveCommunity').then(module => ({default: module.LivePeople})));
+const LivePeople = lazy(() =>
+  import('./pages/Community').then(module => ({
+    default: module.LivePeople,
+  }))
+);
 const ResourceManagement = lazy(() => import('./components/Admin/ResourceManagement'));
 const AdminSettings = lazy(() => import('./components/Admin/AdminSettings'));
 import Inbox from './components/notification/Inbox';
