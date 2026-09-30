@@ -6,42 +6,53 @@ import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { eventTicketPath } from '@/lib/navigation';
 import { IoArrowBack, IoArrowForward, IoPlay } from "react-icons/io5";
-
-
+const SLIDE_DURATION_MS = 7000;
 
 const Hero = () => {
   const { data, loading } = useApi('/events/');
   const events = (data?.results || data || []).slice(0, 7).map(eventCard);
-  const heroData = events.length ? events.slice(0, 7).map(event => ({ ...event, title: event.text, date: new Date(event.start_datetime).toLocaleDateString(), location: event.venue, attendees: '', buttonText: 'Get Ticket', color: '#F46F1A' })) : [{ image: '/hero1.jpg', title: 'Explore events in Abia', date: '', location: '', attendees: '', buttonText: 'Explore Events', color: '#F46F1A' }];
+  const heroData = events.length ? events.map(event => ({
+    ...event,
+    title: event.text,
+    date: new Date(event.start_datetime).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }),
+    location: event.venue,
+    description: event.description?.trim() || 'Discover the details and reserve your place at this event.',
+    buttonText: 'Get Ticket',
+  })) : [{ image: '/hero1.jpg', title: 'Explore events in Abia', description: 'Find your next experience in Abia.', buttonText: 'Explore Events' }];
   const [slideIndex, setSlideIndex] = useState(0);
-
-  const currentSlide = heroData[slideIndex % heroData.length];
+  const [paused, setPaused] = useState(false);
+  const [pageVisible, setPageVisible] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const activeIndex = slideIndex % heroData.length;
 
   const nextSlide = () => {
-    setSlideIndex((prevIndex) =>
-      prevIndex === heroData.length - 1 ? 0 : prevIndex + 1,
-    );
+    setSlideIndex(index => (index + 1) % heroData.length);
   };
 
   const previousSlide = () => {
-    setSlideIndex((prevIndex) =>
-      prevIndex === 0 ? heroData.length - 1 : prevIndex - 1,
-    );
+    setSlideIndex(index => (index - 1 + heroData.length) % heroData.length);
   };
 
-  // Automatic slide
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSlideIndex(index => (index + 1) % heroData.length);
-    }, 6000);
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updatePreference = () => setReducedMotion(preference.matches);
+    updatePreference();
+    preference.addEventListener('change', updatePreference);
+    return () => preference.removeEventListener('change', updatePreference);
+  }, []);
 
-    return () => clearInterval(interval);
-  }, [heroData.length]);
-//   useEffect(() => {
-//   const nextIndex = slideIndex === heroData.length - 1 ? 0 : slideIndex + 1;
-//   const img = new Image();
-//   img.src = heroData[nextIndex].image;
-// }, [slideIndex]);
+  useEffect(() => {
+    const updateVisibility = () => setPageVisible(!document.hidden);
+    updateVisibility();
+    document.addEventListener('visibilitychange', updateVisibility);
+    return () => document.removeEventListener('visibilitychange', updateVisibility);
+  }, []);
+
+  useEffect(() => {
+    if (heroData.length < 2 || paused || reducedMotion || !pageVisible) return undefined;
+    const timer = window.setTimeout(() => setSlideIndex(index => (index + 1) % heroData.length), SLIDE_DURATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [activeIndex, heroData.length, paused, reducedMotion, pageVisible]);
 
   if (loading) return <PageSkeleton cards={1}/>;
   return (
@@ -138,24 +149,31 @@ const Hero = () => {
             mt-5
             bg-slate-900
           "
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocusCapture={() => setPaused(true)}
+          onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false); }}
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Featured events"
         >
+          {heroData.map((currentSlide, index) => <div
+            key={currentSlide.id || currentSlide.image}
+            aria-hidden={index !== activeIndex}
+            inert={index !== activeIndex}
+            className={`absolute inset-0 transition-opacity duration-700 ease-in-out motion-reduce:transition-none ${index === activeIndex ? 'z-10 opacity-100' : 'z-0 opacity-0'}`}
+          >
           {/* Current Image */}
-          <SiteImage priority
+          <SiteImage priority={index === 0} loading={index === activeIndex || index === (activeIndex + 1) % heroData.length ? 'eager' : 'lazy'}
             src={currentSlide.image_detail || currentSlide.image}
             srcSet={currentSlide.image_card && currentSlide.image_detail ? `${currentSlide.image_card} 640w, ${currentSlide.image_detail} 1280w` : undefined}
             sizes="(max-width: 1024px) 100vw, 50vw"
             alt={currentSlide.title}
-            className="
-              w-full
-              h-full
-              object-contain
-              transition-opacity
-              duration-500
-            "
+            className={`h-full w-full object-contain transition-transform duration-[7000ms] ease-out motion-reduce:transition-none ${index === activeIndex ? 'scale-[1.035]' : 'scale-100'}`}
           />
 
           {/* DARK OVERLAY */}
-          <div className="absolute inset-0 bg-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/15" />
 
           {/* SLIDE CONTENT */}
           <div className="absolute inset-0 p-5 flex flex-col justify-between">
@@ -163,33 +181,18 @@ const Hero = () => {
             <div className="flex justify-between items-start">
               {/* Featured Badge */}
               <span
-                className="inline-block text-white px-4 py-2 rounded-full text-[10px] font-semibold"
-                style={{
-                  backgroundColor: currentSlide.color,
-                }}
+                className="inline-block rounded-full bg-[#F46F1A] px-4 py-2 text-[10px] font-semibold text-white"
               >
-                Featured Event
+                {events.length ? 'Featured Event' : 'Explore Abia'}
               </span>
 
               {/* Navigation */}
-              <div className="flex gap-2">
+              {heroData.length > 1 && <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={previousSlide}
-                  className={`
-      flex
-      items-center
-      justify-center
-      w-8
-      h-8
-      rounded-full
-      transition
-      ${
-        slideIndex === 0
-          ? "bg-black/60 text-white hover:bg-black/80"
-          : "bg-white text-black hover:bg-gray-100"
-      }
-    `}
+                  aria-label="Previous featured event"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-2 focus-visible:outline-white"
                 >
                   <IoArrowBack size={14} />
                 </button>
@@ -197,42 +200,31 @@ const Hero = () => {
                 <button
                   type="button"
                   onClick={nextSlide}
-                  className={`
-      flex
-      items-center
-      justify-center
-      w-8
-      h-8
-      rounded-full
-      transition
-      ${
-        slideIndex === heroData.length - 1
-          ? "bg-black/60 text-white hover:bg-black/80"
-          : "bg-white text-black hover:bg-gray-100"
-      }
-    `}
+                  aria-label="Next featured event"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80 focus-visible:outline-2 focus-visible:outline-white"
                 >
                   <IoArrowForward size={14} />
                 </button>
-              </div>
+              </div>}
             </div>
 
             {/* BOTTOM INFORMATION */}
-            <div className="text-white max-w-[400px]">
-              <h2 className="font-bold text-xl md:text-[25px] leading-tight">
+            <div className="max-w-[430px] text-white">
+              <h2 className="line-clamp-2 text-xl font-bold leading-tight md:text-[25px]">
                 {currentSlide.title}
               </h2>
 
-              <div className="mt-2 space-y-1 text-[11px] font-medium">
-                <p>📅 {currentSlide.date}</p>
+              <p className="mt-2 line-clamp-2 text-sm leading-snug text-white/90">
+                {currentSlide.description}
+              </p>
 
-                <p>📍 {currentSlide.location}</p>
-
-                {currentSlide.attendees && <p>👥 {currentSlide.attendees}</p>}
+              <div className="mt-2 space-y-1 text-xs font-medium">
+                {currentSlide.date && <p>📅 {currentSlide.date}</p>}
+                {currentSlide.location && <p className="line-clamp-1">📍 {currentSlide.location}</p>}
               </div>
 
               <NavLink
-                to={eventTicketPath(currentSlide)}
+                to={currentSlide.id ? eventTicketPath(currentSlide) : '/events'}
                 className="
                   mt-3
                   inline-flex
@@ -245,11 +237,9 @@ const Hero = () => {
                   text-[11px]
                   font-semibold
                   transition
-                  hover:opacity-90
+                  bg-[#F46F1A]
+                  hover:bg-[#d95d10]
                 "
-                style={{
-                  backgroundColor: currentSlide.color,
-                }}
               >
                 {currentSlide.buttonText}
 
@@ -257,6 +247,7 @@ const Hero = () => {
               </NavLink>
             </div>
           </div>
+          </div>)}
         </div>
 
         {/* DECORATIVE ELEMENTS */}
