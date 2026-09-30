@@ -1,180 +1,1283 @@
-import Seo from "../components/seo/Seo";
-import React, { useState } from "react";
+import SiteImage from '@/components/SiteImage';
+
+import { useState } from 'react';
+
 import {
-  Search,
-  Image as ImageIcon,
-  Smile,
-  MoreHorizontal,
-  Heart,
-  MessageSquare,
-  Share2,
-} from "lucide-react";
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 
-const Community = () => {
-  const [activeTab, setActiveTab] = useState("For You");
-  const tabs = ["For You", "Following", "Trending"];
+import { api } from '@/lib/api';
+import { useApi } from '@/hooks/useApi';
+import { useAuth } from '@/components/context/AuthContext';
+import ShareApp from '@/components/ShareApp';
 
+import toast from 'react-hot-toast';
+
+
+const button =
+  'rounded-lg bg-[#3F783D] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50';
+
+const input =
+  'w-full rounded-lg border border-gray-200 bg-white p-3 text-sm';
+
+
+function ErrorState({ state }) {
+  return state.error ? (
+    <p
+      role="alert"
+      className="rounded-lg bg-red-50 p-3"
+    >
+      {state.error.message}{' '}
+      <button
+        onClick={state.reload}
+        className="underline"
+      >
+        Retry
+      </button>
+    </p>
+  ) : state.loading ? (
+    <p role="status">
+      Loading…
+    </p>
+  ) : null;
+}
+
+
+function Pages({ page, setPage, data }) {
   return (
-    <div className="min-h-screen bg-[#F6F7F3] px-4 py-6 md:px-8 lg:px-12">
-      <Seo title="Community" description="Connect with other people exploring Abia State — share posts, follow trending topics, and join the conversation." path="/community" />
-      <div className="mx-auto max-w-3xl">
-        {/* HEADER SECTION */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-black tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
-              Community
-            </h1>
-            <p className="mt-1 text-base font-semibold text-gray-600 md:text-lg">
-              Connect, share, and grow together across Abia State
-            </p>
-          </div>
+    <div className="flex justify-between gap-4 py-4">
+      <button
+        disabled={page === 1}
+        onClick={() => setPage(page - 1)}
+        className="disabled:opacity-40"
+      >
+        Previous
+      </button>
 
-          {/* RESPONSIVE SEARCH INPUT */}
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search posts, groups, people..."
-              className="h-11 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-4 text-sm font-semibold text-gray-900 outline-none transition focus:border-[#265F27] focus:ring-2 focus:ring-[#265F27]/20 placeholder:text-gray-400"
-            />
-          </div>
-        </div>
+      <span>
+        Page {page}
+      </span>
 
-        {/* CREATE POST CARD */}
-        <div className="mt-6 rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm transition hover:shadow-md">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex flex-1 items-center gap-3">
-              <img
-                src="/blog.jpg"
-                alt="Your Avatar"
-                className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-gray-100"
-              />
-              <input
-                type="text"
-                placeholder="Share something with the community..."
-                className="w-full text-sm font-semibold text-gray-800 outline-none md:text-base placeholder:text-gray-400"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 text-[#265F27]">
-              <button
-                type="button"
-                className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:bg-[#265F27]/10"
-                aria-label="Add image"
-              >
-                <ImageIcon className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:bg-[#265F27]/10"
-                aria-label="Add emoji"
-              >
-                <Smile className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* FEED NAVIGATION TABS */}
-        <div className="mt-6 flex border-b border-gray-200 text-sm font-extrabold md:text-base">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`mr-8 pb-3 transition ${
-                activeTab === tab
-                  ? "border-b-2 border-[#265F27] text-[#265F27]"
-                  : "text-gray-500 hover:text-gray-800"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* COMMUNITY POST CARD */}
-        <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm transition hover:shadow-md">
-          {/* POST AUTHOR HEADER */}
-          <div className="p-4 md:p-5">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/blog2.jpg"
-                  alt="Chinedu Okafor"
-                  className="h-11 w-11 rounded-full object-cover ring-2 ring-gray-100"
-                />
-                <div>
-                  <h3 className="text-base font-extrabold text-gray-900 md:text-lg">
-                    Chinedu Okafor
-                  </h3>
-                  <p className="text-xs font-semibold text-gray-500 md:text-sm">
-                    Umuahia, Abia State · 2h ago
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
-              >
-                <MoreHorizontal className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* POST BODY TEXT */}
-            <p className="mt-4 text-sm font-medium leading-relaxed text-gray-800 md:text-base">
-              The Arochukwu Long Juju monument is such a beautiful piece of our
-              history and culture. Abia is truly blessed! ❤️
-            </p>
-          </div>
-
-          {/* POST ATTACHMENT IMAGE */}
-          <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
-            <img
-              src="/blog3.jpg"
-              alt="Arochukwu Long Juju Monument"
-              className="h-full w-full object-cover transition duration-300 hover:scale-[1.01]"
-            />
-          </div>
-
-          {/* POST METRICS & INTERACTIONS */}
-          <div className="p-4 md:p-5">
-            <div className="flex items-center justify-between text-xs font-extrabold text-gray-600 md:text-sm">
-              <div className="flex items-center gap-6">
-                <button
-                  type="button"
-                  className="flex items-center gap-1.5 text-red-500 transition hover:opacity-80"
-                >
-                  <Heart className="h-5 w-5 fill-red-500 text-red-500" />
-                  <span>106</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="flex items-center gap-1.5 text-gray-600 transition hover:text-[#265F27]"
-                >
-                  <MessageSquare className="h-5 w-5" />
-                  <span>45</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="flex items-center gap-1.5 text-gray-600 transition hover:text-[#265F27]"
-                >
-                  <Share2 className="h-5 w-5" />
-                  <span className="hidden sm:inline">Share</span>
-                </button>
-              </div>
-
-              <span className="font-semibold text-gray-500">
-                45 comments · 12 shares
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <button
+        disabled={!data?.next}
+        onClick={() => setPage(page + 1)}
+        className="disabled:opacity-40"
+      >
+        Next
+      </button>
     </div>
   );
-};
+}
 
-export default Community;
+
+function Comments({ post, onAdded }) {
+  const [page, setPage] = useState(1);
+
+  const state = useApi(
+    `/community/posts/${post}/comments/?page=${page}`
+  );
+
+  const [body, setBody] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [newComments, setNewComments] = useState([]);
+
+  const send = async (event) => {
+    event.preventDefault();
+
+    if (busy) return;
+
+    setBusy(true);
+
+    try {
+      const created = await api(
+        `/community/posts/${post}/comments/`,
+        {
+          method: 'POST',
+          body: { body },
+        }
+      );
+
+      setNewComments((rows) => [
+        created,
+        ...rows,
+      ]);
+
+      setBody('');
+      setPage(1);
+      onAdded();
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const rows =
+    page === 1
+      ? [
+          ...newComments,
+          ...(state.data?.results || []),
+        ]
+      : state.data?.results || [];
+
+  return (
+    <div className="mt-4 space-y-3 border-t pt-4">
+      <ErrorState state={state} />
+
+      {rows.map((comment) => (
+        <div
+          key={comment.id}
+          className="rounded-lg bg-gray-50 p-3 text-sm"
+        >
+          <strong>
+            {comment.author.name}
+          </strong>
+
+          <p className="whitespace-pre-wrap break-words">
+            {comment.body}
+          </p>
+        </div>
+      ))}
+
+      <Pages
+        page={page}
+        setPage={setPage}
+        data={state.data}
+      />
+
+      <form
+        onSubmit={send}
+        className="flex gap-2"
+      >
+        <input
+          required
+          maxLength={2000}
+          aria-label="Comment"
+          placeholder="Write a comment…"
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          className={input}
+        />
+
+        <button
+          disabled={busy}
+          className={button}
+        >
+          Send
+        </button>
+      </form>
+    </div>
+  );
+}
+
+
+function PostCard({
+  post,
+  onRemove,
+  blog = false,
+}) {
+  const { user } = useAuth();
+
+  const [comments, setComments] =
+    useState(false);
+
+  const [report, setReport] =
+    useState(false);
+
+  const [reason, setReason] =
+    useState('');
+
+  const [busy, setBusy] =
+    useState(false);
+
+  const [reaction, setReaction] =
+    useState({
+      liked: !!post.liked,
+      count: post.like_count || 0,
+    });
+
+  const [commentCount, setCommentCount] =
+    useState(post.comment_count || 0);
+
+
+  const like = async () => {
+    if (busy) return;
+
+    const previous = reaction;
+    const wanted = !previous.liked;
+
+    setReaction({
+      liked: wanted,
+      count: Math.max(
+        0,
+        previous.count + (wanted ? 1 : -1)
+      ),
+    });
+
+    setBusy(true);
+
+    try {
+      const confirmed = await api(
+        `/community/posts/${post.id}/like/`,
+        {
+          method: 'POST',
+          body: {
+            liked: wanted,
+          },
+        }
+      );
+
+      setReaction({
+        liked: confirmed.liked,
+        count: confirmed.like_count,
+      });
+    } catch (error) {
+      setReaction(previous);
+      toast.error(error.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+
+  const submitReport = async (event) => {
+    event.preventDefault();
+
+    if (busy) return;
+
+    setBusy(true);
+
+    try {
+      await api(
+        `/community/posts/${post.id}/report/`,
+        {
+          method: 'POST',
+          body: { reason },
+        }
+      );
+
+      setReport(false);
+      setReason('');
+
+      toast.success(
+        'Report sent to moderators.'
+      );
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+
+  const remove = async () => {
+    if (
+      busy ||
+      !window.confirm(
+        'Remove this post from the feed?'
+      )
+    ) {
+      return;
+    }
+
+    setBusy(true);
+
+    try {
+      await api(
+        `/community/posts/${post.id}/`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      onRemove(post.id);
+    } catch (error) {
+      toast.error(error.message);
+      setBusy(false);
+    }
+  };
+
+
+  return (
+    <article className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+      {post.image && (
+        <div className="w-full overflow-visible">
+          <SiteImage
+            src={post.image}
+            alt=""
+            className="block h-auto max-h-none w-full object-contain"
+          />
+        </div>
+      )}
+
+      <div className="space-y-4 p-5">
+        <div className="flex items-center gap-3">
+          {post.author.avatar && (
+            <SiteImage
+              src={post.author.avatar}
+              alt=""
+              className="h-10 w-10 rounded-full object-cover"
+            />
+          )}
+
+          <div>
+            <p className="font-bold">
+              {post.author.name}
+            </p>
+
+            <time className="text-xs text-gray-500">
+              {new Date(
+                post.created_at
+              ).toLocaleString()}
+            </time>
+          </div>
+
+          {post.status !== 'PUBLISHED' && (
+            <span className="ml-auto rounded-full bg-orange-50 px-3 py-1 text-xs">
+              {post.status}
+            </span>
+          )}
+        </div>
+
+        {post.title && (
+          <h2 className="text-2xl font-bold text-[#172033]">
+            <Link
+              to={
+                blog
+                  ? `/blog/${post.id}`
+                  : `/community/posts/${post.id}`
+              }
+            >
+              {post.title}
+            </Link>
+          </h2>
+        )}
+
+        <p className="whitespace-pre-wrap break-words leading-7">
+          {post.body}
+        </p>
+
+        <div className="flex flex-wrap gap-4 text-sm">
+          {user &&
+            post.status === 'PUBLISHED' && (
+              <>
+                <button
+                  type="button"
+                  disabled={busy}
+                  aria-label={
+                    reaction.liked
+                      ? 'Unlike post'
+                      : 'Like post'
+                  }
+                  aria-pressed={
+                    reaction.liked
+                  }
+                  onClick={like}
+                  className={
+                    reaction.liked
+                      ? 'font-bold text-red-600'
+                      : ''
+                  }
+                >
+                  ♥ {reaction.count}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setComments(!comments)
+                  }
+                >
+                  Comments ({commentCount})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setReport(!report)
+                  }
+                >
+                  Report
+                </button>
+              </>
+            )}
+
+          <ShareApp
+            path={
+              blog
+                ? `/blog/${post.id}`
+                : `/community/posts/${post.id}`
+            }
+            title={
+              post.title ||
+              'Mmemme Abia community'
+            }
+            label="Share"
+          />
+
+          {user?.id === post.author.id && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={remove}
+            >
+              Remove
+            </button>
+          )}
+        </div>
+
+        {report && (
+          <form
+            onSubmit={submitReport}
+            className="flex gap-2"
+          >
+            <input
+              required
+              maxLength={1000}
+              value={reason}
+              onChange={(e) =>
+                setReason(e.target.value)
+              }
+              placeholder="Tell moderators what is wrong"
+              aria-label="Report reason"
+              className={input}
+            />
+
+            <button
+              disabled={busy}
+              className={button}
+            >
+              Report
+            </button>
+          </form>
+        )}
+
+        {comments && (
+          <Comments
+            post={post.id}
+            onAdded={() =>
+              setCommentCount(
+                (value) => value + 1
+              )
+            }
+          />
+        )}
+      </div>
+    </article>
+  );
+}
+
+
+export function CreateLivePost() {
+  const [params] =
+    useSearchParams();
+
+  const navigate =
+    useNavigate();
+
+  const groups = useApi(
+    '/community/groups/?mine=true'
+  );
+
+  const [body, setBody] =
+    useState('');
+
+  const [group, setGroup] =
+    useState(
+      params.get('group') || ''
+    );
+
+  const [image, setImage] =
+    useState(null);
+
+  const [busy, setBusy] =
+    useState(false);
+
+
+  const submit = async (event) => {
+    event.preventDefault();
+
+    setBusy(true);
+
+    try {
+      const form = new FormData();
+
+      form.append('body', body);
+
+      if (group) {
+        form.append('group', group);
+      }
+
+      if (image) {
+        form.append('image', image);
+      }
+
+      await api(
+        '/community/posts/',
+        {
+          method: 'POST',
+          body: form,
+        }
+      );
+
+      toast.success(
+        'Your post is live.'
+      );
+
+      navigate(
+        '/community?tab=mine'
+      );
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+
+  return (
+    <main className="mx-auto max-w-2xl space-y-5 p-6">
+      <h1 className="text-2xl font-bold">
+        Share with the community
+      </h1>
+
+      <form
+        onSubmit={submit}
+        className="space-y-5 rounded-2xl bg-white p-6"
+      >
+        <label className="block">
+          Where to post
+
+          <select
+            value={group}
+            onChange={(e) =>
+              setGroup(e.target.value)
+            }
+            className={input}
+          >
+            <option value="">
+              Community feed
+            </option>
+
+            {groups.data?.results
+              ?.filter(
+                (g) => g.is_active
+              )
+              .map((g) => (
+                <option
+                  key={g.id}
+                  value={g.id}
+                >
+                  {g.name}
+                </option>
+              ))}
+          </select>
+        </label>
+
+        <textarea
+          required
+          maxLength={20000}
+          rows={8}
+          value={body}
+          onChange={(e) =>
+            setBody(e.target.value)
+          }
+          placeholder="Share your experience…"
+          aria-label="Post"
+          className={input}
+        />
+
+        <label className="block">
+          Photo (optional, JPEG, PNG or WebP; up to 5 MB)
+
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(e) =>
+              setImage(
+                e.target.files?.[0] || null
+              )
+            }
+            className="mt-2 block"
+          />
+        </label>
+
+        <p className="text-sm text-gray-500">
+          Posts appear immediately to
+          community members. Do not include
+          private contact or payment information.
+        </p>
+
+        <button
+          disabled={busy}
+          className={button}
+        >
+          Publish post
+        </button>
+
+        {' '}
+
+        <Link to="/community">
+          Cancel
+        </Link>
+      </form>
+    </main>
+  );
+}
+
+
+export function LiveGroups() {
+  const [page, setPage] =
+    useState(1);
+
+  const state = useApi(
+    `/community/groups/?page=${page}`
+  );
+
+  const [create, setCreate] =
+    useState(false);
+
+  const [busy, setBusy] =
+    useState(false);
+
+
+  const submit = async (event) => {
+    event.preventDefault();
+
+    setBusy(true);
+
+    const form =
+      new FormData(event.currentTarget);
+
+    try {
+      await api(
+        '/community/groups/',
+        {
+          method: 'POST',
+          body: Object.fromEntries(form),
+        }
+      );
+
+      setCreate(false);
+      state.reload();
+
+      toast.success(
+        'Your group is ready.'
+      );
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+
+  return (
+    <main className="mx-auto max-w-4xl space-y-5 p-6">
+      <div className="flex justify-between">
+        <h1 className="text-2xl font-bold">
+          Community groups
+        </h1>
+
+        <button
+          onClick={() =>
+            setCreate(!create)
+          }
+          className={button}
+        >
+          Create group
+        </button>
+      </div>
+
+      {create && (
+        <form
+          onSubmit={submit}
+          className="space-y-3 rounded-xl bg-white p-5"
+        >
+          <input
+            name="name"
+            required
+            maxLength={120}
+            placeholder="Group name"
+            aria-label="Group name"
+            className={input}
+          />
+
+          <textarea
+            name="description"
+            required
+            maxLength={2000}
+            placeholder="What is this group about?"
+            aria-label="Group description"
+            className={input}
+          />
+
+          <button
+            disabled={busy}
+            className={button}
+          >
+            Create group
+          </button>
+        </form>
+      )}
+
+      <ErrorState state={state} />
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {state.data?.results?.map(
+          (group) => (
+            <Link
+              to={`/community/groups/${group.id}`}
+              key={group.id}
+              className="rounded-xl border bg-white p-5"
+            >
+              <h2 className="font-bold">
+                {group.name}
+              </h2>
+
+              <p className="my-3 text-sm">
+                {group.description}
+              </p>
+
+              <p className="text-xs text-gray-500">
+                {group.member_count} members ·{' '}
+                {group.is_active
+                  ? (
+                    group.joined
+                      ? 'Joined'
+                      : 'Open group'
+                  )
+                  : 'Unavailable'}
+              </p>
+            </Link>
+          )
+        )}
+      </div>
+
+      {state.data?.count === 0 && (
+        <p>
+          No groups yet. Create the first one.
+        </p>
+      )}
+
+      <Pages
+        page={page}
+        setPage={setPage}
+        data={state.data}
+      />
+
+      <Link
+        to="/community"
+        className="text-green-800 underline"
+      >
+        Back to community
+      </Link>
+    </main>
+  );
+}
+
+
+/*
+ * Facebook-style default avatar.
+ *
+ * We use initials instead of requiring another
+ * image file or static asset. This means users
+ * without uploaded profile photos still have
+ * a consistent profile representation.
+ */
+function DefaultAvatar({ name }) {
+  const initials =
+    (name || 'User')
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) =>
+        part.charAt(0).toUpperCase()
+      )
+      .join('') || 'U';
+
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#3F783D] text-lg font-bold text-white"
+    >
+      {initials}
+    </div>
+  );
+}
+
+
+function PersonAvatar({ person }) {
+  return (
+    <SiteImage
+      src={person.avatar || '/default-avatar.svg'}
+      alt=""
+      className="h-14 w-14 shrink-0 rounded-full object-cover"
+    />
+  );
+}
+
+
+export function LivePeople() {
+  const { id } =
+    useParams();
+
+  const [page, setPage] =
+    useState(1);
+
+  const [search, setSearch] =
+    useState('');
+
+  const state = useApi(
+    id
+      ? `/community/people/${id}/`
+      : `/community/people/?page=${page}&search=${encodeURIComponent(search)}`
+  );
+
+  const preferences = useApi(
+    '/community/people/preferences/'
+  );
+
+  const navigate =
+    useNavigate();
+
+  const [busy, setBusy] =
+    useState(false);
+
+
+  const chat = async (recipient) => {
+    setBusy(true);
+
+    try {
+      const row = await api(
+        '/conversations/',
+        {
+          method: 'POST',
+          body: { recipient },
+        }
+      );
+
+      navigate(
+        `/message?conversation=${row.id}`
+      );
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+
+  const update = async (
+    field,
+    value
+  ) => {
+    try {
+      await api(
+        '/community/people/preferences/',
+        {
+          method: 'PATCH',
+          body: {
+            [field]: value,
+          },
+        }
+      );
+
+      preferences.reload();
+      state.reload();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+
+  const rows = id
+    ? state.data
+      ? [state.data]
+      : []
+    : state.data?.results || [];
+
+
+  return (
+    <main className="mx-auto max-w-3xl space-y-5 px-4 py-6">
+      <header>
+        <h1 className="text-2xl font-bold text-[#172033]">
+          Community members
+        </h1>
+
+        <p className="mt-1 text-sm text-gray-600">
+          Connect with people in the
+          Mmemme Abia community.
+        </p>
+      </header>
+
+
+      {!id && (
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => {
+            setPage(1);
+            setSearch(e.target.value);
+          }}
+          placeholder="Search members by name"
+          aria-label="Search members"
+          className={input}
+        />
+      )}
+
+
+      <ErrorState state={state} />
+
+
+      <div className="space-y-3">
+        {rows.map((person) => (
+          <section
+            key={person.id}
+            className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+          >
+            <PersonAvatar
+              person={person}
+            />
+
+
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate font-bold text-[#172033]">
+                {person.name}
+              </h2>
+
+              {person.bio ? (
+                <p className="mt-1 line-clamp-2 whitespace-pre-wrap break-words text-sm text-gray-600">
+                  {person.bio}
+                </p>
+              ) : (
+                <p className="mt-1 text-sm text-gray-400">
+                  Mmemme Abia community member
+                </p>
+              )}
+            </div>
+
+
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() =>
+                chat(person.id)
+              }
+              className="shrink-0 rounded-lg border border-[#3F783D] px-4 py-2 text-sm font-semibold text-[#3F783D] transition-colors hover:bg-[#3F783D] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Message
+            </button>
+          </section>
+        ))}
+      </div>
+
+
+      {!state.loading &&
+        !state.error &&
+        !rows.length && (
+          <div className="rounded-xl border bg-white p-8 text-center">
+            <p className="font-semibold">
+              No members found.
+            </p>
+
+            {search && (
+              <p className="mt-1 text-sm text-gray-500">
+                Try searching for another name.
+              </p>
+            )}
+          </div>
+        )}
+
+
+      {!id && (
+        <Pages
+          page={page}
+          setPage={setPage}
+          data={state.data}
+        />
+      )}
+
+
+      <Link
+        to="/community"
+        className="text-green-800 underline"
+      >
+        Back to community
+      </Link>
+    </main>
+  );
+}
+
+
+export default function LiveCommunity({
+  blog = false,
+  detail = false,
+  groupView = false,
+}) {
+  const { id } =
+    useParams();
+
+  const navigate =
+    useNavigate();
+
+  const [
+    params,
+    setParams,
+  ] = useSearchParams();
+
+  const tab =
+    params.get('tab') || 'feed';
+
+  const [search, setSearch] =
+    useState('');
+
+  const [page, setPage] =
+    useState(1);
+
+  const [removed, setRemoved] =
+    useState([]);
+
+  const group = useApi(
+    groupView
+      ? `/community/groups/${id}/`
+      : null
+  );
+
+
+  const path = detail
+    ? `/community/posts/${id}/`
+    : `/community/posts/${
+        tab === 'mine'
+          ? 'mine/'
+          : ''
+      }?kind=${
+        blog
+          ? 'BLOG'
+          : 'COMMUNITY'
+      }&page=${page}&search=${encodeURIComponent(
+        search
+      )}${
+        tab === 'trending'
+          ? '&sort=trending'
+          : ''
+      }${
+        groupView
+          ? `&group=${id}`
+          : ''
+      }`;
+
+
+  const state = useApi(path);
+
+  const rows = detail
+    ? state.data
+      ? [state.data]
+      : []
+    : state.data?.results || [];
+
+
+  const [busy, setBusy] =
+    useState(false);
+
+
+  const join = async () => {
+    setBusy(true);
+
+    try {
+      await api(
+        `/community/groups/${id}/membership/`,
+        {
+          method: 'POST',
+          body: {
+            joined:
+              !group.data.joined,
+          },
+        }
+      );
+
+      group.reload();
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+
+  return (
+    <main className="mx-auto max-w-4xl space-y-5 px-4 py-8">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-[#172033]">
+            {blog
+              ? 'Mmemme Abia Blog'
+              : groupView
+                ? group.data?.name ||
+                  'Community group'
+                : 'Community'}
+          </h1>
+
+          <p className="mt-2 text-gray-600">
+            {blog
+              ? 'Stories, news and guides from our team.'
+              : groupView
+                ? group.data?.description
+                : 'Share experiences and connect with people across Abia.'}
+          </p>
+        </div>
+
+        {!blog && (
+          <Link
+            to={`/community/create-post${
+              groupView
+                ? `?group=${id}`
+                : ''
+            }`}
+            className={button}
+          >
+            Create post
+          </Link>
+        )}
+      </header>
+
+
+      {!blog && (
+        <nav className="flex flex-wrap gap-4 border-b pb-3 text-sm">
+          <Link to="/community">
+            Feed
+          </Link>
+
+          <button
+            onClick={() => {
+              setPage(1);
+              setParams({
+                tab: 'trending',
+              });
+            }}
+          >
+            Trending
+          </button>
+
+          <button
+            onClick={() => {
+              setPage(1);
+              setParams({
+                tab: 'mine',
+              });
+            }}
+          >
+            My posts
+          </button>
+
+          <Link to="/community/groups">
+            Groups
+          </Link>
+
+          <Link to="/community/people">
+            People
+          </Link>
+
+          <Link to="/message">
+            Chats
+          </Link>
+        </nav>
+      )}
+
+
+      {groupView &&
+        group.data && (
+          <button
+            disabled={
+              busy ||
+              !group.data.is_active
+            }
+            className={button}
+            onClick={join}
+          >
+            {group.data.joined
+              ? 'Leave group'
+              : 'Join group'}{' '}
+            · {group.data.member_count}{' '}
+            members
+          </button>
+        )}
+
+
+      {!detail && (
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => {
+            setPage(1);
+            setSearch(e.target.value);
+          }}
+          aria-label="Search posts"
+          placeholder={
+            blog
+              ? 'Search articles…'
+              : 'Search posts…'
+          }
+          className={input}
+        />
+      )}
+
+
+      <ErrorState state={state} />
+
+
+      {!state.loading &&
+        !state.error &&
+        !rows.length && (
+          <div className="rounded-xl bg-white p-8 text-center">
+            {blog
+              ? 'No published articles yet. Check back soon.'
+              : tab === 'mine'
+                ? 'Your submitted posts will appear here.'
+                : 'No published posts yet. Share your first experience.'}
+          </div>
+        )}
+
+
+      {rows
+        .filter(
+          (post) =>
+            !removed.includes(post.id)
+        )
+        .map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            onRemove={(postId) => {
+              setRemoved(
+                (ids) => [
+                  ...ids,
+                  postId,
+                ]
+              );
+
+              if (detail) {
+                navigate('/community');
+              }
+            }}
+            blog={blog}
+          />
+        ))}
+
+
+      {!detail && (
+        <Pages
+          page={page}
+          setPage={setPage}
+          data={state.data}
+        />
+      )}
+
+
+      <ShareApp />
+    </main>
+  );
+}
