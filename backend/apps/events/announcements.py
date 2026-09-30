@@ -2,7 +2,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.accounts.models import User
-from apps.notifications.services import notify_in_app
+from apps.notifications.services import notify, notify_in_app
 from .models import Event, EventAnnouncement
 
 
@@ -25,7 +25,8 @@ def announce_new_event_batch(batch_size=100):
     users = list(User.objects.filter(pk__gt=job.last_user_id, role=User.Role.USER,
                     is_active=True, email_verified=True).order_by('pk')[:batch_size])
     for user in users:
-        notify_in_app(user, f'event-new:{event.pk}:{user.pk}', 'New event in Abia',
+        create_notice = notify if user.email_notifications else notify_in_app
+        create_notice(user, f'event-new:{event.pk}:{user.pk}', 'New event in Abia',
                       f'{event.title} is now live on Mmemme Abia. See the details and get your ticket.')
     if users:
         job.last_user_id = users[-1].pk

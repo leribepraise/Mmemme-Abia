@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.test import override_settings
+from django.core import mail
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
@@ -13,6 +14,7 @@ from apps.events.models import Event, EventAnnouncement, TicketType
 from apps.events.moderation import moderate_event
 from apps.notifications.models import Notification, PushDelivery, PushSubscription
 from apps.notifications.push import deliver_push_one
+from apps.notifications.services import deliver_one
 from tests.test_notifications_push import PUSH_SETTINGS
 
 
@@ -25,7 +27,7 @@ class EventAnnouncementTests(APITestCase):
         self.reader = User.objects.create_user(username='reader-event-news', email='reader-news@example.test',
             email_verified=True)
         self.second_reader = User.objects.create_user(username='second-event-news', email='second-news@example.test',
-            email_verified=True)
+            email_verified=True, email_notifications=False)
         self.unverified = User.objects.create_user(username='unverified-event-news', email='unverified-news@example.test')
         self.event = Event.objects.create(organizer=self.organizer, title='Aba Festival', slug='aba-festival-news',
             description='Festival', category='Music', venue='Aba Hall', city='Aba', capacity=100,
@@ -35,7 +37,7 @@ class EventAnnouncementTests(APITestCase):
         PushSubscription.objects.create(user=self.reader, endpoint='https://fcm.googleapis.com/fcm/send/news',
             p256dh='test-key', auth='test-auth')
 
-    def test_approval_queues_resumable_push_and_in_app_without_email_broadcast(self):
+    def test_approval_queues_default_email_and_opt_out_only_disables_email(self):
         self.assertFalse(EventAnnouncement.objects.exists())
         moderate_event(self.admin, self.event.pk, 'approve')
         job = EventAnnouncement.objects.get(event=self.event)
@@ -46,7 +48,8 @@ class EventAnnouncementTests(APITestCase):
         self.assertFalse(announce_new_event_batch(batch_size=1))
         notes = Notification.objects.filter(key__startswith=f'event-new:{self.event.pk}:')
         self.assertEqual(notes.count(), 2)
-        self.assertTrue(all(note.sent_at for note in notes))
+        self.assertIsNone(notes.get(user=self.reader).sent_at)
+        self.assertIsNotNone(notes.get(user=self.second_reader).sent_at)
         self.assertEqual(PushDelivery.objects.filter(notification__in=notes).count(), 1)
         self.assertFalse(notes.filter(user=self.unverified).exists())
         job.refresh_from_db()
@@ -68,6 +71,17 @@ class EventAnnouncementTests(APITestCase):
         self.assertEqual(payload['kind'], 'event')
         self.assertEqual(payload['url'], f'/events/{self.event.pk}')
         self.assertIn('Aba Festival', payload['body'])
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', FRONTEND_URL='https://mmemme.com.ng')
+    def test_new_event_email_links_to_the_event(self):
+        moderate_event(self.admin, self.event.pk, 'approve')
+        self.assertTrue(announce_new_event_batch())
+        # Skip the organizer's event-review email and send the reader's announcement.
+        Notification.objects.exclude(key__startswith='event-new:').update(sent_at=timezone.now())
+        self.assertTrue(deliver_one())
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [self.reader.email])
+        self.assertIn(f'https://mmemme.com.ng/events/{self.event.pk}', mail.outbox[0].alternatives[0][0])
 
     def test_rejected_event_does_not_announce(self):
         moderate_event(self.admin, self.event.pk, 'reject', 'Please update the venue.')

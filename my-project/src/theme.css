@@ -79,3 +79,30 @@
 .dark img[src="/logo.png"] { background: transparent; padding: 0; filter: brightness(1.4); }
 .dark [data-testid="sidebar-organizer"] { background-color: #202328; }
 .profile-date-input::-webkit-calendar-picker-indicator { display: none; }
+@keyframes mmemme-notification-enter {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.mmemme-notification-popup {
+  position: fixed;
+  z-index: 10000;
+  top: max(1rem, env(safe-area-inset-top));
+  right: 1rem;
+  width: min(23rem, calc(100vw - 2rem));
+  padding: 1rem 1.15rem;
+  border: 1px solid #bad4bd;
+  border-radius: 1rem;
+  background: #fff;
+  color: #172033;
+  box-shadow: 0 14px 36px rgba(14, 32, 20, .2);
+  animation: mmemme-notification-enter .3s ease-out;
+}
+.mmemme-notification-popup strong { display: block; font-size: 1rem; }
+.mmemme-notification-popup p { margin: .35rem 0 .75rem; font-size: .9rem; line-height: 1.45; overflow-wrap: anywhere; }
+.mmemme-notification-popup__actions { display: flex; gap: .65rem; }
+.mmemme-notification-popup__actions button { border-radius: .6rem; padding: .4rem .8rem; font-weight: 600; }
+.mmemme-notification-popup__actions button:first-child { background: #36763a; color: white; }
+.mmemme-notification-popup__actions button:last-child { color: #36763a; }
+.dark .mmemme-notification-popup { background: #24272b; color: #f4f4f4; border-color: #454b4b; }
+.dark .mmemme-notification-popup__actions button:last-child { color: #a4daa8; }
+@media (prefers-reduced-motion: reduce) { .mmemme-notification-popup { animation: none; } }

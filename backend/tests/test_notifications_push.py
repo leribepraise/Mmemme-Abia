@@ -72,9 +72,23 @@ class NotificationTests(APITestCase):
         own.refresh_from_db()
         self.assertTrue(own.is_read)
 
+    def test_live_baseline_new_updates_and_private_scope(self):
+        old = self.notification()
+        baseline = self.client.get('/api/v1/notifications/live/')
+        self.assertEqual(baseline.status_code, 200)
+        self.assertEqual(baseline.data['latest_id'], old.pk)
+        self.assertEqual(baseline.data['updates'], [])
+        self.notification('private-live', is_private=True)
+        self.notification('other-live', self.other)
+        new = self.notification('new-live')
+        update = self.client.get(f'/api/v1/notifications/live/?after={old.pk}')
+        self.assertEqual(update.data['unread_count'], 2)
+        self.assertEqual([item['id'] for item in update.data['updates']], [new.pk])
+        self.assertEqual(self.client.get('/api/v1/notifications/live/?after=bad').status_code, 400)
+
     def test_authentication_required(self):
         self.client.force_authenticate(None)
-        for url in ('notifications/', 'notifications/unread-count/', 'push/config/'):
+        for url in ('notifications/', 'notifications/unread-count/', 'notifications/live/', 'push/config/'):
             self.assertEqual(self.client.get('/api/v1/'+url).status_code, 401)
         self.assertEqual(self.client.post('/api/v1/notifications/read-all/').status_code, 401)
 

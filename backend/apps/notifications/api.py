@@ -20,6 +20,17 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class=NotificationSerializer
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user,is_private=False).filter(Q(expires_at__isnull=True)|Q(expires_at__gt=timezone.now()))
+    @action(detail=False, methods=['get'])
+    def live(self, request):
+        since = request.query_params.get('after')
+        if since is not None and (not since.isdecimal() or len(since) > 20):
+            raise serializers.ValidationError({'after': 'Use a notification ID.'})
+        notices = self.get_queryset()
+        updates = list(notices.filter(pk__gt=int(since)).order_by('pk')[:10]) if since is not None else []
+        latest_id = notices.order_by('-pk').values_list('pk', flat=True).first() or 0
+        return Response({'unread_count': notices.filter(is_read=False).count(), 'latest_id': latest_id,
+                         'updates': self.get_serializer(updates, many=True).data,
+                         'has_more': bool(updates and updates[-1].pk < latest_id)})
     @action(detail=True,methods=["post"])
     def read(self,request,pk=None):
         notification=self.get_object()

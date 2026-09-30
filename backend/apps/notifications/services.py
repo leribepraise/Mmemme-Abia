@@ -1,6 +1,8 @@
 import logging
 import hashlib
+import uuid
 from datetime import timedelta
+from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.db.models import Q
@@ -45,7 +47,14 @@ def deliver_one():
     try:
         # Confirmation and security emails are transactional; preferences affect reminders.
         message=EmailMultiAlternatives(job.subject,job.body,to=[job.email],headers={"X-Mmemme-Notification-Key":hashlib.sha256(job.key.encode()).hexdigest()})
-        message.attach_alternative(notification_html(job.subject, job.body), "text/html")
+        action_url = None
+        if job.key.startswith('event-new:'):
+            try:
+                action_url = settings.FRONTEND_URL + '/events/' + str(uuid.UUID(job.key.split(':')[1]))
+            except (IndexError, ValueError):
+                pass
+        message.attach_alternative(notification_html(job.subject, job.body, action_url=action_url,
+                                                     action_label='View event' if action_url else None), "text/html")
         if message.send(fail_silently=False) != 1:
             raise RuntimeError("Email was not accepted for delivery.")
     except Exception as exc:

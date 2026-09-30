@@ -16,7 +16,7 @@ const NotificationPreferencesCard = () => {
       key: "emailUpdates",
       icon: CalendarCheck,
       title: "Email updates",
-      subtitle: "Booking updates and event reminders. Essential account emails always arrive.",
+      subtitle: "New events, booking updates and reminders. On by default; essential account emails always arrive.",
     },
   ];
 
@@ -24,7 +24,7 @@ const NotificationPreferencesCard = () => {
     if (key !== 'emailUpdates') return;
     if (busy) return;
     setBusy(true);
-    try { await updateUser({ email_notifications: !user.email_notifications }); toast.success('Email preference saved for booking updates and reminders.'); }
+    try { await updateUser({ email_notifications: !user.email_notifications }); toast.success('Email preference saved.'); }
     catch (error) { toast.error(error.message); }
     finally { setBusy(false); }
   };
@@ -39,7 +39,7 @@ const NotificationPreferencesCard = () => {
             Notification Preferences
           </h3>
           <p className="text-sm text-gray-500">
-            Booking updates and event reminders share your email preference.
+            New events, booking updates and reminders share your email preference.
           </p>
         </div>
       </div>

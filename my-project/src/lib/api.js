@@ -41,12 +41,19 @@ export async function api(path, options = {}) {
   if (response.status === 401 && retry && !/^\/auth\/(login|register|refresh|logout|password-reset|verify-email)/.test(path)) {
     if (await refreshSession()) return api(path, { ...options, retry: false });
   }
-  if (response.status === 204) return null;
+  if (response.status === 204) { notifyDataChanged(method); return null; }
   if (blob && response.ok && !response.headers.get('content-type')?.includes('text/html')) return response.blob();
   const data = await json(response);
   if (!response.ok) throw Object.assign(new Error(flatten(data?.error?.detail || data?.error || data?.detail || data) || 'Request failed.'), { status: response.status, code: data?.error?.code || data?.code, retryAfter: Number(response.headers.get('Retry-After')) || 0 });
   if (data?.csrf_token) csrf = data.csrf_token;
+  notifyDataChanged(method);
   return data;
+}
+function notifyDataChanged(method) {
+  if (['GET', 'HEAD'].includes(method) || typeof window === 'undefined') return;
+  window.dispatchEvent(new Event('mmemme-data-changed'));
+  try { localStorage.setItem('mmemme-data-updated', String(Date.now())); }
+  catch { /* Storage may be unavailable. */ }
 }
 export async function apiPage(path, options) {
   const data = await api(path, options);

@@ -25,6 +25,17 @@ export const AuthProvider = ({ children }) => {
       active = false;
     };
   }, []);
+  useEffect(() => {
+    if (!user?.id) return;
+    let active = true;
+    const update = () => {
+      if (document.visibilityState !== 'visible') return;
+      api('/auth/me/').then(result => { if (active) setUser(displayUser(result)); }).catch(() => {});
+    };
+    const interval = setInterval(update, 60000);
+    window.addEventListener('focus', update);
+    return () => { active = false; clearInterval(interval); window.removeEventListener('focus', update); };
+  }, [user?.id]);
   const login = async (credentials) => {
     const result = await api("/auth/login/", {
       method: "POST",

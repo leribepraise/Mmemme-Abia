@@ -2,10 +2,11 @@
 
 ## What changed
 
-- A single inbox is available at `/notifications` and Profile → Notifications. Read state is stored on the backend, including “Mark all as read”. Badges refresh across the site, on focus, and between tabs.
+- A single inbox is available at `/notifications` and Profile → Notifications. Read state is stored on the backend, including “Mark all as read”. New notices show a small in-site card by default while the site is open; the badge checks for changes every 10 seconds.
 - Booking, refund, organizer review, event review and payout notifications open their relevant pages. Private OTP and password-reset emails never appear in the inbox or push messages.
 - Browser push is opt-in per device. The existing worker delivers queued pushes, retries temporary failures and disables expired subscriptions. Signing out disables that browser subscription. Nothing is sent to newly subscribed devices from the old notification history.
-- Newly approved events create an in-app announcement for active, email-verified users and a browser push for each device that enabled push. The worker fans out announcements in batches; drafts, rejected events and repeated approvals do not broadcast. Event announcements do not send mass email.
+- Newly approved events create an in-app announcement for active, email-verified users and a browser push for each device that enabled push. New-event email is on by default and follows the user's Email updates preference. The worker fans out announcements and sends email in batches; drafts, rejected events and repeated approvals do not broadcast.
+- Open pages refresh their data automatically about every 30 seconds while visible, and after successful changes, refocus, or a network reconnect. This updates content without reloading the whole page.
 - `/install` provides the supported browser installation flow and Apple Home Screen instructions. The footer and home app banner open it. This is an installable web app, not an App Store or Play Store package.
 - The service worker caches only the public offline screen and app icons. Bookings, payments and account pages need a connection; personal API responses are never cached by it.
 - Home ticket links use actual event IDs and preserve the destination through login. Search, category, hotel/food/tourism, profile settings, ticket, support, map and sharing links were connected to existing pages/actions.
@@ -51,7 +52,7 @@ Enter each value without surrounding quotation marks. The private key belongs on
 4. Redeploy **frontend** from the same commit. Keep its existing `/my-project` root and `BACKEND_UPSTREAM` configuration.
 5. Open your normal HTTPS domain and refresh once. Use the same domain for installation and push: subscriptions are tied to the browser origin. Moving between `www`, the apex domain and a Railway preview address creates separate subscriptions.
 
-Push defaults to off, so the code can be deployed before the keys are available. Existing in-app and email notifications continue to work. To pause push delivery, set `WEB_PUSH_ENABLED=false` on both backend and worker and redeploy.
+Push delivery requires the keys above and the user's browser permission on each device. In-app notices and new-event emails are active by default. To pause push delivery, set `WEB_PUSH_ENABLED=false` on both backend and worker and redeploy.
 
 ## 5. Verify on a real device
 
