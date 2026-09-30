@@ -39,7 +39,7 @@ def deliver_one():
     with transaction.atomic():
         # Expired OTP messages must not sit in the retry queue or get delivered late.
         Notification.objects.filter(expires_at__lte=now, sent_at__isnull=True).delete()
-        job = Notification.objects.select_for_update(skip_locked=True).filter(sent_at__isnull=True,failed=False,available_at__lte=now).filter(Q(claimed_at__isnull=True)|Q(claimed_at__lt=now-timedelta(minutes=5))).order_by("available_at","id").first()
+        job = Notification.objects.select_for_update(skip_locked=True).filter(sent_at__isnull=True,deleted_at__isnull=True,failed=False,available_at__lte=now).filter(Q(claimed_at__isnull=True)|Q(claimed_at__lt=now-timedelta(minutes=5))).order_by("available_at","id").first()
         if not job: return False
         job.claimed_at = now
         job.attempts += 1

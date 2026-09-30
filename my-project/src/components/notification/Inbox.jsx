@@ -10,7 +10,7 @@ import { safeAppPath } from '@/lib/navigation';
 import PushPreferences from '../pwa/PushPreferences';
 
 export default function Inbox() {
-  const {revision,markRead,markAllRead,unreadCount}=useNotifications();
+  const {revision,markRead,markAllRead,deleteNotification,unreadCount}=useNotifications();
   const [page,setPage]=useState(1);
   const [filter,setFilter]=useState('All');
   const [busy,setBusy]=useState(null);
@@ -37,10 +37,11 @@ export default function Inbox() {
     try{if(!row.read)await markRead(row.id);if(open)navigate(safeAppPath(row.url));}catch(error){toast.error(error.message);}finally{setBusy(null);}
   };
   const all=async()=>{if(busy!==null)return;setBusy('all');try{await markAllRead();}catch(error){toast.error(error.message);}finally{setBusy(null);}};
+  const remove=async row=>{if(busy!==null || !window.confirm('Delete this notification?'))return;setBusy(row.id);try{await deleteNotification(row.id);toast.success('Notification deleted.');}catch(error){toast.error(error.message);}finally{setBusy(null);}};
   return <div className="mx-auto max-w-[1100px]"><SectionHeader title="Notifications" description="Stay updated with your activities and bookings."/>
     <div className="mt-6 space-y-6"><PushPreferences/><FilterTabs onFilterChange={setFilter} onMarkAllRead={all} busy={busy!==null} unreadCount={unreadCount}/>
       {request.loading?<p role="status">Loading notifications…</p>:request.error?<div role="alert">{request.error.message} <button onClick={request.reload} className="underline">Retry</button></div>:<>
-        {['Today','Earlier'].map(day=><NotificationGroup key={day} title={day} notifications={filtered.filter(n=>n.date===day)} onRead={row=>act(row)} onOpen={row=>act(row,true)} busy={busy!==null}/>)}
+        {['Today','Earlier'].map(day=><NotificationGroup key={day} title={day} notifications={filtered.filter(n=>n.date===day)} onRead={row=>act(row)} onOpen={row=>act(row,true)} onDelete={remove} busy={busy!==null}/>)}
         {!filtered.length&&<p className="rounded-xl bg-white p-6 text-sm text-gray-500">{items.length?'No matching notifications on this page.':'You have no notifications yet.'}</p>}
         <div className="flex items-center justify-between gap-3 text-sm"><button disabled={!request.data?.previous} onClick={()=>setPage(n=>Math.max(1,n-1))} className="disabled:opacity-40">Previous</button><span>Page {page}</span><button disabled={!request.data?.next} onClick={()=>setPage(n=>n+1)} className="disabled:opacity-40">Next</button></div>
       </>}

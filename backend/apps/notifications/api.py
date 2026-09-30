@@ -19,7 +19,12 @@ class NotificationSerializer(serializers.ModelSerializer):
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class=NotificationSerializer
     def get_queryset(self):
-        return Notification.objects.filter(user=self.request.user,is_private=False).filter(Q(expires_at__isnull=True)|Q(expires_at__gt=timezone.now()))
+        return Notification.objects.filter(user=self.request.user,is_private=False,deleted_at__isnull=True).filter(Q(expires_at__isnull=True)|Q(expires_at__gt=timezone.now()))
+    def destroy(self, request, *args, **kwargs):
+        notification = self.get_object()
+        notification.deleted_at = timezone.now()
+        notification.save(update_fields=['deleted_at'])
+        return Response(status=204)
     @action(detail=False, methods=['get'])
     def live(self, request):
         since = request.query_params.get('after')

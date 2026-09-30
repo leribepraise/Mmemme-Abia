@@ -21,8 +21,8 @@ class Command(BaseCommand):
             "stale_refunds":Refund.objects.filter(status__in=["QUEUED","PROCESSING"],created_at__lt=now-timedelta(days=1)).count(),
             "overdue_reservations":Booking.objects.filter(status="PENDING",expires_at__lt=now-timedelta(minutes=5)).count(),
             "webhook_backlog":PaymentEvent.objects.filter(processed_at__isnull=True,received_at__lt=now-timedelta(minutes=15)).count(),
-            "failed_emails":Notification.objects.filter(failed=True,is_private=False).count(),
-            "email_backlog":Notification.objects.filter(failed=False,sent_at__isnull=True,created_at__lt=now-timedelta(minutes=15)).count(),
+            "failed_emails":Notification.objects.filter(failed=True,is_private=False,deleted_at__isnull=True).count(),
+            "email_backlog":Notification.objects.filter(failed=False,sent_at__isnull=True,deleted_at__isnull=True,created_at__lt=now-timedelta(minutes=15)).count(),
         }
         self.stdout.write(json.dumps(counts,sort_keys=True))
         if any(counts.values()):raise CommandError("Operational attention required. See docs/DEPLOYMENT.md.")

@@ -1,7 +1,7 @@
 import React from "react";
 import { notificationIcons } from "../../data/notificationIcons";
 
-const NotificationItem = ({ notification, onRead, onOpen, busy }) => {
+const NotificationItem = ({ notification, onRead, onOpen, onDelete, busy }) => {
   const config =
     notificationIcons[notification.type] || notificationIcons.reminder;
   const Icon = config.icon;
@@ -31,6 +31,7 @@ const NotificationItem = ({ notification, onRead, onOpen, busy }) => {
           <button disabled={busy} onClick={()=>onOpen(notification)} className="hover:underline disabled:opacity-40">View details</button>
           {!notification.read&&<button disabled={busy} onClick={()=>onRead(notification)} className="hover:underline disabled:opacity-40">Mark as read</button>}
           {notification.read&&<span className="text-gray-400">Read</span>}
+          <button type="button" disabled={busy} onClick={()=>onDelete(notification)} className="text-red-700 hover:underline disabled:opacity-40">Delete</button>
         </div>
       </div>
 

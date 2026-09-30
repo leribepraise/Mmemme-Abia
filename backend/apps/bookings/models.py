@@ -31,6 +31,7 @@ class Booking(models.Model):
     currency = models.CharField(max_length=3, default="NGN")
     expires_at = models.DateTimeField(null=True, blank=True, db_index=True)
     completed_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    hidden_by_user_at = models.DateTimeField(null=True, blank=True)
     details = models.JSONField(default=dict)
     customer_name = models.CharField(max_length=200, blank=True)
     customer_phone = models.CharField(max_length=20, blank=True)

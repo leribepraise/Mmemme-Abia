@@ -9,6 +9,7 @@ class Notification(models.Model):
     body = models.TextField()
     email = models.EmailField()
     is_read = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True, db_index=True)
     is_private = models.BooleanField(default=False)
     available_at = models.DateTimeField(default=timezone.now, db_index=True)
     expires_at = models.DateTimeField(null=True, blank=True)

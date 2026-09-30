@@ -15,6 +15,7 @@ import {
   Users,
   MessageCircle,
   XCircle,
+  Trash2,
   Hotel,
   Check,
 } from "lucide-react";
@@ -25,6 +26,7 @@ const MyBookings = () => {
   const navigate = useNavigate();
   const [contacting, setContacting] = useState(false);
   const [cancelling, setCancelling] = useState(null);
+  const [removing, setRemoving] = useState(null);
   const contactProvider = async booking => {
     if (contacting) return;
     setContacting(true);
@@ -42,6 +44,16 @@ const MyBookings = () => {
       toast.success(booking.totalAmount > 0 ? 'Booking cancelled. Your refund has been requested.' : 'Booking cancelled.');
     } catch (error) { toast.error(error.message); }
     finally { setCancelling(null); }
+  };
+  const removeCancelledBooking = async booking => {
+    if (removing || !window.confirm('Remove this cancelled booking from your list? Your payment and refund records will remain available to support.')) return;
+    setRemoving(booking.id);
+    try {
+      await api(`/bookings/${booking.id}/hide/`, { method: 'DELETE' });
+      reload();
+      toast.success('Booking removed from your list.');
+    } catch (error) { toast.error(error.message); }
+    finally { setRemoving(null); }
   };
   const [activeType, setActiveType] = useState("All");
   const [activeFilter, setActiveFilter] = useState("All");
@@ -133,7 +145,7 @@ const MyBookings = () => {
     <div className="mx-auto w-full max-w-[1100px]">
       <SectionHeader
         title="My Bookings"
-        description="View and manage all your bookings in one place."
+        description="Manage bookings here. Finalized cancellations leave this list after 30 days; pending refunds stay visible."
       />
 
       {/* Status Filters + Search */}
@@ -323,7 +335,7 @@ const MyBookings = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex shrink-0 items-center gap-2 border-t border-gray-100 pt-3 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
+                <div className="flex shrink-0 flex-wrap items-center gap-2 border-t border-gray-100 pt-3 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
                   <BookingReview booking={booking} />
                   {detailsLink ? (
                     <NavLink
@@ -354,6 +366,7 @@ const MyBookings = () => {
                     <MessageCircle size={17} />
                   </button>
                   {booking.kind === 'EVENT' && ['Confirmed', 'Pending'].includes(booking.status) && booking.fulfillment_status === 'NEW' && new Date(booking.details?.start_datetime).getTime() > Date.now() && <button type="button" disabled={Boolean(cancelling)} onClick={() => cancelEventBooking(booking)} title="Cancel this booking and all its tickets" aria-label={`Cancel tickets for ${booking.title}`} className="flex h-8 items-center gap-1 rounded border border-red-300 px-2 text-[10px] font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"><XCircle size={14} />{cancelling === booking.id ? 'Cancelling…' : 'Cancel tickets'}</button>}
+                  {['Cancelled', 'Refunded'].includes(booking.status) && <button type="button" disabled={Boolean(removing)} onClick={() => removeCancelledBooking(booking)} title="Remove cancelled booking" aria-label={`Remove cancelled booking for ${booking.title}`} className="flex h-8 items-center gap-1 rounded border border-red-300 px-2 text-[10px] font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"><Trash2 size={14} />{removing === booking.id ? 'Removing…' : 'Remove'}</button>}
                 </div>
               </div>
             );

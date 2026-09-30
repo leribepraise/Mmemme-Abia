@@ -1,5 +1,7 @@
 import uuid
+import hashlib
 from django.db import transaction
+from django.core.cache import cache
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.text import slugify
@@ -19,9 +21,9 @@ class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrganizerOrReadOnly]
     def get_queryset(self):
         qs = Event.objects.select_related("organizer","organizer__organizer_profile").prefetch_related("ticket_types")
-        if self.action in {"list","retrieve"}:
+        if self.action in {"list","retrieve","featured"}:
             qs = qs.filter(status="PUBLISHED",is_suspended=False,is_archived=False,deletion_requested_at__isnull=True,organizer__is_active=True,organizer__is_verified=True)
-            if self.action=="list": qs=qs.filter(end_datetime__gt=timezone.now())
+            if self.action in {"list","featured"}: qs=qs.filter(end_datetime__gt=timezone.now())
         elif not self.request.user.is_staff:
             qs = qs.filter(organizer=self.request.user,is_archived=False)
         for field in ["category","city"]:
@@ -38,6 +40,24 @@ class EventViewSet(viewsets.ModelViewSet):
     def perform_create(self,serializer):
         slug = serializer.validated_data.get("slug") or (slugify(serializer.validated_data["title"])[:240]+"-"+uuid.uuid4().hex[:12])
         serializer.save(organizer=self.request.user,slug=slug,status="DRAFT")
+    @action(detail=False, methods=['get'])
+    def featured(self, request):
+        """Five public events, rotating through the available catalogue every five minutes."""
+        if request.query_params:
+            raise serializers.ValidationError('The home event selection does not support filters.')
+        slot = int(timezone.now().timestamp() // 300)
+        day = slot // 288
+        def ordered_ids():
+            rows = list(self.get_queryset().order_by().values_list('pk', flat=True))
+            rows.sort(key=lambda pk: hashlib.sha256(f'{day}:{pk}'.encode()).digest())
+            return rows
+        ids = cache.get_or_set(f'featured-events:{slot}', ordered_ids, timeout=300)
+        if not ids:
+            return Response([])
+        offset = ((slot % 288) * 5) % len(ids)
+        selected = [ids[(offset + index) % len(ids)] for index in range(min(5, len(ids)))]
+        events = {event.pk: event for event in self.get_queryset().filter(pk__in=selected)}
+        return Response(self.get_serializer([events[pk] for pk in selected], many=True).data)
     @transaction.atomic
     def update(self,request,*args,**kwargs):
         instance=self.get_object()

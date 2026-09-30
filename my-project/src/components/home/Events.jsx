@@ -7,17 +7,17 @@ import EventCard from "../events/EventCard";
 
 const Events = () => {
   const navigate = useNavigate();
-  const { data, loading } = useApi('/events/');
-  const events = (data?.results || data || []).slice(0, 20).map(eventCard);
+  const { data, loading } = useApi('/events/featured/');
+  const events = (data || []).slice(0, 5).map(eventCard);
   if (loading) return <PageSkeleton/>;
   return (
     <>
-      <section className="mt-10 overflow-hidden">
-        <div className="flex items-center justify-between">
-          <h1 className="text-[20px] font-semibold text-left mb-5">
+      <section className="mx-auto mt-10 w-full max-w-[1700px] overflow-hidden">
+        <div className="mb-5 flex items-center justify-between lg:relative lg:justify-center">
+          <h1 className="text-[20px] font-semibold">
             Trending Events 🔥
           </h1>
-          <div>
+          <div className="lg:absolute lg:right-0">
             <button type="button"
               onClick={() => navigate("/events")}
               className="font-semibold text-[12px] text-[#F46F1A] cursor-pointer hover:underline"
@@ -26,8 +26,8 @@ const Events = () => {
             </button>
           </div>
         </div>
-        <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex w-max gap-5 pb-3">
+        <div className="overflow-x-auto scrollbar-hide lg:overflow-visible">
+          <div className="flex w-max gap-5 pb-3 lg:mx-auto lg:w-full lg:flex-wrap lg:justify-center">
             {events.map((event) => <EventCard key={event.id} event={event} />)}
           </div>
         </div>

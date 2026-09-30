@@ -1,4 +1,6 @@
+from datetime import timedelta
 from django.db.models import Q, Sum
+from django.utils import timezone
 from rest_framework import mixins, viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -15,6 +17,12 @@ class BookingViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin,viewsets.Ge
         qs = Booking.objects.filter(user=user)
         if self.action in {"received","fulfill","analytics","decline"}:
             qs = Booking.objects.filter(supplier=user)
+        elif self.action in {"list", "retrieve"}:
+            cutoff = timezone.now() - timedelta(days=30)
+            qs = qs.filter(hidden_by_user_at__isnull=True).exclude(
+                status__in=[Booking.Status.CANCELLED, Booking.Status.REFUNDED],
+                updated_at__lte=cutoff,
+            )
         return qs.prefetch_related("items__ticket_type__event")
     def create(self,request):
         data = CreateBookingSerializer(data=request.data)
@@ -27,6 +35,15 @@ class BookingViewSet(mixins.ListModelMixin,mixins.RetrieveModelMixin,viewsets.Ge
     def cancel(self,request,pk=None):
         booking = self.get_object()
         return Response(BookingSerializer(services.cancel(booking.pk,request.user)).data)
+    @action(detail=True, methods=['delete'], url_path='hide')
+    def hide(self, request, pk=None):
+        booking = self.get_object()
+        if booking.status not in {Booking.Status.CANCELLED, Booking.Status.REFUNDED}:
+            raise serializers.ValidationError('Only cancelled bookings with no pending refund can be removed.')
+        if not booking.hidden_by_user_at:
+            booking.hidden_by_user_at = timezone.now()
+            booking.save(update_fields=['hidden_by_user_at'])
+        return Response(status=204)
     @action(detail=False,methods=["get"])
     def received(self,request):
         qs = self.filter_queryset(self.get_queryset())

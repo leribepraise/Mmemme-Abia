@@ -60,8 +60,9 @@ export function NotificationsProvider({children}) {
   const changed=()=>{refresh();poll();try{localStorage.setItem('notifications-updated',String(Date.now()));}catch{/* Storage may be disabled. */}};
   const markRead=async id=>{const result=await api(`/notifications/${id}/read/`,{method:'POST'});changed();return result;};
   const markAllRead=async()=>{await api('/notifications/read-all/',{method:'POST'});changed();};
+  const deleteNotification=async id=>{await api(`/notifications/${id}/`,{method:'DELETE'});if(toast?.id===id)setToast(null);changed();};
   const openToast=()=>{if(!toast)return;const destination=safeAppPath(toast.url);markRead(toast.id).catch(()=>{});setToast(null);navigate(destination);};
-  return <Context.Provider value={{revision,refresh,markRead,markAllRead,unreadCount:user&&count.owner===user.id?count.value:0}}>
+  return <Context.Provider value={{revision,refresh,markRead,markAllRead,deleteNotification,unreadCount:user&&count.owner===user.id?count.value:0}}>
     {children}
     {toast&&<div className="mmemme-notification-popup" role="status" aria-live="polite">
       <strong>{toast.subject}</strong><p>{toast.body}</p>

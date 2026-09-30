@@ -55,7 +55,7 @@ def deliver_push_one():
     sub = PushSubscription.objects.select_related('user').get(pk=job.subscription_id)
     notification = job.notification
     if (not sub.is_active or not sub.user.is_active or not sub.user.email_verified or sub.session_version != sub.user.session_version
-            or sub.user_id != notification.user_id or notification.is_private or notification.is_read
+            or sub.user_id != notification.user_id or notification.is_private or notification.is_read or notification.deleted_at
             or notification.created_at < now-timedelta(days=1) or (notification.expires_at and notification.expires_at <= now)
             or not allowed_endpoint(sub.endpoint)):
         PushDelivery.objects.filter(pk=job.pk, claimed_at=now).update(failed=True, claimed_at=None)
