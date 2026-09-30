@@ -104,8 +104,12 @@ class ConversationViewSet(viewsets.ReadOnlyModelViewSet):
             conversation, _ = Conversation.objects.get_or_create(direct_key=f'support:{user.pk}', defaults={'customer': user, 'provider': provider, 'is_support': True})
         else:
             other_id = serializers.IntegerField(min_value=1).run_validation(request.data.get('recipient'))
-            other = get_object_or_404(get_user_model(), pk=other_id, is_active=True, email_verified=True,
-                                      community_profile__listed=True, community_profile__allow_messages=True)
+            other = get_object_or_404(
+                get_user_model(),
+                pk=other_id,
+                is_active=True,
+                email_verified=True,
+            )
             if other.pk == user.pk:
                 raise serializers.ValidationError('Choose another member.')
             key = 'direct:' + ':'.join(str(pk) for pk in sorted([user.pk, other.pk]))
@@ -203,3 +207,4 @@ class ConversationViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             ChatBlock.objects.filter(user=request.user, blocked=self.other(conversation)).delete()
         return Response({'blocked': enabled})
+
