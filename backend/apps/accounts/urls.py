@@ -4,7 +4,11 @@ from .views import (
     VerifyEmailView,ResendVerificationView,PasswordResetView,
     PasswordResetConfirmView,PasswordChangeView,OrganizerApplicationView,OrganizerProfileView,CompleteOnboardingView,
 )
+from .social_views import SocialConfigView, SocialStartView, SocialCallbackView
 urlpatterns = [
+    path('social/config/', SocialConfigView.as_view()),
+    path('social/<slug:provider>/start/', SocialStartView.as_view()),
+    path('social/<slug:provider>/callback/', SocialCallbackView.as_view()),
     path("csrf/",CSRFView.as_view()),
     path("register/",RegisterView.as_view(),name="register"),
     path("login/",LoginView.as_view(),name="login"),

@@ -2,6 +2,8 @@
 
 For notifications, browser push and installable app setup, follow [PUSH_AND_APP_INSTALL.md](PUSH_AND_APP_INSTALL.md). This release includes a notification database migration and optional VAPID variables on backend and worker.
 
+For Google and Apple account sign-in, follow [SOCIAL_SIGN_IN.md](SOCIAL_SIGN_IN.md). Apply `accounts.0007_socialidentity` before enabling provider credentials; both provider callback URLs must use the public frontend origin that proxies `/api/`.
+
 The home-events and inbox update also requires migrations `bookings.0006` and `notifications.0004` before deploying the backend. The home displays up to five events and rotates its selection every five minutes. Users can delete inbox entries and remove finalized cancelled bookings from their list. Finalized cancelled or refunded bookings disappear from that list after 30 days without deleting ticket, refund, payment, or audit records; refund-pending bookings remain visible.
 
 For the new onboarding and staff review release, follow [ACCOUNT_REVIEW.md](ACCOUNT_REVIEW.md). Ticket sales use `EVENT_COMMISSION_BPS=500` (5%); other service bookings retain `PLATFORM_COMMISSION_BPS`.

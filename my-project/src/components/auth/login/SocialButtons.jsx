@@ -1,31 +1,5 @@
-import toast from "react-hot-toast";
-import React from "react";
+import SocialAuthButtons from '../SocialAuthButtons';
 
-const SocialButtons = () => {
-  return (
-    <div className="grid grid-cols-3 gap-3">
-      <button type="button" onClick={() => toast.error("Social sign-in is not configured yet. Please use email and password.")} className="border border-gray-200 rounded-lg py-3 text-sm font-medium hover:bg-gray-50 flex items-center justify-center gap-2">
-        <img
-          src="https://www.svgrepo.com/show/475656/google-color.svg"
-          className="w-5 h-5"
-        />
-        Google
-      </button>
-
-      <button type="button" onClick={() => toast.error("Social sign-in is not configured yet. Please use email and password.")} className="border border-gray-200 rounded-lg py-3 text-sm font-medium hover:bg-gray-50 flex items-center justify-center gap-2">
-        <img
-          src="https://www.svgrepo.com/show/475647/facebook-color.svg"
-          className="w-5 h-5"
-        />
-        Facebook
-      </button>
-
-      <button type="button" onClick={() => toast.error("Social sign-in is not configured yet. Please use email and password.")} className="border border-gray-200 rounded-lg py-3 text-sm font-medium hover:bg-gray-50 flex items-center justify-center gap-2">
-        <img src="/applelogo.png" className="w-5 h-5" />
-        Apple
-      </button>
-    </div>
-  );
-};
-
-export default SocialButtons;
+export default function SocialButtons() {
+  return <SocialAuthButtons flow="organizer" />;
+}

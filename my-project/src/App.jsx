@@ -32,6 +32,7 @@ const Events = lazy(() => import('./pages/Event'));
 const Blog = lazy(() => import('./pages/Blog'));
 const Login = lazy(() => import('./pages/Login'));
 const SignUp = lazy(() => import('./pages/SignUp'));
+const SocialAuthComplete = lazy(() => import('./pages/SocialAuthComplete'));
 const HelpCenter = lazy(() => import('./pages/HelpCenter'));
 const Hotel = lazy(() => import('./pages/Hotel'));
 const VenueDetails = lazy(() => import('./pages/VenueDetails'));
@@ -528,6 +529,7 @@ const App = () => {
       ),
     },
     { path: "/login", element: <Login /> },
+    { path: "/auth/social/complete", element: <SocialAuthComplete /> },
     { path: "/Signup", element: <SignUp /> },
     { path: "/Signup/onboarding", element: <Onboarding /> },
     { path: "/admin/login", element: <AdminLogin /> },

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "./validation/schemas/loginSchemas";
 import { NavLink, useNavigate } from "react-router-dom";
+import SocialAuthButtons from '../SocialAuthButtons';
 
 const LoginForm = ({ onLogin }) => {
   const [inputType, setInputType] = useState("password");
@@ -109,6 +110,9 @@ const LoginForm = ({ onLogin }) => {
               {isSubmitting ? "Logging in..." : "Log In"}
             </button>
           </form>
+
+          <div className="flex items-center gap-3 text-xs text-gray-400"><span className="h-px flex-1 bg-gray-200"/>Or continue with<span className="h-px flex-1 bg-gray-200"/></div>
+          <SocialAuthButtons flow="user" />
 
           <p className="text-center text-sm text-[#666666]">
             Don't have an account?{" "}

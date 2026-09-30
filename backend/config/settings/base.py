@@ -209,6 +209,13 @@ from corsheaders.defaults import default_headers
 CORS_ALLOW_HEADERS = [*default_headers, "idempotency-key"]
 CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+SOCIAL_AUTH_ORIGIN = os.getenv("SOCIAL_AUTH_ORIGIN", FRONTEND_URL).rstrip("/")
+GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()
+GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "").strip()
+APPLE_SERVICES_ID = os.getenv("APPLE_SERVICES_ID", "").strip()
+APPLE_TEAM_ID = os.getenv("APPLE_TEAM_ID", "").strip()
+APPLE_KEY_ID = os.getenv("APPLE_KEY_ID", "").strip()
+APPLE_PRIVATE_KEY = os.getenv("APPLE_PRIVATE_KEY", "").replace("\\n", "\n").strip()
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@localhost")
 EMAIL_TIMEOUT = 15
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")

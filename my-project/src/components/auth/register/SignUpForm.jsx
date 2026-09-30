@@ -11,6 +11,7 @@ import { NavLink } from "react-router-dom";
 import EmailCodeForm from "../EmailCodeForm";
 import VerificationScreen from "../VerificationScreen";
 import { PASSWORD_HELP } from "@/lib/passwordPolicy";
+import SocialAuthButtons from '../SocialAuthButtons';
 
 const SignUpForm = ({ onChallenge = () => {} }) => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
   const [comfireInputType, setComfireInputType] = useState("password");
   const {
     register,
+    watch,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(signupSchema) });
@@ -231,6 +233,8 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
                 {isSubmitting ? "Sending code..." : "Send verification code"}
               </button>
             </form>
+            <div className="flex items-center gap-3 text-xs text-gray-400"><span className="h-px flex-1 bg-gray-200"/>Or continue with<span className="h-px flex-1 bg-gray-200"/></div>
+            <SocialAuthButtons flow="user" signup termsAccepted={Boolean(watch('terms'))} />
             <p className="text-center text-sm text-[#666666]">
               Already have an account?
               <NavLink to="/login" className="ml-1 text-[#48782E] font-semibold hover:underline">Log In</NavLink>

@@ -68,6 +68,9 @@ if os.getenv("RAILWAY_ENVIRONMENT_ID"):
     if MEDIA_STORAGE != "s3":
         raise ImproperlyConfigured("Configure persistent S3 upload storage for Railway.")
 FRONTEND_URL=required("FRONTEND_URL").rstrip("/")
+SOCIAL_AUTH_ORIGIN=os.getenv('SOCIAL_AUTH_ORIGIN', FRONTEND_URL).rstrip('/')
+if (GOOGLE_OAUTH_CLIENT_ID or APPLE_SERVICES_ID) and (not SOCIAL_AUTH_ORIGIN.startswith('https://') or SOCIAL_AUTH_ORIGIN != FRONTEND_URL):
+    raise ImproperlyConfigured('Social sign-in must use the HTTPS frontend origin that proxies /api/.')
 if not FRONTEND_URL.startswith("https://"): raise ImproperlyConfigured("FRONTEND_URL must use HTTPS.")
 PAYSTACK_CALLBACK_URL=FRONTEND_URL+"/payment/return"
 PAYSTACK_SECRET_KEY=required("PAYSTACK_SECRET_KEY")

@@ -55,6 +55,20 @@ class EmailVerificationCode(models.Model):
     consumed_at = models.DateTimeField(null=True, blank=True)
 
 
+class SocialIdentity(models.Model):
+    class Provider(models.TextChoices):
+        GOOGLE = 'google', 'Google'
+        APPLE = 'apple', 'Apple'
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='social_identities')
+    provider = models.CharField(max_length=20, choices=Provider.choices)
+    subject = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['provider', 'subject'], name='social_identity_provider_subject')]
+
+
 class OrganizerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="organizer_profile")
     business_name = models.CharField(max_length=200)
