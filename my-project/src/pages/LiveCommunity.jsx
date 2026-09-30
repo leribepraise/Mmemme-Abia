@@ -92,11 +92,155 @@ export function LiveGroups() {
 }
 
 export function LivePeople() {
-  const {id}=useParams();const [page,setPage]=useState(1);const [search,setSearch]=useState('');const state=useApi(id?`/community/people/${id}/`:`/community/people/?page=${page}&search=${encodeURIComponent(search)}`);const preferences=useApi('/community/people/preferences/');const navigate=useNavigate();const [busy,setBusy]=useState(false);
-  const chat=async recipient=>{setBusy(true);try{const row=await api('/conversations/',{method:'POST',body:{recipient}});navigate(`/message?conversation=${row.id}`);}catch(error){toast.error(error.message);}finally{setBusy(false);}};
-  const update=async(field,value)=>{try{await api('/community/people/preferences/',{method:'PATCH',body:{[field]:value}});preferences.reload();state.reload();}catch(error){toast.error(error.message);}};
-  const rows=id?(state.data?[state.data]:[]):state.data?.results||[];
-  return <main className="mx-auto max-w-4xl space-y-5 p-6"><h1 className="text-2xl font-bold">Community members</h1><section className="space-y-3 rounded-xl bg-white p-5"><h2 className="font-semibold">Your visibility</h2><p className="text-sm text-gray-600">The directory displays your name, photo and bio. Your email and phone number stay private.</p>{preferences.data&&<>{[['listed','Show my profile in the community directory'],['allow_messages','Allow community members to start a chat with me']].map(([key,label])=><label key={key} className="flex items-center gap-3 text-sm"><input type="checkbox" checked={preferences.data[key]} onChange={e=>update(key,e.target.checked)}/>{label}</label>)}</>}</section>{!id&&<input type="search" value={search} onChange={e=>{setPage(1);setSearch(e.target.value);}} placeholder="Search members by name" aria-label="Search members" className={input}/>}<ErrorState state={state}/><div className="grid gap-4 sm:grid-cols-2">{rows.map(person=><section key={person.id} className="space-y-3 rounded-xl border bg-white p-5">{person.avatar&&<SiteImage src={person.avatar} alt="" className="h-14 w-14 rounded-full object-cover"/>}<h2 className="font-bold">{person.name}</h2><p className="whitespace-pre-wrap text-sm">{person.bio}</p>{person.allow_messages&&<button disabled={busy} onClick={()=>chat(person.id)} className={button}>Message</button>}</section>)}</div>{!state.loading&&!rows.length&&<p>No members found. Members appear when they opt into the directory.</p>}{!id&&<Pages page={page} setPage={setPage} data={state.data}/>}<Link to="/community" className="text-green-800 underline">Back to community</Link></main>;
+  const { id } = useParams();
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+
+  const state = useApi(
+    id
+      ? `/community/people/${id}/`
+      : `/community/people/?page=${page}&search=${encodeURIComponent(search)}`
+  );
+
+  const preferences = useApi("/community/people/preferences/");
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+
+  const chat = async (recipient) => {
+    setBusy(true);
+
+    try {
+      const row = await api("/conversations/", {
+        method: "POST",
+        body: { recipient },
+      });
+
+      navigate(`/message?conversation=${row.id}`);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const update = async (field, value) => {
+    try {
+      await api("/community/people/preferences/", {
+        method: "PATCH",
+        body: { [field]: value },
+      });
+
+      preferences.reload();
+      state.reload();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const rows = id
+    ? state.data
+      ? [state.data]
+      : []
+    : state.data?.results || [];
+
+  return (
+    <main className="mx-auto max-w-4xl space-y-5 p-6">
+      <h1 className="text-2xl font-bold">Community members</h1>
+
+      <section className="space-y-3 rounded-xl bg-white p-5">
+        <h2 className="font-semibold">Your messaging preference</h2>
+
+        <p className="text-sm text-gray-600">
+          Community members can see your name, photo and bio.
+          Your email and phone number stay private.
+        </p>
+
+        {preferences.data && (
+          <label className="flex items-center gap-3 text-sm">
+            <input
+              type="checkbox"
+              checked={preferences.data.allow_messages}
+              onChange={(e) =>
+                update("allow_messages", e.target.checked)
+              }
+            />
+
+            Allow community members to start a chat with me
+          </label>
+        )}
+      </section>
+
+      {!id && (
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => {
+            setPage(1);
+            setSearch(e.target.value);
+          }}
+          placeholder="Search members by name"
+          aria-label="Search members"
+          className={input}
+        />
+      )}
+
+      <ErrorState state={state} />
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {rows.map((person) => (
+          <section
+            key={person.id}
+            className="space-y-3 rounded-xl border bg-white p-5"
+          >
+            {person.avatar && (
+              <SiteImage
+                src={person.avatar}
+                alt=""
+                className="h-14 w-14 rounded-full object-cover"
+              />
+            )}
+
+            <h2 className="font-bold">{person.name}</h2>
+
+            {person.bio && (
+              <p className="whitespace-pre-wrap text-sm">
+                {person.bio}
+              </p>
+            )}
+
+            {person.allow_messages && (
+              <button
+                disabled={busy}
+                onClick={() => chat(person.id)}
+                className={button}
+              >
+                Message
+              </button>
+            )}
+          </section>
+        ))}
+      </div>
+
+      {!state.loading && !rows.length && (
+        <p>No members found.</p>
+      )}
+
+      {!id && (
+        <Pages
+          page={page}
+          setPage={setPage}
+          data={state.data}
+        />
+      )}
+
+      <Link
+        to="/community"
+        className="text-green-800 underline"
+      >
+        Back to community
+      </Link>
+    </main>
+  );
 }
 
 export default function LiveCommunity({blog=false,detail=false,groupView=false}) {

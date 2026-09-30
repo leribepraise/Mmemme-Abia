@@ -175,7 +175,10 @@ class PersonSerializer(serializers.ModelSerializer):
 class PeopleViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PersonSerializer
     def get_queryset(self):
-        qs = get_user_model().objects.filter(is_active=True, email_verified=True, community_profile__listed=True).select_related('community_profile').order_by('first_name', 'pk')
+        qs = get_user_model().objects.filter(
+            is_active=True,
+            email_verified=True
+        ).select_related('community_profile').order_by('first_name', 'pk')
         if self.request.query_params.get('search'):
             term = self.request.query_params['search'][:100]
             qs = qs.filter(Q(first_name__icontains=term) | Q(last_name__icontains=term))
