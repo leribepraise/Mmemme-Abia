@@ -8,8 +8,9 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from django.test import override_settings
 from rest_framework.test import APITestCase
 
-from apps.accounts.models import SocialIdentity, User
+from apps.accounts.models import EmailVerificationCode, SocialIdentity, User
 from apps.accounts.social_auth import SocialAuthError, verified_claims
+from apps.notifications.models import Notification
 
 
 SOCIAL_SETTINGS = {
@@ -53,20 +54,38 @@ class SocialAuthTests(APITestCase):
 
     @patch('apps.accounts.social_views.verified_claims')
     @patch('apps.accounts.social_views.exchange_code', return_value='signed-token')
-    def test_google_creates_verified_passwordless_account_and_reuses_identity(self, exchange, verify):
+    def test_google_requires_email_otp_and_password_before_creating_account(self, exchange, verify):
         verify.return_value = {'subject': 'google-sub-123', 'email': 'person@example.test',
                                'first_name': 'Ada', 'last_name': 'Nwosu'}
         _, state, _ = self.start()
-        response = self.client.get(f'/api/v1/auth/social/google/callback/?state={state}&code=one-time-code')
-        self.assertIn('/auth/social/complete?flow=user', response['Location'])
-        self.assertIn('mmemme_refresh', response.cookies)
+        with patch('apps.accounts.email_codes.secrets.randbelow', return_value=12345):
+            response = self.client.get(f'/api/v1/auth/social/google/callback/?state={state}&code=one-time-code')
+        self.assertIn('verify=1', response['Location'])
+        self.assertNotIn('mmemme_refresh', response.cookies)
+        self.assertFalse(User.objects.exists())
+        self.assertEqual(Notification.objects.count(), 1)
+        self.assertEqual(self.client.get('/api/v1/auth/social/pending/').data['stage'], 'otp')
+        self.assertEqual(self.client.post('/api/v1/auth/social/password/', {'password': 'StrongPassword1!', 'confirm_password': 'StrongPassword1!'}).status_code, 400)
+        self.assertEqual(self.client.post('/api/v1/auth/social/verify/', {'otp_code': '000000'}).status_code, 400)
+        self.assertFalse(User.objects.exists())
+        verified = self.client.post('/api/v1/auth/social/verify/', {'otp_code': '012345'})
+        self.assertEqual(verified.status_code, 200, verified.data)
+        self.assertTrue(verified.data['needs_password'])
+        self.assertFalse(User.objects.exists())
+        self.assertEqual(self.client.get('/api/v1/auth/social/pending/').data['stage'], 'password')
+        self.assertEqual(self.client.post('/api/v1/auth/social/password/', {'password': 'weakpassword', 'confirm_password': 'weakpassword'}).status_code, 400)
+        self.assertFalse(User.objects.exists())
+        created = self.client.post('/api/v1/auth/social/password/', {'password': 'StrongPassword1!', 'confirm_password': 'StrongPassword1!'})
+        self.assertEqual(created.status_code, 200, created.data)
+        self.assertIn('mmemme_refresh', created.cookies)
         user = User.objects.get(email='person@example.test')
         self.assertTrue(user.email_verified)
-        self.assertFalse(user.has_usable_password())
+        self.assertTrue(user.check_password('StrongPassword1!'))
         self.assertEqual(SocialIdentity.objects.get(user=user).subject, 'google-sub-123')
         self.assertEqual(self.client.post('/api/v1/auth/refresh/').status_code, 200)
         _, state, _ = self.start()
-        self.client.get(f'/api/v1/auth/social/google/callback/?state={state}&code=another-code')
+        login = self.client.get(f'/api/v1/auth/social/google/callback/?state={state}&code=another-code')
+        self.assertNotIn('verify=1', login['Location'])
         self.assertEqual(User.objects.count(), 1)
         self.assertEqual(SocialIdentity.objects.count(), 1)
 
@@ -98,20 +117,45 @@ class SocialAuthTests(APITestCase):
 
     @patch('apps.accounts.social_views.verified_claims')
     @patch('apps.accounts.social_views.exchange_code', return_value='signed-token')
-    def test_apple_form_post_requires_state_and_creates_user(self, exchange, verify):
+    def test_apple_form_post_requires_state_otp_and_password(self, exchange, verify):
         verify.return_value = {'subject': 'apple-sub-123', 'email': 'relay@privaterelay.appleid.com',
                                'first_name': '', 'last_name': ''}
         response, state, params = self.start('apple', 'organizer')
         self.assertEqual(params['response_mode'], ['form_post'])
         self.assertEqual(params['nonce'][0] != '', True)
         self.assertEqual(response.cookies['mmemme_oauth_apple']['samesite'], 'None')
-        callback = self.client.post('/api/v1/auth/social/apple/callback/',
-                                    {'state': state, 'code': 'apple-code',
-                                     'user': '{"name":{"firstName":"Amaka","lastName":"Okoro"}}'})
+        with patch('apps.accounts.email_codes.secrets.randbelow', return_value=12345):
+            callback = self.client.post('/api/v1/auth/social/apple/callback/',
+                                        {'state': state, 'code': 'apple-code',
+                                         'user': '{"name":{"firstName":"Amaka","lastName":"Okoro"}}'})
         self.assertIn('flow=organizer', callback['Location'])
+        self.assertIn('verify=1', callback['Location'])
+        self.assertFalse(User.objects.exists())
+        self.assertEqual(self.client.post('/api/v1/auth/social/verify/', {'otp_code': '012345'}).data['needs_password'], True)
+        self.assertFalse(User.objects.exists())
+        self.assertEqual(self.client.post('/api/v1/auth/social/password/', {'password': 'StrongPassword1!', 'confirm_password': 'StrongPassword1!'}).status_code, 200)
         user = User.objects.get(email='relay@privaterelay.appleid.com')
         self.assertEqual(user.first_name, 'Amaka')
         self.assertEqual(user.role, User.Role.USER)
+        self.assertTrue(user.check_password('StrongPassword1!'))
+
+    @patch('apps.accounts.social_views.verified_claims')
+    @patch('apps.accounts.social_views.exchange_code', return_value='signed-token')
+    def test_unverified_existing_account_requires_otp_but_keeps_its_password(self, exchange, verify):
+        existing = User.objects.create_user(username='unverified', email='person@example.test', password='Original1!')
+        verify.return_value = {'subject': 'google-sub-existing', 'email': existing.email,
+                               'first_name': '', 'last_name': ''}
+        _, state, _ = self.start()
+        with patch('apps.accounts.email_codes.secrets.randbelow', return_value=12345):
+            self.client.get(f'/api/v1/auth/social/google/callback/?state={state}&code=one-time-code')
+        result = self.client.post('/api/v1/auth/social/verify/', {'otp_code': '012345'})
+        self.assertEqual(result.status_code, 200, result.data)
+        self.assertFalse(result.data['needs_password'])
+        existing.refresh_from_db()
+        self.assertTrue(existing.email_verified)
+        self.assertTrue(existing.check_password('Original1!'))
+        self.assertEqual(SocialIdentity.objects.get(subject='google-sub-existing').user_id, existing.pk)
+        self.assertFalse(EmailVerificationCode.objects.get(email=existing.email).code_hash)
 
     def test_disabled_provider_is_reported_without_secrets(self):
         with override_settings(GOOGLE_OAUTH_CLIENT_SECRET='', APPLE_PRIVATE_KEY=''):

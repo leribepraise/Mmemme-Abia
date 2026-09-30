@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-export default function EmailCodeForm({ email, onVerify, onResend, onBack, submitLabel = 'Verify email' }) {
+export default function EmailCodeForm({ email, onVerify, onResend, onBack, submitLabel = 'Verify email', backLabel = 'Change details' }) {
   const [code, setCode] = useState('');
   const [message, setMessage] = useState('Check your inbox and spam folder. The code expires in 10 minutes.');
   const [busy, setBusy] = useState(false);
@@ -45,6 +45,6 @@ export default function EmailCodeForm({ email, onVerify, onResend, onBack, submi
     <p role="status" className="text-sm [overflow-wrap:anywhere]">{message}</p>
     <button disabled={busy || !/^[0-9]{6}$/.test(code)} className="w-full bg-[#1d5027] hover:bg-[#174a20] text-white text-sm font-medium py-3 rounded-lg disabled:opacity-50">{busy ? 'Please wait...' : submitLabel+' →'}</button>
     <button type="button" disabled={busy || seconds > 0} onClick={() => void run(true)} className="text-[#48782E] text-sm disabled:opacity-50">{seconds > 0 ? `Resend code in ${seconds}s` : 'Resend code'}</button>
-    <button type="button" disabled={busy} onClick={onBack} className="block text-[#48782E] text-sm">Change details</button>
+    <button type="button" disabled={busy} onClick={onBack} className="block text-[#48782E] text-sm">{backLabel}</button>
   </form>;
 }

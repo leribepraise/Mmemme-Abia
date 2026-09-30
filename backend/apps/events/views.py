@@ -2,6 +2,7 @@ import uuid
 import hashlib
 from django.db import transaction
 from django.core.cache import cache
+from django.http import Http404, HttpResponseRedirect
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.text import slugify
@@ -21,7 +22,7 @@ class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrganizerOrReadOnly]
     def get_queryset(self):
         qs = Event.objects.select_related("organizer","organizer__organizer_profile").prefetch_related("ticket_types")
-        if self.action in {"list","retrieve","featured"}:
+        if self.action in {"list","retrieve","featured","email_image"}:
             qs = qs.filter(status="PUBLISHED",is_suspended=False,is_archived=False,deletion_requested_at__isnull=True,organizer__is_active=True,organizer__is_verified=True)
             if self.action in {"list","featured"}: qs=qs.filter(end_datetime__gt=timezone.now())
         elif not self.request.user.is_staff:
@@ -40,6 +41,16 @@ class EventViewSet(viewsets.ModelViewSet):
     def perform_create(self,serializer):
         slug = serializer.validated_data.get("slug") or (slugify(serializer.validated_data["title"])[:240]+"-"+uuid.uuid4().hex[:12])
         serializer.save(organizer=self.request.user,slug=slug,status="DRAFT")
+    @action(detail=True, methods=['get'], url_path='email-image')
+    def email_image(self, request, pk=None):
+        """Resolve a public event poster when an email is opened, after storage URLs expire."""
+        event = self.get_object()
+        picture = event.image_detail or event.image_card or event.image
+        if not picture:
+            raise Http404
+        response = HttpResponseRedirect(picture.url)
+        response['Cache-Control'] = 'no-store'
+        return response
     @action(detail=False, methods=['get'])
     def featured(self, request):
         """Five public events, rotating through the available catalogue every five minutes."""

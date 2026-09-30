@@ -82,7 +82,7 @@ class EmailCodeTests(TestCase):
         Notification.objects.update(expires_at=past)
         self.assertEqual(self.register().status_code, 400)
         self.assertFalse(User.objects.exists())
-        with patch('apps.notifications.services.EmailMessage.send') as send:
+        with patch('apps.notifications.services.EmailMultiAlternatives.send') as send:
             self.assertFalse(deliver_one())
         send.assert_not_called()
         self.assertFalse(Notification.objects.exists())

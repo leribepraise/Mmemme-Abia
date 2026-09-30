@@ -9,12 +9,13 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from apps.accounts.models import User
+from apps.bookings.models import Booking, BookingItem
 from apps.events.announcements import announce_new_event_batch
 from apps.events.models import Event, EventAnnouncement, TicketType
 from apps.events.moderation import moderate_event
 from apps.notifications.models import Notification, PushDelivery, PushSubscription
 from apps.notifications.push import deliver_push_one
-from apps.notifications.services import deliver_one
+from apps.notifications.services import deliver_one, queue_event_reminders
 from tests.test_notifications_push import PUSH_SETTINGS
 
 
@@ -74,6 +75,7 @@ class EventAnnouncementTests(APITestCase):
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', FRONTEND_URL='https://mmemme.com.ng')
     def test_new_event_email_links_to_the_event(self):
+        Event.objects.filter(pk=self.event.pk).update(image='events/aba-festival.jpg')
         moderate_event(self.admin, self.event.pk, 'approve')
         self.assertTrue(announce_new_event_batch())
         # Skip the organizer's event-review email and send the reader's announcement.
@@ -82,6 +84,48 @@ class EventAnnouncementTests(APITestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, [self.reader.email])
         self.assertIn(f'https://mmemme.com.ng/events/{self.event.pk}', mail.outbox[0].alternatives[0][0])
+        self.assertIn(f'https://mmemme.com.ng/api/v1/events/{self.event.pk}/email-image/', mail.outbox[0].alternatives[0][0])
+        response = self.client.get(f'/api/v1/events/{self.event.pk}/email-image/')
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('events/aba-festival.jpg', response['Location'])
+        self.assertEqual(response['Cache-Control'], 'no-store')
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', FRONTEND_URL='https://mmemme.com.ng')
+    def test_confirmed_event_booking_email_includes_uploaded_poster(self):
+        Event.objects.filter(pk=self.event.pk).update(image='events/aba-festival.jpg')
+        moderate_event(self.admin, self.event.pk, 'approve')
+        booking = Booking.objects.create(user=self.reader, kind=Booking.Kind.EVENT,
+            parent_id=str(self.event.pk), booking_reference='ABIA-POSTER-1',
+            status=Booking.Status.CONFIRMED, total_amount=0)
+        Notification.objects.create(user=self.reader, email=self.reader.email,
+            key=f'booking:{booking.pk}:confirmed', subject='Booking confirmed', body='Your ticket is ready.')
+        Notification.objects.exclude(key=f'booking:{booking.pk}:confirmed').update(sent_at=timezone.now())
+        self.assertTrue(deliver_one())
+        self.assertIn(f'/api/v1/events/{self.event.pk}/email-image/', mail.outbox[0].alternatives[0][0])
+
+    def test_unpublished_event_poster_is_not_public(self):
+        Event.objects.filter(pk=self.event.pk).update(image='events/private.jpg')
+        self.assertEqual(self.client.get(f'/api/v1/events/{self.event.pk}/email-image/').status_code, 404)
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', FRONTEND_URL='https://mmemme.com.ng')
+    def test_confirmed_participant_receives_one_reminder_with_event_poster(self):
+        Event.objects.filter(pk=self.event.pk).update(
+            image='events/aba-festival.jpg', start_datetime=timezone.now() + timedelta(hours=12),
+            end_datetime=timezone.now() + timedelta(hours=15))
+        moderate_event(self.admin, self.event.pk, 'approve')
+        booking = Booking.objects.create(user=self.reader, kind=Booking.Kind.EVENT,
+            parent_id=str(self.event.pk), booking_reference='ABIA-REMINDER-1',
+            status=Booking.Status.CONFIRMED, total_amount=0)
+        BookingItem.objects.create(booking=booking, ticket_type=TicketType.objects.get(event=self.event),
+            quantity=1, unit_price=0, subtotal=0)
+        queue_event_reminders()
+        queue_event_reminders()
+        reminder = Notification.objects.get(key=f'reminder:{booking.pk}')
+        self.assertIn('Aba Festival', reminder.subject)
+        self.assertIn('Aba Hall', reminder.body)
+        Notification.objects.exclude(pk=reminder.pk).update(sent_at=timezone.now())
+        self.assertTrue(deliver_one())
+        self.assertIn(f'/api/v1/events/{self.event.pk}/email-image/', mail.outbox[0].alternatives[0][0])
 
     def test_rejected_event_does_not_announce(self):
         moderate_event(self.admin, self.event.pk, 'reject', 'Please update the venue.')

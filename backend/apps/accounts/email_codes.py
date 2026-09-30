@@ -55,12 +55,13 @@ def request_email_code(email):
         )
 
 
-def complete_email_code(email, code, registration=None):
-    """Consume proof and create/verify the user under one lock; persist failed attempts."""
+def complete_email_code(email, code, registration=None, on_verified=None, consume_only=False):
+    """Consume proof and optionally create/verify a user; persist failed attempts."""
     User = get_user_model()
     email = email.strip().lower()
     error = None
     user = None
+    verified = False
     try:
         with transaction.atomic():
             challenge = EmailVerificationCode.objects.select_for_update().filter(email=email).first()
@@ -74,7 +75,11 @@ def complete_email_code(email, code, registration=None):
                 challenge.save(update_fields=["attempts"])
                 error = "Incorrect verification code."
             else:
-                if registration is not None:
+                if consume_only:
+                    verified = True
+                elif on_verified is not None:
+                    user = on_verified()
+                elif registration is not None:
                     details = dict(registration)
                     password = details.pop("password")
                     username = details.pop('username', 'u_' + uuid.uuid4().hex)
@@ -88,7 +93,7 @@ def complete_email_code(email, code, registration=None):
                         user.save(update_fields=["email_verified"])
                     else:
                         error = "Complete the signup form to create your account with this code."
-                if user:
+                if user or (consume_only and verified):
                     challenge.consumed_at = now
                     challenge.code_hash = ""
                     challenge.save(update_fields=["consumed_at", "code_hash"])

@@ -24,7 +24,5 @@ export default function SocialAuthButtons({ flow = 'user', signup = false, terms
         <img src="/applelogo.png" alt="" className="h-5 w-5 object-contain" />Apple
       </button>
     </div>
-    {!loading && config && (!config.google || !config.apple) &&
-      <p className="mt-2 text-center text-xs text-gray-500">Unavailable options will be enabled after provider setup.</p>}
   </div>;
 }

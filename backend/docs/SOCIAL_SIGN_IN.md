@@ -1,6 +1,6 @@
 # Google and Apple sign-in on Railway
 
-Social sign-in is available to users and organizers. Facebook has been removed from sign-in and sign-up. The backend exchanges one-time authorization codes and verifies signed identity tokens; the browser never receives provider secrets. A new social account has a verified email and no password. An existing, verified non-staff account with the same verified email can be linked. Organizer approval is unchanged: signing in with Google or Apple does not approve an organizer.
+Social sign-in is available to users and organizers. Facebook has been removed from sign-in and sign-up. The backend exchanges one-time authorization codes and verifies signed identity tokens; the browser never receives provider secrets. A new Google or Apple account is created only after the user enters the emailed six-digit OTP and sets a password meeting the same rules as normal signup. An existing, verified non-staff account with the same verified email can be linked. Organizer approval is unchanged: signing in with Google or Apple does not approve an organizer.
 
 The buttons remain disabled until that provider's backend credentials are configured. Do not put credentials in `VITE_` variables or commit them.
 
@@ -44,9 +44,9 @@ Apple requires an HTTPS callback; localhost cannot be used as Apple's web return
 1. Apply migration `accounts.0007_socialidentity` using the backend pre-deploy migration command.
 2. Redeploy the backend and frontend. The worker needs no social provider credentials.
 3. Open `/api/v1/auth/social/config/` on the public site. It should show `true` for each configured provider, without secrets.
-4. Test a new user with Google, then sign out and sign in again. Verify one account is reused and onboarding appears only when needed.
+4. Test a new user with Google: enter the OTP received at the provider email address, set a password, then sign out and sign in again. Verify one account is reused and onboarding appears only when needed.
 5. Test an existing verified organizer account. Its role and approval status must remain unchanged. A new organizer must still submit an application.
-6. Test Apple on the deployed HTTPS site, including Hide My Email and delivery of an account email to that relay address.
+6. Test Apple on the deployed HTTPS site, including Hide My Email, OTP delivery to that relay address, and password setup. Apple sign-up remains unavailable until its credentials are configured.
 7. Test cancellation, a second-tab login, an invalid/expired callback, and password login for existing accounts.
 
 Server-side automated tests mock provider responses; they do not prove that the real Google/Apple console configuration is correct. Complete the real-browser checks before calling social sign-in live.

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { passwordError } from '../src/lib/passwordPolicy.js';
+import { passwordError, passwordStrength } from '../src/lib/passwordPolicy.js';
 import { signupSchema } from '../src/components/auth/register/validation/schemas/signupSchema.js';
 
 test('password policy accepts the agreed combinations without identity comparisons', () => {
@@ -13,6 +13,14 @@ test('password policy rejects missing requirements, spaces as symbols, and inval
   for (const value of ['Abc1!', 'abcdef1!', 'Abcdefg!', 'Abcdefg1', 'Abcdef1 ', 'Abcdef1\n', 'A1!' + 'x'.repeat(126)]) {
     assert.notEqual(passwordError(value), '', value);
   }
+});
+
+test('password strength marks policy-compliant passwords and gives stronger feedback for longer values', () => {
+  assert.equal(passwordStrength('').level, 0);
+  assert.equal(passwordStrength('abc').label, 'Weak');
+  assert.equal(passwordStrength('Wayne123!').meetsPolicy, true);
+  assert.equal(passwordStrength('Wayne123!').level, 2);
+  assert.equal(passwordStrength('LongerWayne123!').label, 'Strong');
 });
 
 test('signup validates email and matching passwords while allowing similar personal details', () => {

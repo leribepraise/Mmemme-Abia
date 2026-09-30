@@ -9,3 +9,13 @@ export function passwordError(value) {
   if (!/[\p{P}\p{S}]/u.test(value)) return 'Password must contain at least one special character, such as !, @ or #.';
   return '';
 }
+
+export function passwordStrength(value = '') {
+  if (!value) return { level: 0, label: '', meetsPolicy: false };
+  const length = [...value].length;
+  const meetsPolicy = !passwordError(value);
+  const signals = [length >= 8, /[A-Z]/.test(value), /[0-9]/.test(value), /[\p{P}\p{S}]/u.test(value)].filter(Boolean).length;
+  if (meetsPolicy && length >= 12) return { level: 3, label: 'Strong', meetsPolicy };
+  if (signals >= 3) return { level: 2, label: meetsPolicy ? 'Medium · meets the minimum' : 'Medium', meetsPolicy };
+  return { level: 1, label: 'Weak', meetsPolicy };
+}

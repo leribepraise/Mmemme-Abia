@@ -154,27 +154,39 @@ def verified_claims(provider, token, nonce):
 
 
 @transaction.atomic
-def resolve_user(provider, claims, apple_name=None):
+def resolve_user(provider, claims, apple_name=None, email_proven=False, password=None):
     identity = SocialIdentity.objects.select_for_update().select_related('user').filter(
         provider=provider, subject=claims['subject']).first()
     if identity:
         user = identity.user
     else:
         user = User.objects.select_for_update().filter(email__iexact=claims['email']).first()
-        if user and (user.is_staff or user.role == User.Role.ADMIN):
-            raise SocialAuthError('Staff accounts must use password sign-in.')
-        if user and not user.email_verified:
-            raise SocialAuthError('Verify this account with its email code first.')
+    if user and (not user.is_active or user.is_staff or user.role == User.Role.ADMIN):
+        raise SocialAuthError('This account cannot use social sign-in.')
+    if user and not user.email_verified and not email_proven:
+        return None
+    if user is None and not email_proven:
+        return None
+    if not identity:
         if user is None:
+            if not password:
+                raise SocialAuthError('Set a password to finish creating your account.')
             name = apple_name or {}
             user = User.objects.create_user(
                 username=f'social_{uuid.uuid4().hex[:24]}', email=claims['email'],
+                password=password,
                 first_name=(claims['first_name'] or str(name.get('firstName') or ''))[:150],
                 last_name=(claims['last_name'] or str(name.get('lastName') or ''))[:150],
                 email_verified=True, role=User.Role.USER,
             )
+        elif not user.email_verified:
+            user.email_verified = True
+            user.save(update_fields=['email_verified'])
         SocialIdentity.objects.create(user=user, provider=provider, subject=claims['subject'])
         audit(user, 'account.social_linked', user.pk, provider=provider)
+    elif not user.email_verified and email_proven:
+        user.email_verified = True
+        user.save(update_fields=['email_verified'])
     if not user.is_active or not user.email_verified or user.is_staff or user.role == User.Role.ADMIN:
         raise SocialAuthError('This account cannot use social sign-in.')
     return user

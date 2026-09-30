@@ -9,7 +9,7 @@ from apps.bookings.models import Booking
 from apps.bookings.services import expire
 from apps.payments.models import Payment,PaymentEvent,Refund,Payout,PayoutAttempt
 from apps.payments.services import process_event,verify_payment,submit_refund,reconcile_refund
-from apps.notifications.services import deliver_one,notify
+from apps.notifications.services import deliver_one,queue_event_reminders
 from apps.notifications.push import deliver_push_one
 from apps.common.api import ServiceUnavailable
 from apps.payments.payouts import submit as submit_payout, reconcile as reconcile_payout
@@ -45,7 +45,6 @@ class Command(BaseCommand):
         for refund in Refund.objects.filter(status__in=["UNKNOWN","PROCESSING"]).order_by("updated_at")[:20]:
             self.run_job("refund reconciliation",reconcile_refund,refund.pk)
             Refund.objects.filter(pk=refund.pk).update(updated_at=timezone.now())
-        tomorrow=now+timedelta(days=1)
         for payout in Payout.objects.filter(status="APPROVED").order_by("approved_at")[:20]:
             self.run_job("payout submission",submit_payout,payout.pk)
         # Revisit successful transfers daily because a bank may subsequently reverse them.
@@ -55,9 +54,7 @@ class Command(BaseCommand):
         ).filter(Q(checked_at__isnull=True)|Q(checked_at__lt=now-timedelta(minutes=5))).order_by("checked_at","id")[:25]
         for attempt in attempts:
             self.run_job("payout reconciliation",reconcile_payout,attempt.pk)
-        bookings=Booking.objects.filter(status="CONFIRMED",kind="EVENT",items__ticket_type__event__start_datetime__gt=now,items__ticket_type__event__start_datetime__lte=tomorrow,user__email_notifications=True).select_related("user").distinct()[:1000]
-        for booking in bookings:
-            notify(booking.user,f"reminder:{booking.pk}","Your event is coming up",f"Your event is within the next 24 hours. Booking reference: {booking.booking_reference}.")
+        self.run_job('event reminders', queue_event_reminders)
         from apps.events.announcements import announce_new_event_batch
         self.run_job('new event announcement', announce_new_event_batch)
         for _ in range(50):

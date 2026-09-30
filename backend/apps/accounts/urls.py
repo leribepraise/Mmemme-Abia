@@ -4,9 +4,13 @@ from .views import (
     VerifyEmailView,ResendVerificationView,PasswordResetView,
     PasswordResetConfirmView,PasswordChangeView,OrganizerApplicationView,OrganizerProfileView,CompleteOnboardingView,
 )
-from .social_views import SocialConfigView, SocialStartView, SocialCallbackView
+from .social_views import SocialConfigView, SocialStartView, SocialCallbackView, SocialPendingView, SocialVerifyView, SocialResendView, SocialPasswordView
 urlpatterns = [
     path('social/config/', SocialConfigView.as_view()),
+    path('social/pending/', SocialPendingView.as_view()),
+    path('social/verify/', SocialVerifyView.as_view()),
+    path('social/resend/', SocialResendView.as_view()),
+    path('social/password/', SocialPasswordView.as_view()),
     path('social/<slug:provider>/start/', SocialStartView.as_view()),
     path('social/<slug:provider>/callback/', SocialCallbackView.as_view()),
     path("csrf/",CSRFView.as_view()),

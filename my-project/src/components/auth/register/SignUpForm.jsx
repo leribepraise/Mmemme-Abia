@@ -12,6 +12,7 @@ import EmailCodeForm from "../EmailCodeForm";
 import VerificationScreen from "../VerificationScreen";
 import { PASSWORD_HELP } from "@/lib/passwordPolicy";
 import SocialAuthButtons from '../SocialAuthButtons';
+import PasswordStrength from '../PasswordStrength';
 
 const SignUpForm = ({ onChallenge = () => {} }) => {
   const navigate = useNavigate();
@@ -174,6 +175,7 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
                     />
                   )}
                 </div>
+                <PasswordStrength password={watch('password') || ''} />
                 <p className="mt-1 text-xs text-gray-500">{PASSWORD_HELP}</p>
                 {errors.password && (
                   <p className="text-red-500 text-xs mt-1">
