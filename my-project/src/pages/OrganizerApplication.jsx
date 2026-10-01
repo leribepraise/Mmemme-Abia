@@ -29,7 +29,7 @@ export default function OrganizerApplication() {
   const application=useApi(user?'/auth/organizer-application/':null);
   const [details,setDetails]=useState(null);const [busy,setBusy]=useState(false);const [editing,setEditing]=useState(false);
   if(loading)return <p role="status" className="p-8">Loading…</p>;
-  if(!user)return <Navigate to="/organizer/signup" replace/>;
+  if(!user)return <Navigate to="/Signup" state={{from:'/organizer/apply'}} replace/>;
   if(user.is_verified&&user.role==='ORGANIZER')return <Navigate to="/organizer/dashboard" replace/>;
   const submit=async()=>{if(busy)return;setBusy(true);try{await api('/auth/organizer-application/',{method:'POST',body:{...details,accept_terms:true}});setDetails(null);setEditing(false);await reloadUser();application.reload();toast.success('Your application has been submitted for review.');}catch(error){toast.error(error.message);}finally{setBusy(false);}};
   const profile=application.data;

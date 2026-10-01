@@ -9,6 +9,7 @@ import { ArrowLeft, ArrowRight, Check, ImagePlus, ShieldCheck } from "lucide-rea
 import OrganizerShell from "@/components/organizer/OrganizerPublicShell";
 import { naira } from "@/lib/utils";
 import { EVENT_CATEGORIES, eventCategory } from "@/lib/eventCategories";
+import { eventStepError, nextEndDate } from "@/lib/eventFormValidation";
 
 const inputClass = "w-full border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-[#3F7D3D] bg-white";
 const labelClass = "block text-xs font-bold text-gray-700 mb-2";
@@ -68,6 +69,7 @@ export default function OrganizerEventForm({ editId }) {
     image: existing?.image || "",
   });
   const [saved, setSaved] = useState(false);
+  const [stepIssue, setStepIssue] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const imageObjectUrl = useRef(null);
@@ -78,13 +80,16 @@ export default function OrganizerEventForm({ editId }) {
     setImageFile(file);
     setImagePreview(imageObjectUrl.current || "");
   };
-  const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
-
-  const validSchedule = () => Boolean(form.venue.trim() && form.city.trim() && form.date && form.endDate && form.startTime && form.endTime && new Date(eventDateTime(form.endDate, form.endTime)) > new Date(eventDateTime(form.date, form.startTime)));
-  const canAdvance = () => {
-    if (step === 1) return form.title.trim() && form.description.trim();
-    if (step === 2) return validSchedule();
-    return true;
+  const update = (key, value) => { setStepIssue(null); setForm(prev => ({ ...prev, [key]: value })); };
+  const continueStep = () => {
+    const issue = eventStepError(form, step);
+    if (issue) {
+      setStepIssue(issue);
+      document.getElementById(issue.field)?.focus();
+      return;
+    }
+    setStepIssue(null);
+    setStep(current => current + 1);
   };
 
   const createdId = useRef(editId || null);
@@ -99,7 +104,10 @@ export default function OrganizerEventForm({ editId }) {
     if (saved) return;
     setSaved(true);
     try {
-      if (!validSchedule()) throw new Error('Enter a valid event date and time. The end must follow the start.');
+      for (const currentStep of [1, 2, 3]) {
+        const issue = eventStepError(form, currentStep);
+        if (issue) { setStep(currentStep); setStepIssue(issue); throw new Error(issue.message); }
+      }
       const fields = { title: form.title, category: form.category, description: form.description, venue: form.venue, city: form.city, address: form.address, capacity: Number(form.capacity), start_datetime: eventDateTime(form.date, form.startTime), end_datetime: eventDateTime(form.endDate, form.endTime) };
       const body = new FormData();
       Object.entries(fields).forEach(([key, value]) => body.append(key, value));
@@ -132,6 +140,7 @@ export default function OrganizerEventForm({ editId }) {
         }
       >
         <Stepper current={step} />
+        {stepIssue && <p role="alert" className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{stepIssue.message}</p>}
         {booked && <div className="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">Tickets have been booked. Changes to the event date, time, or venue will notify attendees. The price of an existing ticket type is locked; add a new ticket type to offer a different price.</div>}
         {existing?.review_note && <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm"><h2 className="font-semibold">Staff feedback</h2><p className="mt-2 whitespace-pre-wrap">{existing.review_note}</p></div>}
 
@@ -170,7 +179,7 @@ export default function OrganizerEventForm({ editId }) {
                 </div>
                 <div className="md:col-span-2">
                   <label className={labelClass} htmlFor="event-date">Event Date (all-day) *</label>
-                  <input id="event-date" type="date" className={inputClass} value={form.date} onChange={e => setForm(prev => ({ ...prev, date: e.target.value, endDate: prev.endDate || e.target.value }))} data-testid="input-event-date" />
+                  <input id="event-date" type="date" className={inputClass} value={form.date} onChange={e => { const date = e.target.value; setStepIssue(null); setForm(prev => ({ ...prev, date, endDate: nextEndDate(date, prev.endDate) })); }} data-testid="input-event-date" />
                 </div>
                 <div><label className={labelClass} htmlFor="event-start-time">Start time *</label><input id="event-start-time" type="time" className={inputClass} value={form.startTime} onChange={e => update('startTime', e.target.value)} /></div>
                 <div><label className={labelClass} htmlFor="event-end-date">End date *</label><input id="event-end-date" type="date" className={inputClass} value={form.endDate} onChange={e => update('endDate', e.target.value)} /></div>
@@ -233,7 +242,8 @@ export default function OrganizerEventForm({ editId }) {
 
             <div className="flex flex-wrap items-center justify-between gap-4 mt-8 pt-6 border-t border-gray-100">
               <button
-                onClick={() => (step === 1 ? navigate("/organizer/events") : setStep(s => s - 1))}
+                type="button"
+                onClick={() => { setStepIssue(null); if (step === 1) navigate("/organizer/events"); else setStep(s => s - 1); }}
                 className="px-6 py-3 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-100 transition-colors"
                 data-testid="button-form-cancel"
               >
@@ -241,9 +251,9 @@ export default function OrganizerEventForm({ editId }) {
               </button>
               {step < STEPS.length ? (
                 <button
-                  disabled={!canAdvance()}
-                  onClick={() => setStep(s => s + 1)}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white bg-[#3F7D3D] hover:bg-[#336633] disabled:opacity-50 shadow-sm transition-colors"
+                  type="button"
+                  onClick={continueStep}
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white bg-[#3F7D3D] hover:bg-[#336633] shadow-sm transition-colors"
                   data-testid="button-save-continue"
                 >
                   Continue <ArrowRight className="w-4 h-4" />
@@ -251,6 +261,7 @@ export default function OrganizerEventForm({ editId }) {
               ) : (
                 <div className="flex flex-wrap items-center gap-3">
                   {!published && <button
+                    type="button"
                     disabled={saved}
                     onClick={() => submit(false)}
                     className="px-6 py-3 rounded-xl text-sm font-bold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
@@ -259,6 +270,7 @@ export default function OrganizerEventForm({ editId }) {
                     {saved ? "Saved" : "Save as draft"}
                   </button>}
                   <button
+                    type="button"
                     disabled={saved}
                     onClick={() => submit(!published)}
                     className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white bg-[#F36B25] hover:bg-[#d95d1d] shadow-sm transition-colors"

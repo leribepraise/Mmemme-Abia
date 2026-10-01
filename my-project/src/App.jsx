@@ -53,7 +53,6 @@ import Onboarding from "./components/onboarding/Onboarding";
 const Profile = lazy(() => import('./pages/Profile'));
 const Terms = lazy(() => import('./pages/Terms'));
 const OrganizerApplication = lazy(() => import('./pages/OrganizerApplication'));
-const OrganizerSignup = lazy(() => import('./pages/OrganizerApplication').then(module => ({default: module.OrganizerSignup})));
 const OrganizerLogin = lazy(() => import('./pages/OrganizerLogin'));
 const OrganizerDashboard = lazy(() => import('./pages/OrganizerDashboard'));
 const OrganizerEvents = lazy(() => import('./pages/OrganizerEvents'));
@@ -642,7 +641,7 @@ const App = () => {
   const organizerRouter = [
     { path: "/organizer", element: <Navigate to="/organizer/login" replace /> },
     { path: "/organizer/login", element: <OrganizerLogin /> },
-    { path: "/organizer/signup", element: <OrganizerSignup /> },
+    { path: "/organizer/signup", element: <Navigate to="/Signup" state={{from:'/organizer/apply'}} replace /> },
     { path: "/organizer/apply", element: <OrganizerApplication /> },
     { path: "/organizer/dashboard", element: <OrganizerDashboard /> },
     { path: "/organizer/events", element: <OrganizerEvents /> },

@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema } from "./validation/schemas/signupSchema";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import EmailCodeForm from "../EmailCodeForm";
 import VerificationScreen from "../VerificationScreen";
@@ -16,6 +16,8 @@ import PasswordStrength from '../PasswordStrength';
 
 const SignUpForm = ({ onChallenge = () => {} }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const organizerSignup = location.state?.from === '/organizer/apply';
   const { login } = useAuth();
   const [pending, setPending] = useState(null);
   const [inputType, setInputType] = useState("password");
@@ -61,10 +63,10 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
     toast.success("Email verified and account created.");
     try {
       await login(credentials);
-      navigate("/Signup/onboarding");
+      navigate(organizerSignup ? '/organizer/apply' : '/Signup/onboarding', { replace: true });
     } catch {
       toast("Your account is ready. Please log in to continue.");
-      navigate("/login");
+      navigate("/login", { state: organizerSignup ? { from: '/organizer/apply' } : undefined });
     }
   };
   const toggleVisibility = () => {
@@ -236,10 +238,10 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
               </button>
             </form>
             <div className="flex items-center gap-3 text-xs text-gray-400"><span className="h-px flex-1 bg-gray-200"/>Or continue with<span className="h-px flex-1 bg-gray-200"/></div>
-            <SocialAuthButtons flow="user" signup termsAccepted={Boolean(watch('terms'))} />
+            <SocialAuthButtons flow={organizerSignup ? 'organizer' : 'user'} signup termsAccepted={Boolean(watch('terms'))} />
             <p className="text-center text-sm text-[#666666]">
               Already have an account?
-              <NavLink to="/login" className="ml-1 text-[#48782E] font-semibold hover:underline">Log In</NavLink>
+              <NavLink to="/login" state={organizerSignup ? { from: '/organizer/apply' } : undefined} className="ml-1 text-[#48782E] font-semibold hover:underline">Log In</NavLink>
             </p>
           </div>
         )}
