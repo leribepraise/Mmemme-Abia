@@ -177,6 +177,10 @@ class EventViewSet(viewsets.ModelViewSet):
             instance=get_object_or_404(TicketType.objects.select_for_update(),pk=request.data.get("id"),event=event)
         serializer=TicketTypeSerializer(instance,data=request.data,partial=request.method=="PATCH")
         serializer.is_valid(raise_exception=True)
+        if (event.status == "PUBLISHED" and instance and instance.is_active
+                and serializer.validated_data.get("is_active") is False
+                and not event.ticket_types.filter(is_active=True).exclude(pk=instance.pk).exists()):
+            raise Conflict("A published event must keep at least one active ticket type. Add or activate another ticket first.")
         if TicketType.objects.filter(event=event,name=serializer.validated_data.get("name",getattr(instance,"name",""))).exclude(pk=getattr(instance,"pk",None)).exists():
             raise serializers.ValidationError("This ticket type name already exists.")
         serializer.save(event=event)

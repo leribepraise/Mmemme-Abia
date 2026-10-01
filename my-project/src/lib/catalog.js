@@ -2,7 +2,7 @@ import { money } from './api.js';
 import { eventCategory } from './eventCategories.js';
 export function organizerEvent(event) {
   const types = event.ticket_types || [];
-  return { ...eventCard(event), rawStatus: event.status, status: event.is_suspended ? 'Suspended' : event.review_decision === 'request-changes' && event.status === 'REJECTED' ? 'Changes requested' : ({ DRAFT: 'Draft', PUBLISHED: 'Published', IN_REVIEW: 'In review', REJECTED: 'Rejected', CANCELLED: 'Cancelled' })[event.status] || event.status, ticketCapacity: event.capacity, ticketsSold: types.reduce((sum, t) => sum + t.quantity_sold, 0), revenue: types.reduce((sum, t) => sum + t.quantity_sold * Number(t.price), 0), price: Number(types[0]?.price || 0), tags: [], eventType: 'Physical Event' };
+  return { ...eventCard(event), ticket_types: types, rawStatus: event.status, status: event.is_suspended ? 'Suspended' : event.review_decision === 'request-changes' && event.status === 'REJECTED' ? 'Changes requested' : ({ DRAFT: 'Draft', PUBLISHED: 'Published', IN_REVIEW: 'In review', REJECTED: 'Rejected', CANCELLED: 'Cancelled' })[event.status] || event.status, ticketCapacity: event.capacity, ticketsSold: types.reduce((sum, t) => sum + t.quantity_sold, 0), revenue: types.reduce((sum, t) => sum + t.quantity_sold * Number(t.price), 0), price: Number(types[0]?.price || 0), tags: [], eventType: 'Physical Event' };
 }
 export function eventCard(event) {
   const types = (event.ticket_types || []).filter(t => t.is_active);

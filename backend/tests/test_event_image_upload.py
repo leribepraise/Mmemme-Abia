@@ -157,7 +157,13 @@ class EventImageUploadTests(APITestCase):
         self.assertIn('Different hall', booking.details['location'])
         self.assertEqual(self.client.patch(path, {'description': 'Updated details'}, format='json').status_code, 200)
         self.assertEqual(self.client.patch(path + 'ticket-types/', {'id': str(ticket_type.pk), 'price': '6000.00'}, format='json').status_code, 400)
+        self.assertEqual(self.client.patch(path + 'ticket-types/', {'id': str(ticket_type.pk), 'is_active': False}, format='json').status_code, 409)
+        self.assertEqual(self.client.patch(path + 'ticket-types/', {'id': str(ticket_type.pk), 'is_active': 'false'}, format='multipart').status_code, 409)
+        self.assertTrue(TicketType.objects.get(pk=ticket_type.pk).is_active)
         self.assertEqual(self.client.post(path + 'ticket-types/', {'name': 'VIP', 'price': '10000.00', 'quantity': 10}, format='json').status_code, 201)
+        second = TicketType.objects.get(event=event, name='VIP')
+        self.assertEqual(self.client.patch(path + 'ticket-types/', {'id': str(second.pk), 'is_active': False}, format='json').status_code, 200)
+        self.assertEqual(self.client.patch(path + 'ticket-types/', {'id': str(second.pk), 'is_active': True}, format='json').status_code, 200)
         draft = Event.objects.create(organizer=owner, title='Draft', slug='edit-price-draft-test',
             description='Draft description', category='Music', venue='Aba hall', city='Aba', capacity=40,
             status='DRAFT', start_datetime=start, end_datetime=start + timedelta(hours=3))

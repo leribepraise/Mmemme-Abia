@@ -71,8 +71,8 @@ function TicketTypesPanel({ event, onReady }) {
       reload(); cancel();
     } catch (error) { toast.error(error.message); }
   };
-  const remove = async id => {
-    try { await api(`/events/${event.id}/ticket-types/`, { method: 'PATCH', body: { id, is_active: false } }); reload(); }
+  const setActive = async (id, is_active) => {
+    try { await api(`/events/${event.id}/ticket-types/`, { method: 'PATCH', body: { id, is_active } }); reload(); toast.success(is_active ? 'Ticket type activated.' : 'Ticket type deactivated.'); }
     catch (error) { toast.error(error.message); }
   };
 
@@ -116,7 +116,7 @@ function TicketTypesPanel({ event, onReady }) {
                   <td className="py-3 pr-4 text-gray-600">{item.sold}</td>
                   <td className="py-3 pr-4 text-gray-600">{item.limit}</td>
                   <td className="py-3 pr-4"><StatusPill status={item.sold >= item.limit ? "Sold Out" : item.status} /></td>
-                  <td className="py-3"><RowActions onEdit={() => startEdit(item)} onDelete={() => remove(item.id)} /></td>
+                  <td className="py-3"><div className="flex items-center justify-end gap-2"><button type="button" onClick={() => startEdit(item)} className="text-xs font-semibold text-[#3F7D3D] hover:underline">Edit</button><button type="button" onClick={() => setActive(item.id, !item.is_active)} className="text-xs font-semibold text-[#3F7D3D] hover:underline">{item.is_active ? 'Deactivate' : 'Activate'}</button></div></td>
                 </tr>
               )
             ))}
