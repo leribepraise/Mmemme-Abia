@@ -13,7 +13,7 @@ const Events = () => {
   return (
     <>
       <section className="mx-auto mt-10 w-full max-w-[1700px] overflow-hidden">
-        <div className="mb-5 flex items-center justify-between lg:relative lg:justify-center">
+        <div className="mb-5 flex items-center justify-between">
           <h1 className="text-[20px] font-semibold">
             Trending Events 🔥
           </h1>
@@ -26,8 +26,8 @@ const Events = () => {
             </button>
           </div>
         </div>
-        <div className="overflow-x-auto scrollbar-hide lg:overflow-visible">
-          <div className="flex w-max gap-5 pb-3 lg:mx-auto lg:w-full lg:flex-wrap lg:justify-center">
+        <div className="my-10 overflow-x-auto scrollbar-hide py-10 px-5">
+          <div className="flex justify-between gap-3">
             {events.map((event) => <EventCard key={event.id} event={event} />)}
           </div>
         </div>
