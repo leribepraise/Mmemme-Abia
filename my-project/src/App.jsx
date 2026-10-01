@@ -706,6 +706,7 @@ const App = () => {
                       "/organizer/login",
                       "/organizer",
                       "/organizer/signup",
+                      "/organizer/apply",
                     ].includes(item.path) ? (
                       item.element
                     ) : (
