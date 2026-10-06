@@ -53,10 +53,12 @@ class BlogEditorTests(TestCase):
     def test_drafts_are_private_and_preview_does_not_publish(self):
         self.create()
         before = Article.objects.count()
-        preview = self.client.post(self.base + 'preview/', self.data, format='json')
+        preview = self.client.post(self.base + 'preview/', {**self.data, 'theme': 'dark'}, format='json')
         self.assertEqual(preview.status_code, 200, preview.data)
         self.assertIn('<h2>Our traditions</h2>', preview.data['html'])
         self.assertIn('noindex,nofollow', preview.data['html'])
+        self.assertIn('class="dark"', preview.data['html'])
+        self.assertNotIn('/blog-shell-loader.js', preview.data['html'])
         self.assertEqual(preview['Cache-Control'], 'no-store')
         self.assertEqual(Article.objects.count(), before)
         self.client.force_authenticate(None)
@@ -70,6 +72,8 @@ class BlogEditorTests(TestCase):
         response = self.client.get('/blog/abia-culture')
         self.assertEqual(response.status_code, 200)
         html = response.content.decode()
+        self.assertIn('/blog-shell-loader.js', html)
+        self.assertIn('mmemme-theme', html)
         for text in ['<title>Abia festivals guide</title>', '<h2>Our traditions</h2>', 'Explore Abia traditions.', 'By Ada', '<time datetime=', 'https://mmemme.com.ng/blog/abia-culture', 'application/ld+json']:
             self.assertIn(text, html)
         sitemap = self.client.get('/sitemap.xml').content.decode()

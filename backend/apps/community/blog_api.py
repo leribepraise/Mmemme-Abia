@@ -139,7 +139,9 @@ class BlogEditorViewSet(viewsets.ModelViewSet):
         if instance:
             article.published_at = instance.published_at
         from .blog_views import article_context
-        response = Response({'html': render_to_string('community/blog_detail.html', article_context(article, preview=True))})
+        context = article_context(article, preview=True)
+        context['initial_theme'] = 'dark' if request.data.get('theme') == 'dark' else 'light'
+        response = Response({'html': render_to_string('community/blog_detail.html', context)})
         response['Cache-Control'] = 'no-store'
         response['X-Robots-Tag'] = 'noindex, nofollow'
         return response

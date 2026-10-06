@@ -14,6 +14,8 @@
     }
   ],
   "headers": [
+    { "source": "/blog-shell.html", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/blog-shell-loader.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
     {
       "source": "/api/:path*",
       "headers": [

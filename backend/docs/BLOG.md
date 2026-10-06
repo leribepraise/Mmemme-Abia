@@ -7,7 +7,7 @@ Editors sign in at `/blog-editor/login`. This uses the existing account login an
 1. Deploy backend and frontend from the same revision. The backend requirements include `nh3` for HTML sanitization. Run `python manage.py migrate` before starting the updated API and worker.
 2. Keep `FRONTEND_URL` set to your public website origin (for example `https://mmemme.com.ng`), with no trailing slash. Canonicals and sitemap URLs use this setting rather than the backend hostname.
 3. Keep the existing `python manage.py process_jobs` worker running. Each tick publishes due scheduled articles, retaining the planned time as their publication date. If the worker stops, scheduled posts stay private until it resumes.
-4. The Caddy and Vercel configurations now proxy `/blog`, `/blog/*`, `/blog-media/*`, and `/sitemap.xml` to Django, before the SPA fallback. The Vite development server also proxies these routes. For other hosting platforms configure the same rules. `vite preview` alone cannot serve backend-rendered pages.
+4. The Caddy and Vercel configurations proxy `/blog`, `/blog/*`, `/blog-media/*`, and `/sitemap.xml` to Django, before the SPA fallback. Vite development and preview servers also proxy these routes; set `BACKEND_PROXY_TARGET` when your local backend runs somewhere other than the configured default. For other hosting platforms configure the same rules.
 5. Register and verify a separate non-staff account, then run from the backend service:
 
    ```sh
@@ -25,6 +25,7 @@ Editors sign in at `/blog-editor/login`. This uses the existing account login an
 
 ## Behavior
 
+- The editor uses the existing frontend Header, Footer, and theme controls. Public blog pages mount those same components through the built `/blog-shell.html` entry, while article content and metadata remain server-rendered. Keep `/blog-shell.html` and `/blog-shell-loader.js` served by the frontend with cache revalidation. A usable navigation fallback remains available without JavaScript. Theme preference uses the site's existing `mmemme-theme` key; private previews follow the editor's current theme.
 - Rich text supports headings, bold, italic, links, lists, quotes, inline images, and editable tables. Content is sanitized before storage and again before HTML rendering.
 - Articles start as drafts. Preview uses the public article template with `noindex`, `no-store`, and a sandboxed iframe; preview never writes the article.
 - Scheduling inputs explicitly use Africa/Lagos (UTC+01:00), independent of the editor's device timezone. Times are stored as timezone-aware timestamps.

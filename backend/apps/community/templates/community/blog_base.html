@@ -1,19 +1,52 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="{{ initial_theme }}">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#48782E">
   <title>{% block title %}Blog | Mmemme Abia{% endblock %}</title>
   <meta name="description" content="{% block description %}News, guides and stories from Abia State.{% endblock %}">
   <link rel="canonical" href="{{ canonical }}">
+  {% if not preview %}<script>
+    (() => { try {
+      const saved = localStorage.getItem('mmemme-theme');
+      const dark = saved === 'dark' || (saved !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.classList.toggle('dark', dark);
+      document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+    } catch {} })();
+  </script>{% endif %}
   {% block head %}{% endblock %}
-  <style>
-    *{box-sizing:border-box}body{margin:0;color:#243329;background:#f6f7f3;font:17px/1.75 system-ui,sans-serif}a{color:#265f27}header{background:white;border-bottom:1px solid #dde4db}nav{max-width:1120px;margin:auto;display:flex;flex-wrap:wrap;align-items:center;gap:24px;padding:18px 24px}nav img{width:140px}nav a{text-decoration:none;font-weight:600}main{max-width:1040px;margin:40px auto;padding:0 24px;min-height:65vh}h1{font-size:clamp(30px,5vw,48px);line-height:1.2;color:#173c21}h2{line-height:1.3}.article-body{background:white;padding:clamp(18px,4vw,48px);border-radius:16px;overflow-wrap:anywhere}.article-body h2{font-size:1.8em}.article-body h3{font-size:1.4em}.article-body h4{font-size:1.15em}.article-body img{max-width:100%;height:auto;border-radius:8px}.article-body table{width:100%;border-collapse:collapse;display:block;overflow-x:auto}.article-body td,.article-body th{border:1px solid #bdc9bb;padding:10px;min-width:100px}.article-body th{background:#eef3e9}.article-body blockquote{border-left:4px solid #fd6c11;padding:8px 24px;background:#faf5ed}.article-body pre{overflow:auto}.cover{width:100%;max-height:520px;object-fit:cover;border-radius:14px}.meta{color:#596559}.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.chips a{border:1px solid #cbd7c8;padding:3px 12px;border-radius:20px;text-decoration:none;font-size:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:24px}.card{background:white;border-radius:14px;overflow:hidden;box-shadow:0 3px 16px #183e2010}.card img{width:100%;height:210px;object-fit:cover}.card div{padding:20px}.card h2{margin:0 0 12px}.card h2 a{text-decoration:none}.pagination{display:flex;gap:20px;margin:30px 0}footer{padding:30px 24px;text-align:center;background:#173c21;color:white}footer a{color:white}.preview{background:#fff0c2;padding:14px;text-align:center}input,button{font:inherit;padding:10px 16px;border:1px solid #b6c3b3;border-radius:8px}button{background:#265f27;color:white;cursor:pointer}form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
-  </style>
+  <style>{% include 'community/blog_styles.html' %}</style>
 </head>
-<body>
-{% if preview %}<div class="preview">Private preview — this article has not been published.</div>{% endif %}
-<header><nav aria-label="Main navigation"><a href="/"><img src="/logo.png" alt="Mmemme Abia"></a><a href="/events">Events</a><a href="/hotel">Hotels</a><a href="/food">Food</a><a href="/tourism">Tourism</a><a href="/blog" aria-current="page">Blog</a></nav></header>
-<main>{% block content %}{% endblock %}</main>
-<footer>Mmemme Abia · <a href="/contact">Contact us</a> · <a href="/blog-editor/login">Blog editor</a></footer>
+<body class="blog-public">
+{% if preview %}<div class="blog-preview-banner">Private preview — this article has not been published.</div>{% endif %}
+<div id="blog-site-header">
+  <div class="blog-fallback-spacer"></div>
+  <header class="blog-fallback-header">
+    <a href="/" aria-label="Mmemme Abia home"><img src="/logo.png" alt="Mmemme Abia"></a>
+    <nav aria-label="Main navigation"><a href="/">Home</a><a href="/events">Events</a><a href="/hotel">Hotels</a><a href="/tourism">Tourism</a><a href="/food">Food</a><a href="/blog" aria-current="page">Blog</a><a href="/about">About us</a></nav>
+    <div class="blog-fallback-controls">
+      <button type="button" class="blog-theme-toggle" data-blog-theme-toggle aria-label="Dark mode" aria-pressed="{% if initial_theme == 'dark' %}true{% else %}false{% endif %}" {% if preview %}disabled{% endif %}>
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+      </button>
+      <a class="blog-auth-link" href="/login">Login</a><a class="blog-auth-link blog-signup" href="/SignUp">Sign up</a>
+      <details class="blog-fallback-mobile"><summary aria-label="Navigation menu">☰</summary><nav aria-label="Mobile navigation"><a href="/">Home</a><a href="/events">Events</a><a href="/hotel">Hotels</a><a href="/tourism">Tourism</a><a href="/food">Food</a><a href="/blog" aria-current="page">Blog</a><a href="/about">About us</a><a href="/login">Login</a><a href="/SignUp">Sign up</a></nav></details>
+    </div>
+  </header>
+</div>
+<main class="blog-content">{% block content %}{% endblock %}</main>
+<div id="blog-site-footer"><footer class="blog-fallback-footer"><img src="/logo.png" alt="Mmemme Abia"><p>Mmemme Abia is your go-to platform for discovering, booking and enjoying the best events across Abia State.</p><nav aria-label="Footer"><a href="/events">Explore Events</a><a href="/blog">Blog</a><a href="/contact">Contact Us</a><a href="/plans">Membership plans</a><a href="/help">Help Center</a></nav><p>© 2026 Mmemme Abia. All rights reserved.</p></footer></div>
+{% if not preview %}<script>
+  document.querySelectorAll('[data-blog-theme-toggle]').forEach(button => {
+    button.setAttribute('aria-pressed', String(document.documentElement.classList.contains('dark')));
+    button.addEventListener('click', () => {
+      const dark = !document.documentElement.classList.contains('dark');
+      document.documentElement.classList.toggle('dark', dark);
+      document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+      button.setAttribute('aria-pressed', String(dark));
+      try { localStorage.setItem('mmemme-theme', dark ? 'dark' : 'light'); } catch {}
+    });
+  });
+</script><script src="/blog-shell-loader.js" defer></script>{% endif %}
 </body>
 </html>
