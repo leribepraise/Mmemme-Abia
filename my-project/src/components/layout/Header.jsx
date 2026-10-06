@@ -33,6 +33,7 @@ const Header = () => {
             <NavLink
               key={n.title}
               to={n.path}
+              reloadDocument={n.path === '/blog'}
               className={({ isActive }) =>
                 `list-none flex gap-5 font-semibold text-[14px] ${
                   isActive

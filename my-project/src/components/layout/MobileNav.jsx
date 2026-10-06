@@ -97,6 +97,7 @@ const MobileNav = () => {
                 <NavLink
                   key={n.title}
                   to={n.path}
+                  reloadDocument={n.path === '/blog'}
                   onClick={closeMenu}
                   className={({ isActive }) =>
                     isActive ? "text-green-600 font-bold" : "font-normal"

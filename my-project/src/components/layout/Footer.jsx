@@ -59,7 +59,7 @@ const Footer = () => {
             <Link to="/events" className="block font-normal text-white">
               Calendar
             </Link>
-            <NavLink to="/blog">
+            <NavLink to="/blog" reloadDocument>
               <p className="font-normal text-[#FFFFFF]">Blog</p>
             </NavLink>
             <NavLink to="/contact">

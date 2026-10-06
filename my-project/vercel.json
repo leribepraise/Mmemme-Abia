@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    { "source": "/blog-media/:path*", "destination": "https://backend-production-5722.up.railway.app/blog-media/:path*" },
+    { "source": "/blog", "destination": "https://backend-production-5722.up.railway.app/blog" },
+    { "source": "/blog/:path*", "destination": "https://backend-production-5722.up.railway.app/blog/:path*" },
+    { "source": "/sitemap.xml", "destination": "https://backend-production-5722.up.railway.app/sitemap.xml" },
     {
       "source": "/api/:path*",
       "destination": "https://backend-production-5722.up.railway.app/api/:path*"

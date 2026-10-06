@@ -23,7 +23,7 @@
     header @appUpdates Cache-Control "no-cache"
 
     # /admin belongs to the React staff dashboard. Django admin stays on the backend domain.
-    @backend path /api /api/* /static /static/* /media /media/* /health/*
+    @backend path /api /api/* /static /static/* /media /media/* /health/* /blog /blog/* /blog-media/* /sitemap.xml
     handle @backend {
         reverse_proxy {$BACKEND_UPSTREAM} {
             # Railway terminates public HTTPS; never trust a client-supplied value.

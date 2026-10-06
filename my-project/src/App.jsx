@@ -15,6 +15,14 @@ const ShuttlePage = lazy(() => import('./pages/ShuttlePage'));
 const AccountAction = lazy(() => import('./pages/AccountAction'));
 import OrganizerGuard from "./components/OrganizerGuard";
 import React, { lazy, Suspense } from "react";
+const BlogGuard = lazy(() => import('./pages/blog/BlogEditor').then(m => ({ default: m.BlogGuard })));
+const BlogDashboard = lazy(() => import('./pages/blog/BlogEditor'));
+const BlogLogin = lazy(() => import('./pages/blog/BlogEditor').then(m => ({ default: m.BlogLogin })));
+const BlogArticleEditor = lazy(() => import('./pages/blog/BlogEditor').then(m => ({ default: m.BlogArticleEditor })));
+function PublicBlogRedirect() {
+  React.useEffect(() => { window.location.replace(window.location.href); }, []);
+  return <p className="p-8">Loading blog…</p>;
+}
 import PageSkeleton from './components/PageSkeleton';
 import { Route, Routes } from "react-router-dom";
 import { NavLink } from "react-router-dom";
@@ -131,7 +139,7 @@ const App = () => {
         </GuestGuard>
       ),
     },
-    { path: "/blog/:id", element: <LiveCommunity blog detail /> },
+    { path: "/blog/:id", element: <PublicBlogRedirect /> },
     {
       path: "/community/posts/:id",
       element: (
@@ -407,7 +415,7 @@ const App = () => {
       path: "/blog",
       element: (
         <div className="mx-5 my-5">
-          <LiveCommunity blog />
+          <PublicBlogRedirect />
         </div>
       ),
     },
@@ -558,7 +566,7 @@ const App = () => {
       "reports",
     ].map((section) => ({
       path: section,
-      element: <ResourceManagement key={section} section={section} />,
+      element: section === 'content' ? <Navigate to="/blog-editor" replace /> : <ResourceManagement key={section} section={section} />,
     })),
     {
       path: "hotels/rooms",
@@ -685,6 +693,10 @@ const App = () => {
                 />
               ))}
 
+              <Route path="/blog-editor/login" element={<BlogLogin />} />
+              <Route path="/blog-editor" element={<BlogGuard><BlogDashboard /></BlogGuard>} />
+              <Route path="/blog-editor/new" element={<BlogGuard><BlogArticleEditor key="new" /></BlogGuard>} />
+              <Route path="/blog-editor/posts/:id" element={<BlogGuard><BlogArticleEditor /></BlogGuard>} />
               <Route path="/admin" element={<AdminLayout />}>
                 {adminRouter.map((item, index) => (
                   <Route
