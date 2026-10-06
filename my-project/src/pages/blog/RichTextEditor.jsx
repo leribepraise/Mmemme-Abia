@@ -4,16 +4,17 @@ import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import { TableKit } from '@tiptap/extension-table';
 
-export default function RichTextEditor({ value, onChange, upload, onError }) {
+export default function RichTextEditor({ value, onChange, upload, onError, disabled = false, onUploadingChange }) {
   const [uploading, setUploading] = useState(false);
   const editor = useEditor({
     shouldRerenderOnTransaction: true,
     extensions: [StarterKit.configure({ heading: { levels: [2, 3, 4] }, link: { openOnClick: false } }), Image, TableKit],
     content: value,
-    editorProps: { attributes: { class: 'article-body rich-editor', 'aria-label': 'Article content', role: 'textbox', 'aria-multiline': 'true' } },
+    editorProps: { attributes: { id: 'blog-body', class: 'article-body rich-editor', 'aria-label': 'Article content', role: 'textbox', 'aria-multiline': 'true' } },
     onUpdate: ({ editor: current }) => onChange(current.getHTML()),
   });
   useEffect(() => { if (editor && editor.getHTML() !== value) editor.commands.setContent(value, { emitUpdate: false }); }, [editor, value]);
+  useEffect(() => { editor?.setEditable(!disabled, false); }, [editor, disabled]);
   if (!editor) return null;
   const button = (label, command, active = false) => <button type="button" key={label} aria-pressed={active} onClick={command}>{label}</button>;
   return <div className="rich-editor-wrap"><div className="rich-toolbar" role="toolbar" aria-label="Formatting">
@@ -30,6 +31,6 @@ export default function RichTextEditor({ value, onChange, upload, onError }) {
     {editor.isActive('table') && <>{button('Add row', () => editor.chain().focus().addRowAfter().run())}{button('Add column', () => editor.chain().focus().addColumnAfter().run())}{button('Delete row', () => editor.chain().focus().deleteRow().run())}{button('Delete column', () => editor.chain().focus().deleteColumn().run())}{button('Delete table', () => editor.chain().focus().deleteTable().run())}</>}
     {button('Undo', () => editor.chain().focus().undo().run())}{button('Redo', () => editor.chain().focus().redo().run())}
     {editor.isActive('image') && button('Edit image alt', () => { const alt = window.prompt('Describe this image', editor.getAttributes('image').alt || ''); if (alt?.trim()) editor.chain().focus().updateAttributes('image', { alt }).run(); })}
-    <label className="inline-upload">{uploading ? 'Uploading…' : 'Add image'}<input type="file" disabled={uploading} accept="image/jpeg,image/png,image/webp" onChange={async e => { const file = e.target.files[0]; e.target.value = ''; if (!file) return; const alt = window.prompt('Describe this image (alt text)'); if (!alt?.trim()) return; setUploading(true); try { const image = await upload(file, alt.trim()); editor.chain().focus().setImage({ src: image.url, alt: image.alt }).run(); } catch (err) { onError(err.message); } finally { setUploading(false); } }} /></label>
+    <label className="inline-upload">{uploading ? 'Uploading…' : 'Add image'}<input type="file" disabled={uploading || disabled} accept="image/jpeg,image/png,image/webp" onChange={async e => { const file = e.target.files[0]; e.target.value = ''; if (!file) return; const alt = window.prompt('Describe this image (alt text)'); if (!alt?.trim()) return; setUploading(true); onUploadingChange?.(true); try { const image = await upload(file, alt.trim()); editor.chain().focus().setImage({ src: image.url, alt: image.alt }).run(); } catch (err) { onError(err.message); } finally { setUploading(false); onUploadingChange?.(false); } }} /></label>
   </div><EditorContent editor={editor} /></div>;
 }

@@ -14,3 +14,8 @@
 .dark .editor-status.scheduled{background:#483b20;color:#f1d58b}
 .dark .editor-error{background:#4a2726;color:#ffd0c8}
 .dark .blog-editor .danger{color:#ffb5ae}
+.publishing-feedback p{margin:12px 0;overflow-wrap:anywhere}
+.blog-editor .editor-saved-time{font-size:12px;color:var(--muted-foreground,#647466);margin:16px 0}
+.blog-editor .publish-actions button{min-height:44px}
+.blog-editor button:disabled{cursor:not-allowed}
+.editor-grid[aria-busy=true] .rich-editor{opacity:.7}
