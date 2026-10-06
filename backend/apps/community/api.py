@@ -38,18 +38,7 @@ class PostSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
 
         if attrs.get('kind', getattr(self.instance, 'kind', 'COMMUNITY')) == 'BLOG':
-            if not user.has_perm('community.add_post') or not user.is_staff:
-                raise PermissionDenied(
-                    'Only editors can create blog articles.'
-                )
-
-            if not attrs.get(
-                'title',
-                getattr(self.instance, 'title', '')
-            ).strip():
-                raise serializers.ValidationError(
-                    {'title': 'An article title is required.'}
-                )
+            raise PermissionDenied('Manage blog articles through the separate blog editor.')
 
         group = attrs.get(
             'group',
@@ -142,6 +131,7 @@ class PostViewSet(viewsets.ModelViewSet):
             Post.objects
             .select_related('author', 'group')
             .filter(author__is_active=True)
+            .filter(kind='COMMUNITY')
         )
 
         if self.action in {

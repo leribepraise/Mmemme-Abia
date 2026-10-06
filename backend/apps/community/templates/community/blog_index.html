@@ -1,0 +1,9 @@
+{% extends 'community/blog_base.html' %}
+{% block head %}{% if filtered %}<meta name="robots" content="noindex,follow">{% endif %}{% endblock %}
+{% block content %}
+<h1>Stories from Abia</h1><p>Discover the culture, people, places and events that make Abia special.</p>
+<form method="get"><input type="search" name="search" value="{{ search }}" aria-label="Search articles" placeholder="Search articles"><button>Search</button></form>
+{% if category or tag %}<p>Showing {{ category }} {{ tag }} · <a href="/blog">Clear filter</a></p>{% endif %}
+<div class="grid">{% for article in page %}<article class="card">{% if article.featured_image %}<a href="{{ article.get_absolute_url }}"><img src="{{ article.featured_image }}" alt="{{ article.featured_image_alt }}" loading="lazy"></a>{% endif %}<div><h2><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h2><p class="meta">{{ article.author_name }} · {{ article.published_at|date:'F j, Y' }}</p><p>{{ article.meta_description|default:article.body|striptags|truncatechars:160 }}</p><a href="{{ article.get_absolute_url }}">Read article →</a></div></article>{% empty %}<p>No published articles{% if search %} matching your search{% endif %} yet.</p>{% endfor %}</div>
+<div class="pagination">{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}&amp;search={{ search|urlencode }}&amp;category={{ category|urlencode }}&amp;tag={{ tag|urlencode }}">← Previous</a>{% endif %}{% if page.has_next %}<a href="?page={{ page.next_page_number }}&amp;search={{ search|urlencode }}&amp;category={{ category|urlencode }}&amp;tag={{ tag|urlencode }}">Next →</a>{% endif %}</div>
+{% endblock %}

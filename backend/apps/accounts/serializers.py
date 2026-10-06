@@ -7,6 +7,10 @@ from .models import OrganizerProfile
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    can_manage_blog = serializers.SerializerMethodField()
+    def get_can_manage_blog(self, obj):
+        from apps.community.blog_api import can_manage_blog
+        return can_manage_blog(obj)
     plan = serializers.SerializerMethodField()
     organizer_logo = serializers.SerializerMethodField()
     def get_organizer_logo(self, obj):
@@ -23,7 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
     interests = serializers.ListField(child=serializers.CharField(max_length=100),max_length=20,required=False)
     class Meta:
         model = User
-        fields = ["id","email","first_name","last_name","phone","whatsapp","lga","address","date_of_birth","gender","bio","avatar","role","is_verified","email_verified","is_staff","interests","email_notifications","onboarding_completed_at","date_joined","organizer_status","organizer_logo","plan"]
+        fields = ["id","email","first_name","last_name","phone","whatsapp","lga","address","date_of_birth","gender","bio","avatar","role","is_verified","email_verified","is_staff","interests","email_notifications","onboarding_completed_at","date_joined","organizer_status","organizer_logo","plan","can_manage_blog"]
         read_only_fields = ["id","email","role","is_verified","email_verified","is_staff","onboarding_completed_at","date_joined","organizer_status","organizer_logo"]
 
     def validate_avatar(self, value):

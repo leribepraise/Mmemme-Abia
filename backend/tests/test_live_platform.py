@@ -177,11 +177,12 @@ class PlatformTests(APITestCase):
         denied=self.client.post('/api/v1/community/posts/',{'kind':'BLOG','title':'Story','body':'Text'},format='json')
         self.assertEqual(denied.status_code,403)
         self.client.force_authenticate(self.staff)
-        created=self.client.post('/api/v1/admin/manage/posts/',{'kind':'BLOG','title':'Story','body':'Text','status':'PUBLISHED'},format='json')
+        created=self.client.post('/api/v1/blog-editor/articles/',{'title':'Story','slug':'story','author_name':'Editor','body':'<p>Text</p>','status':'PUBLISHED'},format='json')
         self.assertEqual(created.status_code,201,created.data)
-        Post.objects.create(author=self.staff,kind='BLOG',title='Draft',body='Private')
+        self.client.post('/api/v1/blog-editor/articles/',{'title':'Draft','slug':'draft','author_name':'Editor','body':'<p>Private</p>'},format='json')
         self.client.force_authenticate(None)
-        self.assertEqual(self.client.get('/api/v1/community/posts/?kind=BLOG').data['count'],1)
+        self.assertEqual(self.client.get('/api/v1/blog/articles/').data['count'],1)
+        self.assertEqual(self.client.get('/api/v1/community/posts/?kind=BLOG').data['count'],0)
 
     def test_community_moderation_likes_and_comments_persist(self):
         result=self.client.post('/api/v1/community/posts/',{'body':'Abia is beautiful','status':'PUBLISHED'},format='json')

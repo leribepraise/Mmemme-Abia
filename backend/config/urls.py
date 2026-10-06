@@ -22,6 +22,10 @@ from apps.common.reviews import ServiceReviewViewSet
 from apps.accounts.admin_api import AdminUserViewSet, AdminOrganizerViewSet, AdminOverview
 
 router=DefaultRouter()
+from apps.community.blog_api import BlogEditorViewSet, PublicArticleViewSet
+from apps.community.blog_views import blog_index, blog_detail, blog_image, sitemap
+router.register('blog-editor/articles', BlogEditorViewSet, basename='blog-editor')
+router.register('blog/articles', PublicArticleViewSet, basename='blog-article')
 router.register('service-reviews', ServiceReviewViewSet, basename='service-review')
 router.register('plans', PlanViewSet, basename='plan')
 router.register('memberships', MembershipViewSet, basename='membership')
@@ -43,6 +47,12 @@ router.register("conversations",ConversationViewSet,basename="conversation")
 for model,(prefix,*_) in CONFIG.items():
     router.register("hotels" if prefix=="hotel" else prefix,viewset_for(model),basename=model._meta.model_name)
 urlpatterns=[
+    path('blog-media/<uuid:public_id>', blog_image),
+    path('blog', blog_index),
+    path('blog/', blog_index),
+    path('blog/<slug:slug>', blog_detail),
+    path('blog/<slug:slug>/', blog_detail),
+    path('sitemap.xml', sitemap),
     path('api/v1/admin/manage/<slug:resource>/<str:pk>/action/', ManageAction.as_view()),
     path('api/v1/admin/manage/<slug:resource>/', ManageResource.as_view()),
     path('api/v1/admin/manage/<slug:resource>/<str:pk>/', ManageResource.as_view()),

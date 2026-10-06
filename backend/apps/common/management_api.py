@@ -62,6 +62,8 @@ def resource_config(resource):
                 if not isinstance(features, list) or len(features) > 20 or any(not isinstance(f, str) or len(f) > 200 for f in features):
                     raise serializers.ValidationError('Provide up to 20 short benefit descriptions.')
             if resource == 'posts':
+                if attrs.get('kind', getattr(self.instance, 'kind', 'COMMUNITY')) == 'BLOG':
+                    raise serializers.ValidationError('Use the separate blog editor to manage blog articles.')
                 if attrs.get('kind', getattr(self.instance, 'kind', '')) == 'BLOG' and not attrs.get('title', getattr(self.instance, 'title', '')).strip():
                     raise serializers.ValidationError('A blog article needs a title.')
                 if attrs.get('image'):

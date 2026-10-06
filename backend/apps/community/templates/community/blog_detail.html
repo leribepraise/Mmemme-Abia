@@ -1,0 +1,20 @@
+{% extends 'community/blog_base.html' %}
+{% block title %}{% firstof article.page_title article.title %}{% endblock %}
+{% block description %}{{ description }}{% endblock %}
+{% block head %}
+{% if preview %}<meta name="robots" content="noindex,nofollow">{% endif %}
+<meta property="og:type" content="article"><meta property="og:title" content="{% firstof article.page_title article.title %}"><meta property="og:description" content="{{ description }}"><meta property="og:url" content="{{ canonical }}">
+{% if article.featured_image %}<meta property="og:image" content="{{ article.featured_image }}">{% endif %}
+{% if not preview %}<script type="application/ld+json">{{ schema|safe }}</script>{% endif %}
+{% endblock %}
+{% block content %}
+<a href="/blog">← All articles</a>
+<article>
+<h1>{{ article.title }}</h1>
+<p class="meta">By {{ article.author_name }}{% if article.published_at %} · <time datetime="{{ article.published_at|date:'c' }}">{{ article.published_at|date:'F j, Y' }}</time>{% elif preview %} · Publication date appears when published{% endif %}</p>
+<div class="chips">{% for category in article.categories %}<a href="/blog?category={{ category|urlencode }}">{{ category }}</a>{% endfor %}</div>
+{% if article.featured_image %}<img class="cover" src="{{ article.featured_image }}" alt="{{ article.featured_image_alt }}">{% endif %}
+<div class="article-body">{{ body_html|safe }}</div>
+<div class="chips">{% for tag in article.tags %}<a href="/blog?tag={{ tag|urlencode }}">#{{ tag }}</a>{% endfor %}</div>
+</article>
+{% endblock %}

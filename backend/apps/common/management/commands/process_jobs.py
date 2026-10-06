@@ -28,6 +28,8 @@ class Command(BaseCommand):
         except Exception: logger.exception("Background job failed: %s",label)
         finally: cache.set("worker:heartbeat",True,180)
     def tick(self):
+        from apps.community.blog_api import publish_due_articles
+        self.run_job('scheduled blog posts', publish_due_articles)
         from apps.memberships.services import reconcile_pending
         self.run_job('membership reconciliation', reconcile_pending)
         now=timezone.now()
