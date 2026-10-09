@@ -99,8 +99,7 @@ def promotion_data(request, promotion, only_active=True):
 
 
 class PublicMajorEventView(APIView):
-    permission_classes = [permissions.AllowAny]
-    authentication_classes = []
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         promotion = MajorEventPromotion.objects.select_related('event', 'event__organizer').first()

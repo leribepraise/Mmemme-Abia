@@ -44,7 +44,7 @@ export default function MajorEventEditor() {
   };
   return <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 sm:p-6">
     <h2 className="text-xl font-bold">Major event promotion</h2>
-    <p className="mb-4 mt-1 text-sm text-slate-600">Only staff with event management permission can publish this card. Visitors see it once per website visit; everyone can see it on the home page and profile dashboard. Publishing also queues an email alert for eligible users.</p>
+    <p className="mb-4 mt-1 text-sm text-slate-600">Only staff with event management permission can publish this card. Signed-in users see it once per website visit and on the home page and profile dashboard. Publishing also queues an email alert for eligible users.</p>
     {current.data && <div className="mb-5 max-w-xl">{!current.data.active && <p className="mb-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">The selected event is no longer eligible or has ended. It is hidden from users.</p>}<MajorEventCard promotion={current.data} compact /></div>}
     <form onSubmit={save} className="grid gap-3 sm:max-w-xl">
       <label className="text-sm font-medium">Destination

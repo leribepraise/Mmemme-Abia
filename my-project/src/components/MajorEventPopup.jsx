@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
+import { useAuth } from '@/components/context/AuthContext';
 import { useApi } from '@/hooks/useApi';
 import MajorEventCard from './MajorEventCard';
 
 export default function MajorEventPopup() {
-  const { data: promotion } = useApi('/events/major/');
+  const { user } = useAuth();
+  const { data: promotion } = useApi(user ? '/events/major/' : null);
   const [closed, setClosed] = useState(false);
-  const visible = !!(promotion && !closed);
+  useEffect(() => { setClosed(false); }, [user?.id]);
+  const visible = !!(user && promotion && !closed);
   const dismiss = () => setClosed(true);
   useEffect(() => {
     if (!visible) return;

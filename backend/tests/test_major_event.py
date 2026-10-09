@@ -49,6 +49,8 @@ class MajorEventTests(APITestCase):
         result = self.client.put(path, {'event_id': str(self.event.pk)}, format='json')
         self.assertEqual(result.status_code, 200, result.data)
         self.client.force_authenticate(None)
+        self.assertIn(self.client.get('/api/v1/events/major/').status_code, (401, 403))
+        self.client.force_authenticate(self.user)
         public = self.client.get('/api/v1/events/major/')
         self.assertEqual(public.data['title'], 'Big Night')
         self.assertEqual(public.data['cta'], 'Get tickets')
