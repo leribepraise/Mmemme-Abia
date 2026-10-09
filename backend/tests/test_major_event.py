@@ -3,6 +3,7 @@ from io import BytesIO
 from tempfile import TemporaryDirectory
 
 from django.contrib.auth.models import Permission
+from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.utils import timezone
@@ -11,6 +12,10 @@ from rest_framework.test import APITestCase
 
 from apps.accounts.models import User
 from apps.events.models import Event, TicketType
+from apps.events.models import MajorEventAnnouncement, MajorEventPromotion
+from apps.events.announcements import announce_major_event_batch
+from apps.notifications.models import Notification
+from apps.notifications.services import deliver_one
 
 
 class MajorEventTests(APITestCase):
@@ -22,7 +27,7 @@ class MajorEventTests(APITestCase):
         self.addCleanup(media_settings.disable)
         self.staff = User.objects.create_user('editor', 'editor@example.test', 'Test!Password123', is_staff=True)
         self.staff.user_permissions.add(Permission.objects.get(codename='change_event', content_type__app_label='events'))
-        self.user = User.objects.create_user('visitor', 'visitor@example.test', 'Test!Password123')
+        self.user = User.objects.create_user('visitor', 'visitor@example.test', 'Test!Password123', email_verified=True)
         self.organizer = User.objects.create_user('host', 'host@example.test', 'Test!Password123', role='ORGANIZER', is_verified=True)
         now = timezone.now()
         self.event = Event.objects.create(organizer=self.organizer, title='Big Night', slug='big-night',
@@ -74,12 +79,51 @@ class MajorEventTests(APITestCase):
         self.assertEqual(self.client.delete('/api/v1/admin/major-event/').status_code, 204)
         self.assertIsNone(self.client.get('/api/v1/events/major/').data)
 
-    def test_popup_dismissal_is_private_and_durable(self):
-        self.user.major_event_popup_pending = True
-        self.user.save()
-        self.assertIn(self.client.post('/api/v1/auth/major-event-popup/dismiss/').status_code, (401, 403))
-        self.client.force_authenticate(self.user)
-        self.assertEqual(self.client.post('/api/v1/auth/major-event-popup/dismiss/').status_code, 200)
-        self.user.refresh_from_db()
-        self.assertFalse(self.user.major_event_popup_pending)
-        self.assertFalse(self.client.get('/api/v1/auth/me/').data['major_event_popup_pending'])
+    def test_publishing_queues_one_email_per_eligible_user(self):
+        opted_out = User.objects.create_user('quiet', 'quiet@example.test', 'Test!Password123',
+                                             email_verified=True, email_notifications=False)
+        self.client.force_authenticate(self.staff)
+        response = self.client.put('/api/v1/admin/major-event/', {
+            'title': 'Abia Tech Rise', 'image': self.image(),
+            'registration_url': 'https://www.abiatechrise.ng/',
+            'ends_at': (timezone.now() + timedelta(days=5)).isoformat(),
+        }, format='multipart')
+        self.assertEqual(response.status_code, 200, response.data)
+        job = MajorEventAnnouncement.objects.get()
+        self.assertEqual(Notification.objects.filter(key__startswith='major-event:').count(), 0)
+        self.assertTrue(announce_major_event_batch(batch_size=1))
+        self.assertTrue(announce_major_event_batch(batch_size=1))
+        self.assertTrue(announce_major_event_batch(batch_size=1))
+        self.assertFalse(announce_major_event_batch(batch_size=1))
+        self.assertEqual(Notification.objects.filter(key__startswith='major-event:').count(), 2)
+        self.assertTrue(Notification.objects.get(user=opted_out).sent_at)
+        self.assertTrue(deliver_one())
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [self.user.email])
+        html = mail.outbox[0].alternatives[0][0]
+        self.assertIn('https://www.abiatechrise.ng/', html)
+        self.assertIn(f'/api/v1/events/major/email-image/{job.pk}/', html)
+        self.assertEqual(self.client.get(f'/api/v1/events/major/email-image/{job.pk}/').status_code, 302)
+
+    def test_replacing_promotion_stops_old_broadcast(self):
+        self.client.force_authenticate(self.staff)
+        self.assertEqual(self.client.put('/api/v1/admin/major-event/', {'event_id': str(self.event.pk)}, format='json').status_code, 200)
+        old = MajorEventAnnouncement.objects.get()
+        self.assertTrue(announce_major_event_batch())
+        self.assertEqual(self.client.put('/api/v1/admin/major-event/', {'event_id': str(self.event.pk)}, format='json').status_code, 200)
+        old.refresh_from_db()
+        self.assertIsNotNone(old.completed_at)
+        self.assertTrue(announce_major_event_batch())
+        self.assertEqual(Notification.objects.filter(user=self.user, key__startswith='major-event:').count(), 2)
+        self.assertTrue(deliver_one())
+        self.assertTrue(deliver_one())
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertFalse(Notification.objects.filter(key__startswith=f'major-event:{old.pk}:').exists())
+
+    def test_existing_promotion_gets_one_broadcast_after_deployment(self):
+        MajorEventPromotion.objects.create(event=self.event)
+        self.assertTrue(announce_major_event_batch())
+        self.assertEqual(MajorEventAnnouncement.objects.count(), 1)
+        self.assertTrue(announce_major_event_batch())
+        self.assertFalse(announce_major_event_batch())
+        self.assertEqual(Notification.objects.filter(user=self.user, key__startswith='major-event:').count(), 1)

@@ -61,6 +61,32 @@ def event_email_details(key):
         return None, None
     return f'{settings.FRONTEND_URL}/api/v1/events/{event.pk}/email-image/', event.title
 
+
+def major_event_email_details(key, current_only=False):
+    from apps.events.models import MajorEventAnnouncement, MajorEventPromotion
+    try:
+        announcement_id = uuid.UUID(key.split(':')[1])
+    except (IndexError, ValueError):
+        return None
+    job = MajorEventAnnouncement.objects.select_related('event').filter(pk=announcement_id).first()
+    if not job:
+        return None
+    if current_only:
+        from apps.events.major_api import promotion_is_active
+        promotion = MajorEventPromotion.objects.select_related('event', 'event__organizer').first()
+        if not promotion or promotion.updated_at != job.promotion_updated_at or not promotion_is_active(promotion):
+            return None
+    image_url = None
+    if job.event_id:
+        if job.event.image or job.event.image_card or job.event.image_detail:
+            image_url = f'{settings.FRONTEND_URL}/api/v1/events/{job.event_id}/email-image/'
+        elif job.event.image_url:
+            image_url = (settings.FRONTEND_URL + job.event.image_url if job.event.image_url.startswith('/')
+                         else job.event.image_url)
+    elif job.image_path:
+        image_url = f'{settings.FRONTEND_URL}/api/v1/events/major/email-image/{job.pk}/'
+    return job.destination_url, 'Get tickets' if job.event_id else 'Register now', image_url, job.title
+
 def queue_event_reminders(batch_size=1000):
     """Email each verified participant once in the 24 hours before their event."""
     from apps.bookings.models import Booking
@@ -97,6 +123,12 @@ def deliver_one():
         job.save(update_fields=["claimed_at","attempts"])
     try:
         # Confirmation and security emails are transactional; preferences affect reminders.
+        major_details = None
+        if job.key.startswith('major-event:'):
+            major_details = major_event_email_details(job.key, current_only=True)
+            if major_details is None:
+                Notification.objects.filter(pk=job.pk, claimed_at=now).delete()
+                return True
         message=EmailMultiAlternatives(job.subject,job.body,to=[job.email],headers={"X-Mmemme-Notification-Key":hashlib.sha256(job.key.encode()).hexdigest()})
         action_url = None
         if job.key.startswith('event-new:'):
@@ -105,8 +137,11 @@ def deliver_one():
             except (IndexError, ValueError):
                 pass
         image_url, image_alt = event_email_details(job.key)
+        action_label = 'View event' if action_url else None
+        if major_details:
+            action_url, action_label, image_url, image_alt = major_details
         message.attach_alternative(notification_html(job.subject, job.body, action_url=action_url,
-                                                     action_label='View event' if action_url else None,
+                                                     action_label=action_label,
                                                      image_url=image_url, image_alt=image_alt), "text/html")
         if message.send(fail_silently=False) != 1:
             raise RuntimeError("Email was not accepted for delivery.")

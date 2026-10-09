@@ -6,6 +6,7 @@ import Hero from "@/components/home/Hero";
 import SearchBar from "@/components/home/SearchBar";
 import Categories from "@/components/home/Categories";
 import Events from "@/components/home/Events";
+import MajorEventSection from "@/components/home/MajorEventSection";
 import WhyChose from "@/components/home/WhyChose";
 import Updateed from "@/components/home/Updateed";
 import DisplayImage from "../components/home/DisplayImage";
@@ -17,6 +18,7 @@ const Home = () => {
       <Hero />
       <SearchBar />
       <Categories />
+      <MajorEventSection />
       <Events />
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Link to="/install" aria-label="Install the Mmemme Abia app"><DisplayImage

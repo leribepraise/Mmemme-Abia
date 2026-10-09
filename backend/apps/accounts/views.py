@@ -113,12 +113,6 @@ class MeView(generics.RetrieveUpdateAPIView):
     http_method_names = ["get","patch","head","options"]
     def get_object(self): return self.request.user
 
-class DismissMajorEventPopupView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    def post(self, request):
-        User.objects.filter(pk=request.user.pk).update(major_event_popup_pending=False)
-        return Response({"major_event_popup_pending": False})
-
 class CompleteOnboardingView(APIView):
     @transaction.atomic
     def post(self, request):

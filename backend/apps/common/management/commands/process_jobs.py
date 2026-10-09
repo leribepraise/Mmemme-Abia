@@ -57,8 +57,9 @@ class Command(BaseCommand):
         for attempt in attempts:
             self.run_job("payout reconciliation",reconcile_payout,attempt.pk)
         self.run_job('event reminders', queue_event_reminders)
-        from apps.events.announcements import announce_new_event_batch
+        from apps.events.announcements import announce_new_event_batch, announce_major_event_batch
         self.run_job('new event announcement', announce_new_event_batch)
+        self.run_job('major event announcement', announce_major_event_batch)
         for _ in range(50):
             if not self.run_job("email delivery",deliver_one): break
         for _ in range(50):

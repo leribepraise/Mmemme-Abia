@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from apps.events.views import EventViewSet
 from apps.events.admin_api import AdminEventViewSet
-from apps.events.major_api import PublicMajorEventView, AdminMajorEventView
+from apps.events.major_api import PublicMajorEventView, AdminMajorEventView, MajorEventEmailImageView
 from apps.events.community import SavedEventsView, ReviewViewSet
 from apps.bookings.views import BookingViewSet
 from apps.payments.api import PaymentViewSet, WebhookView
@@ -48,6 +48,7 @@ router.register("conversations",ConversationViewSet,basename="conversation")
 for model,(prefix,*_) in CONFIG.items():
     router.register("hotels" if prefix=="hotel" else prefix,viewset_for(model),basename=model._meta.model_name)
 urlpatterns=[
+    path('api/v1/events/major/email-image/<uuid:announcement_id>/', MajorEventEmailImageView.as_view()),
     path('api/v1/events/major/', PublicMajorEventView.as_view()),
     path('api/v1/admin/major-event/', AdminMajorEventView.as_view()),
     path('blog-media/<uuid:public_id>', blog_image),

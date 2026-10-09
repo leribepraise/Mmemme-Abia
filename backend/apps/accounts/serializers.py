@@ -27,8 +27,8 @@ class UserSerializer(serializers.ModelSerializer):
     interests = serializers.ListField(child=serializers.CharField(max_length=100),max_length=20,required=False)
     class Meta:
         model = User
-        fields = ["id","email","first_name","last_name","phone","whatsapp","lga","address","date_of_birth","gender","bio","avatar","role","is_verified","email_verified","is_staff","interests","email_notifications","onboarding_completed_at","major_event_popup_pending","date_joined","organizer_status","organizer_logo","plan","can_manage_blog"]
-        read_only_fields = ["id","email","role","is_verified","email_verified","is_staff","onboarding_completed_at","major_event_popup_pending","date_joined","organizer_status","organizer_logo"]
+        fields = ["id","email","first_name","last_name","phone","whatsapp","lga","address","date_of_birth","gender","bio","avatar","role","is_verified","email_verified","is_staff","interests","email_notifications","onboarding_completed_at","date_joined","organizer_status","organizer_logo","plan","can_manage_blog"]
+        read_only_fields = ["id","email","role","is_verified","email_verified","is_staff","onboarding_completed_at","date_joined","organizer_status","organizer_logo"]
 
     def validate_avatar(self, value):
         from apps.common.api import validate_image

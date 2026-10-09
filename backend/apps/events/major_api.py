@@ -1,7 +1,9 @@
 from urllib.parse import urlsplit
 
+from django.core.files.storage import default_storage
 from django.db import transaction
 from django.db.models import F, Q
+from django.http import Http404, HttpResponseRedirect
 from django.utils import timezone
 from rest_framework import permissions, serializers
 from rest_framework.response import Response
@@ -9,7 +11,8 @@ from rest_framework.views import APIView
 
 from apps.common.api import validate_image
 from apps.common.models import audit
-from .models import Event, MajorEventPromotion
+from .models import Event, MajorEventPromotion, MajorEventAnnouncement
+from .announcements import queue_major_event_announcement
 
 
 class MajorEventInput(serializers.Serializer):
@@ -58,19 +61,29 @@ class MajorEventInput(serializers.Serializer):
         return values
 
 
+def promotion_is_active(promotion):
+    if not promotion:
+        return False
+    now = timezone.now()
+    if not promotion.event_id:
+        return bool(promotion.ends_at and promotion.ends_at > now)
+    event = promotion.event
+    if not event or event.status != Event.Status.PUBLISHED or event.is_suspended or event.is_archived or event.deletion_requested_at or not event.organizer.is_active or not event.organizer.is_verified or event.end_datetime <= now:
+        return False
+    return event.ticket_types.filter(is_active=True, quantity__gt=F('quantity_sold') + F('quantity_reserved')).filter(
+        Q(sales_start__isnull=True) | Q(sales_start__lte=now),
+        Q(sales_end__isnull=True) | Q(sales_end__gt=now),
+    ).exists()
+
+
 def promotion_data(request, promotion, only_active=True):
     if not promotion:
         return None
-    now = timezone.now()
+    active = promotion_is_active(promotion)
+    if only_active and not active:
+        return None
     if promotion.event_id:
         event = promotion.event
-        active = bool(event and event.status == Event.Status.PUBLISHED and not event.is_suspended and not event.is_archived and not event.deletion_requested_at and event.organizer.is_active and event.organizer.is_verified and event.end_datetime > now)
-        active = active and event.ticket_types.filter(is_active=True, quantity__gt=F('quantity_sold') + F('quantity_reserved')).filter(
-            Q(sales_start__isnull=True) | Q(sales_start__lte=now),
-            Q(sales_end__isnull=True) | Q(sales_end__gt=now),
-        ).exists()
-        if only_active and not active:
-            return None
         if not event:
             return None
         image = event.image_detail or event.image_card or event.image
@@ -79,9 +92,6 @@ def promotion_data(request, promotion, only_active=True):
                 'description': event.description[:500], 'image': image_url,
                 'starts_at': event.start_datetime, 'ends_at': event.end_datetime,
                 'url': f'/events/{event.pk}', 'cta': 'Get tickets', 'kind': 'ticket', 'active': active}
-    active = bool(promotion.ends_at and promotion.ends_at > now)
-    if only_active and not active:
-        return None
     return {'id': promotion.id, 'event_id': None, 'title': promotion.title,
             'description': promotion.description, 'image': request.build_absolute_uri(promotion.image.url) if promotion.image else None,
             'starts_at': promotion.starts_at, 'ends_at': promotion.ends_at,
@@ -95,6 +105,19 @@ class PublicMajorEventView(APIView):
     def get(self, request):
         promotion = MajorEventPromotion.objects.select_related('event', 'event__organizer').first()
         return Response(promotion_data(request, promotion))
+
+
+class MajorEventEmailImageView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def get(self, request, announcement_id):
+        job = MajorEventAnnouncement.objects.filter(pk=announcement_id).only('image_path').first()
+        if not job or not job.image_path or not default_storage.exists(job.image_path):
+            raise Http404
+        response = HttpResponseRedirect(default_storage.url(job.image_path))
+        response['Cache-Control'] = 'no-store'
+        return response
 
 
 class AdminMajorEventView(APIView):
@@ -129,9 +152,10 @@ class AdminMajorEventView(APIView):
         else:
             promotion.event = None
             for key in ('title', 'description', 'image', 'registration_url', 'starts_at', 'ends_at'):
-                setattr(promotion, key, values.get(key))
+                setattr(promotion, key, values.get(key, '' if key == 'description' else None))
         promotion.selected_by = request.user
         promotion.save()
+        queue_major_event_announcement(promotion)
         audit(request.user, 'event.major_selected', promotion.event_id or promotion.pk, kind='ticket' if promotion.event_id else 'registration')
         return Response(promotion_data(request, promotion))
 

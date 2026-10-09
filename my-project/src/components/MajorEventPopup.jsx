@@ -1,21 +1,13 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { useAuth } from '@/components/context/AuthContext';
 import { useApi } from '@/hooks/useApi';
-import { api } from '@/lib/api';
 import MajorEventCard from './MajorEventCard';
 
 export default function MajorEventPopup() {
-  const { user, reloadUser } = useAuth();
-  const { data: promotion } = useApi(user?.major_event_popup_pending ? '/events/major/' : null);
+  const { data: promotion } = useApi('/events/major/');
   const [closed, setClosed] = useState(false);
-  useEffect(() => { setClosed(false); }, [user?.id]);
-  const visible = !!(user?.major_event_popup_pending && promotion && !closed);
-  const dismiss = async () => {
-    setClosed(true);
-    try { await api('/auth/major-event-popup/dismiss/', { method: 'POST' }); await reloadUser(); }
-    catch { setClosed(false); }
-  };
+  const visible = !!(promotion && !closed);
+  const dismiss = () => setClosed(true);
   useEffect(() => {
     if (!visible) return;
     const onKeyDown = event => { if (event.key === 'Escape') dismiss(); };

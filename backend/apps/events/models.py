@@ -122,6 +122,19 @@ class MajorEventPromotion(models.Model):
         return self.title or (self.event.title if self.event_id else 'Major event')
 
 
+class MajorEventAnnouncement(models.Model):
+    """A resumable email and inbox broadcast for one staff publication."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    promotion_updated_at = models.DateTimeField(unique=True)
+    event = models.ForeignKey(Event, on_delete=models.SET_NULL, null=True, blank=True)
+    title = models.CharField(max_length=255)
+    destination_url = models.URLField(max_length=1000)
+    image_path = models.CharField(max_length=1000, blank=True)
+    last_user_id = models.PositiveBigIntegerField(default=0)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class TicketType(models.Model):
     minimum_plan = models.CharField(max_length=10, default='bronze', choices=[(p, p.title()) for p in ['bronze', 'silver', 'diamond']])
     membership_discount = models.BooleanField(default=False)
