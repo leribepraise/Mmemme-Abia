@@ -1,10 +1,11 @@
 
 import toast from 'react-hot-toast';
 import ShareApp from '@/components/ShareApp';
+import MajorEventCard from '@/components/MajorEventCard';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Link } from 'react-router-dom';
 import { useNotifications } from '@/components/context/NotificationsContext';
-import { useCollection } from "@/hooks/useApi";
+import { useApi, useCollection } from "@/hooks/useApi";
 import { bookingCard } from "@/lib/catalog";
 import React, { useEffect, useState } from "react";
 
@@ -28,6 +29,7 @@ import Info from "./common/Info";
 import Preference from "./common/Preference";
 
 const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
+  const { data: majorEvent } = useApi('/events/major/');
   const {
     data: bookings,
     loading: bookingsLoading,
@@ -127,6 +129,8 @@ const Dashboard = ({ user, onEditProfile, onViewBookings }) => {
           Edit Profile
         </button>
       </div>
+
+      {majorEvent && <section className="mt-5" aria-label="Major event"><MajorEventCard promotion={majorEvent} compact /></section>}
 
       {/* STAT CARDS */}
       <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">

@@ -177,7 +177,7 @@ def resolve_user(provider, claims, apple_name=None, email_proven=False, password
                 password=password,
                 first_name=(claims['first_name'] or str(name.get('firstName') or ''))[:150],
                 last_name=(claims['last_name'] or str(name.get('lastName') or ''))[:150],
-                email_verified=True, role=User.Role.USER,
+                  email_verified=True, role=User.Role.USER, major_event_popup_pending=True,
             )
         elif not user.email_verified:
             user.email_verified = True

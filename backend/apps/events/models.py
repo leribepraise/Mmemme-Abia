@@ -102,6 +102,26 @@ class Event(models.Model):
         return self.title
 
 
+class MajorEventPromotion(models.Model):
+    """The one event that staff have chosen to promote site-wide."""
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
+    title = models.CharField(max_length=255, blank=True)
+    description = models.CharField(max_length=500, blank=True)
+    image = models.ImageField(upload_to='major-events/', null=True, blank=True)
+    registration_url = models.URLField(max_length=1000, blank=True)
+    starts_at = models.DateTimeField(null=True, blank=True)
+    ends_at = models.DateTimeField(null=True, blank=True)
+    selected_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=models.Q(id=1), name='single_major_event_promotion')]
+
+    def __str__(self):
+        return self.title or (self.event.title if self.event_id else 'Major event')
+
+
 class TicketType(models.Model):
     minimum_plan = models.CharField(max_length=10, default='bronze', choices=[(p, p.title()) for p in ['bronze', 'silver', 'diamond']])
     membership_discount = models.BooleanField(default=False)

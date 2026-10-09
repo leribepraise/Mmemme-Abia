@@ -61,6 +61,7 @@ class EmailCodeTests(TestCase):
         self.assertNotIn('password', response.data)
         self.assertNotIn('otp_code', response.data)
         self.assertTrue(User.objects.get().email_verified)
+        self.assertTrue(User.objects.get().major_event_popup_pending)
         challenge = EmailVerificationCode.objects.get()
         self.assertIsNotNone(challenge.consumed_at)
         self.assertEqual(challenge.code_hash, '')

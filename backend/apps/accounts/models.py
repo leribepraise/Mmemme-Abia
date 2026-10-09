@@ -29,6 +29,7 @@ class User(AbstractUser):
     email_verified = models.BooleanField(default=False)
     session_version = models.PositiveIntegerField(default=0, editable=False)
     onboarding_completed_at = models.DateTimeField(null=True, blank=True, editable=False)
+    major_event_popup_pending = models.BooleanField(default=False, editable=False)
     interests = models.JSONField(default=list, blank=True)
     email_notifications = models.BooleanField(default=True)
 

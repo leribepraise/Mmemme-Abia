@@ -1,2 +1,3 @@
 import LiveManagement from "../LiveManagement";
-export default function Page() { return <LiveManagement kind="events"/>; }
+import MajorEventEditor from './MajorEventEditor';
+export default function Page() { return <><MajorEventEditor/><LiveManagement kind="events"/></>; }

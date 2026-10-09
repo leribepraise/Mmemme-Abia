@@ -24,6 +24,7 @@ function PublicBlogRedirect() {
   return <p className="p-8">Loading blog…</p>;
 }
 import PageSkeleton from './components/PageSkeleton';
+import MajorEventPopup from './components/MajorEventPopup';
 import { Route, Routes } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import Home from "./pages/Home";
@@ -676,6 +677,7 @@ const App = () => {
       <div className="min-h-screen bg-[#f5f7f3]">
         <div>
           <UserProvider>
+            <MajorEventPopup />
             <ScrollToTop />
             <AnchorNavigation/>
             <Suspense fallback={<PageSkeleton/>}><Routes>
