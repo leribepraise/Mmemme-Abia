@@ -13,6 +13,7 @@ from apps.common.api import validate_image
 from apps.common.models import audit
 from .models import Event, MajorEventPromotion, MajorEventAnnouncement
 from .announcements import queue_major_event_announcement
+from .registration import registration_is_ready
 
 
 class MajorEventInput(serializers.Serializer):
@@ -41,7 +42,10 @@ class MajorEventInput(serializers.Serializer):
                 raise serializers.ValidationError({'event_id': 'Choose an active, approved event that has not ended.'})
             if not (event.image or event.image_card or event.image_detail or event.image_url):
                 raise serializers.ValidationError({'event_id': 'Upload an event poster before promoting this event.'})
-            if not event.ticket_types.filter(is_active=True, quantity__gt=F('quantity_sold') + F('quantity_reserved')).filter(
+            if event.registration_type == Event.RegistrationType.EXTERNAL:
+                if not registration_is_ready(event):
+                    raise serializers.ValidationError({'event_id': 'This event needs a valid HTTPS registration link.'})
+            elif not event.ticket_types.filter(is_active=True, quantity__gt=F('quantity_sold') + F('quantity_reserved')).filter(
                 Q(sales_start__isnull=True) | Q(sales_start__lte=now),
                 Q(sales_end__isnull=True) | Q(sales_end__gt=now),
             ).exists():
@@ -70,6 +74,8 @@ def promotion_is_active(promotion):
     event = promotion.event
     if not event or event.status != Event.Status.PUBLISHED or event.is_suspended or event.is_archived or event.deletion_requested_at or not event.organizer.is_active or not event.organizer.is_verified or event.end_datetime <= now:
         return False
+    if event.registration_type == Event.RegistrationType.EXTERNAL:
+        return registration_is_ready(event)
     return event.ticket_types.filter(is_active=True, quantity__gt=F('quantity_sold') + F('quantity_reserved')).filter(
         Q(sales_start__isnull=True) | Q(sales_start__lte=now),
         Q(sales_end__isnull=True) | Q(sales_end__gt=now),
@@ -91,7 +97,9 @@ def promotion_data(request, promotion, only_active=True):
         return {'id': promotion.id, 'event_id': event.pk, 'title': event.title,
                 'description': event.description[:500], 'image': image_url,
                 'starts_at': event.start_datetime, 'ends_at': event.end_datetime,
-                'url': f'/events/{event.pk}', 'cta': 'Get tickets', 'kind': 'ticket', 'active': active}
+                'url': f'/events/{event.pk}',
+                'cta': 'Register now' if event.registration_type == Event.RegistrationType.EXTERNAL else 'Get tickets',
+                'kind': 'registration' if event.registration_type == Event.RegistrationType.EXTERNAL else 'ticket', 'active': active}
     return {'id': promotion.id, 'event_id': None, 'title': promotion.title,
             'description': promotion.description, 'image': request.build_absolute_uri(promotion.image.url) if promotion.image else None,
             'starts_at': promotion.starts_at, 'ends_at': promotion.ends_at,
@@ -155,7 +163,8 @@ class AdminMajorEventView(APIView):
         promotion.selected_by = request.user
         promotion.save()
         queue_major_event_announcement(promotion)
-        audit(request.user, 'event.major_selected', promotion.event_id or promotion.pk, kind='ticket' if promotion.event_id else 'registration')
+        audit(request.user, 'event.major_selected', promotion.event_id or promotion.pk,
+              kind='ticket' if promotion.event_id and promotion.event.registration_type == Event.RegistrationType.TICKETED else 'registration')
         return Response(promotion_data(request, promotion))
 
     @transaction.atomic

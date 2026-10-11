@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function MajorEventCard({ promotion, compact = false }) {
   if (!promotion) return null;
-  const external = promotion.kind === 'registration';
+  const external = /^https:\/\//i.test(promotion.url || '');
   const buttonClass = 'inline-flex min-h-11 items-center justify-center rounded-xl bg-[#ef6c19] px-5 py-2.5 text-center text-sm font-bold text-white transition hover:bg-[#d85d10] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ef6c19]';
   return <article className={`overflow-hidden rounded-2xl border border-emerald-200 bg-white text-slate-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white ${compact ? 'sm:grid sm:grid-cols-[minmax(0,220px)_1fr]' : ''}`}>
     {promotion.image && <div className={`flex items-center justify-center bg-emerald-50 dark:bg-zinc-900 ${compact ? 'min-h-40' : 'min-h-48 max-h-72'}`}><img src={promotion.image} alt={`${promotion.title} event poster`} className="max-h-72 w-full object-contain" loading="lazy" /></div>}

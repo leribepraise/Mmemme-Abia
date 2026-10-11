@@ -85,7 +85,8 @@ def major_event_email_details(key, current_only=False):
                          else job.event.image_url)
     elif job.image_path:
         image_url = f'{settings.FRONTEND_URL}/api/v1/events/major/email-image/{job.pk}/'
-    return job.destination_url, 'Get tickets' if job.event_id else 'Register now', image_url, job.title
+    action_label = 'Get tickets' if job.event_id and job.event.registration_type == 'TICKETED' else 'Register now'
+    return job.destination_url, action_label, image_url, job.title
 
 def queue_event_reminders(batch_size=1000):
     """Email each verified participant once in the 24 hours before their event."""

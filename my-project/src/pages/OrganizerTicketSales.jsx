@@ -406,6 +406,7 @@ export default function OrganizerTicketSales() {
   const [params] = useSearchParams();
   const [eventId, setEventId] = useState(params.get('event') || events[0]?.id);
   const event = events.find(e => e.id === eventId) || events[0];
+  const external = event?.registration_type === 'EXTERNAL';
   const [tab, setTab] = useState("types");
   const [typesApi, setTypesApi] = useState(null);
   if (!event) return <OrganizerShell title="Ticket Management"><p>No events yet. Create an event to manage its tickets.</p></OrganizerShell>;
@@ -414,9 +415,9 @@ export default function OrganizerTicketSales() {
     <OrganizerShell
       breadcrumb={["Home", "Organizer", "Ticket Management"]}
       title="Ticket Management"
-      subtitle="Create and manage tickets for your event."
+      subtitle={external ? 'This event uses an external registration website.' : 'Create and manage tickets for your event.'}
       actions={
-        tab === "types" && (
+        !external && tab === "types" && (
           <button
             onClick={() => typesApi?.startAdd()}
             className="flex items-center gap-1.5 bg-[#3F7D3D] hover:bg-[#336633] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors"
@@ -432,9 +433,10 @@ export default function OrganizerTicketSales() {
           {TABS.map(item => (
             <button
               key={item.key}
+              disabled={external}
               onClick={() => ["discounts", "promos", "settings"].includes(item.key) ? toast.error("This feature is not available on the backend yet.") : setTab(item.key)}
               className={`flex items-center gap-2.5 text-left px-4 py-2.5 rounded-lg text-sm font-bold whitespace-nowrap transition-colors ${
-                tab === item.key ? "bg-[#EAF5EA] text-[#3F7D3D]" : "text-gray-600 hover:bg-gray-50"
+                external ? 'text-gray-400 cursor-not-allowed' : tab === item.key ? "bg-[#EAF5EA] text-[#3F7D3D]" : "text-gray-600 hover:bg-gray-50"
               }`}
               data-testid={`button-tab-${item.key}`}
             >
@@ -452,7 +454,7 @@ export default function OrganizerTicketSales() {
             <div className="flex-1 min-w-0">
               <div className="relative inline-flex items-center gap-1.5">
                 <select
-                  value={eventId}
+                  value={event.id}
                   onChange={e => setEventId(e.target.value)}
                   className="font-bold text-sm text-black bg-transparent focus:outline-none appearance-none pr-5"
                   data-testid="select-ticket-management-event"
@@ -466,11 +468,17 @@ export default function OrganizerTicketSales() {
             <StatusPill status={event.status} />
           </div>
 
-          {tab === "types" && <TicketTypesPanel event={event} onReady={setTypesApi} key={`types-${event.id}`} />}
-          {tab === "discounts" && <DiscountsPanel event={event} key={`discounts-${event.id}`} />}
-          {tab === "promos" && <PromoCodesPanel event={event} key={`promos-${event.id}`} />}
-          {tab === "settings" && <TicketSettingsPanel />}
-          {tab === "sales" && <SalesReportPanel />}
+          {external ? <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-bold">External registration</h2>
+            <p className="mt-2 text-sm text-gray-600">People register on your linked website. Manage registrations and availability on that website.</p>
+            <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex rounded-xl bg-[#3F7D3D] px-4 py-3 text-sm font-bold text-white">Open registration website</a>
+          </div> : <>
+            {tab === "types" && <TicketTypesPanel event={event} onReady={setTypesApi} key={`types-${event.id}`} />}
+            {tab === "discounts" && <DiscountsPanel event={event} key={`discounts-${event.id}`} />}
+            {tab === "promos" && <PromoCodesPanel event={event} key={`promos-${event.id}`} />}
+            {tab === "settings" && <TicketSettingsPanel />}
+            {tab === "sales" && <SalesReportPanel />}
+          </>}
         </div>
       </div>
     </OrganizerShell>

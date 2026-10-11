@@ -19,11 +19,19 @@ export function eventStepError(form, step) {
     }
   }
   if (step === 3) {
-    if (form.price === '' || !Number.isFinite(Number(form.price)) || Number(form.price) < 0) {
+    if (form.registration_type === 'EXTERNAL') {
+      try {
+        const link = form.registration_url?.trim();
+        const url = new URL(link);
+        if (url.protocol !== 'https:' || !url.hostname.includes('.') || url.username || url.password || link.includes('\\')) throw new Error('Invalid registration link');
+      } catch {
+        return { field: 'event-registration-url', message: 'Enter a full HTTPS registration link, such as https://www.abiatechrise.ng/.' };
+      }
+    } else if (form.price === '' || !Number.isFinite(Number(form.price)) || Number(form.price) < 0) {
       return { field: 'event-price', message: 'Enter a ticket price of ₦0 or more.' };
     }
     if (!Number.isInteger(Number(form.capacity)) || Number(form.capacity) < 1) {
-      return { field: 'event-capacity', message: 'Enter a ticket capacity of at least 1.' };
+      return { field: 'event-capacity', message: 'Enter an event capacity of at least 1.' };
     }
   }
   return null;

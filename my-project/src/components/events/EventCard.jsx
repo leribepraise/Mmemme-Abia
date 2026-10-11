@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { NavLink } from "react-router-dom";
 import { Heart, MapPin } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import ShareEvent from '../eventDetails/ShareEvent';
 
 const EventCard = ({ event }) => {
   const { user } = useAuth();
@@ -63,7 +64,7 @@ const EventCard = ({ event }) => {
               {event.text}
             </p>
 
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
               <div className="flex min-w-0 items-center gap-1 text-xs text-gray-500">
                 <MapPin className="h-3.5 w-3.5 shrink-0" />
 
@@ -76,6 +77,10 @@ const EventCard = ({ event }) => {
             </div>
           </div>
         </NavLink>
+        <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 pb-3.5">
+          <NavLink to={`/events/${event.id}`} className="rounded-lg px-2 py-2 text-sm font-semibold text-[#3C6E16]">{event.registration_type === 'EXTERNAL' ? 'Register now' : 'View event'}</NavLink>
+          <ShareEvent event={event} compact label="Share" />
+        </div>
       </div>
     </div>
   );

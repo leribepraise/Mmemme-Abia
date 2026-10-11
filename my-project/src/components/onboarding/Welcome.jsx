@@ -2,9 +2,11 @@ import React from "react";
 import { Compass, CalendarDays, Users, Sparkles, Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { clearAuthReturn, safeAuthReturn } from '@/lib/authNavigation';
 
-const Welcome = ({ userData }) => {
+const Welcome = ({ userData, returnTo }) => {
   const navigate = useNavigate();
+  const destination = safeAuthReturn(returnTo);
   return (
     <div className="min-h-screen bg-[#F7F9F7] px-4 py-5 sm:px-6">
       {/* MAIN CARD */}
@@ -94,7 +96,7 @@ const Welcome = ({ userData }) => {
           </div>
         </div>
 
-        <button type="button" onClick={() => navigate('/dashboard')} className="mx-auto mt-8 block w-full max-w-lg rounded-lg bg-[#f36b0a] py-3 text-sm font-semibold text-white">Go to Dashboard →</button>
+        <button type="button" onClick={() => { clearAuthReturn(); navigate(destination || '/dashboard'); }} className="mx-auto mt-8 block w-full max-w-lg rounded-lg bg-[#f36b0a] py-3 text-sm font-semibold text-white">{destination ? 'Continue to your event →' : 'Go to Dashboard →'}</button>
       </div>
 
       {/* BOTTOM DECORATIVE IMAGE */}

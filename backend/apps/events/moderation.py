@@ -8,6 +8,7 @@ from apps.common.api import Conflict
 from apps.common.models import audit
 from apps.notifications.services import notify
 from .models import Event, EventAnnouncement
+from .registration import registration_is_ready
 
 
 @transaction.atomic
@@ -28,8 +29,8 @@ def moderate_event(actor, event_id, decision, reason=''):
         if decision == 'approve':
             if not organizer.is_active or not organizer.is_verified or not organizer.email_verified:
                 raise Conflict('The organizer must be active, approved and email verified.')
-            if event.start_datetime <= timezone.now() or not event.ticket_types.filter(is_active=True).exists():
-                raise Conflict('The event needs future dates and an active ticket type.')
+            if event.start_datetime <= timezone.now() or not registration_is_ready(event):
+                raise Conflict('The event needs future dates and an active ticket type or valid external registration link.')
             event.status = 'PUBLISHED'
         else:
             event.status = 'REJECTED'

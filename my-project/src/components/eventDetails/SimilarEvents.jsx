@@ -1,6 +1,5 @@
 import { useCollection } from "@/hooks/useApi";
 import { eventCard } from "@/lib/catalog";
-import ShareEvent from "./ShareEvent";
 import SimilarEventCard from "./SimilarEventCard";
 import {useParams} from 'react-router-dom';
 import {api} from '@/lib/api';
@@ -16,8 +15,6 @@ const SimilarEvents = () => {
   };
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
-      <ShareEvent />
-
       <h3 className="text-[20px] font-semibold text-[#000000] tracking-wider">
         Similar Events
       </h3>

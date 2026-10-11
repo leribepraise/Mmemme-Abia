@@ -9,7 +9,7 @@ from django.test import override_settings
 from rest_framework.test import APITestCase
 
 from apps.accounts.models import EmailVerificationCode, SocialIdentity, User
-from apps.accounts.social_auth import SocialAuthError, verified_claims
+from apps.accounts.social_auth import SocialAuthError, safe_return_path, verified_claims
 from apps.notifications.models import Notification
 
 
@@ -28,8 +28,8 @@ SOCIAL_SETTINGS = {
 
 @override_settings(**SOCIAL_SETTINGS)
 class SocialAuthTests(APITestCase):
-    def start(self, provider='google', flow='user'):
-        response = self.client.get(f'/api/v1/auth/social/{provider}/start/?flow={flow}')
+    def start(self, provider='google', flow='user', return_to=''):
+        response = self.client.get(f'/api/v1/auth/social/{provider}/start/', {'flow': flow, 'next': return_to})
         self.assertEqual(response.status_code, 302)
         params = parse_qs(urlsplit(response['Location']).query)
         return response, params['state'][0], params
@@ -57,10 +57,12 @@ class SocialAuthTests(APITestCase):
     def test_google_requires_email_otp_and_password_before_creating_account(self, exchange, verify):
         verify.return_value = {'subject': 'google-sub-123', 'email': 'person@example.test',
                                'first_name': 'Ada', 'last_name': 'Nwosu'}
-        _, state, _ = self.start()
+        return_to = '/events/3b198535-3ee8-414c-93f1-200d50ccdd3a'
+        _, state, _ = self.start(return_to=return_to)
         with patch('apps.accounts.email_codes.secrets.randbelow', return_value=12345):
             response = self.client.get(f'/api/v1/auth/social/google/callback/?state={state}&code=one-time-code')
         self.assertIn('verify=1', response['Location'])
+        self.assertEqual(parse_qs(urlsplit(response['Location']).query)['next'], [return_to])
         self.assertNotIn('mmemme_refresh', response.cookies)
         self.assertFalse(User.objects.exists())
         self.assertEqual(Notification.objects.count(), 1)
@@ -120,7 +122,8 @@ class SocialAuthTests(APITestCase):
     def test_apple_form_post_requires_state_otp_and_password(self, exchange, verify):
         verify.return_value = {'subject': 'apple-sub-123', 'email': 'relay@privaterelay.appleid.com',
                                'first_name': '', 'last_name': ''}
-        response, state, params = self.start('apple', 'organizer')
+        return_to = '/events/3b198535-3ee8-414c-93f1-200d50ccdd3a'
+        response, state, params = self.start('apple', 'organizer', return_to)
         self.assertEqual(params['response_mode'], ['form_post'])
         self.assertEqual(params['nonce'][0] != '', True)
         self.assertEqual(response.cookies['mmemme_oauth_apple']['samesite'], 'None')
@@ -130,6 +133,7 @@ class SocialAuthTests(APITestCase):
                                          'user': '{"name":{"firstName":"Amaka","lastName":"Okoro"}}'})
         self.assertIn('flow=organizer', callback['Location'])
         self.assertIn('verify=1', callback['Location'])
+        self.assertEqual(parse_qs(urlsplit(callback['Location']).query)['next'], [return_to])
         self.assertFalse(User.objects.exists())
         self.assertEqual(self.client.post('/api/v1/auth/social/verify/', {'otp_code': '012345'}).data['needs_password'], True)
         self.assertFalse(User.objects.exists())
@@ -162,6 +166,37 @@ class SocialAuthTests(APITestCase):
             config = self.client.get('/api/v1/auth/social/config/')
             self.assertEqual(config.data, {'google': False, 'apple': False})
             self.assertNotIn('secret', str(config.data))
+
+    @patch('apps.accounts.social_views.verified_claims')
+    @patch('apps.accounts.social_views.exchange_code', return_value='signed-token')
+    def test_existing_user_returns_to_event_from_server_state(self, exchange, verify):
+        user = User.objects.create_user(username='member', email='member@example.test', email_verified=True)
+        verify.return_value = {'subject': 'google-member', 'email': user.email, 'first_name': '', 'last_name': ''}
+        return_to = '/events/shared-event?ticket=standard#tickets'
+        _, state, _ = self.start(return_to=return_to)
+        response = self.client.get('/api/v1/auth/social/google/callback/', {
+            'state': state, 'code': 'sample', 'next': 'https://attacker.example/',
+        })
+        self.assertEqual(parse_qs(urlsplit(response['Location']).query)['next'], [return_to])
+        self.assertIn('mmemme_refresh', response.cookies)
+
+    def test_oauth_return_rejects_external_urls_and_auth_loops(self):
+        for value in [None, 'https://attacker.example', '//attacker.example', '/\\attacker.example',
+                      '/%2f%2fattacker.example', '/%255cattacker.example', '/%00events',
+                      '/events/../api/auth/', '/auth/social/complete', '/login', '/share/events/id']:
+            with self.subTest(value=value):
+                self.assertEqual(safe_return_path(value), '')
+        _, state, _ = self.start(return_to='//attacker.example')
+        response = self.client.get('/api/v1/auth/social/google/callback/', {'state': state, 'error': 'access_denied'})
+        self.assertNotIn('next=', response['Location'])
+
+    def test_cancelled_signin_keeps_shared_event_for_retry(self):
+        return_to = '/events/shared-event'
+        _, state, _ = self.start(return_to=return_to)
+        response = self.client.get('/api/v1/auth/social/google/callback/', {'state': state, 'error': 'access_denied'})
+        params = parse_qs(urlsplit(response['Location']).query)
+        self.assertEqual(params['next'], [return_to])
+        self.assertEqual(params['error'], ['cancelled'])
 
     def test_signed_identity_token_checks_audience_email_and_apple_nonce(self):
         key = rsa.generate_private_key(public_exponent=65537, key_size=2048)

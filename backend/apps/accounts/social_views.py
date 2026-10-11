@@ -20,7 +20,7 @@ from .models import User
 from .models import EmailVerificationCode
 from .email_codes import complete_email_code, request_email_code
 from .social_auth import (SocialAuthError, authorization, configured, consume_state,
-                          exchange_code, resolve_user, state_cookie, verified_claims)
+                          exchange_code, resolve_user, safe_return_path, state_cookie, verified_claims)
 from .views import PublicAuthView, set_refresh
 
 
@@ -28,12 +28,14 @@ PENDING_COOKIE = 'mmemme_social_pending'
 PENDING_PATH = '/api/v1/auth/social/'
 
 
-def finish_location(flow='user', error=None, verify=False):
+def finish_location(flow='user', error=None, verify=False, return_to=''):
     params = {'flow': flow if flow in {'user', 'organizer'} else 'user'}
     if error:
         params['error'] = error
     if verify:
         params['verify'] = '1'
+    if safe_return_path(return_to):
+        params['next'] = return_to
     return settings.FRONTEND_URL + '/auth/social/complete?' + urlencode(params)
 
 
@@ -66,10 +68,12 @@ class SocialConfigView(PublicAuthView):
 
 class SocialStartView(PublicAuthView):
     def get(self, request, provider):
+        flow = request.query_params.get('flow', 'user')
+        return_to = safe_return_path(request.query_params.get('next'))
         try:
-            url, state = authorization(provider, request.query_params.get('flow', 'user'))
+            url, state = authorization(provider, flow, return_to)
         except SocialAuthError:
-            return HttpResponseRedirect(finish_location(error='unavailable'))
+            return HttpResponseRedirect(finish_location(flow, error='unavailable', return_to=return_to))
         response = HttpResponseRedirect(url)
         response.set_cookie(state_cookie(provider), state, max_age=600, httponly=True,
                             secure=True if provider == 'apple' else settings.REFRESH_COOKIE_SECURE,
@@ -91,11 +95,13 @@ class SocialCallbackView(PublicAuthView):
 
     def complete(self, request, provider, values):
         flow = 'user'
+        return_to = ''
         error = None
         user = None
         try:
             state = consume_state(provider, values.get('state'), request.COOKIES.get(state_cookie(provider)))
             flow = state['flow']
+            return_to = safe_return_path(state.get('return_to'))
             if values.get('error'):
                 raise SocialAuthError('Sign-in was cancelled.')
             token = exchange_code(provider, values.get('code'), state)
@@ -120,11 +126,11 @@ class SocialCallbackView(PublicAuthView):
                 pending_token = secrets.token_urlsafe(32)
                 cache.set(f'social-pending:{pending_token}', {
                     'provider': provider, 'claims': claims, 'apple_name': apple_name,
-                    'flow': flow,
+                    'flow': flow, 'return_to': return_to,
                 }, timeout=600)
         except (SocialAuthError, KeyError, TypeError):
             error = 'cancelled' if values.get('error') else 'failed'
-        response = HttpResponseRedirect(finish_location(flow, error, verify=not error and user is None))
+        response = HttpResponseRedirect(finish_location(flow, error, verify=not error and user is None, return_to=return_to))
         response.delete_cookie(state_cookie(provider), path='/api/v1/auth/social/',
                                samesite='None' if provider == 'apple' else 'Lax')
         if user:

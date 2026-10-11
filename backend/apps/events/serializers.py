@@ -1,8 +1,10 @@
 from django.db.models import Sum
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils import timezone
 from rest_framework import serializers
 from apps.common.api import validate_image
 from .models import Event, TicketType
+from .registration import validate_registration_url
 
 class TicketTypeSerializer(serializers.ModelSerializer):
     quantity_available = serializers.ReadOnlyField()
@@ -56,7 +58,7 @@ class EventSerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(required=False)
     class Meta:
         model = Event
-        fields = ["id","organizer","title","slug","description","category","venue","address","city","state","start_datetime","end_datetime","capacity","status","image","image_card","image_detail","image_url","ticket_types","deletion_requested_at","created_at","updated_at"]
+        fields = ["id","organizer","title","slug","description","category","venue","address","city","state","start_datetime","end_datetime","capacity","registration_type","registration_url","status","image","image_card","image_detail","image_url","ticket_types","deletion_requested_at","created_at","updated_at"]
         read_only_fields = ["id","organizer","status","deletion_requested_at","created_at","updated_at"]
     def get_organizer(self,obj):
         profile = getattr(obj.organizer,"organizer_profile",None)
@@ -66,18 +68,52 @@ class EventSerializer(serializers.ModelSerializer):
             logo = request.build_absolute_uri(logo)
         return {"id":obj.organizer_id,"name":profile.business_name if profile else obj.organizer.get_full_name(),"verified":obj.organizer.is_verified,"logo":logo}
     def get_ticket_types(self,obj):
+        if obj.registration_type == Event.RegistrationType.EXTERNAL:
+            return []
         rows=list(obj.ticket_types.all())
         view=self.context.get("view")
         if view and view.action in {"list","retrieve"}: rows=[row for row in rows if row.is_active]
         return TicketTypeSerializer(rows,many=True).data
     def validate_image(self,value): return validate_image(value) if value else value
     def update(self, instance, validated_data):
+        registration_changed = any(
+            field in validated_data and validated_data[field] != getattr(instance, field)
+            for field in ('registration_type', 'registration_url')
+        )
+        switching_external = (instance.registration_type != Event.RegistrationType.EXTERNAL
+                              and validated_data.get('registration_type') == Event.RegistrationType.EXTERNAL)
+        if registration_changed and instance.status == Event.Status.PUBLISHED:
+            # The organizer must submit the new destination for staff review. A draft
+            # also allows ticket setup before an external event becomes ticketed.
+            validated_data.update(status=Event.Status.DRAFT, review_note='', review_decision='',
+                                  reviewed_at=None, reviewed_by=None)
         if 'image' in validated_data:
             instance.image_card = None
             instance.image_detail = None
             instance.image_processing_last_attempt_at = None
-        return super().update(instance, validated_data)
+        event = super().update(instance, validated_data)
+        if switching_external:
+            event.ticket_types.all().delete()
+        return event
     def validate(self,attrs):
+        registration_type = attrs.get('registration_type', getattr(self.instance, 'registration_type', Event.RegistrationType.TICKETED))
+        registration_url = attrs.get('registration_url', getattr(self.instance, 'registration_url', ''))
+        if registration_type == Event.RegistrationType.EXTERNAL:
+            try:
+                validate_registration_url(registration_url)
+            except DjangoValidationError as exc:
+                raise serializers.ValidationError({'registration_url': exc.messages}) from None
+        else:
+            if attrs.get('registration_url'):
+                raise serializers.ValidationError({'registration_url': 'Only external events can have a registration link.'})
+            attrs['registration_url'] = ''
+        if self.instance and registration_type != self.instance.registration_type:
+            from apps.bookings.models import Booking
+            if (Booking.objects.filter(kind=Booking.Kind.EVENT, parent_id=str(self.instance.pk)).exists()
+                    or self.instance.ticket_types.filter(booking_items__isnull=False).exists()
+                    or self.instance.ticket_types.filter(quantity_sold__gt=0).exists()
+                    or self.instance.ticket_types.filter(quantity_reserved__gt=0).exists()):
+                raise serializers.ValidationError({'registration_type': 'The registration type cannot change after a booking or reservation. Create a new event instead.'})
         start = attrs.get("start_datetime",getattr(self.instance,"start_datetime",None))
         end = attrs.get("end_datetime",getattr(self.instance,"end_datetime",None))
         if start and end and end <= start: raise serializers.ValidationError("Event end must follow its start.")

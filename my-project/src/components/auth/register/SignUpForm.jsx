@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { useAuth } from "@/components/context/AuthContext";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
@@ -13,11 +13,14 @@ import VerificationScreen from "../VerificationScreen";
 import { PASSWORD_HELP } from "@/lib/passwordPolicy";
 import SocialAuthButtons from '../SocialAuthButtons';
 import PasswordStrength from '../PasswordStrength';
+import { authPagePath, authReturnFrom, clearAuthReturn, postAuthPath, rememberAuthReturn } from '@/lib/authNavigation';
 
 const SignUpForm = ({ onChallenge = () => {} }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const organizerSignup = location.state?.from === '/organizer/apply';
+  const returnTo = authReturnFrom(location);
+  const organizerSignup = returnTo === '/organizer/apply';
+  useEffect(() => { rememberAuthReturn(returnTo); }, [returnTo]);
   const { login } = useAuth();
   const [pending, setPending] = useState(null);
   const [inputType, setInputType] = useState("password");
@@ -62,11 +65,13 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
     onChallenge(false);
     toast.success("Email verified and account created.");
     try {
-      await login(credentials);
-      navigate(organizerSignup ? '/organizer/apply' : '/Signup/onboarding', { replace: true });
+      const user = await login(credentials);
+      const destination = postAuthPath(user, returnTo, organizerSignup);
+      clearAuthReturn();
+      navigate(destination, { replace: true });
     } catch {
       toast("Your account is ready. Please log in to continue.");
-      navigate("/login", { state: organizerSignup ? { from: '/organizer/apply' } : undefined });
+      navigate(authPagePath('/login', returnTo), { state: returnTo ? { from: returnTo } : undefined });
     }
   };
   const toggleVisibility = () => {
@@ -102,7 +107,7 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
         <h1 className="text-[24px] font-bold text-[#1F2937] mb-2">
           Create Your Account
         </h1>
-        <p className="text-[14px] text-[#6B7280] mb-8">Let's get you started</p>
+        <p className="text-[14px] text-[#6B7280] mb-8">{returnTo.startsWith('/events/') ? 'Create an account to continue to this event. Already a member? Log in below.' : "Let's get you started"}</p>
         {pending ? (
           <EmailCodeForm
             email={pending.email}
@@ -241,7 +246,7 @@ const SignUpForm = ({ onChallenge = () => {} }) => {
             <SocialAuthButtons flow={organizerSignup ? 'organizer' : 'user'} signup termsAccepted={Boolean(watch('terms'))} />
             <p className="text-center text-sm text-[#666666]">
               Already have an account?
-              <NavLink to="/login" state={organizerSignup ? { from: '/organizer/apply' } : undefined} className="ml-1 text-[#48782E] font-semibold hover:underline">Log In</NavLink>
+              <NavLink to={authPagePath('/login', returnTo)} state={returnTo ? { from: returnTo } : undefined} className="ml-1 text-[#48782E] font-semibold hover:underline">Log In</NavLink>
             </p>
           </div>
         )}

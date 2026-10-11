@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/components/context/AuthContext';
 import VerificationScreen from '@/components/auth/VerificationScreen';
 import PasswordStrength from '@/components/auth/PasswordStrength';
 import { PASSWORD_HELP, passwordError } from '@/lib/passwordPolicy';
 import { api, refreshSession } from '@/lib/api';
-
-function destination(user, organizer) {
-  return organizer
-    ? user.role === 'ORGANIZER' && user.is_verified ? '/organizer/dashboard' : '/organizer/apply'
-    : user.onboarding_completed_at ? '/dashboard' : '/Signup/onboarding';
-}
+import { authPagePath, authReturnFrom, clearAuthReturn, postAuthPath, rememberAuthReturn } from '@/lib/authNavigation';
 
 function PasswordSetup({ email, onComplete }) {
   const [password, setPassword] = useState('');
@@ -63,6 +58,9 @@ function PasswordSetup({ email, onComplete }) {
 export default function SocialAuthComplete() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = authReturnFrom(location);
+  useEffect(() => { rememberAuthReturn(returnTo); }, [returnTo]);
   const { user, loading, reloadUser } = useAuth();
   const [pending, setPending] = useState(null);
   const [pendingLoading, setPendingLoading] = useState(true);
@@ -83,12 +81,16 @@ export default function SocialAuthComplete() {
   }, [needsOtp, providerError]);
   useEffect(() => {
     if (needsOtp || loading || providerError || !user) return;
-    navigate(destination(user, organizer), { replace: true });
-  }, [needsOtp, loading, user, organizer, providerError, navigate]);
+    const destination = postAuthPath(user, returnTo, organizer);
+    clearAuthReturn();
+    navigate(destination, { replace: true });
+  }, [needsOtp, loading, user, organizer, providerError, navigate, returnTo]);
   const recoverSession = async () => {
     if (!await refreshSession()) throw new Error('Your sign-in session expired. Please try again.');
     const currentUser = await reloadUser();
-    navigate(destination(currentUser, organizer), { replace: true });
+    const destination = postAuthPath(currentUser, returnTo, organizer);
+    clearAuthReturn();
+    navigate(destination, { replace: true });
   };
   const complete = async action => {
     await action();
@@ -111,7 +113,7 @@ export default function SocialAuthComplete() {
   if (needsOtp && !accountReady && !providerError) {
     if (pending?.stage === 'otp') return <VerificationScreen email={pending.email} onVerify={verifyCode}
       onResend={() => api('/auth/social/resend/', { method: 'POST' })}
-      onBack={() => navigate(organizer ? '/organizer/signup' : '/Signup')}
+      onBack={() => navigate(authPagePath(organizer ? '/organizer/signup' : '/Signup', returnTo))}
       backLabel="Return to sign-up" submitLabel="Verify email" />;
     if (pending?.stage === 'password') return <PasswordSetup email={pending.email}
       onComplete={(password, confirm_password) => complete(() => api('/auth/social/password/',
@@ -120,7 +122,7 @@ export default function SocialAuthComplete() {
     if (pendingError) return <main className="mx-auto mt-12 max-w-md rounded-xl border bg-white p-8 text-center">
       <h1 className="text-xl font-bold">Verification session expired</h1>
       <p className="mt-3 text-sm text-gray-600">{pendingError}</p>
-      <Link to={organizer ? '/organizer/signup' : '/Signup'} className="mt-5 block text-sm font-semibold text-green-800 underline">Start sign-up again</Link>
+      <Link to={authPagePath(organizer ? '/organizer/signup' : '/Signup', returnTo)} className="mt-5 block text-sm font-semibold text-green-800 underline">Start sign-up again</Link>
     </main>;
     return <main className="mx-auto max-w-md p-8" role="status">Preparing verification…</main>;
   }
@@ -129,6 +131,6 @@ export default function SocialAuthComplete() {
     <h1 className="text-xl font-bold">Sign-in needs another try</h1>
     <p className="mt-3 text-sm text-gray-600">{error || (providerError === 'cancelled' ? 'Sign-in was cancelled.' : providerError === 'unavailable' ? 'This sign-in option is not configured yet.' : 'We could not complete sign-in. Please try again.')}</p>
     {!providerError && <button type="button" disabled={retrying} onClick={retry} className="mt-5 rounded-lg bg-green-800 px-5 py-2 text-white disabled:opacity-50">{retrying ? 'Trying…' : 'Try again'}</button>}
-    <Link to={organizer ? '/organizer/login' : '/login'} className="mt-5 block text-sm font-semibold text-green-800 underline">Return to login</Link>
+    <Link to={authPagePath(organizer ? '/organizer/login' : '/login', returnTo)} className="mt-5 block text-sm font-semibold text-green-800 underline">Return to login</Link>
   </main>;
 }

@@ -16,6 +16,7 @@ from apps.common.models import audit
 from .models import Event, TicketType, SavedEvent, EventReview
 from .permissions import IsOrganizerOrReadOnly
 from .serializers import EventSerializer, TicketTypeSerializer
+from .registration import registration_is_ready
 
 class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
@@ -74,8 +75,11 @@ class EventViewSet(viewsets.ModelViewSet):
         instance=self.get_object()
         Event.objects.select_for_update().get(pk=instance.pk)
         before = {field: getattr(instance, field) for field in ['title', 'venue', 'address', 'city', 'start_datetime', 'end_datetime']}
+        previous_registration = (instance.registration_type, instance.registration_url)
         response = super().update(request,*args,**kwargs)
         event = Event.objects.get(pk=instance.pk)
+        if previous_registration != (event.registration_type, event.registration_url):
+            audit(request.user, 'event.registration_updated', event.pk, registration_type=event.registration_type)
         changed = [field for field, old in before.items() if getattr(event, field) != old]
         if changed and event.status == Event.Status.PUBLISHED:
             from apps.bookings.models import Booking
@@ -133,8 +137,11 @@ class EventViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def submit(self,request,pk=None):
         event=Event.objects.select_for_update().get(pk=self.get_object().pk)
-        if event.status not in {"DRAFT","REJECTED"} or not event.ticket_types.filter(is_active=True).exists() or event.start_datetime <= timezone.now():
-            raise Conflict("Add ticket types and valid dates to a draft before submitting.")
+        if event.status not in {"DRAFT","REJECTED"} or event.start_datetime <= timezone.now():
+            raise Conflict("Use a draft with future dates before submitting.")
+        if not registration_is_ready(event):
+            raise Conflict("Add a valid HTTPS registration link before submitting." if event.registration_type == Event.RegistrationType.EXTERNAL
+                           else "Add an active ticket type before submitting.")
         event.status="IN_REVIEW"; event.save(update_fields=["status","updated_at"])
         audit(request.user,"event.submitted",event.pk)
         return Response(self.get_serializer(event).data)
@@ -166,6 +173,8 @@ class EventViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def ticket_types(self,request,pk=None):
         event=Event.objects.select_for_update().get(pk=self.get_object().pk)
+        if event.registration_type == Event.RegistrationType.EXTERNAL:
+            raise Conflict("This event uses external registration and cannot sell tickets on Mmemme Abia.")
         if event.status == "PUBLISHED":
             if event.start_datetime <= timezone.now() or event.deletion_requested_at:
                 raise Conflict("Ticket types cannot change after the event has started or while cancellation is pending.")

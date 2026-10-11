@@ -33,6 +33,7 @@ export const buildSearchIndex = ({ tours = [], eventss = [], hotels = [], restau
     description: e.description || "",
     image: e.image,
     price: parsePrice(e.text3),
+    priceLabel: e.registration_type === 'EXTERNAL' ? 'External registration' : e.text3 === 'Unavailable' ? 'Unavailable' : null,
     to: `/events/${e.id}`,
   }));
 

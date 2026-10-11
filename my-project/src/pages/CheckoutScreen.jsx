@@ -76,6 +76,7 @@ export default function CheckoutScreen() {
   const formatCurrency = (amount) => `N${amount.toLocaleString()}`;
 
   if (!event) return <Navigate to="/events" replace />;
+  if (event.registration_type === 'EXTERNAL') return <Navigate to={`/events/${event.id}`} replace />;
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans text-gray-800">
       <Seo title="Checkout" noIndex path="/checkout" />

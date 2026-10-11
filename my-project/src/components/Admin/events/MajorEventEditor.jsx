@@ -48,7 +48,7 @@ export default function MajorEventEditor() {
     {current.data && <div className="mb-5 max-w-xl">{!current.data.active && <p className="mb-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">The selected event is no longer eligible or has ended. It is hidden from users.</p>}<MajorEventCard promotion={current.data} compact /></div>}
     <form onSubmit={save} className="grid gap-3 sm:max-w-xl">
       <label className="text-sm font-medium">Destination
-        <select className={inputClass} value={mode} onChange={event => setMode(event.target.value)}><option value="ticket">MMEMME ABIA ticketed event</option><option value="registration">External registration event</option></select>
+        <select className={inputClass} value={mode} onChange={event => setMode(event.target.value)}><option value="ticket">MMEMME ABIA event</option><option value="registration">Standalone external promotion</option></select>
       </label>
       {mode === 'ticket' ? <label className="text-sm font-medium">Approved event
         <select required className={inputClass} value={eventId} onChange={event => setEventId(event.target.value)}><option value="">Select an event</option>{events.data.map(event => <option key={event.id} value={event.id}>{event.title} — {new Date(event.start_datetime).toLocaleDateString('en-NG')}</option>)}</select>

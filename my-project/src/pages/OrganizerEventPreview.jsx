@@ -6,8 +6,7 @@ import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowRight, CalendarDays, Check, Edit3, LayoutList, MapPin } from "lucide-react";
 import OrganizerShell from "@/components/organizer/OrganizerPublicShell";
-import { seedEvents, seedOrganizer } from "@/data/organizerData";
-import { naira, fmtDate, load, save } from "@/lib/utils";
+import { naira, fmtDate } from "@/lib/utils";
 
 const STATUS_STYLE = {
   Published: "bg-green-100 text-green-700",
@@ -15,16 +14,16 @@ const STATUS_STYLE = {
   Completed: "bg-blue-100 text-blue-700",
 };
 
-const STEPS = ["Basic Info", "Date & Venue", "Tickets & Pricing", "Media", "Preview & Publish"];
+const STEPS = ["Basic Info", "Date & Venue", "Registration", "Media", "Preview & Publish"];
 
 function Stepper() {
   return (
-    <div className="flex items-center mb-2">
+    <div className="flex items-center mb-2 min-w-0 overflow-x-auto pb-2">
       {STEPS.map((label, i) => {
         const step = i + 1;
         const isLast = step === STEPS.length;
         return (
-          <div key={label} className="flex items-center flex-1 last:flex-none">
+          <div key={label} className="flex items-center flex-1 last:flex-none min-w-[90px] sm:min-w-0">
             <div className="flex flex-col items-center gap-1.5">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-[#3F7D3D] text-white`}>
                 {isLast ? step : <Check className="w-3.5 h-3.5" />}
@@ -52,6 +51,7 @@ export default function OrganizerEventPreview() {
     catch (error) { toast.error(error.message); }
   };
   if (!event) return <p role="status">{request.error?.message || 'Loading event...'}</p>;
+  const external = event.registration_type === 'EXTERNAL';
   const editable = !event.deletion_requested_at && (['DRAFT', 'REJECTED'].includes(event.rawStatus) || (event.rawStatus === 'PUBLISHED' && new Date(event.start_datetime).getTime() > Date.now()));
 
   return (
@@ -106,7 +106,7 @@ export default function OrganizerEventPreview() {
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="font-bold text-lg text-black mb-3">About the Event</h2>
           <p className="text-sm text-gray-600 leading-6">
-            {event.description} Join us for a thoughtful, well-run experience by {organizer.organization}. Ticket holders will receive event updates in their inbox.
+            {event.description}
           </p>
           <div className="flex flex-wrap gap-2 mt-4">
             {event.tags.map(tag => (
@@ -117,13 +117,17 @@ export default function OrganizerEventPreview() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h2 className="font-bold text-base text-black mb-4">Event Summary</h2>
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm"><span className="text-gray-500">Total Tickets</span><strong className="text-black">{event.ticketCapacity.toLocaleString()}</strong></div>
-            <div className="flex items-center justify-between text-sm"><span className="text-gray-500">Ticket Price</span><strong className="text-black">{naira(event.price || 0)}</strong></div>
+            <div className="flex items-center justify-between gap-3 text-sm"><span className="text-gray-500">{external ? 'Event capacity' : 'Total Tickets'}</span><strong className="text-black">{event.ticketCapacity.toLocaleString()}</strong></div>
+            {external ? <>
+              <p className="text-sm text-gray-600">Attendees register on the organizer’s website.</p>
+              <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#3F7D3D] px-4 py-3 text-sm font-bold text-white">Register now <ArrowRight className="h-4 w-4" /></a>
+              <p className="break-all text-xs text-gray-500">{event.registration_url}</p>
+            </> : <div className="flex items-center justify-between gap-3 text-sm"><span className="text-gray-500">Ticket Price</span><strong className="text-black">{naira(event.price || 0)}</strong></div>}
           </div>
         </div>
       </div>
 
-      {['DRAFT', 'REJECTED'].includes(event.rawStatus) && <div className="flex items-center justify-between gap-3">
+      {['DRAFT', 'REJECTED'].includes(event.rawStatus) && <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           onClick={() => navigate(`/organizer/events/${event.id}/edit`)}
           className="px-5 py-2.5 rounded-lg text-sm font-bold text-gray-600 border border-gray-200 bg-white hover:bg-gray-50"

@@ -40,8 +40,9 @@ def announce_new_event_batch(batch_size=100):
                     is_active=True, email_verified=True).order_by('pk')[:batch_size])
     for user in users:
         create_notice = notify if user.email_notifications else notify_in_app
+        action = 'register with the organizer' if event.registration_type == Event.RegistrationType.EXTERNAL else 'get your ticket'
         create_notice(user, f'event-new:{event.pk}:{user.pk}', 'New event in Abia',
-                      f'{event.title} is now live on Mmemme Abia. See the details and get your ticket.')
+                      f'{event.title} is now live on Mmemme Abia. See the details and {action}.')
     if users:
         job.last_user_id = users[-1].pk
     if len(users) < batch_size:
@@ -78,7 +79,7 @@ def announce_major_event_batch(batch_size=100):
                     is_active=True, email_verified=True).order_by('pk')[:batch_size])
     for user in users:
         create_notice = notify if user.email_notifications else notify_in_app
-        action = 'Get tickets' if job.event_id else 'Register now'
+        action = 'Get tickets' if job.event_id and job.event.registration_type == Event.RegistrationType.TICKETED else 'Register now'
         create_notice(user, f'major-event:{job.pk}:{user.pk}', f'Major event: {job.title}',
                       f'{job.title} is featured on Mmemme Abia. {action}: {job.destination_url}')
     if users:

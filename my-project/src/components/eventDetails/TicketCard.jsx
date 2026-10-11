@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { FiBookmark, FiMinus, FiPlus } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { memberTicketPrice } from '@/lib/membership';
+import { registrationDestination } from '@/lib/eventRegistration';
 
 const TicketCard = ({
   tickets,
@@ -35,12 +36,14 @@ const TicketCard = ({
   };
   const tierData = event.ticket_types.map(t => ({ key: t.id, label: t.name, price: Number(t.price) === 0 ? 'Free' : money(memberTicketPrice(t, user?.plan)), minimumPlan: t.minimum_plan, earlyAccess: t.membership_early_access }));
   const hasAnyTicket = Object.values(tickets).some((qty) => qty > 0);
+  const external = event.registration_type === 'EXTERNAL';
+  const destination = registrationDestination(event);
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
       <div className="bg-[#E4FCE4] -mx-5 -mt-5 p-4 rounded-t-2xl border-b border-emerald-100">
         <span className="text-[12px] font-medium text-[#000000] uppercase tracking-wider">
-          From
+          {external ? 'Registration' : 'From'}
         </span>
 
         <p className="text-[18px] font-bold text-[#3C6E16]">
@@ -48,7 +51,11 @@ const TicketCard = ({
         </p>
       </div>
 
-      <div>
+      {external ? <div className="space-y-3 text-sm">
+        <h3 className="text-lg font-bold">Register with the organizer</h3>
+        <p className="text-slate-600">Complete your registration on the organizer’s website. Registration and any fees are handled there.</p>
+        {destination ? <p className="break-all text-xs text-slate-500">Opens {destination.host}</p> : <p role="status">Registration is currently unavailable or this event has ended.</p>}
+      </div> : <div>
         <h3 className="text-[12px] font-semibold text-[#000000] tracking-wider mb-3">
           Available Tickets
         </h3>
@@ -129,10 +136,10 @@ const TicketCard = ({
             );
           })}
         </div>
-      </div>
+      </div>}
 
       <div className="space-y-2 pt-2">
-        <Link
+        {external ? (destination ? <a href={destination.href} target="_blank" rel="noopener noreferrer" className="flex min-h-12 w-full items-center justify-center rounded-xl bg-[#F46F1A] px-4 py-3 text-center font-bold text-white hover:bg-[#e05600]">Register now <span className="sr-only">(opens organizer website in a new tab)</span></a> : <button disabled className="w-full rounded-xl bg-slate-300 px-4 py-3 font-bold text-slate-600">Registration unavailable</button>) : <Link
           to={hasAnyTicket ? "/checkout" : "#"}
           state={{
             event,
@@ -149,7 +156,7 @@ const TicketCard = ({
           >
             Buy Tickets
           </button>
-        </Link>
+        </Link>}
 
         <button
           onClick={handleSaveEvent}

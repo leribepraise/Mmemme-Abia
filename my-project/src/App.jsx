@@ -33,6 +33,7 @@ const InstallAppPage = lazy(() => import('./pages/InstallAppPage'));
 import AnchorNavigation from './components/AnchorNavigation';
 import Layout from "@/components/layout";
 const EventDetails = lazy(() => import('./pages/EventDetails'));
+const SharedEventEntry = lazy(() => import('./pages/SharedEventEntry'));
 const CheckoutScreen = lazy(() => import('./pages/CheckoutScreen'));
 const PaymentScreen = lazy(() => import('./pages/PaymentScreen'));
 const PaymentSuccessfulScreen = lazy(() => import('./pages/PaymentSuccessfulScreen'));
@@ -180,6 +181,10 @@ const App = () => {
           <NotFound />
         </div>
       ),
+    },
+    {
+      path: "/share/events/:id",
+      element: <SharedEventEntry />,
     },
     {
       path: "/events/:id",

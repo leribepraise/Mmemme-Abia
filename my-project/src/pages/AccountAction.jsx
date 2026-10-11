@@ -6,9 +6,11 @@ import LoginLogo from '@/components/auth/login/LoginLogo';
 import EmailCodeForm from '@/components/auth/EmailCodeForm';
 import VerificationScreen from '@/components/auth/VerificationScreen';
 import { PASSWORD_HELP, passwordError } from '@/lib/passwordPolicy';
+import { authPagePath, authReturnFrom } from '@/lib/authNavigation';
 export default function AccountAction() {
   const [params] = useSearchParams();
   const location = useLocation();
+  const returnTo = authReturnFrom(location);
   const verify = location.pathname === '/verify-email';
   const { user } = useAuth();
   const [email, setEmail] = useState(location.state?.email || user?.email || '');
@@ -48,7 +50,7 @@ export default function AccountAction() {
       {!verify && token && <p className="text-xs text-gray-500">{PASSWORD_HELP}</p>}
       <button disabled={busy} className="w-full bg-[#1B5E20] text-white font-semibold py-3 rounded-[8px]">{busy ? 'Please wait...' : verify ? 'Send verification code' : token ? 'Save new password' : 'Send reset link'}</button>
     </form>}
-    <p role="status">{message}</p><Link to="/login" className="text-[#48782E]">Back to login</Link>
-    {verify && !verified && <Link to="/signup" className="block text-[#48782E]">New here? Create an account</Link>}
+    <p role="status">{message}</p><Link to={authPagePath('/login', returnTo)} className="text-[#48782E]">Back to login</Link>
+    {verify && !verified && <Link to={authPagePath('/signup', returnTo)} className="block text-[#48782E]">New here? Create an account</Link>}
   </div></div>;
 }

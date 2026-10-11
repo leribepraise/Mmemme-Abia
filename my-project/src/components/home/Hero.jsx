@@ -17,7 +17,7 @@ const Hero = () => {
     date: new Date(event.start_datetime).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }),
     location: event.venue,
     description: event.description?.trim() || 'Discover the details and reserve your place at this event.',
-    buttonText: 'Get Ticket',
+    buttonText: event.registration_type === 'EXTERNAL' ? 'Register now' : 'Get tickets',
   })) : [{ image: '/hero1.jpg', title: 'Explore events in Abia', description: 'Find your next experience in Abia.', buttonText: 'Explore Events' }];
   const [slideIndex, setSlideIndex] = useState(0);
   const [paused, setPaused] = useState(false);

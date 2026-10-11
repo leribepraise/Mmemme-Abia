@@ -4,12 +4,15 @@ import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "./validation/schemas/loginSchemas";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import SocialAuthButtons from '../SocialAuthButtons';
+import { authPagePath, authReturnFrom } from '@/lib/authNavigation';
 
 const LoginForm = ({ onLogin }) => {
   const [inputType, setInputType] = useState("password");
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = authReturnFrom(location);
 
   const {
     register,
@@ -25,7 +28,7 @@ const LoginForm = ({ onLogin }) => {
       toast.success("Login successful!");
     } catch (error) {
       toast.error(error.message || "Login failed. Please try again.");
-      if (error.code === 'email_not_verified') navigate('/verify-email', { state: { email: data.email } });
+      if (error.code === 'email_not_verified') navigate(authPagePath('/verify-email', returnTo), { state: { email: data.email, from: returnTo } });
     }
   };
 
@@ -95,7 +98,7 @@ const LoginForm = ({ onLogin }) => {
             <div className="flex items-center justify-between text-sm">
               <button
                 type="button"
-                onClick={() => navigate("/reset-password")}
+                onClick={() => navigate(authPagePath('/reset-password', returnTo))}
                 className="text-[#EF6C00] font-semibold hover:underline"
               >
                 Forgot Password?
@@ -117,7 +120,8 @@ const LoginForm = ({ onLogin }) => {
           <p className="text-center text-sm text-[#666666]">
             Don't have an account?{" "}
             <NavLink
-              to="/signup"
+              to={authPagePath('/signup', returnTo)}
+              state={returnTo ? { from: returnTo } : undefined}
               className="text-[#F36B25] font-semibold hover:underline"
             >
               Sign up

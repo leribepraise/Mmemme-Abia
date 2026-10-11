@@ -3,8 +3,8 @@ import { useApi } from "@/hooks/useApi";
 import { eventCard } from "@/lib/catalog";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { getPublicEventById } from "../data/eventData";
 import Seo from "../components/seo/Seo";
+import ShareEvent from "../components/eventDetails/ShareEvent";
 
 import EventBreadcrumb from "../components/eventDetails/EventBreadcrumb";
 import EventGallery from "../components/eventDetails/Gallary";
@@ -64,7 +64,10 @@ export default function EventDetails() {
         path={`/events/${id}`}
       />
       <div className="max-w-7xl mx-auto space-y-6">
-        <EventBreadcrumb eventName={event?.text} />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <EventBreadcrumb eventName={event?.text} />
+          <ShareEvent event={event} className="!mb-0" />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-8 space-y-6">

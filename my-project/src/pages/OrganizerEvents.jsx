@@ -66,7 +66,8 @@ export default function OrganizerEvents() {
     catch (error) { toast.error(error.message); }
   };
   const requestDeletion = async event => {
-    if (!window.confirm(`Request admin approval to cancel and remove "${event.title}"? If approved, attendee tickets will be cancelled and paid bookings will receive full refunds.`)) return;
+    const registrationNotice = event.registration_type === 'EXTERNAL' ? 'Registrations on the external website must be managed there.' : 'If approved, attendee tickets will be cancelled and paid bookings will receive full refunds.';
+    if (!window.confirm(`Request admin approval to cancel and remove "${event.title}"? ${registrationNotice}`)) return;
     try { await api(`/events/${event.id}/request-deletion/`, { method: 'POST' }); reload(); toast.success('Cancellation and removal request sent to admin.'); }
     catch (error) { toast.error(error.message); }
   };
@@ -159,7 +160,7 @@ export default function OrganizerEvents() {
                     <p className="text-sm font-bold text-gray-700">{event.category}</p>
                   </div>
                   <div className="w-32 shrink-0 hidden md:block text-xs text-gray-500 font-medium">
-                    <span className="font-bold text-gray-800 text-sm">{event.ticketsSold}/{event.ticketCapacity}</span> <br /> Tickets sold
+                    {event.registration_type === 'EXTERNAL' ? <span className="font-bold text-gray-800 text-sm">External registration</span> : <><span className="font-bold text-gray-800 text-sm">{event.ticketsSold}/{event.ticketCapacity}</span> <br /> Tickets sold</>}
                   </div>
                   <span className={`text-xs font-bold px-3 py-1.5 rounded-full shrink-0 ${STATUS_STYLE[event.status] || "bg-gray-100 text-gray-600"}`}>
                     {event.status}

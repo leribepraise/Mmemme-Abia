@@ -1,15 +1,21 @@
 import toast from 'react-hot-toast';
 import { FcGoogle } from 'react-icons/fc';
 import { useApi } from '@/hooks/useApi';
+import { useLocation } from 'react-router-dom';
+import { authReturnFrom, rememberAuthReturn } from '@/lib/authNavigation';
 
 export default function SocialAuthButtons({ flow = 'user', signup = false, termsAccepted = true }) {
   const { data: config, loading } = useApi('/auth/social/config/');
+  const location = useLocation();
   const begin = provider => {
     if (signup && !termsAccepted) {
       toast.error('Please accept the Terms & Conditions before creating an account.');
       return;
     }
-    window.location.assign(`/api/v1/auth/social/${provider}/start/?flow=${encodeURIComponent(flow)}`);
+    const returnTo = rememberAuthReturn(authReturnFrom(location));
+    const params = new URLSearchParams({ flow });
+    if (returnTo) params.set('next', returnTo);
+    window.location.assign(`/api/v1/auth/social/${provider}/start/?${params}`);
   };
   return <div>
     <div className="grid grid-cols-2 gap-3">

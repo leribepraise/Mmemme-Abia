@@ -28,3 +28,17 @@ test('event stage three rejects invalid ticket quantities and prices', () => {
   assert.equal(eventStepError({ ...complete, capacity: '0' }, 3).field, 'event-capacity');
   assert.equal(eventStepError(complete, 3), null);
 });
+
+test('external event registration needs a safe HTTPS link and capacity, but no ticket price', () => {
+  const external = { ...complete, registration_type: 'EXTERNAL', registration_url: 'https://www.abiatechrise.ng/', price: '' };
+  assert.equal(eventStepError(external, 3), null);
+  assert.equal(eventStepError({ ...external, capacity: '0' }, 3).field, 'event-capacity');
+  for (const registration_url of ['', 'www.abiatechrise.ng', 'http://example.com', 'javascript:alert(1)', 'https://user:password@example.com', 'https://localhost', 'https://example.com\\register']) {
+    assert.equal(eventStepError({ ...external, registration_url }, 3).field, 'event-registration-url');
+  }
+});
+
+test('ticketed events ignore an old external link and still require a price', () => {
+  assert.equal(eventStepError({ ...complete, registration_type: 'TICKETED', registration_url: 'invalid' }, 3), null);
+  assert.equal(eventStepError({ ...complete, registration_type: 'TICKETED', price: '' }, 3).field, 'event-price');
+});

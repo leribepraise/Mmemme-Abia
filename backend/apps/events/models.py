@@ -7,6 +7,10 @@ from django.db import models
 
 
 class Event(models.Model):
+    class RegistrationType(models.TextChoices):
+        TICKETED = "TICKETED", "Tickets on Mmemme Abia"
+        EXTERNAL = "EXTERNAL", "External registration"
+
     class Status(models.TextChoices):
         IN_REVIEW = "IN_REVIEW", "In review"
         REJECTED = "REJECTED", "Rejected"
@@ -51,6 +55,8 @@ class Event(models.Model):
     end_datetime = models.DateTimeField()
 
     capacity = models.PositiveIntegerField()
+    registration_type = models.CharField(max_length=10, choices=RegistrationType.choices, default=RegistrationType.TICKETED)
+    registration_url = models.URLField(max_length=1000, blank=True)
 
     status = models.CharField(
         max_length=20,
@@ -85,12 +91,22 @@ class Event(models.Model):
             raise ValidationError(
                 "Event end time must be after the start time."
             )
+        if self.registration_type == self.RegistrationType.EXTERNAL:
+            from .registration import validate_registration_url
+            validate_registration_url(self.registration_url)
+        elif self.registration_url:
+            raise ValidationError({'registration_url': 'Only external events can have a registration link.'})
 
     class Meta:
         ordering = ["-start_datetime"]
         constraints = [
             models.CheckConstraint(condition=models.Q(end_datetime__gt=models.F("start_datetime")), name="event_dates_valid"),
             models.CheckConstraint(condition=models.Q(capacity__gte=1), name="event_capacity_positive"),
+            models.CheckConstraint(
+                condition=(models.Q(registration_type="TICKETED", registration_url="") |
+                           (models.Q(registration_type="EXTERNAL") & ~models.Q(registration_url=""))),
+                name="event_registration_valid",
+            ),
         ]
         indexes = [
             models.Index(fields=["status", "start_datetime"]),

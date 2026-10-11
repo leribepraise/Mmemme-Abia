@@ -3,11 +3,13 @@ import base64
 import hashlib
 import hmac
 import json
+import posixpath
+import re
 import secrets
 import time
 import uuid
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import unquote, urlencode, urlsplit
 from urllib.request import Request, urlopen
 
 import jwt
@@ -62,7 +64,27 @@ def state_cookie(provider):
     return f'mmemme_oauth_{provider}'
 
 
-def authorization(provider, flow):
+def safe_return_path(value):
+    """Keep OAuth continuation inside an application page, never a URL or auth loop."""
+    if not isinstance(value, str) or not value or len(value) > 2048:
+        return ''
+    decoded = value
+    try:
+        for _ in range(4):
+            if not decoded.startswith('/') or decoded.startswith('//') or re.search(r'[\\\s\x00-\x1f]', decoded):
+                return ''
+            parsed = urlsplit(decoded)
+            if parsed.scheme or parsed.netloc:
+                return ''
+            if re.match(r'^/(?:api|auth|login|signup|sign-up|verify-email|reset-password|share)(?:/|$)', posixpath.normpath(parsed.path), re.I):
+                return ''
+            decoded = unquote(decoded)
+    except ValueError:
+        return ''
+    return value
+
+
+def authorization(provider, flow, return_to=''):
     if provider not in PROVIDERS or not configured(provider):
         raise SocialAuthError('This sign-in option is not available yet.')
     if flow not in {'user', 'organizer'}:
@@ -71,7 +93,7 @@ def authorization(provider, flow):
     nonce = secrets.token_urlsafe(32)
     verifier = secrets.token_urlsafe(64)
     cache.set(f'social-auth:{state}', {'provider': provider, 'flow': flow, 'nonce': nonce,
-                                       'verifier': verifier}, timeout=600)
+                                       'verifier': verifier, 'return_to': safe_return_path(return_to)}, timeout=600)
     params = {'client_id': client_id(provider), 'redirect_uri': callback_uri(provider),
               'response_type': 'code', 'state': state, 'scope': 'openid email profile'}
     if provider == 'google':
