@@ -17,4 +17,35 @@
 <div class="article-body">{{ body_html|safe }}</div>
 <div class="chips">{% for tag in article.tags %}<a href="/blog?tag={{ tag|urlencode }}">#{{ tag }}</a>{% endfor %}</div>
 </article>
+{% if not preview %}
+<div id="blog-article-share">
+  <section class="blog-engagement blog-share" aria-labelledby="blog-share-heading">
+    <h2 id="blog-share-heading">Share this article</h2>
+    <p class="meta">Know someone who would enjoy this? Pass it on.</p>
+    <div class="blog-share-actions">
+      {% for network in share_links %}<a href="{{ network.url }}" target="_blank" rel="noopener noreferrer" aria-label="Share on {{ network.name }}">{{ network.name }}</a>{% endfor %}
+    </div>
+  </section>
+</div>
+<div id="blog-article-comments">
+  <section id="comments" class="blog-engagement blog-comments" aria-labelledby="blog-comments-heading">
+    <h2 id="blog-comments-heading">Comments ({{ comments_page.paginator.count }})</h2>
+    <p><a href="{{ comment_login_url }}">Log in to leave a comment</a></p>
+    <noscript><p class="meta">Enable JavaScript to post comments with your Mmemme account.</p></noscript>
+    <ol class="blog-comment-list">
+      {% for comment in comments_page %}
+      <li class="blog-comment">
+        <div class="blog-comment-heading"><strong>{% firstof comment.author.get_full_name comment.author.username %}</strong><time datetime="{{ comment.created_at|date:'c' }}">{{ comment.created_at|date:'F j, Y' }}</time></div>
+        <p class="blog-comment-body">{{ comment.body }}</p>
+      </li>
+      {% empty %}<li class="meta">No comments yet. Be the first to join the conversation.</li>{% endfor %}
+    </ol>
+    {% if comments_page.has_other_pages %}<nav class="pagination" aria-label="Comment pages">
+      {% if comments_page.has_previous %}<a href="?comment_page={{ comments_page.previous_page_number }}#comments">Newer comments</a>{% endif %}
+      {% if comments_page.has_next %}<a href="?comment_page={{ comments_page.next_page_number }}#comments">Older comments</a>{% endif %}
+    </nav>{% endif %}
+  </section>
+</div>
+{{ engagement|json_script:'blog-engagement-data' }}
+{% endif %}
 {% endblock %}

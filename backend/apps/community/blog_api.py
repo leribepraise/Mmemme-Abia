@@ -1,16 +1,19 @@
 from urllib.parse import urlsplit
 
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 from rest_framework import permissions, serializers, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from apps.common.api import validate_image
 from .blog_content import clean_content
 from .blog_models import Article, BlogImage, ArticleSlugRedirect
+from .blog_comments import ArticleCommentSerializer, BlogCommentThrottle, can_remove_comment, visible_comments
 
 
 def can_manage_blog(user):
@@ -154,6 +157,37 @@ class PublicArticleViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Article.objects.public().select_related('author').order_by('-published_at', '-pk')
+
+    def get_permissions(self):
+        if self.request.method not in permissions.SAFE_METHODS:
+            return [permissions.IsAuthenticated()]
+        return super().get_permissions()
+
+    def get_throttles(self):
+        throttles = super().get_throttles()
+        if self.action == 'comments' and self.request.method == 'POST':
+            throttles.append(BlogCommentThrottle())
+        return throttles
+
+    @action(detail=True, methods=['get', 'post'])
+    def comments(self, request, slug=None):
+        article = self.get_object()
+        if request.method == 'POST':
+            serializer = ArticleCommentSerializer(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            serializer.save(article=article, author=request.user)
+            return Response(serializer.data, status=201)
+        rows = self.paginate_queryset(visible_comments(article))
+        return self.get_paginated_response(ArticleCommentSerializer(rows, many=True, context={'request': request}).data)
+
+    @action(detail=True, methods=['delete'], url_path=r'comments/(?P<comment_id>[0-9]+)')
+    def remove_comment(self, request, slug=None, comment_id=None):
+        comment = get_object_or_404(visible_comments(self.get_object()), pk=comment_id)
+        if not can_remove_comment(request.user, comment):
+            raise PermissionDenied('You can only remove your own comments.')
+        comment.is_hidden = True
+        comment.save(update_fields=['is_hidden'])
+        return Response(status=204)
 
 
 def publish_due_articles():

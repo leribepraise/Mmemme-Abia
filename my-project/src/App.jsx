@@ -20,7 +20,7 @@ const BlogDashboard = lazy(() => import('./pages/blog/BlogEditor'));
 const BlogLogin = lazy(() => import('./pages/blog/BlogEditor').then(m => ({ default: m.BlogLogin })));
 const BlogArticleEditor = lazy(() => import('./pages/blog/BlogEditor').then(m => ({ default: m.BlogArticleEditor })));
 function PublicBlogRedirect() {
-  React.useEffect(() => { window.location.replace(window.location.href); }, []);
+  React.useEffect(() => { window.location.reload(); }, []);
   return <p className="p-8">Loading blog…</p>;
 }
 import PageSkeleton from './components/PageSkeleton';

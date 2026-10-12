@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from .blog_models import Article, BlogImage, ArticleSlugRedirect
+from .blog_models import Article, BlogImage, ArticleSlugRedirect, ArticleComment
 
 
 class CommunityProfile(models.Model):

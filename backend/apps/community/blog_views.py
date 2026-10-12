@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlencode
 from xml.etree.ElementTree import Element, SubElement, tostring
 
 from django.conf import settings
@@ -9,6 +10,7 @@ from django.utils.html import strip_tags
 
 from .blog_content import clean_content
 from .blog_models import Article, ArticleSlugRedirect, BlogImage
+from .blog_comments import ArticleCommentSerializer, visible_comments
 
 
 def image_url(image):
@@ -64,7 +66,28 @@ def blog_detail(request, slug):
             return redirect(article.get_absolute_url(), permanent=True)
     if not article:
         raise Http404('Article not found')
-    response = render(request, 'community/blog_detail.html', article_context(article))
+    context = article_context(article)
+    comments = Paginator(visible_comments(article), 24).get_page(request.GET.get('comment_page'))
+    share_url = settings.FRONTEND_URL + article.get_absolute_url()
+    context.update({
+        'comments_page': comments,
+        'comment_login_url': '/login?' + urlencode({'next': article.get_absolute_url() + '#comments'}),
+        'share_links': [
+            {'name': 'WhatsApp', 'url': 'https://wa.me/?' + urlencode({'text': article.title + ' ' + share_url})},
+            {'name': 'Facebook', 'url': 'https://www.facebook.com/sharer/sharer.php?' + urlencode({'u': share_url})},
+            {'name': 'X', 'url': 'https://twitter.com/intent/tweet?' + urlencode({'text': article.title, 'url': share_url})},
+        ],
+        'engagement': {
+            'slug': article.slug, 'title': article.title, 'url': share_url,
+            'page': comments.number,
+            'comments': {
+                'count': comments.paginator.count,
+                'results': ArticleCommentSerializer(comments.object_list, many=True).data,
+                'next': comments.has_next(), 'previous': comments.has_previous(),
+            },
+        },
+    })
+    response = render(request, 'community/blog_detail.html', context)
     response['Cache-Control'] = 'no-cache, max-age=0, must-revalidate'
     return response
 

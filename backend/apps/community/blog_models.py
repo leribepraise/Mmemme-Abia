@@ -50,3 +50,14 @@ class BlogImage(models.Model):
 class ArticleSlugRedirect(models.Model):
     slug = models.SlugField(max_length=200, unique=True)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='old_slugs')
+
+
+class ArticleComment(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    body = models.CharField(max_length=2000)
+    is_hidden = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at', '-pk']

@@ -34,11 +34,14 @@ Editors sign in at `/blog-editor/login`. This uses the existing account login an
 - Existing backend blog posts are copied into the new article model during migration. Numeric `/blog/<post-id>` links redirect to their new slug URLs. Legacy community APIs no longer expose or modify blog content.
 - Changing a slug creates a permanent redirect from the old URL to the new URL. Old URLs remain reserved for that article, and redirects become unavailable when the article is unpublished or deleted.
 - Deleting an article permanently removes its record. Uploaded media remains in storage to avoid breaking images reused in other articles.
+- Published article pages include native sharing, WhatsApp, Facebook, X, and a copy-link option. Sharing always uses the public Mmemme article URL.
+- Comments are public to read and require an active, verified account to post. Comments are limited to 2,000 characters and 10 submissions per minute per account. Readers can remove their own comments; staff and blog editors can remove any comment. Removed comments stay hidden, and staff can review them in Django admin under Article comments. Draft previews have no comment or share controls.
+- Migration `0005_articlecomment` creates comment storage and preserves comments attached to imported legacy blog posts. Deploy the backend migration before the updated frontend.
 
 ## Verify
 
 ```sh
-python manage.py test tests.test_blog_editor tests.test_admin_dashboard --settings=config.settings.test
+python manage.py test tests.test_blog_comments tests.test_blog_editor tests.test_admin_dashboard --settings=config.settings.test
 python manage.py makemigrations --check --dry-run --settings=config.settings.test
 ```
 

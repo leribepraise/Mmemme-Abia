@@ -24,7 +24,12 @@
         script.onload = resolve;
         script.onerror = reject;
         if (source.hasAttribute('src')) script.src = source.getAttribute('src');
-        else script.textContent = source.textContent;
+        else {
+          // Inline modules do not reliably emit load events. Signal completion
+          // explicitly so Vite's refresh preamble runs before the app module.
+          script.id = `blog-shell-module-${crypto.randomUUID()}`;
+          script.textContent = `${source.textContent}\n;document.getElementById(${JSON.stringify(script.id)}).dispatchEvent(new Event('load'));`;
+        }
         document.head.appendChild(script);
       });
     }
