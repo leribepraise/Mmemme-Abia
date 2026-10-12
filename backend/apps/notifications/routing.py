@@ -4,6 +4,12 @@ import uuid
 def notification_destination(notification):
     """Resolve existing notification keys to known internal app routes."""
     prefix, _, identifier = notification.key.partition(':')
+    if prefix in {'transport-review', 'transport-request'}:
+        return '/transport/company', 'booking'
+    if prefix == 'transport-response':
+        return '/transport/support', 'booking'
+    if prefix in {'transport-cancel', 'transport-reminder'}:
+        return '/transport/bookings', 'booking'
     if prefix == 'membership':
         return '/plans', 'update'
     if prefix == 'message':
@@ -12,6 +18,12 @@ def notification_destination(notification):
         except ValueError:
             pass
     if prefix in {'booking', 'reminder'}:
+        from apps.bookings.models import Booking
+        try:
+            if Booking.objects.filter(pk=uuid.UUID(identifier.split(':')[0]), kind='TRANSPORT', user_id=getattr(notification, 'user_id', None)).exists():
+                return '/transport/bookings', 'booking'
+        except ValueError:
+            pass
         return '/profile?section=My%20Bookings', 'booking'
     if prefix == 'refund':
         return '/profile?section=Payment%20History', 'booking'
@@ -28,6 +40,9 @@ def notification_destination(notification):
         except ValueError:
             pass
     if prefix in {'payout', 'payout-account', 'bank-review'}:
+        from apps.transport.models import TransportCompany
+        if getattr(notification, 'user_id', None) and TransportCompany.objects.filter(owner_id=notification.user_id).exists():
+            return '/transport/company', 'update'
         return '/organizer/payouts', 'update'
     if prefix == 'account':
         return '/profile?section=Settings', 'update'

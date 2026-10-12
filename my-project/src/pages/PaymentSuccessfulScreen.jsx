@@ -37,6 +37,7 @@ export default function PaymentSuccessfulScreen() {
   const orderId = booking?.booking_reference;
   if (!booking || booking.status !== 'CONFIRMED') return <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8"><div className="bg-white rounded-[12px] shadow-md p-8"><p role="status">{error || (booking ? `Your booking is ${booking.status.toLowerCase()}. Payment has not been confirmed.` : 'Checking your booking...')}</p><a href="/profile">My bookings</a></div></div>;
   if (booking.kind === 'HOTEL') return <Navigate to={`/book-comfire/${booking.id}`} replace />;
+  if (booking.kind === 'TRANSPORT') return <Navigate to="/transport/bookings" replace />;
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-[1000px]">

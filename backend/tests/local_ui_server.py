@@ -51,6 +51,13 @@ restaurant = Restaurant.objects.create(owner=owner, name='Local test kitchen', c
 MenuItem.objects.create(restaurant=restaurant, name='Test meal', price=2500, quantity=100)
 route = Route.objects.create(owner=owner, name='Local test route', origin='Aba', destination='Umuahia', pickup_address='Test station', is_active=True)
 Departure.objects.create(route=route, departs_at=timezone.now()+timedelta(days=2), arrives_at=timezone.now()+timedelta(days=2,hours=2), vehicle='Test bus', price=5000, quantity=15)
+from apps.transport.models import TransportCompany, Terminal, Vehicle
+company = TransportCompany.objects.create(owner=owner, name='Local test transport', registration_number='TEST-RC', contact_email=owner.email, contact_phone='08000000000', address='Aba', status='APPROVED', commission_bps=500)
+origin = Terminal.objects.create(company=company, name='Aba terminal', city='Aba', address='Test station')
+destination = Terminal.objects.create(company=company, name='Umuahia terminal', city='Umuahia', address='Destination station')
+vehicle = Vehicle.objects.create(company=company, name='Partner bus', registration_number='TEST-123', capacity=15)
+company_route = Route.objects.create(owner=owner, company=company, name='Partner event shuttle', origin='Aba', destination='Umuahia', pickup_address='Test station', origin_terminal=origin, destination_terminal=destination, is_active=True, service_type='EVENT_SHUTTLE', event=event)
+Departure.objects.create(route=company_route, departs_at=timezone.now()+timedelta(days=2), arrives_at=timezone.now()+timedelta(days=2,hours=2), fleet_vehicle=vehicle, vehicle=vehicle.name, price=0, quantity=10)
 from apps.tourism.models import TourismExperience, TourPackage, TourDeparture
 tour = TourismExperience.objects.create(created_by=owner, name='Local test tour', description='Disposable tour fixture.', category='ACTIVITY', location_name='Aba', is_active=True)
 package = TourPackage.objects.create(experience=tour, name='Guided tour', price=3000)

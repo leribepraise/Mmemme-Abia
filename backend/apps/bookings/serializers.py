@@ -10,6 +10,11 @@ class BookingItemSerializer(serializers.ModelSerializer):
 class BookingSerializer(serializers.ModelSerializer):
     items = BookingItemSerializer(many=True,read_only=True)
     image = serializers.SerializerMethodField()
+    boarding_token = serializers.SerializerMethodField()
+    def get_boarding_token(self, obj):
+        if obj.kind != 'TRANSPORT' or obj.status != 'CONFIRMED': return None
+        from apps.transport.services import boarding_token
+        return boarding_token(obj)
     def get_image(self, obj):
         if obj.kind != 'EVENT':
             return None
@@ -23,7 +28,7 @@ class BookingSerializer(serializers.ModelSerializer):
         return request.build_absolute_uri(url) if request and url and url.startswith('/') else url
     class Meta:
         model = Booking
-        fields = ["id","booking_reference","kind","status","fulfillment_status","total_amount","currency","expires_at","details","image","customer_name","customer_phone","customer_note","items","created_at"]
+        fields = ["id","booking_reference","kind","status","fulfillment_status","total_amount","currency","expires_at","details","image","boarding_token","customer_name","customer_phone","customer_note","items","created_at"]
         read_only_fields = fields
 
 class EntrySerializer(serializers.Serializer):
@@ -31,6 +36,7 @@ class EntrySerializer(serializers.Serializer):
     quantity = serializers.IntegerField(min_value=1,max_value=20)
 
 class DetailsSerializer(serializers.Serializer):
+    passengers = serializers.ListField(child=serializers.CharField(max_length=200, allow_blank=False), max_length=20, required=False)
     attendee_email = serializers.EmailField(required=False)
     booking_for_someone_else = serializers.BooleanField(required=False)
     guests = serializers.IntegerField(min_value=1,max_value=100,required=False)

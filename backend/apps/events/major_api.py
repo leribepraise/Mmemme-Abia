@@ -111,7 +111,9 @@ class PublicMajorEventView(APIView):
 
     def get(self, request):
         promotion = MajorEventPromotion.objects.select_related('event', 'event__organizer').first()
-        return Response(promotion_data(request, promotion))
+        data = promotion_data(request, promotion)
+        # An empty promotion is normal, not a failed JSON response for the client.
+        return Response(data, status=204 if data is None else 200)
 
 
 class MajorEventEmailImageView(APIView):

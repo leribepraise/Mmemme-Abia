@@ -1,21 +1,15 @@
-import toast from 'react-hot-toast';
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  Car,
   Bus,
-  Truck,
-  Package,
   CalendarDays,
   MapPin,
   Users,
 } from "lucide-react";
 
 const tabs = [
-  { to: "/transport/ride", label: "Ride", icon: Car },
-  { to: "/transport/shuttle", label: "Shuttle", icon: Bus },
-  { to: "/transport/car-rentals", label: "Car Rental", icon: Truck },
-  { to: "/transport/courier", label: "Courier / Delivery", icon: Package },
+  { to: "/transport/shuttle", label: "Scheduled buses", icon: Bus },
+  { to: "/transport/shuttle?service_type=EVENT_SHUTTLE", label: "Event shuttles", icon: CalendarDays },
 ];
 
 const TransportTabs = () => {
@@ -33,7 +27,6 @@ const TransportTabs = () => {
             <Link
               key={to}
               to={to}
-              onClick={event => { if (to !== "/transport/shuttle") { event.preventDefault(); toast("Only scheduled shuttle bookings are available right now."); } }}
               className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
                 isActive
                   ? "bg-[#48782E] text-white"
@@ -51,10 +44,10 @@ const TransportTabs = () => {
         <Input icon={MapPin} label="Pick-up Location" {...field("origin")} placeholder="Enter pickup location" />
         <Input icon={MapPin} label="Destination" {...field("destination")} placeholder="Enter destination" />
         <Input icon={CalendarDays} label="Date" type="date" {...field("date")} placeholder="Select date & time" />
-        <Input icon={Users} label="Passengers" type="number" min="1" max="6" {...field("seats")} placeholder="1 Passenger" />
+        <Input icon={Users} label="Passengers" type="number" min="1" max="20" {...field("seats")} placeholder="1 Passenger" />
 
         <button onClick={() => navigate(`/transport/shuttle?${new URLSearchParams(search)}`)} className="bg-[#F97316] hover:bg-[#df5f18] text-white rounded-lg font-semibold h-12 self-end">
-          Search Shuttles
+          Search Journeys
         </button>
       </div>
     </div>

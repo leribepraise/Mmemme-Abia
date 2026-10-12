@@ -38,6 +38,9 @@ def _provider(provider_id):
 def _verified(user):
     if not user.is_active or not user.is_verified or not user.email_verified:
         raise Conflict("An active, verified provider account is required.")
+    from apps.transport.models import TransportCompany
+    if TransportCompany.objects.filter(owner=user).exclude(status='APPROVED').exists():
+        raise Conflict('Your transport company must be approved before requesting payouts.')
 
 
 def bank_list():

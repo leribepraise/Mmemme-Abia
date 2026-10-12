@@ -22,8 +22,11 @@ from apps.common.views import live, ready
 from apps.common.management_api import ManageResource, ManageAction
 from apps.common.reviews import ServiceReviewViewSet
 from apps.accounts.admin_api import AdminUserViewSet, AdminOrganizerViewSet, AdminOverview
+from apps.transport.api import CompanyViewSet, TransportRequestViewSet
 
 router=DefaultRouter()
+router.register('transport-companies', CompanyViewSet, basename='transport-company')
+router.register('transport-requests', TransportRequestViewSet, basename='transport-request')
 from apps.community.blog_api import BlogEditorViewSet, PublicArticleViewSet
 from apps.community.blog_views import blog_index, blog_detail, blog_image, sitemap
 router.register('blog-editor/articles', BlogEditorViewSet, basename='blog-editor')

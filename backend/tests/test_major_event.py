@@ -41,6 +41,12 @@ class MajorEventTests(APITestCase):
         Image.new('RGB', (2, 2), 'green').save(buffer, 'PNG')
         return SimpleUploadedFile('poster.png', buffer.getvalue(), content_type='image/png')
 
+    def test_no_promotion_returns_explicit_no_content(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get('/api/v1/events/major/')
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.content, b'')
+
     def test_only_event_staff_can_publish_ticketed_major_event(self):
         path = '/api/v1/admin/major-event/'
         self.client.force_authenticate(self.user)

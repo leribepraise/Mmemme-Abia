@@ -115,6 +115,9 @@ const PropertyDetail = lazy(() => import('./components/Admin/hotels/properties/d
 const AdminFood = lazy(() => import('./components/Admin/food/AdminFood'));
 const FoodVendorDetail = lazy(() => import('./components/Admin/food/details/FoodVendorDetail'));
 const AdminTransportDashboard = lazy(() => import('./components/Admin/transport/AdminTransportDashboard'));
+const TransportPortal = lazy(() => import('./pages/TransportPortal'));
+const TransportPasses = lazy(() => import('./components/Transport/TransportUI').then(module => ({ default: module.TransportPasses })));
+const TransportSupport = lazy(() => import('./components/Transport/TransportUI').then(module => ({ default: module.TransportSupport })));
 
 // /organizer/events/:id/edit needs the :id param handed to OrganizerEventForm
 // as the `editId` prop.
@@ -125,6 +128,9 @@ const OrganizerEventEditRoute = () => {
 
 const App = () => {
   const navList = [
+    { path: '/transport/company', element: <GuestGuard><TransportPortal /></GuestGuard> },
+    { path: '/transport/bookings', element: <GuestGuard><TransportPasses /></GuestGuard> },
+    { path: '/transport/support', element: <GuestGuard><div className="mx-auto max-w-4xl p-4"><TransportSupport /></div></GuestGuard> },
     {
       path: "/plans",
       element: (
@@ -635,7 +641,7 @@ const App = () => {
     },
     {
       path: "transport",
-      element: <ResourceManagement key="transport" section="transport" />,
+      element: <TransportPortal admin />,
     },
     // add each new admin page here as we build it, for example:
     // { path: "events", element: <AdminEvents /> },

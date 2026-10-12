@@ -47,6 +47,18 @@ def serializer_for(model):
     class CatalogSerializer(serializers.ModelSerializer):
         def to_representation(self, instance):
             data = super().to_representation(instance)
+            if model in {Route, Departure}:
+                route = instance if model is Route else instance.route
+                company = route.company
+                data.update(company=str(company.pk) if company else None, company_name=company.name if company else '',
+                    company_logo=company.logo.url if company and company.logo else None,
+                    service_type=route.service_type, event=str(route.event_id) if route.event_id else None,
+                    origin=route.origin, destination=route.destination, pickup_address=route.pickup_address,
+                    boarding_instructions=company.boarding_instructions if company else '',
+                    cancellation_hours=company.cancellation_hours if company else 0,
+                    contact_phone=company.contact_phone if company else '')
+                if model is Departure:
+                    data.update(status=instance.status, amenities=instance.fleet_vehicle.amenities if instance.fleet_vehicle_id else '')
             if model is Hotel:
                 price = getattr(instance, 'minimum_price', None)
                 data['minimum_price'] = str(price) if price is not None else None
@@ -56,6 +68,10 @@ def serializer_for(model):
             read_only_fields=["id"]+(["is_active"] if config[2] is None else [])+(["rating"] if model is TourismExperience else [])
         def validate(self,attrs):
             instance=self.instance
+            if model in {Route, Departure}:
+                route = instance if model is Route else (attrs.get('route') or (instance.route if instance else None))
+                if route and route.company_id:
+                    raise serializers.ValidationError('Manage company services through the transport company dashboard.')
             if instance and config[2] and config[2] in attrs and getattr(instance,config[2]+"_id") != attrs[config[2]].pk:
                 raise serializers.ValidationError("A listing cannot be moved to another provider.")
             if "price" in attrs and attrs["price"]<0: raise serializers.ValidationError("Price must be nonnegative.")
@@ -94,6 +110,10 @@ def viewset_for(model):
             return [AllowAny()] if self.action in {"list","retrieve"} else [IsAuthenticated()]
         def get_queryset(self):
             qs=model.objects.all().order_by("pk")
+            if model is Route:
+                qs = qs.select_related('company', 'origin_terminal', 'destination_terminal')
+            if model is Departure:
+                qs = qs.select_related('route__company', 'route__origin_terminal', 'route__destination_terminal', 'fleet_vehicle')
             if model is Hotel:
                 qs = qs.annotate(minimum_price=Min('room_types__nights__price', filter=Q(room_types__is_active=True, room_types__nights__is_active=True, room_types__nights__date__gte=timezone.localdate(), room_types__nights__quantity__gt=F('room_types__nights__quantity_sold') + F('room_types__nights__quantity_reserved'))))
             if self.action in {"list","retrieve"}:
@@ -102,6 +122,12 @@ def viewset_for(model):
                 if model in roots: qs=qs.filter(**{roots[model]+"__is_active":True})
                 if model is RoomNight: qs=qs.filter(room_type__is_active=True,date__gte=timezone.localdate())
                 if model is Departure: qs=qs.filter(departs_at__gt=timezone.now())
+                if model in {Route, Departure}:
+                    prefix = '' if model is Route else 'route__'
+                    qs = qs.filter(Q(**{prefix+'company__isnull': True}) | Q(**{prefix+'company__status': 'APPROVED'}))
+                    qs = qs.filter(Q(**{prefix+'company__isnull': True}) | Q(**{prefix+'origin_terminal__is_active': True, prefix+'destination_terminal__is_active': True}))
+                    if model is Departure:
+                        qs = qs.filter(status='SCHEDULED').filter(Q(route__company__isnull=True) | Q(fleet_vehicle__is_active=True))
                 if model is TourDeparture: qs=qs.filter(package__is_active=True,starts_at__gt=timezone.now())
             elif not self.request.user.is_staff:
                 qs=qs.filter(**{owner_path:self.request.user})

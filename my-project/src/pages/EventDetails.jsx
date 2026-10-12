@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useApi } from "@/hooks/useApi";
 import { eventCard } from "@/lib/catalog";
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Seo from "../components/seo/Seo";
 import ShareEvent from "../components/eventDetails/ShareEvent";
 
@@ -100,6 +100,7 @@ export default function EventDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8 space-y-6">
             <AboutEvent event={event} />
+            <Link to={`/transport/shuttle?event=${id}`} className="block rounded-2xl border border-green-200 bg-white p-5 font-semibold text-green-800">Find an event shuttle →</Link>
 
             <LocationCard event={event} />
           </div>

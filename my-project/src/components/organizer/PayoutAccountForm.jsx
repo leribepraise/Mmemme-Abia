@@ -107,7 +107,7 @@ export default function PayoutAccountForm({ onSaved }) {
       )}
       {!user?.is_verified ? (
         <p className="text-sm text-muted-foreground">
-          Your organizer account must be approved before you can add bank
+          Your provider account must be approved before you can add bank
           details.
         </p>
       ) : !open ? (
