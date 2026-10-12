@@ -9,11 +9,12 @@ export default defineConfig({
       input: {
         app: path.resolve(import.meta.dirname, 'index.html'),
         blogShell: path.resolve(import.meta.dirname, 'blog-shell.html'),
+        shareShell: path.resolve(import.meta.dirname, 'share-shell.html'),
       },
     },
   },
   server: {
-    proxy: Object.fromEntries(['/api', '/media', '/static', '/blog-media/', '^/blog(?:/|$|\\?)', '/sitemap.xml'].map(prefix => [prefix, { target: process.env.BACKEND_PROXY_TARGET || 'http://127.0.0.1:8000', changeOrigin: true }])),
+    proxy: Object.fromEntries(['/api', '/media', '/static', '/share/events/', '/share/event-images/', '/blog-media/', '^/blog(?:/|$|\\?)', '/sitemap.xml'].map(prefix => [prefix, { target: process.env.BACKEND_PROXY_TARGET || 'http://127.0.0.1:8000', changeOrigin: true }])),
   },
   plugins: [react(), tailwindcss()],
   resolve: {

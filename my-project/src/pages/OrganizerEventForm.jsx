@@ -97,8 +97,10 @@ export default function OrganizerEventForm({ editId }) {
 
   const createdId = useRef(editId || null);
   const ticketId = useRef(null);
+  const initializedEvent = useRef(null);
   useEffect(() => {
-    if (!existing) return;
+    if (!existing || initializedEvent.current === existing.id) return;
+    initializedEvent.current = existing.id;
     const ticket = existing.ticket_types[0];
     setForm({ title: existing.title, category: eventCategory(existing.category), eventType: existing.eventType, description: existing.description, date: nigeriaDateTime(existing.start_datetime).slice(0, 10), endDate: nigeriaDateTime(existing.end_datetime).slice(0, 10), startTime: nigeriaDateTime(existing.start_datetime).slice(11, 16), endTime: nigeriaDateTime(existing.end_datetime).slice(11, 16), venue: existing.venue, city: existing.city, address: existing.address || '', registration_type: existing.registration_type || 'TICKETED', registration_url: existing.registration_url || '', price: String(ticket?.price ?? 0), capacity: String(existing.capacity), image: existing.image || '', minimum_plan: ticket?.minimum_plan || 'bronze', membership_discount: ticket?.membership_discount || false, membership_early_access: ticket?.membership_early_access || false, sales_start: ticket?.sales_start ? nigeriaDateTime(ticket.sales_start) : '' });
     ticketId.current = existing.ticket_types[0]?.id || null;

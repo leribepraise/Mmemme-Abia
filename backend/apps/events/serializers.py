@@ -31,6 +31,7 @@ class EventSerializer(serializers.ModelSerializer):
     image_detail = serializers.ImageField(read_only=True)
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        data['share_slug'] = instance.share_slug
         if not data.get('image') and instance.image_url:
             data['image'] = instance.image_url
         user = getattr(self.context.get('request'), 'user', None)

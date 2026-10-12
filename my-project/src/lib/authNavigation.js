@@ -61,6 +61,7 @@ export function postAuthPath(user, returnTo, organizer = false) {
     : user?.onboarding_completed_at ? '/dashboard' : '/Signup/onboarding');
 }
 
-export function sharedEventPath(id) {
-  return /^[a-zA-Z0-9_-]+$/.test(String(id || '')) ? `/share/events/${encodeURIComponent(id)}` : '/events';
+export function sharedEventPath(event) {
+  const slug = typeof event === 'object' && event ? event.share_slug || event.slug || event.id : event;
+  return /^[a-zA-Z0-9_-]+$/.test(String(slug || '')) ? `/share/events/${encodeURIComponent(slug)}` : '/events';
 }

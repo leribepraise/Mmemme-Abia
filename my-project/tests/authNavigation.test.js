@@ -8,6 +8,13 @@ const memoryStorage = () => {
 };
 const event = '/events/cd1f0ab3-d15d-447b-9b52-75d0814fe688';
 
+test('sharing prefers the readable event name and preserves older links', () => {
+  assert.equal(sharedEventPath({ id: 'uuid', slug: 'legacy-abc123', share_slug: 'abia-tech-rise' }), '/share/events/abia-tech-rise');
+  assert.equal(sharedEventPath({ slug: 'abia-tech-rise-2' }), '/share/events/abia-tech-rise-2');
+  assert.equal(sharedEventPath({ share_slug: '../signup' }), '/events');
+  assert.equal(sharedEventPath(null), '/events');
+});
+
 test('a shared event goes through signup and login with its exact destination', () => {
   assert.equal(sharedEventPath('cd1f0ab3-d15d-447b-9b52-75d0814fe688'), '/share/events/cd1f0ab3-d15d-447b-9b52-75d0814fe688');
   const signup = new URL(authPagePath('/signup', event), 'https://mmemme.com.ng');

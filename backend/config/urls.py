@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from apps.events.views import EventViewSet
+from apps.events.share_views import event_share, event_share_image, SharedEventView
 from apps.events.admin_api import AdminEventViewSet
 from apps.events.major_api import PublicMajorEventView, AdminMajorEventView, MajorEventEmailImageView
 from apps.events.community import SavedEventsView, ReviewViewSet
@@ -48,6 +49,10 @@ router.register("conversations",ConversationViewSet,basename="conversation")
 for model,(prefix,*_) in CONFIG.items():
     router.register("hotels" if prefix=="hotel" else prefix,viewset_for(model),basename=model._meta.model_name)
 urlpatterns=[
+    path('share/events/<slug:slug>', event_share),
+    path('share/events/<slug:slug>/', event_share),
+    path('share/event-images/<slug:slug>', event_share_image),
+    path('api/v1/events/shared/<slug:slug>/', SharedEventView.as_view()),
     path('api/v1/events/major/email-image/<uuid:announcement_id>/', MajorEventEmailImageView.as_view()),
     path('api/v1/events/major/', PublicMajorEventView.as_view()),
     path('api/v1/admin/major-event/', AdminMajorEventView.as_view()),

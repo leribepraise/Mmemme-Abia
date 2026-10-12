@@ -19,11 +19,11 @@
         respond "ok" 200
     }
 
-    @appUpdates path /sw.js /manifest.webmanifest /blog-shell.html /blog-shell-loader.js
+    @appUpdates path /sw.js /manifest.webmanifest /blog-shell.html /blog-shell-loader.js /share-shell.html /event-share-loader.js
     header @appUpdates Cache-Control "no-cache"
 
     # /admin belongs to the React staff dashboard. Django admin stays on the backend domain.
-    @backend path /api /api/* /static /static/* /media /media/* /health/* /blog /blog/* /blog-media/* /sitemap.xml
+    @backend path /api /api/* /static /static/* /media /media/* /health/* /blog /blog/* /blog-media/* /sitemap.xml /share/events/* /share/event-images/*
     handle @backend {
         reverse_proxy {$BACKEND_UPSTREAM} {
             # Railway terminates public HTTPS; never trust a client-supplied value.

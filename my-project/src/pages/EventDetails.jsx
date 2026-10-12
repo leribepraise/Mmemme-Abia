@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useApi } from "@/hooks/useApi";
 import { eventCard } from "@/lib/catalog";
 import React, { useState } from "react";
@@ -21,11 +21,14 @@ export default function EventDetails() {
   const [tickets, setTickets] = useState({});
   const [enabledTiers, setEnabledTiers] = useState({});
   const [selectedImage, setSelectedImage] = useState('/event.jpg');
+  const selectedEvent = useRef(null);
   useEffect(() => {
     if (!event) return;
+    const sameEvent = selectedEvent.current === event.id;
+    selectedEvent.current = event.id;
     setSelectedImage(event.image_detail);
-    setTickets(Object.fromEntries(event.ticket_types.map(t => [t.id, Number(t.price) === 0 && t.quantity_available > 0 ? 1 : 0])));
-    setEnabledTiers(Object.fromEntries(event.ticket_types.map(t => [t.id, Number(t.price) === 0])));
+    setTickets(previous => Object.fromEntries(event.ticket_types.map(t => [t.id, sameEvent ? Math.min(previous[t.id] || 0, t.quantity_available) : Number(t.price) === 0 && t.quantity_available > 0 ? 1 : 0])));
+    setEnabledTiers(previous => Object.fromEntries(event.ticket_types.map(t => [t.id, sameEvent ? previous[t.id] ?? Number(t.price) === 0 : Number(t.price) === 0])));
   }, [event]);
   const galleryImages = [event?.image_detail || "/event.jpg"];
 

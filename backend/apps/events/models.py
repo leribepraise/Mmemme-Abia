@@ -2,7 +2,8 @@ import uuid
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import IntegrityError, models, transaction
+from django.utils.text import slugify
 
 
 
@@ -32,6 +33,7 @@ class Event(models.Model):
     )
 
     title = models.CharField(max_length=255)
+    share_slug = models.SlugField(max_length=280, unique=True, editable=False)
 
     slug = models.SlugField(
         max_length=280,
@@ -86,6 +88,29 @@ class Event(models.Model):
     reviewed_at = models.DateTimeField(null=True, blank=True)
     reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='event_moderations')
     
+    def save(self, *args, **kwargs):
+        if self.share_slug:
+            return super().save(*args, **kwargs)
+        # Keep public links stable when an organizer changes the event title.
+        base = slugify(self.title)[:255] or 'event'
+        suffix = 1
+        if kwargs.get('update_fields') is not None:
+            kwargs['update_fields'] = set(kwargs['update_fields']) | {'share_slug'}
+        while True:
+            self.share_slug = base if suffix == 1 else f'{base}-{suffix}'
+            if type(self).objects.filter(share_slug=self.share_slug).exclude(pk=self.pk).exists():
+                suffix += 1
+                continue
+            try:
+                with transaction.atomic():
+                    return super().save(*args, **kwargs)
+            except IntegrityError:
+                # Concurrent creations may claim the same name between checking
+                # and saving. Retry only that conflict, not unrelated constraints.
+                if not type(self).objects.filter(share_slug=self.share_slug).exclude(pk=self.pk).exists():
+                    raise
+                suffix += 1
+
     def clean(self):
         if self.end_datetime <= self.start_datetime:
             raise ValidationError(

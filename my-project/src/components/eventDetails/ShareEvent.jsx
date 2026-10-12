@@ -8,7 +8,7 @@ import { sharedEventPath } from '@/lib/authNavigation';
 export default function ShareEvent({ event, compact = false, className = '', label = 'Share event' }) {
   const params = useParams();
   const [fallback, setFallback] = useState('');
-  const path = sharedEventPath(event?.id || params.id);
+  const path = sharedEventPath(event || params.id);
   const url = new URL(path, window.location.origin).href;
   const title = event?.title || event?.name || 'Mmemme Abia event';
   const copy = async () => {
