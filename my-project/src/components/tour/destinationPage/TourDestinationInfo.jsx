@@ -17,7 +17,7 @@ const TourDestinationInfo = ({ tour }) => {
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-gray-400" />
           <div>
-            <p className="text-xs text-gray-400">Open Daily</p>
+            <p className="text-xs text-gray-400">Availability</p>
             <p className="text-sm font-semibold text-[#172033]">
               {tour.openHours}
             </p>

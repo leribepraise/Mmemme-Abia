@@ -41,6 +41,9 @@ const TicketScreen = lazy(() => import('./pages/TicketScreen'));
 const AnalyticsDashboard = lazy(() => import('./pages/AnalyticsDashboard'));
 const Messages = lazy(() => import('./pages/Messages'));
 const Tourism = lazy(() => import('./pages/Tourism'));
+const TourismPortal = lazy(() => import('./pages/TourismPortal'));
+const TourismVisits = lazy(() => import('./pages/TourismVisits'));
+const TourismSupport = lazy(() => import('./pages/TourismVisits').then(module => ({ default: module.TourismSupport })));
 const HelpSupport = lazy(() => import('./pages/HelpSupport'));
 const Events = lazy(() => import('./pages/Event'));
 const Blog = lazy(() => import('./pages/Blog'));
@@ -129,6 +132,9 @@ const OrganizerEventEditRoute = () => {
 const App = () => {
   const navList = [
     { path: '/transport/company', element: <GuestGuard><TransportPortal /></GuestGuard> },
+    { path: '/tourism/operator', element: <GuestGuard><TourismPortal /></GuestGuard> },
+    { path: '/tourism/bookings', element: <GuestGuard><TourismVisits /></GuestGuard> },
+    { path: '/tourism/support', element: <GuestGuard><TourismSupport /></GuestGuard> },
     { path: '/transport/bookings', element: <GuestGuard><TransportPasses /></GuestGuard> },
     { path: '/transport/support', element: <GuestGuard><div className="mx-auto max-w-4xl p-4"><TransportSupport /></div></GuestGuard> },
     {
@@ -620,12 +626,13 @@ const App = () => {
     { path: "events/:id/review", element: <AdminEventReview /> },
     {
       path: "tourism",
-      element: <ResourceManagement key="tourism" section="tourism" />,
+      element: <TourismPortal admin />,
     },
     {
       path: "tourism/:id",
       element: <ResourceManagement key="tourism" section="tourism" />,
     },
+    { path: 'tourism/records', element: <ResourceManagement key="tourism-records" section="tourism" /> },
     {
       path: "hotels/properties",
       element: <ResourceManagement key="hotels" section="hotels" />,

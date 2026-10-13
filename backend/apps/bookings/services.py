@@ -95,14 +95,29 @@ def _validate_resources(kind, parent, resources, entries, details, plan='bronze'
         if kind == 'TRANSPORT':
             from apps.transport.services import departure_available
             if not departure_available(r): raise Conflict('This journey is not available for bookings.')
-        if kind == "TOURISM" and (r.starts_at <= now or not r.package.is_active):
-            raise Conflict("This tour is closed.")
+        if kind == 'TOURISM':
+            from apps.tourism.services import departure_available
+            if r.starts_at <= now or not departure_available(r): raise Conflict('This tour is closed.')
     if kind == "EVENT":
         totals = parent.ticket_types.aggregate(sold=Sum("quantity_sold"), held=Sum("quantity_reserved"))
         if sum(e["quantity"] for e in entries) + (totals["sold"] or 0) + (totals["held"] or 0) > parent.capacity:
             raise Conflict("The event has insufficient capacity.")
     if kind in {"TRANSPORT", "TOURISM"} and len(entries) != 1:
         raise ValidationError("Book one departure at a time.")
+    if kind == 'TOURISM':
+        departure = next(iter(resources.values()))
+        operator = parent.operator
+        if operator and len(details.get('passengers', [])) != entries[0]['quantity']:
+            raise ValidationError('Provide a participant name for every place.')
+        if operator and operator.commission_bps is None: raise Conflict('The tourism agreement needs approval.')
+        package = departure.package
+        details.update(operator_id=str(operator.pk) if operator else None, operator_name=operator.name if operator else '',
+            starts_at=departure.starts_at.isoformat(), ends_at=departure.ends_at.isoformat(), package_name=package.name,
+            meeting_point=package.meeting_point or parent.address, itinerary=package.itinerary, inclusions=package.inclusions,
+            exclusions=package.exclusions, visitor_instructions=operator.visitor_instructions if operator else '',
+            contact_phone=operator.contact_phone if operator else parent.contact_phone,
+            cancellation_hours=operator.cancellation_hours if operator else 0,
+            commission_bps=operator.commission_bps if operator else settings.PLATFORM_COMMISSION_BPS)
     if kind == 'TRANSPORT':
         departure = next(iter(resources.values()))
         passengers = details.get('passengers', [])
@@ -155,6 +170,8 @@ def _validate_resources(kind, parent, resources, entries, details, plan='bronze'
     details["cancellation_policy"] = "Full refund before the service starts; food orders may only be cancelled before provider acceptance."
     if kind == 'TRANSPORT':
         details['cancellation_policy'] = f"Full refund when cancelled at least {details['cancellation_hours']} hours before departure. Operator cancellations receive a full refund."
+    if kind == 'TOURISM':
+        details['cancellation_policy'] = f"Full refund when cancelled at least {details['cancellation_hours']} hours before the tour. Operator cancellations receive a full refund."
 
 @transaction.atomic
 def reserve(user, key, kind, entries, details, customer_name="", customer_phone="", customer_note=""):
@@ -232,6 +249,12 @@ def confirm_locked(booking):
                  f"\nDeparture: {d.get('departs_at', '')}. Pickup: {d.get('location', '')}."
                  f"\n{d.get('boarding_instructions', '')}\n{d.get('cancellation_policy', '')}"
                  f"\nOpen your boarding pass: {settings.FRONTEND_URL}/transport/bookings")
+    if booking.kind == 'TOURISM':
+        d = booking.details
+        body += (f"\n\n{d.get('operator_name', '')}: {d.get('package_name', '')}."
+                 f"\nStart: {d.get('starts_at', '')}. Meeting point: {d.get('meeting_point', '')}."
+                 f"\n{d.get('visitor_instructions', '')}\n{d.get('cancellation_policy', '')}"
+                 f"\nYour tour pass: {settings.FRONTEND_URL}/tourism/bookings")
     notify(booking.user, f"booking:{booking.pk}:confirmed", "Booking confirmed", body)
     audit(None,"booking.confirmed",booking.pk)
 
@@ -247,7 +270,10 @@ def still_deliverable(booking,parent):
         from apps.transport.services import departure_available
         d = booking.items.first().departure
         return departure_available(d) and d.departs_at>now
-    if booking.kind=="TOURISM": return booking.items.first().tour_departure.starts_at>now
+    if booking.kind=='TOURISM':
+        from apps.tourism.services import departure_available
+        d = booking.items.first().tour_departure
+        return departure_available(d) and d.starts_at > now
     return parent.accepts_orders
 
 @transaction.atomic
@@ -263,16 +289,20 @@ def can_cancel(booking, parent):
     if booking.kind == "HOTEL": return booking.details.get("check_in","") > str(timezone.localdate())
     if booking.kind == "TRANSPORT":
         return not booking.details.get('boarded_at') and booking.items.first().departure.departs_at > now + timedelta(hours=booking.details.get('cancellation_hours', 0))
-    if booking.kind == "TOURISM": return booking.items.first().tour_departure.starts_at > now
+    if booking.kind == 'TOURISM': return not booking.details.get('checked_in_at') and booking.items.first().tour_departure.starts_at > now + timedelta(hours=booking.details.get('cancellation_hours', 0))
     return True
 
 @transaction.atomic
 def cancel(booking_id, actor, force=False):
     parent, booking = _locked_booking(booking_id)
     if not actor.is_staff and actor.pk != booking.user_id and actor.pk != booking.supplier_id:
-        if booking.kind != 'TRANSPORT' or not parent.company_id: raise PermissionDenied()
-        from apps.transport.services import authorize
-        authorize(actor, parent.company)
+        if booking.kind == 'TOURISM' and parent.operator_id:
+            from apps.tourism.services import authorize
+            authorize(actor, parent.operator)
+        elif booking.kind == 'TRANSPORT' and parent.company_id:
+            from apps.transport.services import authorize
+            authorize(actor, parent.company)
+        else: raise PermissionDenied()
     if booking.status in {"CANCELLED","EXPIRED","REFUNDED","REFUND_PENDING"}:
         return booking
     if booking.fulfillment_status=="COMPLETED":
@@ -305,9 +335,13 @@ def cancel(booking_id, actor, force=False):
 def fulfill(booking_id,actor,new_status):
     parent,booking = _locked_booking(booking_id)
     if actor.pk != booking.supplier_id and not actor.is_staff:
-        if booking.kind != 'TRANSPORT' or not parent.company_id: raise PermissionDenied()
-        from apps.transport.services import authorize
-        authorize(actor, parent.company)
+        if booking.kind == 'TOURISM' and parent.operator_id:
+            from apps.tourism.services import authorize
+            authorize(actor, parent.operator)
+        elif booking.kind == 'TRANSPORT' and parent.company_id:
+            from apps.transport.services import authorize
+            authorize(actor, parent.company)
+        else: raise PermissionDenied()
     if booking.status != "CONFIRMED":
         raise Conflict("Only confirmed bookings can be fulfilled.")
     transitions = {"NEW":"ACCEPTED","ACCEPTED":"READY","READY":"IN_PROGRESS","IN_PROGRESS":"COMPLETED"} if booking.kind == "FOOD" else {"NEW":"IN_PROGRESS","IN_PROGRESS":"COMPLETED"}

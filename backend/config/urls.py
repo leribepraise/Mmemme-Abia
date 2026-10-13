@@ -25,6 +25,9 @@ from apps.accounts.admin_api import AdminUserViewSet, AdminOrganizerViewSet, Adm
 from apps.transport.api import CompanyViewSet, TransportRequestViewSet
 
 router=DefaultRouter()
+from apps.tourism.api import OperatorViewSet, TourismRequestViewSet
+router.register('tourism-operators', OperatorViewSet, basename='tourism-operator')
+router.register('tourism-requests', TourismRequestViewSet, basename='tourism-request')
 router.register('transport-companies', CompanyViewSet, basename='transport-company')
 router.register('transport-requests', TransportRequestViewSet, basename='transport-request')
 from apps.community.blog_api import BlogEditorViewSet, PublicArticleViewSet

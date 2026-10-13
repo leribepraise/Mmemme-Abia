@@ -47,6 +47,21 @@ def serializer_for(model):
     class CatalogSerializer(serializers.ModelSerializer):
         def to_representation(self, instance):
             data = super().to_representation(instance)
+            if model in {TourismExperience, TourPackage, TourDeparture}:
+                experience = root_of(instance)
+                operator = experience.operator
+                data.update(operator=str(operator.pk) if operator else None, operator_name=operator.name if operator else '',
+                    cancellation_hours=operator.cancellation_hours if operator else 0,
+                    visitor_instructions=operator.visitor_instructions if operator else '')
+                if model is TourismExperience:
+                    pictures = list(experience.images.order_by('-is_primary', 'pk'))
+                    url = lambda picture: self.context['request'].build_absolute_uri(picture.image.url) if self.context.get('request') else picture.image.url
+                    data.update(image=url(pictures[0]) if pictures else None, gallery=[url(picture) for picture in pictures], review_count=experience.reviews.filter(is_approved=True).count())
+                else:
+                    package = instance if model is TourPackage else instance.package
+                    data.update(itinerary=package.itinerary, inclusions=package.inclusions, exclusions=package.exclusions,
+                        meeting_point=package.meeting_point, package_name=package.name, experience=experience.pk)
+                    if model is TourDeparture: data['status'] = instance.status
             if model in {Route, Departure}:
                 route = instance if model is Route else instance.route
                 company = route.company
@@ -68,6 +83,10 @@ def serializer_for(model):
             read_only_fields=["id"]+(["is_active"] if config[2] is None else [])+(["rating"] if model is TourismExperience else [])
         def validate(self,attrs):
             instance=self.instance
+            if model in {TourismExperience, TourPackage, TourDeparture}:
+                root = root_of(instance) if instance else root_of(attrs[config[2]]) if config[2] and config[2] in attrs else None
+                if root and root.operator_id:
+                    raise serializers.ValidationError('Manage operator tours through the tourism dashboard.')
             if model in {Route, Departure}:
                 route = instance if model is Route else (attrs.get('route') or (instance.route if instance else None))
                 if route and route.company_id:
@@ -114,6 +133,9 @@ def viewset_for(model):
                 qs = qs.select_related('company', 'origin_terminal', 'destination_terminal')
             if model is Departure:
                 qs = qs.select_related('route__company', 'route__origin_terminal', 'route__destination_terminal', 'fleet_vehicle')
+            if model in {TourismExperience, TourPackage, TourDeparture}:
+                prefix = '' if model is TourismExperience else 'experience__' if model is TourPackage else 'package__experience__'
+                qs = qs.select_related(prefix+'operator__owner').prefetch_related(prefix+'images')
             if model is Hotel:
                 qs = qs.annotate(minimum_price=Min('room_types__nights__price', filter=Q(room_types__is_active=True, room_types__nights__is_active=True, room_types__nights__date__gte=timezone.localdate(), room_types__nights__quantity__gt=F('room_types__nights__quantity_sold') + F('room_types__nights__quantity_reserved'))))
             if self.action in {"list","retrieve"}:
@@ -128,13 +150,19 @@ def viewset_for(model):
                     qs = qs.filter(Q(**{prefix+'company__isnull': True}) | Q(**{prefix+'origin_terminal__is_active': True, prefix+'destination_terminal__is_active': True}))
                     if model is Departure:
                         qs = qs.filter(status='SCHEDULED').filter(Q(route__company__isnull=True) | Q(fleet_vehicle__is_active=True))
-                if model is TourDeparture: qs=qs.filter(package__is_active=True,starts_at__gt=timezone.now())
+                if model in {TourismExperience, TourPackage, TourDeparture}:
+                    prefix = '' if model is TourismExperience else 'experience__' if model is TourPackage else 'package__experience__'
+                    qs = qs.filter(**{prefix+'review_status': 'APPROVED'}).filter(Q(**{prefix+'operator__isnull': True}) | Q(**{prefix+'operator__status': 'APPROVED', prefix+'operator__owner__email_verified': True}))
+                if model is TourDeparture: qs=qs.filter(package__is_active=True,starts_at__gt=timezone.now(), status='SCHEDULED')
             elif not self.request.user.is_staff:
                 qs=qs.filter(**{owner_path:self.request.user})
             for field in ["city","origin","destination","hotel","room_type","restaurant","route","experience","package"]:
                 if field in CONFIG[model][1] and self.request.query_params.get(field):
                     try: qs=qs.filter(**{field:self.request.query_params[field]})
                     except (ValueError,TypeError): raise serializers.ValidationError("Invalid filter.")
+            if model is TourDeparture and self.request.query_params.get('experience'):
+                try: qs = qs.filter(package__experience_id=int(self.request.query_params['experience']))
+                except (ValueError, TypeError): raise serializers.ValidationError('Invalid experience filter.')
             for field in ["date_from","date_to"]:
                 value=self.request.query_params.get(field)
                 if value and model is RoomNight:
@@ -180,6 +208,7 @@ def viewset_for(model):
             if parent_field or not request.user.has_perm(model._meta.app_label+".change_"+model._meta.model_name):
                 raise PermissionDenied()
             obj=model.objects.select_for_update().get(pk=self.get_object().pk)
+            if isinstance(obj, TourismExperience) and obj.operator_id: raise Conflict('Review operator listings in the tourism dashboard.')
             if not owner_of(obj).is_verified: raise Conflict("Approve the provider first.")
             obj.is_active=True;obj.save(update_fields=["is_active"])
             audit(request.user,"catalog.approved",obj.pk,model=model._meta.label)

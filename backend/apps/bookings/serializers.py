@@ -11,12 +11,21 @@ class BookingSerializer(serializers.ModelSerializer):
     items = BookingItemSerializer(many=True,read_only=True)
     image = serializers.SerializerMethodField()
     boarding_token = serializers.SerializerMethodField()
+    admission_token = serializers.SerializerMethodField()
+    def get_admission_token(self, obj):
+        if obj.kind != 'TOURISM' or obj.status != 'CONFIRMED': return None
+        from apps.tourism.services import admission_token
+        return admission_token(obj)
     def get_boarding_token(self, obj):
         if obj.kind != 'TRANSPORT' or obj.status != 'CONFIRMED': return None
         from apps.transport.services import boarding_token
         return boarding_token(obj)
     def get_image(self, obj):
         if obj.kind != 'EVENT':
+            if obj.kind == 'TOURISM':
+                item = next(iter(obj.items.all()), None)
+                image = item.tour_departure.package.experience.images.order_by('-is_primary', 'pk').first() if item else None
+                return image.image.url if image else None
             return None
         item = next((item for item in obj.items.all() if item.ticket_type_id), None)
         if not item:
@@ -28,7 +37,7 @@ class BookingSerializer(serializers.ModelSerializer):
         return request.build_absolute_uri(url) if request and url and url.startswith('/') else url
     class Meta:
         model = Booking
-        fields = ["id","booking_reference","kind","status","fulfillment_status","total_amount","currency","expires_at","details","image","boarding_token","customer_name","customer_phone","customer_note","items","created_at"]
+        fields = ["id","booking_reference","kind","status","fulfillment_status","total_amount","currency","expires_at","details","image","boarding_token","admission_token","customer_name","customer_phone","customer_note","items","created_at"]
         read_only_fields = fields
 
 class EntrySerializer(serializers.Serializer):

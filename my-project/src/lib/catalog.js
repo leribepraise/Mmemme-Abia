@@ -21,5 +21,5 @@ export function restaurantCard(restaurant) {
   return { ...restaurant, image: restaurant.image || '/food1.jpg', gallery: [restaurant.image || '/restaurant-main.jpg'], aboutText: restaurant.description, customerReviews: [], rating: 0, reviews: 0, cuisine: '', time: '', distance: '', price: '', location: restaurant.city, minOrder: 0, priceRange: 'See menu', openHours: restaurant.accepts_orders ? 'Accepting orders' : 'Not accepting orders', popularDishes: [] };
 }
 export function tourCard(tour) {
-  return { ...tour, image: tour.image || '/tour1.jpg', gallery: [tour.image || '/tour1.jpg'], location: tour.location_name, tag: tour.category, text2: tour.category, text: 'text-[#374151]', bg: 'bg-[#FFFFFFE5]', reviews: 0, aboutText: tour.description, facilities: [], ticketPrice: 'See available tours', openHours: 'Check with the provider', bestTimeToVisit: '', mapImage: '' };
+  return { ...tour, image: tour.image || null, gallery: tour.gallery || [], location: tour.location_name, tag: tour.category, text2: tour.category, text: 'text-[#374151]', bg: 'bg-[#FFFFFFE5]', reviews: tour.review_count || 0, aboutText: tour.description, facilities: [], ticketPrice: 'See available tours', openHours: 'Check available departures', bestTimeToVisit: '', mapImage: '' };
 }

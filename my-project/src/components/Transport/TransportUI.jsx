@@ -26,7 +26,7 @@ export function TransportForm({ fields, initial = {}, onSave, submit = 'Save', c
     {field.help && <span className="block mt-1 text-xs text-gray-500">{field.help}</span>}</label>)}</div>{children}<button disabled={busy} className={button}>{busy ? 'Saving…' : submit}</button></form>;
 }
 
-export function TransportPayouts() {
+export function TransportPayouts({ service = 'journey' }) {
   const { data: summary, reload } = useApi('/payouts/summary/');
   const { data: payouts } = useCollection('/payouts/');
   const [busy, setBusy] = useState(false);
@@ -36,7 +36,7 @@ export function TransportPayouts() {
     try { await api('/payouts/', { method: 'POST', body: {}, key: key.current }); key.current = crypto.randomUUID(); reload(); toast.success('Payout requested for finance review.'); }
     catch (error) { toast.error(error.message); } finally { setBusy(false); }
   };
-  return <div className="space-y-5"><div className={panel}><h2 className="text-xl font-bold">Bank account and payouts</h2><p className="mt-2">Available: {money(summary?.available_for_payout)} · Paid: {money(summary?.paid_out)}</p><p className="text-sm my-3">Earnings become eligible after journey completion and the {summary?.hold_days ?? 'configured'} day settlement hold. This is your provider account balance across services.</p><button className={button} disabled={busy || !Number(summary?.available_for_payout)} onClick={request}>Request payout</button></div><PayoutAccountForm onSaved={reload} /><div className={panel}><h3 className="font-bold">Payout history</h3>{payouts.map(p => <p className="py-3 break-all" key={p.id}>{money(p.amount)} · {p.status} · {new Date(p.created_at).toLocaleDateString()}</p>)}{!payouts.length && <p>No payout requests yet.</p>}</div></div>;
+  return <div className="space-y-5"><div className={panel}><h2 className="text-xl font-bold">Bank account and payouts</h2><p className="mt-2">Available: {money(summary?.available_for_payout)} · Paid: {money(summary?.paid_out)}</p><p className="text-sm my-3">Earnings become eligible after {service} completion and the {summary?.hold_days ?? 'configured'} day settlement hold. This is your provider account balance across services.</p><button className={button} disabled={busy || !Number(summary?.available_for_payout)} onClick={request}>Request payout</button></div><PayoutAccountForm onSaved={reload} /><div className={panel}><h3 className="font-bold">Payout history</h3>{payouts.map(p => <p className="py-3 break-all" key={p.id}>{money(p.amount)} · {p.status} · {new Date(p.created_at).toLocaleDateString()}</p>)}{!payouts.length && <p>No payout requests yet.</p>}</div></div>;
 }
 
 export function TransportPasses() {

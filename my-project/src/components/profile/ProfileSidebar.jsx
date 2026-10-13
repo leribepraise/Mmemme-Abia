@@ -105,6 +105,8 @@ const ProfileSidebar = ({
         <nav aria-label="Account navigation" className="flex-1 space-y-1 px-4 py-5">
           <Link to="/transport/bookings" className="block rounded-lg px-3 py-2.5 text-sm">Transport boarding passes</Link>
           <Link to="/transport/company" className="block rounded-lg px-3 py-2.5 text-sm">Transport company dashboard</Link>
+          <Link to="/tourism/bookings" className="block rounded-lg px-3 py-2.5 text-sm">My tour bookings</Link>
+          <Link to="/tourism/operator" className="block rounded-lg px-3 py-2.5 text-sm">Tourism operator dashboard</Link>
           {menuItems.map((item) => {
             const Icon = item.icon;
 

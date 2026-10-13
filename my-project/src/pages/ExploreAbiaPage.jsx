@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import React from "react";
 import SEO from "../components/SEO/SEO";
 import {
@@ -26,66 +26,16 @@ import { useCollection } from "@/hooks/useApi";
 import { tourCard } from "@/lib/catalog";
 
 export default function ExploreAbiaPage() {
-  const { data: tours } = useCollection("/tourism/", tourCard);
+  const { data: tours, loading, error } = useCollection("/tourism/", tourCard);
+  const [params] = useSearchParams();
+  const query = (params.get('q') || '').toLowerCase();
+  const visibleTours = tours.filter(t => (!params.get('type') || t.category === params.get('type')) && `${t.name} ${t.location_name} ${t.description}`.toLowerCase().includes(query));
   const categories = [
-    {
-      icon: TreePine,
-      title: "Nature & Parks",
-      count: 234,
-      color: "text-gray-700",
-      path: "/search?category=Tourism&q=Nature",
-    },
-    {
-      icon: Waves,
-      title: "Waterfalls",
-      count: 28,
-      color: "text-yellow-500",
-      path: "/search?category=Tourism&q=Waterfall",
-    },
-    {
-      icon: HomeIcon,
-      title: "Historical Sites",
-      count: 86,
-      color: "text-green-500",
-      path: "/historical-sites",
-    },
-    {
-      icon: Building2,
-      title: "Caves & Hills",
-      count: 34,
-      color: "text-purple-500",
-      path: "/caves-and-hills",
-    },
-    {
-      icon: Church,
-      title: "Museums",
-      count: 15,
-      color: "text-teal-500",
-      path: "/search?category=Tourism&q=Museum",
-    },
-    {
-      icon: Ship,
-      title: "Religious Sites",
-      count: 42,
-      color: "text-blue-500",
-      path: "/religious-sites",
-    },
-    {
-      icon: Building2,
-      title: "Adventure",
-      count: 36,
-      color: "text-indigo-500",
-      path: "/adventure",
-    },
-    {
-      icon: Navigation,
-      title: "Hidden Gems",
-      count: 19,
-      color: "text-pink-500",
-      path: "/search?category=Tourism",
-    },
-  ];
-
+    { icon: TreePine, title: 'Attractions', category: 'ATTRACTION' },
+    { icon: HomeIcon, title: 'Cultural Sites', category: 'CULTURAL_SITE' },
+    { icon: Compass, title: 'Activities', category: 'ACTIVITY' },
+    { icon: Camera, title: 'Local Experiences', category: 'LOCAL_EXPERIENCE' },
+  ].map(cat => ({ ...cat, count: tours.filter(t => t.category === cat.category).length, color: 'text-green-700', path: `/tourism?type=${cat.category}` }));
   return (
     <div className="min-h-screen bg-gray-50/50 pb-16 font-sans text-gray-800">
       <SEO
@@ -93,11 +43,15 @@ export default function ExploreAbiaPage() {
         description="Explore Abia State's tourist destinations, attractions, historical sites, caves, hills and unforgettable experiences with Mmemme."
       />
       <div className="mx-auto max-w-[88rem] px-4 md:px-8">
+        <div className="flex flex-wrap gap-3 py-5"><Link to="/tourism/operator" className="rounded-xl bg-[#3F7D3D] text-white px-4 py-3 font-semibold">Join / manage a tourism business</Link><Link to="/tourism/bookings" className="rounded-xl border px-4 py-3 font-semibold">My tour bookings</Link><Link to="/tourism/support" className="rounded-xl border px-4 py-3 font-semibold">Tourism support</Link></div>
+        {loading && <div role="status" aria-label="Loading destinations" className="h-40 animate-pulse bg-gray-200 rounded-2xl mb-5" />}
+        {error && <p role="alert">{error.message}</p>}
+        {!loading && !error && !tours.length && <p className="mb-5">Approved destinations and tours will appear here when providers publish them.</p>}
         {/* TOP ROW: Enforced Alignment with items-stretch */}
         <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-12">
           {/* Left Column: Hero Container */}
           <div className="flex h-full flex-col lg:col-span-8">
-            <HeroSection />
+            <HeroSection key={params.toString()} />
           </div>
 
           {/* Right Column: Events Card - Top Aligned */}
@@ -129,7 +83,7 @@ export default function ExploreAbiaPage() {
                 <div className="flex w-max gap-4 pb-2">
                   {categories.map((cat) => (
                     <div key={cat.title} className="w-24 shrink-0">
-                      <CategoryCard {...cat} />
+                      <CategoryCard {...cat}  />
                     </div>
                   ))}
                 </div>
@@ -148,7 +102,8 @@ export default function ExploreAbiaPage() {
               </div>
               <div className="scrollbar-hide overflow-x-auto">
                 <div className="flex w-max gap-5 pb-2">
-                  {tours.map((tour) => (
+                  {!loading && !visibleTours.length && <p>No matching destinations. <Link className="underline" to="/tourism">Clear filters</Link></p>}
+                  {visibleTours.map((tour) => (
                     <div key={tour.name} className="w-[260px] shrink-0">
                       <DestinationCard tour={tour} />
                     </div>
@@ -163,7 +118,7 @@ export default function ExploreAbiaPage() {
                 Plan Your Trip
               </h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <div className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <Link to="/search?category=Tourism" className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-[#48782E]">
                     <Navigation className="h-5 w-5" />
                   </div>
@@ -175,9 +130,9 @@ export default function ExploreAbiaPage() {
                       Find the best route
                     </p>
                   </div>
-                </div>
+                </Link>
 
-                <div className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <Link to="/search?category=Tourism" className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-[#F36B25]">
                     <UserCheck className="h-5 w-5" />
                   </div>
@@ -187,9 +142,9 @@ export default function ExploreAbiaPage() {
                     </h4>
                     <p className="text-[10px] text-gray-400">Local experts</p>
                   </div>
-                </div>
+                </Link>
 
-                <div className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <Link to="/hotel" className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
                     <HomeIcon className="h-5 w-5" />
                   </div>
@@ -201,9 +156,9 @@ export default function ExploreAbiaPage() {
                       Hotels & Hostels
                     </p>
                   </div>
-                </div>
+                </Link>
 
-                <div className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                <Link to="/events" className="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500">
                     <Calendar className="h-5 w-5" />
                   </div>
@@ -213,7 +168,7 @@ export default function ExploreAbiaPage() {
                     </h4>
                     <p className="text-[10px] text-gray-400">Don’t miss out!</p>
                   </div>
-                </div>
+                </Link>
               </div>
             </section>
 

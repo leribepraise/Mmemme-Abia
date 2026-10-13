@@ -58,10 +58,11 @@ destination = Terminal.objects.create(company=company, name='Umuahia terminal', 
 vehicle = Vehicle.objects.create(company=company, name='Partner bus', registration_number='TEST-123', capacity=15)
 company_route = Route.objects.create(owner=owner, company=company, name='Partner event shuttle', origin='Aba', destination='Umuahia', pickup_address='Test station', origin_terminal=origin, destination_terminal=destination, is_active=True, service_type='EVENT_SHUTTLE', event=event)
 Departure.objects.create(route=company_route, departs_at=timezone.now()+timedelta(days=2), arrives_at=timezone.now()+timedelta(days=2,hours=2), fleet_vehicle=vehicle, vehicle=vehicle.name, price=0, quantity=10)
-from apps.tourism.models import TourismExperience, TourPackage, TourDeparture
-tour = TourismExperience.objects.create(created_by=owner, name='Local test tour', description='Disposable tour fixture.', category='ACTIVITY', location_name='Aba', is_active=True)
-package = TourPackage.objects.create(experience=tour, name='Guided tour', price=3000)
-TourDeparture.objects.create(package=package, starts_at=timezone.now()+timedelta(days=3), ends_at=timezone.now()+timedelta(days=3,hours=1), price=3000, quantity=10)
+from apps.tourism.models import TourismOperator, TourismExperience, TourPackage, TourDeparture
+operator = TourismOperator.objects.create(owner=owner, name='Local test tourism', registration_number='TOUR-TEST', contact_email=owner.email, contact_phone='08000000000', address='Aba', status='APPROVED', commission_bps=500)
+tour = TourismExperience.objects.create(operator=operator, created_by=owner, name='Local test tour', description='Disposable tour fixture.', category='ACTIVITY', location_name='Aba', is_active=True)
+package = TourPackage.objects.create(experience=tour, name='Guided tour', price=0, meeting_point='Visitor centre', itinerary='Walk through the museum', inclusions='Guide', exclusions='Meals')
+TourDeparture.objects.create(package=package, starts_at=timezone.now()+timedelta(days=3), ends_at=timezone.now()+timedelta(days=3,hours=1), price=0, quantity=10)
 # A genuinely zero-priced fixture exercises confirmation without a payment provider.
 from apps.bookings.services import reserve
 complimentary = RoomNight.objects.create(room_type=room, date=timezone.localdate()+timedelta(days=10), price=0, quantity=1)

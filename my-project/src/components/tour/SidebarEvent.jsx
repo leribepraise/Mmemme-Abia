@@ -1,35 +1,31 @@
-import React from "react";
+import { Link } from 'react-router-dom';
+import { useCollection } from '@/hooks/useApi';
 
 const SidebarEvent = () => {
-  const places = [
-    [
-      "/tourism1.jpg",
-      "Arochukwu Cultural Festival",
-      "Arochukwu",
-      "May 27 - 29, 2025",
-    ],
-    ["/tourism2.jpg", "New Yam Festival", "98 Hotels"],
-    ["/tourism3.jpg", "Abia Heritage Day", "Umuahia", "Oct 1, 2025"],
-  ];
+  const { data: events, loading, error } = useCollection('/events/');
+  if (loading) return <div role="status" aria-label="Loading events" className="h-32 animate-pulse bg-gray-200 rounded-xl" />;
+  if (error) return <p role="alert">{error.message}</p>;
+  const places = events.filter(e => new Date(e.start_datetime) > new Date()).slice(0, 3);
 
   return (
     <div className="bg-white rounded-2xl">
       <div className="space-y-4">
-        {places.map(([image, name, hotels, time]) => (
-          <div key={name}>
+        {!places.length && <p>No upcoming events yet.</p>}
+        {places.map(event => (
+          <Link key={event.id} to={`/events/${event.slug || event.id}`}>
             <div className="flex gap-2">
-              <img src={image} alt="" className="w-20 h-20 rounded-md" />
+              <img src={event.image_card || event.image} alt={event.title} loading="lazy" className="w-20 h-20 rounded-md object-contain" />
               <div className="flex flex-col gap-y-2">
                 <h4 className="font-semibold text-[14px] text-[#111827]">
-                  {name}
+                  {event.title}
                 </h4>
                 <p className="text-[12px] font-normal text-[#6B7280]">
-                  {hotels}
+                  {event.city}
                 </p>
-                <p className="text-[11px] font-normal text-[#9CA3AF]">{time}</p>
+                <p className="text-[11px] font-normal text-[#9CA3AF]">{new Date(event.start_datetime).toLocaleDateString()}</p>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

@@ -1,7 +1,7 @@
 import SiteImage from '@/components/SiteImage';
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Star, Heart } from "lucide-react";
+import { Star } from "lucide-react";
 
 const DestinationCard = ({ tour }) => {
   return (
@@ -16,9 +16,6 @@ const DestinationCard = ({ tour }) => {
             {tour.tag}
           </span>
 
-          <button className="absolute top-3 right-3 bg-[#00000033] p-2 rounded-full">
-            <Heart className="w-4 h-4 text-white" />
-          </button>
         </div>
 
         <div className="p-4">

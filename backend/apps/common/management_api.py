@@ -142,6 +142,9 @@ class ManageResource(APIView):
                 type(root).objects.select_for_update().get(pk=root.pk)
             instance = model.objects.select_for_update().get(pk=instance.pk)
         if resource in CATALOG and action_name in {'approve', 'hide'}:
+            from apps.tourism.models import TourismExperience
+            if isinstance(instance, TourismExperience) and instance.operator_id:
+                raise Conflict('Review operator listings in the tourism dashboard.')
             if CONFIG[model][2] is not None:
                 raise serializers.ValidationError('Approve the parent listing instead.')
             if action_name == 'approve' and (not owner_of(instance).is_verified or not owner_of(instance).is_active):
