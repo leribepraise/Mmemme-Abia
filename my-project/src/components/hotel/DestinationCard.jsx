@@ -1,14 +1,8 @@
 import { Link } from "react-router-dom";
 import React from "react";
 
-const DestinationCard = () => {
-  const places = [
-    ["Umuahia", "120 Hotels"],
-    ["Aba", "98 Hotels"],
-    ["Arochukwu", "42 Hotels"],
-    ["Bende", "28 Hotels"],
-    ["Isiala Ngwa", "27 Hotels"],
-  ];
+const DestinationCard = ({hotels=[]}) => {
+  const places=Object.entries(hotels.reduce((counts,h)=>({...counts,[h.city]:(counts[h.city]||0)+1}),{})).sort((a,b)=>b[1]-a[1]).slice(0,5);
 
   return (
     <div className="bg-white rounded-2xl p-5 border border-gray-200">
@@ -23,7 +17,7 @@ const DestinationCard = () => {
         {places.map(([name, hotels]) => (
           <Link className="block" key={name} to={`/search?category=Stay&q=${encodeURIComponent(name)}`}>
             <h4 className="font-semibold text-sm">{name}</h4>
-            <p className="text-xs text-gray-500">Find hotels</p>
+            <p className="text-xs text-gray-500">{hotels} properties</p>
           </Link>
         ))}
       </div>

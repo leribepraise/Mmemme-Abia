@@ -42,6 +42,9 @@ const AnalyticsDashboard = lazy(() => import('./pages/AnalyticsDashboard'));
 const Messages = lazy(() => import('./pages/Messages'));
 const Tourism = lazy(() => import('./pages/Tourism'));
 const TourismPortal = lazy(() => import('./pages/TourismPortal'));
+const HotelPortal = lazy(() => import('./pages/HotelPortal'));
+const StayBookings = lazy(() => import('./pages/StayBookings'));
+const StaySupport = lazy(() => import('./pages/StayBookings').then(module => ({default:module.StaySupport})));
 const TourismVisits = lazy(() => import('./pages/TourismVisits'));
 const TourismSupport = lazy(() => import('./pages/TourismVisits').then(module => ({ default: module.TourismSupport })));
 const HelpSupport = lazy(() => import('./pages/HelpSupport'));
@@ -133,6 +136,9 @@ const App = () => {
   const navList = [
     { path: '/transport/company', element: <GuestGuard><TransportPortal /></GuestGuard> },
     { path: '/tourism/operator', element: <GuestGuard><TourismPortal /></GuestGuard> },
+    { path: '/stays/provider', element: <GuestGuard><HotelPortal /></GuestGuard> },
+    { path: '/stays/bookings', element: <GuestGuard><StayBookings /></GuestGuard> },
+    { path: '/stays/support', element: <GuestGuard><StaySupport /></GuestGuard> },
     { path: '/tourism/bookings', element: <GuestGuard><TourismVisits /></GuestGuard> },
     { path: '/tourism/support', element: <GuestGuard><TourismSupport /></GuestGuard> },
     { path: '/transport/bookings', element: <GuestGuard><TransportPasses /></GuestGuard> },
@@ -635,12 +641,13 @@ const App = () => {
     { path: 'tourism/records', element: <ResourceManagement key="tourism-records" section="tourism" /> },
     {
       path: "hotels/properties",
-      element: <ResourceManagement key="hotels" section="hotels" />,
+      element: <HotelPortal admin />,
     },
     {
       path: "hotels/properties/:id",
       element: <ResourceManagement key="hotels" section="hotels" />,
     },
+    {path:'hotels/records',element:<ResourceManagement key="hotel-records" section="hotels"/>},
     { path: "food", element: <ResourceManagement key="food" section="food" /> },
     {
       path: "food/:id",

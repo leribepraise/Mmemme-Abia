@@ -107,6 +107,8 @@ const ProfileSidebar = ({
           <Link to="/transport/company" className="block rounded-lg px-3 py-2.5 text-sm">Transport company dashboard</Link>
           <Link to="/tourism/bookings" className="block rounded-lg px-3 py-2.5 text-sm">My tour bookings</Link>
           <Link to="/tourism/operator" className="block rounded-lg px-3 py-2.5 text-sm">Tourism operator dashboard</Link>
+          <Link to="/stays/bookings" className="block rounded-lg px-3 py-2.5 text-sm">My stays</Link>
+          <Link to="/stays/provider" className="block rounded-lg px-3 py-2.5 text-sm">Accommodation provider dashboard</Link>
           {menuItems.map((item) => {
             const Icon = item.icon;
 

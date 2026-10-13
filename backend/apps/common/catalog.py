@@ -47,6 +47,16 @@ def serializer_for(model):
     class CatalogSerializer(serializers.ModelSerializer):
         def to_representation(self, instance):
             data = super().to_representation(instance)
+            if model in {Hotel,RoomType,RoomNight}:
+                hotel=root_of(instance)
+                data.update(provider=str(hotel.provider_id) if hotel.provider_id else None,provider_name=hotel.provider.name if hotel.provider_id else '',
+                    property_type=hotel.property_type,house_rules=hotel.house_rules,check_in_time=str(hotel.check_in_time),check_out_time=str(hotel.check_out_time),
+                    cancellation_hours=hotel.cancellation_hours if hotel.provider_id else 0,contact_phone=hotel.contact_phone)
+                if model is Hotel:
+                    pictures=list(hotel.images.order_by('-is_primary','pk'))
+                    urls=[self.context['request'].build_absolute_uri(p.image.url) if self.context.get('request') else p.image.url for p in pictures]
+                    data.update(image=urls[0] if urls else None,gallery=urls)
+                if model is RoomType: data.update(description=instance.description,beds=instance.beds,amenities=instance.amenities)
             if model in {TourismExperience, TourPackage, TourDeparture}:
                 experience = root_of(instance)
                 operator = experience.operator
@@ -83,6 +93,9 @@ def serializer_for(model):
             read_only_fields=["id"]+(["is_active"] if config[2] is None else [])+(["rating"] if model is TourismExperience else [])
         def validate(self,attrs):
             instance=self.instance
+            if model in {Hotel,RoomType,RoomNight}:
+                root=root_of(instance) if instance else root_of(attrs[config[2]]) if config[2] and config[2] in attrs else None
+                if root and root.provider_id: raise serializers.ValidationError('Manage provider properties through the hotel dashboard.')
             if model in {TourismExperience, TourPackage, TourDeparture}:
                 root = root_of(instance) if instance else root_of(attrs[config[2]]) if config[2] and config[2] in attrs else None
                 if root and root.operator_id:
@@ -136,6 +149,9 @@ def viewset_for(model):
             if model in {TourismExperience, TourPackage, TourDeparture}:
                 prefix = '' if model is TourismExperience else 'experience__' if model is TourPackage else 'package__experience__'
                 qs = qs.select_related(prefix+'operator__owner').prefetch_related(prefix+'images')
+            if model in {Hotel,RoomType,RoomNight}:
+                prefix='' if model is Hotel else 'hotel__' if model is RoomType else 'room_type__hotel__'
+                qs=qs.select_related(prefix+'provider__owner').prefetch_related(prefix+'images')
             if model is Hotel:
                 qs = qs.annotate(minimum_price=Min('room_types__nights__price', filter=Q(room_types__is_active=True, room_types__nights__is_active=True, room_types__nights__date__gte=timezone.localdate(), room_types__nights__quantity__gt=F('room_types__nights__quantity_sold') + F('room_types__nights__quantity_reserved'))))
             if self.action in {"list","retrieve"}:
@@ -143,6 +159,9 @@ def viewset_for(model):
                 roots={RoomType:"hotel",RoomNight:"room_type__hotel",MenuItem:"restaurant",Departure:"route",TourPackage:"experience",TourDeparture:"package__experience"}
                 if model in roots: qs=qs.filter(**{roots[model]+"__is_active":True})
                 if model is RoomNight: qs=qs.filter(room_type__is_active=True,date__gte=timezone.localdate())
+                if model in {Hotel,RoomType,RoomNight}:
+                    prefix='' if model is Hotel else 'hotel__' if model is RoomType else 'room_type__hotel__'
+                    qs=qs.filter(**{prefix+'review_status':'APPROVED'}).filter(Q(**{prefix+'provider__isnull':True})|Q(**{prefix+'provider__status':'APPROVED',prefix+'provider__owner__email_verified':True}))
                 if model is Departure: qs=qs.filter(departs_at__gt=timezone.now())
                 if model in {Route, Departure}:
                     prefix = '' if model is Route else 'route__'
@@ -208,6 +227,7 @@ def viewset_for(model):
             if parent_field or not request.user.has_perm(model._meta.app_label+".change_"+model._meta.model_name):
                 raise PermissionDenied()
             obj=model.objects.select_for_update().get(pk=self.get_object().pk)
+            if isinstance(obj,Hotel) and obj.provider_id: raise Conflict('Review provider properties in the hotel dashboard.')
             if isinstance(obj, TourismExperience) and obj.operator_id: raise Conflict('Review operator listings in the tourism dashboard.')
             if not owner_of(obj).is_verified: raise Conflict("Approve the provider first.")
             obj.is_active=True;obj.save(update_fields=["is_active"])

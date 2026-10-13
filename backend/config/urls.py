@@ -25,6 +25,9 @@ from apps.accounts.admin_api import AdminUserViewSet, AdminOrganizerViewSet, Adm
 from apps.transport.api import CompanyViewSet, TransportRequestViewSet
 
 router=DefaultRouter()
+from apps.hotels.api import ProviderViewSet, HotelRequestViewSet, StaySearchView
+router.register('hotel-providers', ProviderViewSet, basename='hotel-provider')
+router.register('hotel-requests', HotelRequestViewSet, basename='hotel-request')
 from apps.tourism.api import OperatorViewSet, TourismRequestViewSet
 router.register('tourism-operators', OperatorViewSet, basename='tourism-operator')
 router.register('tourism-requests', TourismRequestViewSet, basename='tourism-request')
@@ -55,6 +58,7 @@ router.register("conversations",ConversationViewSet,basename="conversation")
 for model,(prefix,*_) in CONFIG.items():
     router.register("hotels" if prefix=="hotel" else prefix,viewset_for(model),basename=model._meta.model_name)
 urlpatterns=[
+    path('api/v1/stay-search/',StaySearchView.as_view()),
     path('share/events/<slug:slug>', event_share),
     path('share/events/<slug:slug>/', event_share),
     path('share/event-images/<slug:slug>', event_share_image),

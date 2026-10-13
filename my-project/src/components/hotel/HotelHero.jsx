@@ -1,78 +1,9 @@
-import React, {useState} from "react";
+import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { imageAsset } from '@/components/SiteImage';
-import {useNavigate} from "react-router-dom";
-import { MapPin, Calendar, Users, Search } from "lucide-react";
-
-const HotelHero = () => {
-  const navigate=useNavigate();
-  const [destination,setDestination]=useState("");
-  return (
-    <div className="px-4 md:px-6">
-      <div
-        className="rounded-3xl overflow-hidden p-6 md:p-12 text-white relative bg-cover bg-center"
-        style={{ backgroundImage: `url('${imageAsset('/hotel.png')}')` }}
-      >
-        <div className="absolute inset-0 bg-[#07152A]/40"></div>
-
-        <div className="relative z-10">
-          <p className="text-[#4ADE80] text-[14px] font-medium mb-3">
-            Comfort. Hospitality. Unforgettable Memories.
-          </p>
-
-          <h1 className="text-4xl md:text-[48px] font-bold leading-tight">
-            Find the Perfect Stay
-            <br /> in
-            <span className="text-[#F97316]"> Abia</span>
-          </h1>
-
-          <p className="text-[#E5E7EB] text-[16px] mt-4 max-w-lg font-normal">
-            From luxury hotels to budget-friendly stays, find accommodation that
-            fits your style and budget.
-          </p>
-
-          {/* Search Bar */}
-          <div className="bg-white rounded-xl p-3 mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 items-center">
-            <div className="flex items-center gap-2 text-gray-700 text-sm p-2">
-              <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
-              <div>
-                <p className="text-xs text-gray-500">Where do you want to go?</p>
-                <input aria-label="Hotel destination" placeholder="Search destination" className="w-full text-gray-900" value={destination} onChange={e=>setDestination(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")navigate(`/search?category=Stay&q=${encodeURIComponent(destination)}`);}}/>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-gray-700 text-sm p-2">
-              <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
-              <div>
-                <p className="text-xs text-gray-500">Check-in</p>
-                <p className="font-medium text-gray-900">Choose at hotel</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-gray-700 text-sm p-2">
-              <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
-              <div>
-                <p className="text-xs text-gray-500">Check-out</p>
-                <p className="font-medium text-gray-900">Choose at hotel</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-gray-700 text-sm p-2">
-              <Users className="w-4 h-4 text-gray-400 shrink-0" />
-              <div>
-                <p className="text-xs text-gray-500">Guests & Rooms</p>
-                <p className="font-medium text-gray-900">Choose your room</p>
-              </div>
-            </div>
-
-            <button onClick={()=>navigate(`/search?category=Stay&q=${encodeURIComponent(destination)}`)} className="bg-[#F97316] hover:bg-[#dc5d19] rounded-[8px] py-3 text-white font-medium text-[14px] flex items-center justify-center gap-2 transition-colors">
-              <Search className="w-4 h-4" />
-              Search Hotels
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default HotelHero;
+export default function HotelHero(){
+ const navigate=useNavigate();const [params]=useSearchParams();const [q,setQ]=useState(params.get('q')||'');const [start,setStart]=useState(params.get('check_in')||'');const [end,setEnd]=useState(params.get('check_out')||'');const [rooms,setRooms]=useState(params.get('rooms')||'1');const [guests,setGuests]=useState(params.get('guests')||'1');
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Lagos',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const input='w-full min-w-0 p-2 mt-1 border rounded-lg text-base';
+ return <div className="px-4 md:px-6"><div className="rounded-3xl overflow-hidden p-6 md:p-12 text-white relative bg-cover bg-center" style={{backgroundImage:`url('${imageAsset('/hotel.png')}')`}}><div className="absolute inset-0 bg-[#07152A]/40"/><div className="relative z-10"><p className="text-[#4ADE80] font-medium mb-3">Comfort. Hospitality. Unforgettable Memories.</p><h1 className="text-4xl md:text-5xl font-bold">Find the Perfect Stay in <span className="text-[#F97316]">Abia</span></h1><p className="mt-4">Find accommodation, compare nightly rates and choose your dates.</p><form className="bg-white text-gray-800 rounded-xl p-3 mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-3" onSubmit={e=>{e.preventDefault();const next=new URLSearchParams();if(q)next.set('q',q);if(params.get('type'))next.set('type',params.get('type'));if(start&&end){next.set('check_in',start);next.set('check_out',end);next.set('rooms',rooms);next.set('guests',guests);}navigate('/hotel?'+next.toString());}}><label className="min-w-0 text-sm">Destination<input className={input} value={q} onChange={e=>setQ(e.target.value)} placeholder="Town or property name"/></label><label className="min-w-0 text-sm">Check-in<input className={input} type="date" min={today} required={!!end} value={start} onChange={e=>setStart(e.target.value)}/></label><label className="min-w-0 text-sm">Check-out<input className={input} type="date" min={start||today} required={!!start} value={end} onChange={e=>setEnd(e.target.value)}/></label><label className="min-w-0 text-sm">Rooms<input className={input} type="number" min={1} max={20} required value={rooms} onChange={e=>setRooms(e.target.value)}/></label><label className="min-w-0 text-sm">Guests<input className={input} type="number" min={1} max={100} required value={guests} onChange={e=>setGuests(e.target.value)}/></label><button className="self-end p-3 rounded-xl bg-[#F97316] text-white font-semibold">Search stays</button></form></div></div></div>;
+}

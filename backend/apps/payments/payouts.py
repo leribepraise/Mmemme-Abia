@@ -44,6 +44,9 @@ def _verified(user):
     from apps.tourism.models import TourismOperator
     if TourismOperator.objects.filter(owner=user).exclude(status='APPROVED').exists():
         raise Conflict('Your tourism operator must be approved before requesting payouts.')
+    from apps.hotels.models import HotelProvider
+    if HotelProvider.objects.filter(owner=user).exclude(status='APPROVED').exists():
+        raise Conflict('Your accommodation business must be approved before requesting payouts.')
 
 
 def bank_list():

@@ -28,7 +28,7 @@ from django.core.management import call_command
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from apps.events.models import Event, TicketType
-from apps.hotels.models import Hotel, RoomType, RoomNight
+from apps.hotels.models import HotelProvider, Hotel, RoomType, RoomNight, RoomUnit
 from apps.restaurants.models import Restaurant, MenuItem
 from apps.transport.models import Route, Departure
 
@@ -43,10 +43,13 @@ review_event = Event.objects.create(organizer=owner, title='Event awaiting revie
 TicketType.objects.create(event=review_event, name='General', price=500, quantity=20)
 event = Event.objects.create(organizer=owner, title='Local test event', slug='local-test-event', description='Disposable listing for API checks.', category='Culture', venue='Test venue', city='Aba', status='PUBLISHED', capacity=100, start_datetime=timezone.now()+timedelta(days=5), end_datetime=timezone.now()+timedelta(days=5,hours=2))
 TicketType.objects.create(event=event, name='Free admission', price=0, quantity=100)
-hotel = Hotel.objects.create(owner=owner, name='Local test hotel', city='Aba', address='Test location', is_active=True)
+hotel_provider = HotelProvider.objects.create(owner=owner, name='Local test stays', registration_number='STAY-TEST', contact_email=owner.email, contact_phone='08000000000', address='Aba', status='APPROVED', commission_bps=500)
+hotel = Hotel.objects.create(provider=hotel_provider, check_in_time='00:00', owner=owner, name='Local test hotel', city='Aba', address='Test location', is_active=True)
 room = RoomType.objects.create(hotel=hotel, name='Double', max_guests=2)
-for day in range(1,8):
-    RoomNight.objects.create(room_type=room, date=timezone.localdate()+timedelta(days=day), price=15000, quantity=3)
+for unit_name in ['101', '102', '103']:
+    RoomUnit.objects.create(hotel=hotel, room_type=room, name=unit_name)
+for day in range(0,8):
+    RoomNight.objects.create(room_type=room, date=timezone.localdate()+timedelta(days=day), price=0, quantity=3)
 restaurant = Restaurant.objects.create(owner=owner, name='Local test kitchen', city='Aba', address='Test location', is_active=True, accepts_orders=True)
 MenuItem.objects.create(restaurant=restaurant, name='Test meal', price=2500, quantity=100)
 route = Route.objects.create(owner=owner, name='Local test route', origin='Aba', destination='Umuahia', pickup_address='Test station', is_active=True)
@@ -65,6 +68,8 @@ package = TourPackage.objects.create(experience=tour, name='Guided tour', price=
 TourDeparture.objects.create(package=package, starts_at=timezone.now()+timedelta(days=3), ends_at=timezone.now()+timedelta(days=3,hours=1), price=0, quantity=10)
 # A genuinely zero-priced fixture exercises confirmation without a payment provider.
 from apps.bookings.services import reserve
+arrival = RoomNight.objects.get(room_type=room, date=timezone.localdate())
+reserve(buyer, 'ui-hotel-arrival', 'HOTEL', [{'id': arrival.pk, 'quantity': 1}], {'guests': 1}, 'Reception guest', '08000000000')
 complimentary = RoomNight.objects.create(room_type=room, date=timezone.localdate()+timedelta(days=10), price=0, quantity=1)
 reserve(buyer, 'ui-complimentary-stay', 'HOTEL', [{'id': complimentary.pk, 'quantity': 1}], {'guests': 1}, 'Test Customer', '08000000000')
 from apps.notifications.services import notify

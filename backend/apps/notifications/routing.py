@@ -4,6 +4,9 @@ import uuid
 def notification_destination(notification):
     """Resolve existing notification keys to known internal app routes."""
     prefix, _, identifier = notification.key.partition(':')
+    if prefix in {'hotel-review','hotel-request'}: return '/stays/provider','booking'
+    if prefix=='hotel-response': return '/stays/support','booking'
+    if prefix in {'hotel-cancel','hotel-reminder','hotel-no-show'}: return '/stays/bookings','booking'
     if prefix in {'tourism-review', 'tourism-request'}: return '/tourism/operator', 'booking'
     if prefix == 'tourism-response': return '/tourism/support', 'booking'
     if prefix in {'tourism-cancel', 'tourism-reminder'}: return '/tourism/bookings', 'booking'
@@ -23,6 +26,8 @@ def notification_destination(notification):
     if prefix in {'booking', 'reminder'}:
         from apps.bookings.models import Booking
         try:
+            if Booking.objects.filter(pk=uuid.UUID(identifier.split(':')[0]),kind='HOTEL',user_id=getattr(notification,'user_id',None)).exists():
+                return '/stays/bookings','booking'
             if Booking.objects.filter(pk=uuid.UUID(identifier.split(':')[0]), kind='TOURISM', user_id=getattr(notification, 'user_id', None)).exists():
                 return '/tourism/bookings', 'booking'
             if Booking.objects.filter(pk=uuid.UUID(identifier.split(':')[0]), kind='TRANSPORT', user_id=getattr(notification, 'user_id', None)).exists():
@@ -45,6 +50,8 @@ def notification_destination(notification):
         except ValueError:
             pass
     if prefix in {'payout', 'payout-account', 'bank-review'}:
+        from apps.hotels.models import HotelProvider
+        if getattr(notification,'user_id',None) and HotelProvider.objects.filter(owner_id=notification.user_id).exists(): return '/stays/provider','update'
         from apps.tourism.models import TourismOperator
         if getattr(notification, 'user_id', None) and TourismOperator.objects.filter(owner_id=notification.user_id).exists():
             return '/tourism/operator', 'update'

@@ -17,7 +17,7 @@ const operatorFields = [
 ];
 const categories = ['ATTRACTION', 'CULTURAL_SITE', 'ACTIVITY', 'LOCAL_EXPERIENCE'].map(value => ({ value, label: value.replaceAll('_', ' ') }));
 const options = rows => rows.map(r => ({ value: r.id, label: r.name || r.email }));
-function multipart(values, fields) {
+export function multipart(values, fields) {
   const body = new FormData();
   for (const f of fields) {
     const value = values[f.name];
@@ -28,7 +28,7 @@ function multipart(values, fields) {
   if (values.id) body.append('id', values.id);
   return body;
 }
-function Editor({ title, fields, rows, save, defaults = {}, upload = false }) {
+export function Editor({ title, fields, rows, save, defaults = {}, upload = false }) {
   const [editing, setEditing] = useState(null);
   const [version, setVersion] = useState(0);
   const initial = editing ? { ...editing } : { is_active: true, ...defaults };

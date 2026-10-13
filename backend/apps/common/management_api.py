@@ -142,6 +142,8 @@ class ManageResource(APIView):
                 type(root).objects.select_for_update().get(pk=root.pk)
             instance = model.objects.select_for_update().get(pk=instance.pk)
         if resource in CATALOG and action_name in {'approve', 'hide'}:
+            from apps.hotels.models import Hotel
+            if isinstance(instance,Hotel) and instance.provider_id: raise Conflict('Review provider properties in the hotel dashboard.')
             from apps.tourism.models import TourismExperience
             if isinstance(instance, TourismExperience) and instance.operator_id:
                 raise Conflict('Review operator listings in the tourism dashboard.')

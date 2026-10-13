@@ -5,7 +5,7 @@ import SiteImage from '@/components/SiteImage';
 
 // const HotelCard = ({ hotel }) => {
 //   return (
-//     <NavLink to={`/hotels/${hotel.id}`}>
+//     <NavLink to={`/hotels/${hotel.id}${hotel.bookingQuery ? '?' + hotel.bookingQuery : ''}`}>
 //       <div className="bg-white rounded-[12px] border border-gray-200 overflow-hidden hover:shadow-md transition cursor-pointer">
 //         <div className="relative">
 //           <SiteImage src={hotel.image} className="w-full h-44 object-cover" />
@@ -106,7 +106,7 @@ const HotelCard = ({ hotel }) => {
   };
 
   return (
-    <NavLink to={`/hotels/${hotel.id}`}>
+    <NavLink to={`/hotels/${hotel.id}${hotel.bookingQuery ? '?' + hotel.bookingQuery : ''}`}>
       <div className="bg-white rounded-[12px] border border-gray-200 overflow-hidden hover:shadow-md transition cursor-pointer">
         <div className="relative">
           <SiteImage

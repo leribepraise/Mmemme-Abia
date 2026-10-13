@@ -1,0 +1,22 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
+import toast from 'react-hot-toast';
+import { api, money } from '@/lib/api';
+import { useCollection } from '@/hooks/useApi';
+import { TransportForm as Form, TransportLoading as Loading, panel, button, outline } from '@/components/Transport/TransportUI';
+
+export function StaySupport({provider,manage=false}){
+ const params=new URLSearchParams(window.location.search);const requested=params.get('provider');
+ const {data:rows,loading,error}=useCollection('/hotel-requests/'+(provider?`?provider=${provider}`:''));
+ const {data:providers}=useCollection(!manage?'/hotel-providers/':null);
+ const choices=providers.map(p=>({value:p.id,label:p.name}));
+ if(requested&&!choices.some(c=>c.value===requested))choices.push({value:requested,label:'Provider for your reservation'});
+ return <section className="mx-auto max-w-4xl p-4 space-y-4"><h2 className="font-bold text-xl">Accommodation support</h2>{!manage&&<div className={panel}><Form fields={[{name:'provider',label:'Accommodation provider',options:choices},{name:'message',label:'How can we help?'}]} initial={{provider:requested||provider||''}} submit="Send request" onSave={values=>api('/hotel-requests/',{method:'POST',body:{...values,booking:params.get('booking')||null}})}/></div>}{loading&&<Loading/>}{error&&<p role="alert">{error.message}</p>}{rows.map(r=><article className={panel} key={r.id}><p>{r.status} · {new Date(r.created_at).toLocaleString()}</p><p className="whitespace-pre-wrap break-words my-3">{r.message}</p>{r.response&&<p className="whitespace-pre-wrap break-words">Reply: {r.response}</p>}{manage&&<Form fields={[{name:'response',label:'Reply'}]} submit="Reply and resolve" onSave={body=>api(`/hotel-requests/${r.id}/respond/`,{method:'POST',body})}/>}</article>)}</section>;
+}
+export default function StayBookings(){
+ const {data:rows,loading,error,reload}=useCollection('/bookings/');const [busy,setBusy]=useState(false);
+ const cancel=async booking=>{if(busy||!window.confirm('Cancel this stay? Refund eligibility follows the cancellation policy shown here.'))return;setBusy(true);try{await api(`/bookings/${booking.id}/cancel/`,{method:'POST',body:{}});reload();toast.success('Cancellation processed.');}catch(e){toast.error(e.message);}finally{setBusy(false);}};
+ if(loading)return <Loading/>;if(error)return <p role="alert">{error.message}</p>;const bookings=rows.filter(b=>b.kind==='HOTEL');
+ return <main className="mx-auto max-w-5xl p-4 space-y-5"><h1 className="font-bold text-2xl">My stays</h1><Link className={outline} to="/hotel">Find another stay</Link>{!bookings.length&&<p>No accommodation reservations yet.</p>}{bookings.map(b=><article className={panel} key={b.id}>{b.image&&<img src={b.image} alt={b.details.title} className="w-full max-h-64 object-contain rounded-xl mb-4" loading="lazy"/>}<h2 className="font-bold text-xl">{b.details.title}</h2><p>{b.details.provider_name} · {b.details.location}</p><p>{b.details.room_type} · {b.details.rooms} room(s) · {b.details.guests||1} guest(s)</p><p>Check-in: {b.details.check_in_at?new Date(b.details.check_in_at).toLocaleString():b.details.check_in}</p><p>Check-out: {b.details.check_out_at?new Date(b.details.check_out_at).toLocaleString():b.details.check_out}</p><p>{b.status.replaceAll('_',' ')} · {b.fulfillment_status.replaceAll('_',' ')}</p><p className="my-3">{b.details.house_rules}</p><p>{b.details.cancellation_policy}</p><p>Contact: {b.details.contact_phone}</p><p className="break-all text-xs my-3">{b.booking_reference}</p><p className="font-semibold mb-3">Total: {money(b.total_amount)}</p>{b.stay_token&&<div className="inline-block bg-white text-black p-3 rounded-xl"><QRCodeSVG value={b.stay_token} size={160}/><p className="text-sm mt-2">Show at reception</p></div>}{b.details.assigned_units&&<p className="mt-3">Your rooms: {b.details.assigned_units.join(', ')}</p>}{b.details.no_show_at&&<p>No-show recorded. Contact support to resolve your reservation.</p>}<div className="flex flex-wrap gap-3 mt-4">{b.status==='PENDING'&&<Link className={button} to={`/Payment?booking=${b.id}`}>Continue payment</Link>}{['PENDING','CONFIRMED'].includes(b.status)&&b.fulfillment_status==='NEW'&&!b.details.checked_in_at&&<button className={outline} disabled={busy} onClick={()=>cancel(b)}>Cancel reservation</button>}{b.details.provider_id&&<Link className={outline} to={`/stays/support?provider=${b.details.provider_id}&booking=${b.id}`}>Get help</Link>}</div></article>)}</main>;
+}

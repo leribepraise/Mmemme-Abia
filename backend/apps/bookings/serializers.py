@@ -12,6 +12,11 @@ class BookingSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
     boarding_token = serializers.SerializerMethodField()
     admission_token = serializers.SerializerMethodField()
+    stay_token = serializers.SerializerMethodField()
+    def get_stay_token(self,obj):
+        if obj.kind!='HOTEL' or obj.status!='CONFIRMED': return None
+        from apps.hotels.services import stay_token
+        return stay_token(obj)
     def get_admission_token(self, obj):
         if obj.kind != 'TOURISM' or obj.status != 'CONFIRMED': return None
         from apps.tourism.services import admission_token
@@ -22,6 +27,10 @@ class BookingSerializer(serializers.ModelSerializer):
         return boarding_token(obj)
     def get_image(self, obj):
         if obj.kind != 'EVENT':
+            if obj.kind=='HOTEL':
+                item=next(iter(obj.items.all()),None)
+                image=item.room_night.room_type.hotel.images.order_by('-is_primary','pk').first() if item else None
+                return image.image.url if image else None
             if obj.kind == 'TOURISM':
                 item = next(iter(obj.items.all()), None)
                 image = item.tour_departure.package.experience.images.order_by('-is_primary', 'pk').first() if item else None
@@ -37,7 +46,7 @@ class BookingSerializer(serializers.ModelSerializer):
         return request.build_absolute_uri(url) if request and url and url.startswith('/') else url
     class Meta:
         model = Booking
-        fields = ["id","booking_reference","kind","status","fulfillment_status","total_amount","currency","expires_at","details","image","boarding_token","admission_token","customer_name","customer_phone","customer_note","items","created_at"]
+        fields = ["id","booking_reference","kind","status","fulfillment_status","total_amount","currency","expires_at","details","image","boarding_token","admission_token","stay_token","customer_name","customer_phone","customer_note","items","created_at"]
         read_only_fields = fields
 
 class EntrySerializer(serializers.Serializer):

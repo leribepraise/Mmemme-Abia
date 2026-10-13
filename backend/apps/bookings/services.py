@@ -146,6 +146,19 @@ def _validate_resources(kind, parent, resources, entries, details, plan='bronze'
         if guests > ordered[0].room_type.max_guests * entries[0]["quantity"]:
             raise ValidationError("The room selection cannot accommodate this many guests.")
         details.update(check_in=str(ordered[0].date), check_out=str(ordered[-1].date + timedelta(days=1)), rooms=entries[0]["quantity"], room_type=ordered[0].room_type.name)
+        from apps.hotels.services import property_available
+        if not property_available(parent): raise Conflict('This property is not available for bookings.')
+        if any(not r.room_type.is_active for r in ordered): raise Conflict('This room type is unavailable.')
+        if parent.provider_id:
+            if parent.provider.commission_bps is None: raise Conflict('The hotel commission agreement needs approval.')
+            check_in_at=timezone.make_aware(datetime.combine(ordered[0].date,parent.check_in_time))
+            check_out_at=timezone.make_aware(datetime.combine(ordered[-1].date+timedelta(days=1),parent.check_out_time))
+            details.update(provider_id=str(parent.provider_id),provider_name=parent.provider.name,
+                commission_bps=parent.provider.commission_bps,cancellation_hours=parent.cancellation_hours,
+                check_in_at=check_in_at.isoformat(),check_out_at=check_out_at.isoformat(),house_rules=parent.house_rules,
+                contact_phone=parent.contact_phone or parent.provider.contact_phone,
+                room_type_id=str(ordered[0].room_type_id),room_description=ordered[0].room_type.description,
+                nightly_rates=[{'date':str(r.date),'price':str(r.price)} for r in ordered])
     if kind == "FOOD":
         if not parent.accepts_orders:
             raise Conflict("This restaurant is not accepting orders.")
@@ -172,6 +185,8 @@ def _validate_resources(kind, parent, resources, entries, details, plan='bronze'
         details['cancellation_policy'] = f"Full refund when cancelled at least {details['cancellation_hours']} hours before departure. Operator cancellations receive a full refund."
     if kind == 'TOURISM':
         details['cancellation_policy'] = f"Full refund when cancelled at least {details['cancellation_hours']} hours before the tour. Operator cancellations receive a full refund."
+    if kind == 'HOTEL' and parent.provider_id:
+        details['cancellation_policy'] = f"Full refund when cancelled at least {details['cancellation_hours']} hours before check-in. Property cancellations receive a full refund."
 
 @transaction.atomic
 def reserve(user, key, kind, entries, details, customer_name="", customer_phone="", customer_note=""):
@@ -255,6 +270,12 @@ def confirm_locked(booking):
                  f"\nStart: {d.get('starts_at', '')}. Meeting point: {d.get('meeting_point', '')}."
                  f"\n{d.get('visitor_instructions', '')}\n{d.get('cancellation_policy', '')}"
                  f"\nYour tour pass: {settings.FRONTEND_URL}/tourism/bookings")
+    if booking.kind == 'HOTEL':
+        d=booking.details
+        body += (f"\n\n{d.get('title','')}: {d.get('room_type','')}, {d.get('rooms',1)} room(s)."
+                 f"\nCheck-in: {d.get('check_in_at',d['check_in'])}. Check-out: {d.get('check_out_at',d['check_out'])}."
+                 f"\nAddress: {d.get('location','')}. {d.get('house_rules','')}\n{d.get('cancellation_policy','')}"
+                 f"\nYour stay pass: {settings.FRONTEND_URL}/stays/bookings")
     notify(booking.user, f"booking:{booking.pk}:confirmed", "Booking confirmed", body)
     audit(None,"booking.confirmed",booking.pk)
 
@@ -265,7 +286,9 @@ def still_deliverable(booking,parent):
     now=timezone.now()
     if booking.kind=="EVENT": return parent.registration_type=="TICKETED" and parent.status=="PUBLISHED" and not parent.is_suspended and not parent.deletion_requested_at and parent.start_datetime>now
     if not parent.is_active: return False
-    if booking.kind=="HOTEL": return booking.details["check_in"]>=str(timezone.localdate())
+    if booking.kind=='HOTEL':
+        from apps.hotels.services import property_available
+        return property_available(parent) and booking.details['check_in']>=str(timezone.localdate()) and all(i.room_night.is_active and i.room_night.room_type.is_active for i in booking.items.all())
     if booking.kind=="TRANSPORT":
         from apps.transport.services import departure_available
         d = booking.items.first().departure
@@ -286,7 +309,11 @@ def can_cancel(booking, parent):
     if booking.fulfillment_status != "NEW":
         return False
     if booking.kind == "EVENT": return parent.start_datetime > now
-    if booking.kind == "HOTEL": return booking.details.get("check_in","") > str(timezone.localdate())
+    if booking.kind == 'HOTEL':
+        if parent.provider_id:
+            from apps.hotels.services import stay_start
+            return not booking.details.get('checked_in_at') and stay_start(booking) > now+timedelta(hours=booking.details.get('cancellation_hours',24))
+        return booking.details.get('check_in','') > str(timezone.localdate())
     if booking.kind == "TRANSPORT":
         return not booking.details.get('boarded_at') and booking.items.first().departure.departs_at > now + timedelta(hours=booking.details.get('cancellation_hours', 0))
     if booking.kind == 'TOURISM': return not booking.details.get('checked_in_at') and booking.items.first().tour_departure.starts_at > now + timedelta(hours=booking.details.get('cancellation_hours', 0))
@@ -296,7 +323,10 @@ def can_cancel(booking, parent):
 def cancel(booking_id, actor, force=False):
     parent, booking = _locked_booking(booking_id)
     if not actor.is_staff and actor.pk != booking.user_id and actor.pk != booking.supplier_id:
-        if booking.kind == 'TOURISM' and parent.operator_id:
+        if booking.kind == 'HOTEL' and parent.provider_id:
+            from apps.hotels.services import authorize
+            authorize(actor,parent.provider)
+        elif booking.kind == 'TOURISM' and parent.operator_id:
             from apps.tourism.services import authorize
             authorize(actor, parent.operator)
         elif booking.kind == 'TRANSPORT' and parent.company_id:
@@ -307,6 +337,8 @@ def cancel(booking_id, actor, force=False):
         return booking
     if booking.fulfillment_status=="COMPLETED":
         raise Conflict("Completed services require support review.")
+    if booking.kind == 'HOTEL' and parent.provider_id and booking.fulfillment_status != 'NEW':
+        raise Conflict('Occupied stays require support review.')
     if not force and not can_cancel(booking,parent):
         raise Conflict("Cancellation is no longer available. Contact support.")
     if booking.status == "PENDING":
@@ -332,10 +364,15 @@ def cancel(booking_id, actor, force=False):
     return booking
 
 @transaction.atomic
-def fulfill(booking_id,actor,new_status):
+def fulfill(booking_id,actor,new_status,hotel_reception=False):
     parent,booking = _locked_booking(booking_id)
+    if booking.kind == 'HOTEL' and parent.provider_id and not hotel_reception:
+        raise Conflict('Use the hotel reception dashboard to assign rooms and check guests in or out.')
     if actor.pk != booking.supplier_id and not actor.is_staff:
-        if booking.kind == 'TOURISM' and parent.operator_id:
+        if booking.kind == 'HOTEL' and parent.provider_id:
+            from apps.hotels.services import authorize
+            authorize(actor,parent.provider,access='reception')
+        elif booking.kind == 'TOURISM' and parent.operator_id:
             from apps.tourism.services import authorize
             authorize(actor, parent.operator)
         elif booking.kind == 'TRANSPORT' and parent.company_id:

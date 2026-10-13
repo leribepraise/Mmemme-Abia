@@ -1,84 +1,21 @@
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { useCollection } from "@/hooks/useApi";
-import { allPages } from "@/lib/api";
-import { useBooking } from "@/hooks/useBooking";
-import React from "react";
-import { NavLink } from "react-router-dom";
-
-const BookingCard = ({ hotel }) => {
-  const { data: rooms } = useCollection(`/room-types/?hotel=${hotel.id}`);
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
-  const [roomId, setRoomId] = useState('');
-  const [checking, setChecking] = useState(false);
-  const { book, busy } = useBooking();
-  const reserve = async () => {
-    if (checking || busy) return;
-    const nights = (Date.parse(checkOut) - Date.parse(checkIn)) / 86400000;
-    if (!roomId || !Number.isInteger(nights) || nights < 1 || nights > 30) { toast.error('Select a room and a stay of 1 to 30 nights.'); return; }
-    setChecking(true);
-    try {
-      const inventory = await allPages(`/room-nights/?room_type=${roomId}&date_from=${checkIn}&date_to=${checkOut}`);
-      if (inventory.length !== nights || inventory.some(n => n.quantity_available < 1)) throw new Error('This room is not available for every night of your stay. Choose other dates.');
-      await book('HOTEL', inventory.map(n => ({ id: n.id, quantity: 1 })), { guests: 1 });
-    } catch (error) { toast.error(error.message); } finally { setChecking(false); }
-  };
-  return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm h-fit">
-      <h3 className="text-2xl font-bold mb-2">Book This Hotel</h3>
-
-      <p className="text-xl font-bold text-[#F36B25] mb-6">
-        From ₦{hotel.price?.toLocaleString() || "—"}{" "}
-        <span className="text-sm font-normal text-gray-500">/ night</span>
-      </p>
-
-      <div className="space-y-5">
-        <div>
-          <label className="text-sm font-medium text-gray-600 block mb-2">
-            Check-in Date
-          </label>
-
-          <input
-            type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-4 py-3"
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-600 block mb-2">
-            Check-out Date
-          </label>
-
-          <input
-            type="date" value={checkOut} min={checkIn} onChange={e => setCheckOut(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-4 py-3"
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-600 block mb-2">
-            Room Type
-          </label>
-
-          <select value={roomId} onChange={e => setRoomId(e.target.value)} className="w-full border border-gray-200 rounded-lg px-4 py-3">
-            <option value="">Select room type</option>
-            {rooms.map(room => <option key={room.id} value={room.id}>{room.name} (up to {room.max_guests} guests)</option>)}
-          </select>
-        </div>
-
-        <div>
-          <button onClick={reserve} disabled={checking || busy} className="w-full bg-[#F36B25] hover:bg-[#dd5c17] text-white font-semibold py-3 rounded-lg">
-            Reserve Room
-          </button>
-        </div>
-
-        <NavLink to="/contact" className="block text-center w-full border border-green-700 text-green-700 hover:bg-green-50 font-semibold py-3 rounded-lg mt-3">
-          Send Enquiry
-        </NavLink>
-      </div>
-    </div>
-  );
-};
-
-export default BookingCard;
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useCollection } from '@/hooks/useApi';
+import { allPages, money } from '@/lib/api';
+import { useBooking } from '@/hooks/useBooking';
+import { button, outline } from '@/components/Transport/TransportUI';
+export default function BookingCard({hotel}){
+ const {data:rooms,loading,error}=useCollection(`/room-types/?hotel=${hotel.id}`);
+ const [params]=useSearchParams();
+ const [checkIn,setCheckIn]=useState(params.get('check_in')||'');const [checkOut,setCheckOut]=useState(params.get('check_out')||'');const [roomId,setRoomId]=useState('');
+ const [count,setCount]=useState(Number(params.get('rooms'))||1);const [guests,setGuests]=useState(Number(params.get('guests'))||1);const [checking,setChecking]=useState(false);const [quote,setQuote]=useState(null);
+ const {book,busy}=useBooking();const signature=JSON.stringify([checkIn,checkOut,roomId,count,guests]);const current=quote?.signature===signature?quote:null;
+ const check=async e=>{e.preventDefault();if(checking||busy)return;const nights=(Date.parse(checkOut)-Date.parse(checkIn))/86400000;
+ if(!roomId||!Number.isInteger(nights)||nights<1||nights>30){toast.error('Choose a room type and 1 to 30 nights.');return;}
+ const room=rooms.find(r=>r.id===roomId);if(!room||guests>room.max_guests*count){toast.error('Choose enough rooms for all guests.');return;}
+ setChecking(true);try{const inventory=await allPages(`/room-nights/?room_type=${roomId}&date_from=${checkIn}&date_to=${checkOut}`);if(inventory.length!==nights||inventory.some(n=>n.quantity_available<count))throw new Error('Not enough rooms are available for every night. Choose other dates or fewer rooms.');setQuote({signature,inventory,total:inventory.reduce((sum,n)=>sum+Number(n.price)*count,0)});}catch(e){toast.error(e.message);setQuote(null);}finally{setChecking(false);}};
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Lagos',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const input='w-full border rounded-xl p-3 text-base mt-2';
+ return <div className="bg-white border rounded-2xl p-4 sm:p-6 space-y-4"><h3 className="text-2xl font-bold">Book this stay</h3><p>From {hotel.price===null?'See available rates':money(hotel.price)} per room / night</p>{loading&&<div className="h-20 bg-gray-200 rounded-xl animate-pulse"/>}{error&&<p role="alert">{error.message}</p>}<form className="space-y-4" onSubmit={check}><label className="block">Check-in date<input className={input} type="date" required min={today} value={checkIn} onChange={e=>setCheckIn(e.target.value)}/></label><label className="block">Check-out date<input className={input} type="date" required min={checkIn||today} value={checkOut} onChange={e=>setCheckOut(e.target.value)}/></label><label className="block">Room / unit type<select className={input} required value={roomId} onChange={e=>setRoomId(e.target.value)}><option value="">Select room type</option>{rooms.map(r=><option key={r.id} value={r.id}>{r.name} (up to {r.max_guests} guests)</option>)}</select></label><div className="grid grid-cols-2 gap-3"><label>Rooms<input className={input} type="number" required min={1} max={20} value={count} onChange={e=>setCount(Number(e.target.value))}/></label><label>Guests<input className={input} type="number" required min={1} max={100} value={guests} onChange={e=>setGuests(Number(e.target.value))}/></label></div><button className={outline} disabled={checking||busy}>{checking?'Checking…':'Check availability'}</button></form>{current&&<div className="space-y-3 border-t pt-4"><h4 className="font-bold">Your stay price</h4>{current.inventory.map(n=><p key={n.id}>{n.date}: {money(n.price)} × {count}</p>)}<p className="font-bold">Total: {money(current.total)}</p><p>Check-in {hotel.check_in_time} · Check-out {hotel.check_out_time}</p><p>Full refund at least {hotel.cancellation_hours||0} hours before check-in. Property cancellations receive a full refund.</p><p className="whitespace-pre-wrap break-words">{hotel.house_rules}</p><button className={button} disabled={busy||checking} onClick={()=>book('HOTEL',current.inventory.map(n=>({id:n.id,quantity:count})),{guests})}>{busy?'Reserving…':'Reserve and continue'}</button></div>}<Link className={`${outline} block text-center`} to={hotel.provider?`/stays/support?provider=${hotel.provider}`:'/contact'}>Send enquiry</Link></div>;
+}

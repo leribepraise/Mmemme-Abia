@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Seo from "../components/seo/Seo";
 import React from "react";
 import SEO from "../components/SEO/SEO";
@@ -30,23 +30,20 @@ import QuickFinderCard from "../components/hotel/QuickFinderCard";
 import HelpChoosing from "../components/hotel/HelpChoosing";
 
 export default function Hotel() {
-  const { data: hotels } = useCollection("/hotels/", hotelCard);
+  const { data: hotels, loading, error } = useCollection('/hotels/', hotelCard);
+  const [params] = useSearchParams();
+  const range = params.get('check_in') && params.get('check_out');
+  const { data: offers, loading: searching, error: searchError } = useCollection(range ? '/stay-search/?' + params.toString() : null);
+  const query = (params.get('q') || '').toLowerCase();
+  const visible = hotels.filter(h => (!params.get('type') || h.property_type === params.get('type')) && `${h.name} ${h.city}`.toLowerCase().includes(query) && (!range || offers.some(o => o.hotel === h.id)));
   const categories = [
-    { icon: Building, title: "All Hotels", count: 234, color: "text-gray-700" },
-    { icon: Gem, title: "Luxury", count: 28, color: "text-yellow-500" },
-    { icon: Wallet, title: "Budget", count: 86, color: "text-green-500" },
-    { icon: Store, title: "Boutique", count: 34, color: "text-purple-500" },
-    { icon: Palmtree, title: "Resorts", count: 15, color: "text-teal-500" },
-    { icon: Home, title: "Guest Houses", count: 42, color: "text-blue-500" },
-    {
-      icon: Building2,
-      title: "Apartments",
-      count: 36,
-      color: "text-indigo-500",
-    },
-    { icon: Bed, title: "Hostels", count: 19, color: "text-pink-500" },
-  ];
-
+    { icon: Building, title: 'All stays', type: '' },
+    { icon: Building, title: 'Hotels', type: 'HOTEL' },
+    { icon: Home, title: 'Guesthouses', type: 'GUESTHOUSE' },
+    { icon: Building2, title: 'Apartments', type: 'APARTMENT' },
+    { icon: Palmtree, title: 'Resorts', type: 'RESORT' },
+    { icon: Bed, title: 'Holiday homes', type: 'HOLIDAY_HOME' },
+  ].map(c => ({ ...c, count: hotels.filter(h => !c.type || h.property_type === c.type).length, color: 'text-green-700', path: c.type ? `/hotel?type=${c.type}` : '/hotel' }));
   const finder = [
     {
       icon: MapPin,
@@ -89,7 +86,7 @@ export default function Hotel() {
         {/* Top Grid with Hero + Cards */}
         <div className="grid lg:grid-cols-12 gap-6">
           <div className="lg:col-span-9">
-            <HotelHero />
+            <div className="flex flex-wrap gap-3 mb-4"><Link to="/stays/provider" className="rounded-xl px-4 py-3 bg-[#3F7D3D] text-white font-semibold">Join / manage accommodation</Link><Link to="/stays/bookings" className="rounded-xl px-4 py-3 border font-semibold">My stays</Link></div><HotelHero key={params.toString()} />
           </div>
 
           <div className="lg:col-span-3 space-y-4">
@@ -123,10 +120,13 @@ export default function Hotel() {
 
           {/* Right Sidebar: Popular Destinations */}
           <div className="lg:col-span-3">
-            <DestinationCard />
+            <DestinationCard hotels={hotels} />
           </div>
         </div>
 
+        {(loading || searching) && <div role="status" aria-label="Loading accommodation" className="h-40 animate-pulse bg-gray-200 rounded-xl" />}
+        {(error || searchError) && <p role="alert">{(error || searchError).message}</p>}
+        {!loading && !searching && !error && !searchError && !visible.length && <p>No matching accommodation is currently available. <Link className="underline" to="/hotel">Clear filters</Link></p>}
         {/* Full Width Top Hotels Section */}
         <div className="w-full">
           <div className="flex justify-between items-center mb-5">
@@ -140,9 +140,9 @@ export default function Hotel() {
 
           <div className="overflow-x-auto pb-4 scrollbar-hide">
             <div className="flex gap-5 w-max">
-              {hotels.map((hotel) => (
+              {visible.map((hotel) => (
                 <div key={hotel.id} className="w-[280px] shrink-0">
-                  <HotelCard hotel={hotel} />
+                  <HotelCard hotel={{...hotel, bookingQuery: range ? params.toString() : null}} />
                 </div>
               ))}
             </div>
@@ -156,7 +156,7 @@ export default function Hotel() {
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {finder.map((item) => (
-              <QuickFinderCard key={item.title} {...item} />
+              <Link key={item.title} to="/search?category=Stay"><QuickFinderCard {...item} /></Link>
             ))}
           </div>
         </div>

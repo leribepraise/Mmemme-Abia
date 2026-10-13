@@ -61,6 +61,8 @@ class Command(BaseCommand):
         self.run_job('journey reminders', queue_journey_reminders)
         from apps.tourism.services import queue_tour_reminders
         self.run_job('tour reminders', queue_tour_reminders)
+        from apps.hotels.services import queue_stay_reminders
+        self.run_job('stay reminders', queue_stay_reminders)
         from apps.events.announcements import announce_new_event_batch, announce_major_event_batch
         self.run_job('new event announcement', announce_new_event_batch)
         self.run_job('major event announcement', announce_major_event_batch)
