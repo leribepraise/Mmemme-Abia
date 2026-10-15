@@ -15,8 +15,6 @@ const TicketCard = ({
   toggleTier,
   event,
 }) => {
-  const isFree = event?.text3?.toLowerCase() === "free";
-
   const { user } = useAuth();
 
   const [isSaved, setIsSaved] = useState(false);
@@ -34,8 +32,12 @@ const TicketCard = ({
     try { await api('/saved-events/', { method: isSaved ? 'DELETE' : 'POST', body: { event: event.id } }); setIsSaved(value => !value); }
     catch (error) { toast.error(error.message); }
   };
-  const tierData = event.ticket_types.map(t => ({ key: t.id, label: t.name, price: Number(t.price) === 0 ? 'Free' : money(memberTicketPrice(t, user?.plan)), minimumPlan: t.minimum_plan, earlyAccess: t.membership_early_access }));
+  const tierData = event.ticket_types.map(t => ({ key: t.id, label: t.name, isFree: Number(t.price) === 0, price: Number(t.price) === 0 ? 'Free' : money(memberTicketPrice(t, user?.plan)), minimumPlan: t.minimum_plan, earlyAccess: t.membership_early_access }));
   const hasAnyTicket = Object.values(tickets).some((qty) => qty > 0);
+  const selectedTypes = event.ticket_types.filter(t => (tickets[t.id] || 0) > 0);
+  const relevantTypes = selectedTypes.length ? selectedTypes : event.ticket_types;
+  const freeOnly = relevantTypes.length > 0 && relevantTypes.every(t => Number(memberTicketPrice(t, user?.plan)) === 0);
+  const ticketAction = freeOnly ? 'Get free tickets' : !selectedTypes.length && relevantTypes.some(t => Number(t.price) === 0) ? 'Get tickets' : 'Buy Tickets';
   const external = event.registration_type === 'EXTERNAL';
   const destination = registrationDestination(event);
 
@@ -99,7 +101,7 @@ const TicketCard = ({
 
                 <div className="flex justify-between">
                   <p className="text-[12px] font-medium">
-                    {isFree
+                    {tier.isFree
                       ? "Choose the number of tickets"
                       : isEnabled
                         ? "Choose the number of tickets to buy"
@@ -154,7 +156,7 @@ const TicketCard = ({
             disabled={!hasAnyTicket}
             className="w-full bg-[#F46F1A] hover:bg-[#e05600] text-white font-bold py-3 rounded-xl cursor-pointer mb-2 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Buy Tickets
+            {ticketAction}
           </button>
         </Link>}
 
